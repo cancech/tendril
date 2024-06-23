@@ -9,7 +9,7 @@ import java.util.Set;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.field.JValue;
-import tendril.metadata.ClassData;
+import tendril.metadata.classes.ClassData;
 
 public abstract class BaseElement {
     

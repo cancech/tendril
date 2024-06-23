@@ -19,7 +19,7 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JClassFactory;
 import tendril.codegen.field.JValueFactory;
-import tendril.metadata.ClassData;
+import tendril.metadata.classes.ClassData;
 
 @SupportedAnnotationTypes("tendril.bean.BeanEnum")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)

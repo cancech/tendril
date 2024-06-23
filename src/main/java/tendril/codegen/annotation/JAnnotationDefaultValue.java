@@ -5,7 +5,7 @@ import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.field.JValue;
-import tendril.metadata.ClassData;
+import tendril.metadata.classes.ClassData;
 
 public class JAnnotationDefaultValue extends JAnnotation {
     

@@ -3,8 +3,8 @@ package tendril.codegen.classes;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.classes.method.JMethodInterface;
-import tendril.metadata.ClassData;
-import tendril.metadata.TypeData;
+import tendril.metadata.MethodData;
+import tendril.metadata.classes.ClassData;
 
 public class JClassInterface extends JClass {
 
@@ -18,10 +18,10 @@ public class JClassInterface extends JClass {
     }
 
     @Override
-    protected JMethod validateAndCreateMethod(VisibilityType visibility, TypeData returnType, String name, String[] implementation) {
+    protected <METADATA> JMethod<METADATA> validateAndCreateMethod(VisibilityType visibility, MethodData<METADATA> methodData, String[] implementation) {
         if (VisibilityType.PUBLIC == visibility || (VisibilityType.PRIVATE == visibility && implementation != null))
-            return new JMethodInterface(visibility, returnType, name, implementation);
-        
+            return new JMethodInterface<METADATA>(visibility, methodData, implementation);
+
         return null;
     }
 

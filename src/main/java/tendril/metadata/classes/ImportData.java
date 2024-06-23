@@ -1,4 +1,4 @@
-package tendril.metadata;
+package tendril.metadata.classes;
 
 public class ImportData {
     
@@ -52,5 +52,10 @@ public class ImportData {
 
         ImportData other = (ImportData) obj;
         return this.packageName.equals(other.packageName) && this.className.equals(other.className);
+    }
+    
+    @Override
+    public String toString() {
+        return getFullyQualifiedName();
     }
 }

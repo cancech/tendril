@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
-import tendril.metadata.ClassData;
+import tendril.metadata.classes.ClassData;
 
 public class JAnnotationMarker extends JAnnotation {
 

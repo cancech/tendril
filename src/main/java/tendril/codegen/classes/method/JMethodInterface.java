@@ -1,24 +1,20 @@
 package tendril.codegen.classes.method;
 
 import tendril.codegen.VisibilityType;
-import tendril.metadata.TypeData;
+import tendril.metadata.MethodData;
 
-public class JMethodInterface extends JMethod {
+public class JMethodInterface<METADATA> extends JMethod<METADATA> {
 
-    public JMethodInterface(VisibilityType visibility, TypeData returnType, String name, String[] implementation) {
-        super(visibility, returnType, name, implementation);
+    public JMethodInterface(VisibilityType visibility, MethodData<METADATA> methodData, String[] implementation) {
+        super(visibility, methodData, implementation);
     }
 
     @Override
-    protected String generateSignature(boolean hasImplementation) {
-        String signature = "";
-        
+    protected String generateSignatureStart(boolean hasImplementation) {
         if (VisibilityType.PUBLIC == visibility)
-            signature = hasImplementation ? "default " : "";
-        else
-            signature = visibility.toString() + " ";
+            return hasImplementation ? "default " : "";
         
-        return signature + returnType.getName() + " " + name + "()" + (hasImplementation ? " {" : ";");
+        return visibility.toString() + " ";
     }
 
 }

@@ -5,7 +5,7 @@ import java.util.Set;
 
 import tendril.codegen.BaseElement;
 import tendril.codegen.CodeBuilder;
-import tendril.metadata.ClassData;
+import tendril.metadata.classes.ClassData;
 
 public abstract class JAnnotation extends BaseElement {
     

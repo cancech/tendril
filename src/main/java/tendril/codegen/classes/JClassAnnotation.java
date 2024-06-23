@@ -1,7 +1,7 @@
 package tendril.codegen.classes;
 
 import tendril.codegen.VisibilityType;
-import tendril.metadata.ClassData;
+import tendril.metadata.classes.ClassData;
 
 public class JClassAnnotation extends JClassInterface {
 

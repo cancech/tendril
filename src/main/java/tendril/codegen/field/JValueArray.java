@@ -3,7 +3,7 @@ package tendril.codegen.field;
 import java.util.List;
 import java.util.Set;
 
-import tendril.metadata.ClassData;
+import tendril.metadata.classes.ClassData;
 
 public class JValueArray<TYPE> extends JValue<List<JValue<TYPE>>> {
 

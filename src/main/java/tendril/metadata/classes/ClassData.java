@@ -1,7 +1,6 @@
-package tendril.metadata;
+package tendril.metadata.classes;
 
 public class ClassData extends ImportData {
-
 
     public ClassData(Class<?> klass) {
         super(klass);

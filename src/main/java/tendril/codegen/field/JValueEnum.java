@@ -2,7 +2,7 @@ package tendril.codegen.field;
 
 import java.util.Set;
 
-import tendril.metadata.ClassData;
+import tendril.metadata.classes.ClassData;
 
 public class JValueEnum<E extends Enum<E>> extends JValue<E> {
 

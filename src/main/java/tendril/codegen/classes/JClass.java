@@ -10,18 +10,20 @@ import javax.annotation.processing.Generated;
 
 import tendril.codegen.BaseElement;
 import tendril.codegen.CodeBuilder;
-import tendril.codegen.PoDType;
 import tendril.codegen.Utilities;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JValueFactory;
-import tendril.metadata.ClassData;
-import tendril.metadata.TypeData;
+import tendril.metadata.MethodData;
+import tendril.metadata.classes.ClassData;
+import tendril.metadata.field.type.PoDType;
+import tendril.metadata.field.type.TypeData;
+import tendril.metadata.field.type.TypeDataFactory;
 
 public abstract class JClass extends BaseElement {
 
     private final Set<ClassData> imports = new HashSet<>();
-    private final List<JMethod> methods = new ArrayList<>();
+    private final List<JMethod<?>> methods = new ArrayList<>();
 
     private final VisibilityType visibility;
     private final String pkg;
@@ -35,39 +37,39 @@ public abstract class JClass extends BaseElement {
     }
 
     public void addMethod(VisibilityType visibility, String name) {
-        addMethod(visibility, new TypeData(), name, null);
+        addMethod(visibility, TypeDataFactory.create(), name, null);
     }
 
     public void addMethod(VisibilityType visibility, String name, String... implementation) {
-        addMethod(visibility, new TypeData(), name, implementation);
+        addMethod(visibility, TypeDataFactory.create(), name, implementation);
     }
 
     public void addMethod(VisibilityType visibility, PoDType returnType, String name) {
-        addMethod(visibility, new TypeData(returnType), name, null);
+        addMethod(visibility, TypeDataFactory.create(returnType), name, null);
     }
 
     public void addMethod(VisibilityType visibility, PoDType returnType, String name, String... implementation) {
-        addMethod(visibility, new TypeData(returnType), name, implementation);
+        addMethod(visibility, TypeDataFactory.create(returnType), name, implementation);
     }
 
     public void addMethod(VisibilityType visibility, Class<?> returnType, String name) {
-        addMethod(visibility, new TypeData(returnType), name, null);
+        addMethod(visibility, TypeDataFactory.create(returnType), name, null);
     }
 
     public void addMethod(VisibilityType visibility, Class<?> returnType, String name, String... implementation) {
-        addMethod(visibility, new TypeData(returnType), name, implementation);
+        addMethod(visibility, TypeDataFactory.create(returnType), name, implementation);
     }
 
     public void addMethod(VisibilityType visibility, ClassData classData, String name) {
-        addMethod(visibility, new TypeData(classData), name, null);
+        addMethod(visibility, TypeDataFactory.create(classData), name, null);
     }
 
     public void addMethod(VisibilityType visibility, ClassData classData, String name, String... implementation) {
-        addMethod(visibility, new TypeData(classData), name, implementation);
+        addMethod(visibility, TypeDataFactory.create(classData), name, implementation);
     }
 
-    private <T> void addMethod(VisibilityType visibility, TypeData returnType, String name, String[] implementation) {
-        JMethod method = validateAndCreateMethod(visibility, returnType, name, implementation);
+    private <METADATA> void addMethod(VisibilityType visibility, TypeData<METADATA> returnType, String name, String[] implementation) {
+        JMethod<METADATA> method = validateAndCreateMethod(visibility, new MethodData<METADATA>(returnType, name), implementation);
         if (method == null) {
             String returnTypeStr = returnType == null ? "void" : returnType.toString();
             throw new IllegalArgumentException("Unable to add method [" + visibility + " " + returnTypeStr + " " + name + "()] to class " + pkg + "." + name);
@@ -76,7 +78,7 @@ public abstract class JClass extends BaseElement {
         methods.add(method);
     }
 
-    protected abstract JMethod validateAndCreateMethod(VisibilityType visibility, TypeData returnType, String name, String[] implementation);
+    protected abstract <METADATA> JMethod<METADATA> validateAndCreateMethod(VisibilityType visibility, MethodData<METADATA> methodData, String[] implementation);
 
     public String generateCode() {
         CodeBuilder body = new CodeBuilder();
@@ -109,7 +111,7 @@ public abstract class JClass extends BaseElement {
         builder.indent();
 
         // Process methods
-        for (JMethod m : methods) {
+        for (JMethod<?> m : methods) {
             m.generate(builder, imports);
             builder.blankLine();
         }
