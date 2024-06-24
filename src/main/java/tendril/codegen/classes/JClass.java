@@ -14,11 +14,11 @@ import tendril.codegen.Utilities;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JValueFactory;
-import tendril.metadata.MethodData;
 import tendril.metadata.classes.ClassData;
 import tendril.metadata.field.type.PoDType;
 import tendril.metadata.field.type.TypeData;
 import tendril.metadata.field.type.TypeDataFactory;
+import tendril.metadata.method.MethodData;
 
 public abstract class JClass extends BaseElement {
 

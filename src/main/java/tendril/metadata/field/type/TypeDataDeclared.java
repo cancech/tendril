@@ -17,7 +17,7 @@ class TypeDataDeclared extends TypeData<ClassData> {
 
     @Override
     public void registerImport(Set<ClassData> classImports) {
-        classImports.add(getMetaData());
+        classImports.add(getDataType());
     }
 
     @Override

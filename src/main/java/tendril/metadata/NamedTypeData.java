@@ -2,17 +2,17 @@ package tendril.metadata;
 
 import tendril.metadata.field.type.TypeData;
 
-public class NamedTypeData<METADATA> {
+public class NamedTypeData<DATA_TYPE> implements TypedElement<DATA_TYPE> {
     
-    private final TypeData<METADATA> returnType;
+    private final TypeData<DATA_TYPE> returnType;
     private final String name;
 
-    public NamedTypeData(TypeData<METADATA> returnType, String name) {
+    public NamedTypeData(TypeData<DATA_TYPE> returnType, String name) {
         this.returnType = returnType;
         this.name = name;
     }
  
-    public TypeData<METADATA> getType() {
+    public TypeData<DATA_TYPE> getType() {
         return returnType;
     }
     

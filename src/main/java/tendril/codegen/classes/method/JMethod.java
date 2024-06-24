@@ -5,9 +5,9 @@ import java.util.Set;
 import tendril.codegen.BaseElement;
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.VisibilityType;
-import tendril.metadata.MethodData;
 import tendril.metadata.classes.ClassData;
 import tendril.metadata.field.type.TypeData;
+import tendril.metadata.method.MethodData;
 import tendril.util.TendrilStringUtil;
 
 public abstract class JMethod<METADATA> extends BaseElement {

@@ -20,14 +20,14 @@ import javax.lang.model.type.TypeMirror;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import tendril.metadata.MethodData;
-import tendril.metadata.ParameterData;
-import tendril.metadata.classes.AnnotationData;
+import tendril.metadata.annotation.AppliedAnnotation;
 import tendril.metadata.classes.ClassData;
 import tendril.metadata.field.ValueData;
 import tendril.metadata.field.type.PoDType;
 import tendril.metadata.field.type.TypeData;
 import tendril.metadata.field.type.TypeDataFactory;
+import tendril.metadata.method.MethodData;
+import tendril.metadata.method.ParameterData;
 
 public abstract class AbstractTendrilProccessor extends AbstractProcessor {
 
@@ -83,7 +83,7 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
             VariableElement varElement = parameters.get(i);
             ParameterData paramData = new ParameterData(deriveType(parameterTypes.get(i)), varElement.getSimpleName().toString());
             for (AnnotationMirror m : varElement.getAnnotationMirrors()) {
-                AnnotationData annonData = new AnnotationData(deriveClassData((TypeElement)m.getAnnotationType().asElement()));
+                AppliedAnnotation annonData = new AppliedAnnotation(deriveClassData((TypeElement)m.getAnnotationType().asElement()));
                 for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : m.getElementValues().entrySet()) {
                     Pair<ClassData, MethodData<?>> details = loadMethodDetails(entry.getKey());
                     ValueData<?,?> value = details.getRight().getType().asValue(entry.getValue().getValue());

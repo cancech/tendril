@@ -1,13 +1,13 @@
 package tendril.metadata.field;
 
-import tendril.metadata.ParameterData;
 import tendril.metadata.field.type.TypeData;
+import tendril.metadata.method.ParameterData;
 
-public class FieldData<METADATA, TYPE> extends ParameterData<METADATA> {
+public class FieldData<DATA_TYPE, VALUE_TYPE> extends ParameterData<DATA_TYPE> {
     
-    private final ValueData<METADATA, TYPE> value;
+    private final ValueData<DATA_TYPE, VALUE_TYPE> value;
 
-    public FieldData(TypeData<METADATA> returnType, String name, ValueData<METADATA, TYPE> value) {
+    public FieldData(TypeData<DATA_TYPE> returnType, String name, ValueData<DATA_TYPE, VALUE_TYPE> value) {
         super(returnType, name);
 
         if (returnType.isVoid())
@@ -17,13 +17,13 @@ public class FieldData<METADATA, TYPE> extends ParameterData<METADATA> {
         this.value = value;
     }
 
-    private void isCorrectType(TypeData<METADATA> returnType, ValueData<METADATA, TYPE> value) {
-        METADATA expectedType = returnType.getMetaData();
+    private void isCorrectType(TypeData<DATA_TYPE> returnType, ValueData<DATA_TYPE, VALUE_TYPE> value) {
+        DATA_TYPE expectedType = returnType.getDataType();
         if (!value.isInstanceOf(expectedType))
             throw new IllegalArgumentException("Type mismatch field expects " + expectedType + " but value " + value.getType());
     }
 
-    public ValueData<METADATA, TYPE> getValue() {
+    public ValueData<DATA_TYPE, VALUE_TYPE> getValue() {
         return value;
     }
 }

@@ -1,7 +1,7 @@
 package tendril.codegen.classes.method;
 
 import tendril.codegen.VisibilityType;
-import tendril.metadata.MethodData;
+import tendril.metadata.method.MethodData;
 
 public class JMethodInterface<METADATA> extends JMethod<METADATA> {
 

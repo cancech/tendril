@@ -3,8 +3,8 @@ package tendril.codegen.classes;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.classes.method.JMethodInterface;
-import tendril.metadata.MethodData;
 import tendril.metadata.classes.ClassData;
+import tendril.metadata.method.MethodData;
 
 public class JClassInterface extends JClass {
 

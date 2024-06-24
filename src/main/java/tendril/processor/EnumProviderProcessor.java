@@ -9,10 +9,10 @@ import javax.lang.model.element.TypeElement;
 
 import com.google.auto.service.AutoService;
 
-import tendril.metadata.MethodData;
-import tendril.metadata.ParameterData;
-import tendril.metadata.classes.AnnotationData;
+import tendril.metadata.annotation.AppliedAnnotation;
 import tendril.metadata.classes.ClassData;
+import tendril.metadata.method.MethodData;
+import tendril.metadata.method.ParameterData;
 
 @SupportedAnnotationTypes("tendril.bean.EnumProvider")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
@@ -37,7 +37,7 @@ public class EnumProviderProcessor extends AbstractTendrilProccessor {
     protected void processMethod(ClassData classData, MethodData<?> methodData) {
         String signature = classData.getFullyQualifiedName() + "::" + methodData.getName() + "[" + methodData.getType().getSimpleName() + "](";
         for (ParameterData<?> d: methodData.getParameters()) {
-            for (AnnotationData ad: d.getAnnotations()) {
+            for (AppliedAnnotation ad: d.getAnnotations()) {
                 signature += "@" + ad.getClassName() + "[";
                 for (MethodData<?> md: ad.getParameters())
                     signature += md.getName() + "=" + ad.getValue(md).getValue() + ", ";

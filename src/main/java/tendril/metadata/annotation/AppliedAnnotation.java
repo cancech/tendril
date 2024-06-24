@@ -1,31 +1,33 @@
-package tendril.metadata.classes;
+package tendril.metadata.annotation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import tendril.metadata.MethodData;
+import tendril.metadata.classes.ClassData;
+import tendril.metadata.classes.ImportData;
 import tendril.metadata.field.ValueData;
+import tendril.metadata.method.MethodData;
 
-public class AnnotationData extends ImportData {
+public class AppliedAnnotation extends ImportData {
     
     private final List<MethodData<?>> parameters = new ArrayList<>();
     private final Map<MethodData<?>, ValueData<?,?>> values = new HashMap<>();
     
-    public AnnotationData(Class<?> klass) {
+    public AppliedAnnotation(Class<?> klass) {
         super(klass);
     }
     
-    public AnnotationData(ClassData classData) {
+    public AppliedAnnotation(ClassData classData) {
         super(classData.getPackageName(), classData.getClassName());
     }
 
-    public AnnotationData(String fullyQualifiedName) {
+    public AppliedAnnotation(String fullyQualifiedName) {
         super(fullyQualifiedName);
     }
 
-    public AnnotationData(String packageName, String className) {
+    public AppliedAnnotation(String packageName, String className) {
         super(packageName, className);
     }
     
