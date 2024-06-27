@@ -19,7 +19,7 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JClassFactory;
 import tendril.codegen.field.JValueFactory;
-import tendril.metadata.classes.ClassData;
+import tendril.dom.type.core.ClassType;
 
 @SupportedAnnotationTypes("tendril.bean.BeanEnum")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
@@ -27,8 +27,8 @@ import tendril.metadata.classes.ClassData;
 public class BeanEnumProcessor extends AbstractTendrilProccessor {
 
     @Override
-    public void processType(ClassData data) {
-        ClassData providerClass = data.newClassWithNameSuffix("Provider");
+    public void processType(ClassType data) {
+        ClassType providerClass = data.generateFromClassSuffix("Provider");
         try {
             JavaFileObject builderFile = processingEnv.getFiler().createSourceFile(providerClass.getFullyQualifiedName());
             try (PrintWriter out = new PrintWriter(builderFile.openWriter())) {
@@ -39,7 +39,7 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
         }
     }
 
-    private String generateCode(ClassData provider, ClassData sourceEnum) throws ClassNotFoundException {
+    private String generateCode(ClassType provider, ClassType sourceEnum) throws ClassNotFoundException {
         JClass cls = JClassFactory.createAnnotation(VisibilityType.PUBLIC, provider);
         cls.annotate(Retention.class, JValueFactory.from(RetentionPolicy.RUNTIME));
         cls.annotate(Target.class, JValueFactory.from(ElementType.METHOD, ElementType.TYPE));

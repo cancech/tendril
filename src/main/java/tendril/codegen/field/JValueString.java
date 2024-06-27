@@ -2,7 +2,7 @@ package tendril.codegen.field;
 
 import java.util.Set;
 
-import tendril.metadata.classes.ClassData;
+import tendril.dom.type.core.ClassType;
 
 public class JValueString extends JValue<String> {
     
@@ -11,7 +11,7 @@ public class JValueString extends JValue<String> {
     }
 
     @Override
-    public String generate(Set<ClassData> classImports) {
+    public String generate(Set<ClassType> classImports) {
         return "\"" + value + "\"";
     }
 }

@@ -1,11 +1,12 @@
 package tendril.codegen.classes.method;
 
 import tendril.codegen.VisibilityType;
-import tendril.metadata.method.MethodData;
+import tendril.dom.method.MethodElement;
+import tendril.dom.type.Type;
 
-public class JMethodDefault<METADATA> extends JMethod<METADATA> {
+public class JMethodDefault<METADATA extends Type> extends JMethod<METADATA> {
 
-    public JMethodDefault(VisibilityType visibility, MethodData<METADATA> methodData, String[] implementation) {
+    public JMethodDefault(VisibilityType visibility, MethodElement<METADATA> methodData, String[] implementation) {
         super(visibility, methodData, implementation);
     }
 

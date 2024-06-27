@@ -3,7 +3,7 @@ package tendril.codegen.field;
 import java.util.List;
 import java.util.Set;
 
-import tendril.metadata.classes.ClassData;
+import tendril.dom.type.core.ClassType;
 
 public class JValueArray<TYPE> extends JValue<List<JValue<TYPE>>> {
 
@@ -12,7 +12,7 @@ public class JValueArray<TYPE> extends JValue<List<JValue<TYPE>>> {
     }
 
     @Override
-    public String generate(Set<ClassData> classImports) {
+    public String generate(Set<ClassType> classImports) {
         String result = "{";
         for (int i = 0; i < value.size(); i++) {
             result += value.get(i).generate(classImports);

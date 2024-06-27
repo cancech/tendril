@@ -2,7 +2,7 @@ package tendril.codegen.field;
 
 import java.util.Set;
 
-import tendril.metadata.classes.ClassData;
+import tendril.dom.type.core.ClassType;
 
 public abstract class JValue<TYPE> {
 
@@ -12,5 +12,5 @@ public abstract class JValue<TYPE> {
         this.value = value;
     }
     
-    public abstract String generate(Set<ClassData> classImports);
+    public abstract String generate(Set<ClassType> classImports);
 }

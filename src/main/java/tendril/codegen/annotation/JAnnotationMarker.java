@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
-import tendril.metadata.classes.ClassData;
+import tendril.dom.type.core.ClassType;
 
 public class JAnnotationMarker extends JAnnotation {
 
@@ -13,7 +13,7 @@ public class JAnnotationMarker extends JAnnotation {
     }
 
     @Override
-    protected void generateSelf(CodeBuilder builder, Set<ClassData> classImports) {
+    protected void generateSelf(CodeBuilder builder, Set<ClassType> classImports) {
         builder.append(name);
     }
 }

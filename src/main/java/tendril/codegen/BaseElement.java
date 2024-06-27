@@ -9,7 +9,7 @@ import java.util.Set;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.field.JValue;
-import tendril.metadata.classes.ClassData;
+import tendril.dom.type.core.ClassType;
 
 public abstract class BaseElement {
     
@@ -33,11 +33,11 @@ public abstract class BaseElement {
         annotations.add(JAnnotationFactory.create(annotation, parameters));
     }
     
-    public void generate(CodeBuilder builder, Set<ClassData> classImports) {
+    public void generate(CodeBuilder builder, Set<ClassType> classImports) {
         for (JAnnotation annon: annotations)
             annon.generate(builder, classImports);
         generateSelf(builder, classImports);
     }
     
-    protected abstract void generateSelf(CodeBuilder builder, Set<ClassData> classImports);
+    protected abstract void generateSelf(CodeBuilder builder, Set<ClassType> classImports);
 }

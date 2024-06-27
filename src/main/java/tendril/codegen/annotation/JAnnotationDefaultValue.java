@@ -5,7 +5,7 @@ import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.field.JValue;
-import tendril.metadata.classes.ClassData;
+import tendril.dom.type.core.ClassType;
 
 public class JAnnotationDefaultValue extends JAnnotation {
     
@@ -17,7 +17,7 @@ public class JAnnotationDefaultValue extends JAnnotation {
     }
     
     @Override
-    protected void generateSelf(CodeBuilder builder, Set<ClassData> classImports) {
+    protected void generateSelf(CodeBuilder builder, Set<ClassType> classImports) {
         builder.append(name + "(" + value.generate(classImports) + ")");
     }
 

@@ -14,21 +14,22 @@ import tendril.codegen.Utilities;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JValueFactory;
-import tendril.metadata.classes.ClassData;
-import tendril.metadata.field.type.PoDType;
-import tendril.metadata.field.type.TypeData;
-import tendril.metadata.field.type.TypeDataFactory;
-import tendril.metadata.method.MethodData;
+import tendril.codegen.field.type.TypeData;
+import tendril.codegen.field.type.TypeDataFactory;
+import tendril.dom.method.MethodElement;
+import tendril.dom.type.Type;
+import tendril.dom.type.core.ClassType;
+import tendril.dom.type.core.PoDType;
 
 public abstract class JClass extends BaseElement {
 
-    private final Set<ClassData> imports = new HashSet<>();
+    private final Set<ClassType> imports = new HashSet<>();
     private final List<JMethod<?>> methods = new ArrayList<>();
 
     private final VisibilityType visibility;
     private final String pkg;
 
-    protected JClass(VisibilityType visibility, ClassData data) {
+    protected JClass(VisibilityType visibility, ClassType data) {
         super(data.getClassName());
         this.visibility = visibility;
         this.pkg = data.getPackageName();
@@ -60,16 +61,16 @@ public abstract class JClass extends BaseElement {
         addMethod(visibility, TypeDataFactory.create(returnType), name, implementation);
     }
 
-    public void addMethod(VisibilityType visibility, ClassData classData, String name) {
+    public void addMethod(VisibilityType visibility, ClassType classData, String name) {
         addMethod(visibility, TypeDataFactory.create(classData), name, null);
     }
 
-    public void addMethod(VisibilityType visibility, ClassData classData, String name, String... implementation) {
+    public void addMethod(VisibilityType visibility, ClassType classData, String name, String... implementation) {
         addMethod(visibility, TypeDataFactory.create(classData), name, implementation);
     }
 
-    private <METADATA> void addMethod(VisibilityType visibility, TypeData<METADATA> returnType, String name, String[] implementation) {
-        JMethod<METADATA> method = validateAndCreateMethod(visibility, new MethodData<METADATA>(returnType, name), implementation);
+    private <METADATA extends Type> void addMethod(VisibilityType visibility, TypeData<METADATA> returnType, String name, String[] implementation) {
+        JMethod<METADATA> method = validateAndCreateMethod(visibility, new MethodElement<METADATA>(returnType, name), implementation);
         if (method == null) {
             String returnTypeStr = returnType == null ? "void" : returnType.toString();
             throw new IllegalArgumentException("Unable to add method [" + visibility + " " + returnTypeStr + " " + name + "()] to class " + pkg + "." + name);
@@ -78,7 +79,7 @@ public abstract class JClass extends BaseElement {
         methods.add(method);
     }
 
-    protected abstract <METADATA> JMethod<METADATA> validateAndCreateMethod(VisibilityType visibility, MethodData<METADATA> methodData, String[] implementation);
+    protected abstract <METADATA extends Type> JMethod<METADATA> validateAndCreateMethod(VisibilityType visibility, MethodElement<METADATA> methodData, String[] implementation);
 
     public String generateCode() {
         CodeBuilder body = new CodeBuilder();
@@ -94,9 +95,9 @@ public abstract class JClass extends BaseElement {
     }
 
     private void addImports(CodeBuilder builder) {
-        List<ClassData> sortedImports = new ArrayList<>(imports);
+        List<ClassType> sortedImports = new ArrayList<>(imports);
         sortedImports.sort((l, r) -> l.getFullyQualifiedName().compareTo(r.getFullyQualifiedName()));
-        for (ClassData toImport : sortedImports) {
+        for (ClassType toImport : sortedImports) {
             String importPkg = toImport.getPackageName();
             if (importPkg == null || importPkg.isBlank() || importPkg.equals(pkg) || importPkg.equals("java.lang"))
                 continue;
@@ -105,7 +106,7 @@ public abstract class JClass extends BaseElement {
     }
 
     @Override
-    protected void generateSelf(CodeBuilder builder, Set<ClassData> imports) {
+    protected void generateSelf(CodeBuilder builder, Set<ClassType> imports) {
         builder.append(visibility + " " + classType() + " " + name + " {");
         builder.blankLine();
         builder.indent();

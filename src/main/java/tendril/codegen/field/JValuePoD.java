@@ -2,7 +2,7 @@ package tendril.codegen.field;
 
 import java.util.Set;
 
-import tendril.metadata.classes.ClassData;
+import tendril.dom.type.core.ClassType;
 
 public class JValuePoD<N> extends JValue<N> {
     JValuePoD(N value) {
@@ -10,7 +10,7 @@ public class JValuePoD<N> extends JValue<N> {
     }
 
     @Override
-    public String generate(Set<ClassData> classImports) {
+    public String generate(Set<ClassType> classImports) {
         return value.toString();
     }
 }
