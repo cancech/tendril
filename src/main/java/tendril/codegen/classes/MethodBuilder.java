@@ -1,0 +1,118 @@
+package tendril.codegen.classes;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import tendril.codegen.Utilities;
+import tendril.codegen.VisibilityType;
+import tendril.codegen.classes.method.JMethod;
+import tendril.codegen.field.type.TypeData;
+import tendril.dom.method.MethodElement;
+import tendril.dom.type.Type;
+
+/**
+ * Used to build methods, allowing for their wide permutation possibilities to be accounted for in a relatively straightforward manner. The method is by default public and with no implementation.
+ * Error checking is performed to ensure that the method is properly defined such that it can be considered valid for the encompassing class.
+ * 
+ * Note, no error checking or other validation is performed on the specified code/implementation of the method.
+ * 
+ * @param <RETURN_TYPE> extends {@link Type} indicating what the method is to return
+ */
+public abstract class MethodBuilder<RETURN_TYPE extends Type> {
+	/** The class containing the method */
+	private final JClass encompassingClass;
+
+	/** Representation of what the method is to return */
+	protected final TypeData<RETURN_TYPE> returnType;
+	/** The name of the method */
+	protected final String name;
+	/** The visibility of the method */
+	protected VisibilityType visibility = VisibilityType.PUBLIC;
+	/** List of individual lines of code that comprise the method implementation. If null, no implementation is present */
+	protected List<String> linesOfCode = null;
+
+	/**
+	 * CTOR
+	 * 
+	 * @param encompassingClass {@link JClass} which contain the method
+	 * @param returnType        {@link TypeData} representing what the method returns
+	 * @param name              {@link String} the name of the method
+	 */
+	protected MethodBuilder(JClass encompassingClass, TypeData<RETURN_TYPE> returnType, String name) {
+		this.encompassingClass = encompassingClass;
+		this.returnType = returnType;
+		this.name = name;
+	}
+
+	/**
+	 * Set the visibility of the method. By default the method is public.
+	 * 
+	 * @param visibility {@link VisibilityType} to employ
+	 * @return {@link MethodBuilder}
+	 */
+	public MethodBuilder<RETURN_TYPE> setVisibility(VisibilityType visibility) {
+		this.visibility = visibility;
+		return this;
+	}
+
+	/**
+	 * Mark the method as one with an empty (blank) implementation. This is distinct from a method that has no implementation. Any implementation that may be present will be destroyed.
+	 * 
+	 * @return {@link MethodBuilder}
+	 */
+	public MethodBuilder<RETURN_TYPE> emptyImplementation() {
+		linesOfCode = new ArrayList<>();
+		return this;
+	}
+
+	/**
+	 * Add lines of code. These lines are appended to the end of the existing stored implementation.
+	 * 
+	 * @param lines {@link String}... lines to append
+	 * @return {@link MethodBuilder}
+	 */
+	public MethodBuilder<RETURN_TYPE> addCode(String... lines) {
+		if (linesOfCode == null)
+			linesOfCode = new ArrayList<>();
+
+		for (String s : lines)
+			linesOfCode.add(s);
+
+		return this;
+	}
+
+	/**
+	 * Validate the provided values to ensure that they are sane for the enclosing class and build the method. The method is automatically added to the enclosing class.
+	 * 
+	 * @throws IllegalArgumentException if any issue is encountered with the provided method details
+	 */
+	public void build() throws IllegalArgumentException {
+		Utilities.throwIfNotValidIdentifier(name);
+		validateData();
+		encompassingClass.addMethod(buildMethod(new MethodElement<>(returnType, name)));
+	}
+
+	/**
+	 * Check if the class has any code/implementation available.
+	 * 
+	 * @return true if code/implementation is present
+	 */
+	protected boolean hasCode() {
+		return linesOfCode != null;
+	}
+
+	/**
+	 * Validate the data, ensuring that it is applicable for the enclosing class.
+	 * 
+	 * @throws IllegalArgumentException for any issues encountered
+	 */
+	protected abstract void validateData() throws IllegalArgumentException;
+
+	/**
+	 * Build the method using the provided details.
+	 * 
+	 * @param methodElement {@link MethodElement} containing the most basic information of the method
+	 * @return {@link JMethod} representation for the enclosing class
+	 */
+	protected abstract JMethod<RETURN_TYPE> buildMethod(MethodElement<RETURN_TYPE> methodElement);
+}

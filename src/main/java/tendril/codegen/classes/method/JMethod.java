@@ -1,5 +1,6 @@
 package tendril.codegen.classes.method;
 
+import java.util.List;
 import java.util.Set;
 
 import tendril.codegen.BaseElement;
@@ -15,9 +16,9 @@ public abstract class JMethod<METADATA extends Type> extends BaseElement {
 
     protected final VisibilityType visibility;
     protected final MethodElement<METADATA> methodData;
-    protected final String[] implementation;
+    protected final List<String> implementation;
 
-    protected JMethod(VisibilityType visibility, MethodElement<METADATA> methodData, String[] implementation) {
+    protected JMethod(VisibilityType visibility, MethodElement<METADATA> methodData, List<String> implementation) {
         super(methodData.getName());
         this.visibility = visibility;
         this.methodData = methodData;

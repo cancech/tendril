@@ -1,0 +1,73 @@
+package tendril.codegen.classes;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+
+import tendril.codegen.VisibilityType;
+import tendril.dom.type.core.ClassType;
+import test.AbstractUnitTest;
+import test.assertions.ClassAssert;
+
+/**
+ * Test case for {@link JClassFactory}
+ */
+public class JClassFactoryTest extends AbstractUnitTest {
+	
+	// Mocks to use for testing
+	@Mock
+	private VisibilityType mockVisibility;
+	@Mock
+	private ClassType mockClassType;
+
+	/**
+	 * @see test.AbstractUnitTest#prepareTest()
+	 */
+	@Override
+	protected void prepareTest() {
+		when(mockClassType.getPackageName()).thenReturn("packageName");
+		when(mockClassType.getClassName()).thenReturn("ClassName");
+	}
+
+	/**
+	 * Verify that the appropriate instance is created
+	 */
+	@Test
+	public void testDefaultCreation() {
+		ClassAssert.assertInstance(JClassDefault.class, JClassFactory.createClass(mockVisibility, mockClassType));
+		verify(mockClassType).getPackageName();
+		verify(mockClassType).getClassName();
+	}
+
+	/**
+	 * Verify that the appropriate instance is created
+	 */
+	@Test
+	public void testAbstractCreation() {
+		ClassAssert.assertInstance(JClassAbstract.class, JClassFactory.createAbstractClass(mockVisibility, mockClassType));
+		verify(mockClassType).getPackageName();
+		verify(mockClassType).getClassName();
+	}
+
+	/**
+	 * Verify that the appropriate instance is created
+	 */
+	@Test
+	public void testInterfaceCreation() {
+		ClassAssert.assertInstance(JClassInterface.class, JClassFactory.createInterface(mockVisibility, mockClassType));
+		verify(mockClassType).getPackageName();
+		verify(mockClassType).getClassName();
+	}
+
+	/**
+	 * Verify that the appropriate instance is created
+	 */
+	@Test
+	public void testAnnotationCreation() {
+		ClassAssert.assertInstance(JClassAnnotation.class, JClassFactory.createAnnotation(mockVisibility, mockClassType));
+		verify(mockClassType).getPackageName();
+		verify(mockClassType).getClassName();
+	}
+}

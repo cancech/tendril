@@ -44,7 +44,7 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
         cls.annotate(Retention.class, JValueFactory.from(RetentionPolicy.RUNTIME));
         cls.annotate(Target.class, JValueFactory.from(ElementType.METHOD, ElementType.TYPE));
         cls.annotate(EnumProvider.class);
-        cls.addMethod(VisibilityType.PUBLIC, sourceEnum, "value");
+        cls.buildMethod(sourceEnum, "value").setVisibility(VisibilityType.PUBLIC).build();
         return cls.generateCode();
     }
 }
