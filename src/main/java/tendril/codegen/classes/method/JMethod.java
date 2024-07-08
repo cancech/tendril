@@ -12,22 +12,39 @@ import tendril.dom.type.Type;
 import tendril.dom.type.core.ClassType;
 import tendril.util.TendrilStringUtil;
 
-public abstract class JMethod<METADATA extends Type> extends BaseElement {
-
+/**
+ * Representation of a method
+ * 
+ * @param <RETURN_TYPE> the {@link Type} representing what the method returns
+ */
+public abstract class JMethod<RETURN_TYPE extends Type> extends BaseElement {
+    /** The visibility of the method */
     protected final VisibilityType visibility;
-    protected final MethodElement<METADATA> methodData;
+    /** The metadata of the method */
+    protected final MethodElement<RETURN_TYPE> methodData;
+    /** The lines of code that build up the implementation of the method */
     protected final List<String> implementation;
 
-    protected JMethod(VisibilityType visibility, MethodElement<METADATA> methodData, List<String> implementation) {
+    /**
+     * CTOR
+     * 
+     * @param visibility     {@link VisibilityType} indicating the desired visibility of the method
+     * @param methodData     {@link MethodElement} with the basic metadata of the method
+     * @param implementation {@link List} of {@link String} lines of code with the implementation of the method
+     */
+    protected JMethod(VisibilityType visibility, MethodElement<RETURN_TYPE> methodData, List<String> implementation) {
         super(methodData.getName());
         this.visibility = visibility;
         this.methodData = methodData;
         this.implementation = implementation;
     }
 
+    /**
+     * @see tendril.codegen.BaseElement#generateSelf(tendril.codegen.CodeBuilder, java.util.Set)
+     */
     @Override
     protected void generateSelf(CodeBuilder builder, Set<ClassType> classImports) {
-        methodData.getType().registerImport(classImports);
+        getReturnType().registerImport(classImports);
 
         boolean hasImplementation = implementation != null;
         builder.append(generateSignature(hasImplementation));
@@ -41,10 +58,21 @@ public abstract class JMethod<METADATA extends Type> extends BaseElement {
         }
     }
 
-    protected TypeData<METADATA> getReturnType() {
+    /**
+     * Get the metadata of the method return type
+     * 
+     * @return {@link TypeData}
+     */
+    protected TypeData<RETURN_TYPE> getReturnType() {
         return methodData.getType();
     }
-    
+
+    /**
+     * Generate the full method signature
+     * 
+     * @param hasImplementation boolean true if the method has an implementation provided
+     * @return {@link String}
+     */
     private String generateSignature(boolean hasImplementation) {
         StringBuilder signature = new StringBuilder(generateSignatureStart(hasImplementation));
         signature.append(getReturnType().getSimpleName() + " " + name);
@@ -53,11 +81,22 @@ public abstract class JMethod<METADATA extends Type> extends BaseElement {
         return signature.toString();
     }
 
+    /**
+     * Generate the code for the parameters of the method
+     * 
+     * @return {@link String} containing the details of the parameters
+     */
     private String generateParameters() {
         return TendrilStringUtil.join(methodData.getParameters(), param -> {
             return param.getType().getSimpleName() + " " + param.getName();
         });
     }
 
+    /**
+     * Generate the start of the method signature (start until the method return type)
+     * 
+     * @param hasImplementation boolean true if the method has an implementation present
+     * @return {@link String} the code for the start of the method signature.
+     */
     protected abstract String generateSignatureStart(boolean hasImplementation);
 }

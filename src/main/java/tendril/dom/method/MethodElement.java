@@ -10,9 +10,9 @@ import tendril.dom.type.Type;
 /**
  * Representation of a method
  * 
- * @param <DATA_TYPE> {@link Type} that the method returns
+ * @param <RETURN_TYPE> {@link Type} that the method returns
  */
-public class MethodElement<DATA_TYPE extends Type> extends NamedTypeElement<DATA_TYPE> {
+public class MethodElement<RETURN_TYPE extends Type> extends NamedTypeElement<RETURN_TYPE> {
     /** List of parameters that the method takes */
     private final List<NamedTypeElement<?>> parameters = new ArrayList<>();
 
@@ -22,7 +22,7 @@ public class MethodElement<DATA_TYPE extends Type> extends NamedTypeElement<DATA
      * @param returnType {@link TypeData} representing what the method returns
      * @param name       {@link String} the name of the method
      */
-    public MethodElement(TypeData<DATA_TYPE> returnType, String name) {
+    public MethodElement(TypeData<RETURN_TYPE> returnType, String name) {
         super(returnType, name);
     }
 

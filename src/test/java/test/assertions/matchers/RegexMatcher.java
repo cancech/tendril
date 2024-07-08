@@ -1,4 +1,4 @@
-package test.assertions.string;
+package test.assertions.matchers;
 
 /**
  * Performs matching to see whether the actual {@link String} matches the provided regular expression
@@ -15,7 +15,7 @@ class RegexMatcher extends StringMatcher {
 	}
 
 	/**
-	 * @see test.assertions.string.StringMatcher#match(java.lang.String)
+	 * @see test.assertions.matchers.StringMatcher#match(java.lang.String)
 	 */
 	@Override
 	protected boolean match(String actual) {

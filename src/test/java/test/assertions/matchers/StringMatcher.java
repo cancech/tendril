@@ -1,4 +1,4 @@
-package test.assertions.string;
+package test.assertions.matchers;
 
 import org.opentest4j.AssertionFailedError;
 

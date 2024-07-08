@@ -30,7 +30,7 @@ import tendril.dom.type.core.ClassType;
 import tendril.dom.type.core.PoDType;
 import tendril.dom.type.core.VoidType;
 import test.AbstractUnitTest;
-import test.assertions.string.StringMatcher;
+import test.assertions.matchers.MultiLineStringMatcher;
 
 /**
  * Test case for {@link JClass}
@@ -99,6 +99,8 @@ public class JClassTest extends AbstractUnitTest {
 	@Mock
 	private JMethod<ClassType> mockClassMethod;
 
+	// Helper to match the generate code
+	private MultiLineStringMatcher strMatcher;
 	// Instance to test
 	private TestJClass jclass;
 
@@ -163,11 +165,11 @@ public class JClassTest extends AbstractUnitTest {
 	@Test
 	public void testGenerateCodeNoAnnotationNoMethod() {
 		// Define what the code is expected to look like
-		List<StringMatcher> expected = startDefinition();
-		endDefinition(expected);
+		startDefinition();
+		endDefinition();
 
 		// Verify that it matches
-		assertGeneratedCode(expected);
+		assertGeneratedCode();
 	}
 
 	/**
@@ -176,15 +178,15 @@ public class JClassTest extends AbstractUnitTest {
 	@Test
 	public void testGenerateCodeWithAnnotationsNoMethod() {
 		// Define what the code is expected to look like
-		List<StringMatcher> expected = startDefinition(Arrays.asList("@EnumProvider", "@TestPodAnnotation(PoDType.BOOLEAN)"), EnumProvider.class, TestPodAnnotation.class, PoDType.class);
-		endDefinition(expected);
+		startDefinition(Arrays.asList("@EnumProvider", "@TestPodAnnotation(PoDType.BOOLEAN)"), EnumProvider.class, TestPodAnnotation.class, PoDType.class);
+		endDefinition();
 
 		// Add the additional features
 		jclass.annotate(EnumProvider.class);
 		jclass.annotate(TestPodAnnotation.class, JValueFactory.from(PoDType.BOOLEAN));
 
 		// Verify that it matches
-		assertGeneratedCode(expected);
+		assertGeneratedCode();
 	}
 
 	/**
@@ -193,14 +195,14 @@ public class JClassTest extends AbstractUnitTest {
 	@Test
 	public void testGenerateCodeNoAnnotationsWithMethod() {
 		// Define what the code is expected to look like
-		List<StringMatcher> expected = startDefinition(Collections.emptyList());
-		expected.add(StringMatcher.eq("    mockVoidMethod"));
-		expected.add(StringMatcher.eq(""));
-		expected.add(StringMatcher.eq("    mockPodMethod"));
-		expected.add(StringMatcher.eq(""));
-		expected.add(StringMatcher.eq("    mockClassMethod"));
-		expected.add(StringMatcher.eq(""));
-		endDefinition(expected);
+		startDefinition(Collections.emptyList());
+		strMatcher.eq(("    mockVoidMethod"));
+		strMatcher.eq((""));
+		strMatcher.eq(("    mockPodMethod"));
+		strMatcher.eq((""));
+		strMatcher.eq(("    mockClassMethod"));
+		strMatcher.eq((""));
+		endDefinition();
 
 		// Add the additional features
 		jclass.addMethod(mockVoidMethod);
@@ -208,7 +210,7 @@ public class JClassTest extends AbstractUnitTest {
 		jclass.addMethod(mockClassMethod);
 
 		// Verify that it matches
-		assertGeneratedCode(expected);
+		assertGeneratedCode();
 		verify(mockVoidMethod).generate(any(CodeBuilder.class), anySet());
 		verify(mockPodMethod).generate(any(CodeBuilder.class), anySet());
 		verify(mockClassMethod).generate(any(CodeBuilder.class), anySet());
@@ -220,14 +222,14 @@ public class JClassTest extends AbstractUnitTest {
 	@Test
 	public void testGenerateCodeWithAnnotationsWithMethods() {
 		// Define what the code is expected to look like
-		List<StringMatcher> expected = startDefinition(Arrays.asList("@EnumProvider", "@TestPodAnnotation(PoDType.BOOLEAN)"), EnumProvider.class, TestPodAnnotation.class, PoDType.class);
-		expected.add(StringMatcher.eq("    mockVoidMethod"));
-		expected.add(StringMatcher.eq(""));
-		expected.add(StringMatcher.eq("    mockPodMethod"));
-		expected.add(StringMatcher.eq(""));
-		expected.add(StringMatcher.eq("    mockClassMethod"));
-		expected.add(StringMatcher.eq(""));
-		endDefinition(expected);
+		startDefinition(Arrays.asList("@EnumProvider", "@TestPodAnnotation(PoDType.BOOLEAN)"), EnumProvider.class, TestPodAnnotation.class, PoDType.class);
+		strMatcher.eq("    mockVoidMethod");
+		strMatcher.eq("");
+		strMatcher.eq("    mockPodMethod");
+		strMatcher.eq("");
+		strMatcher.eq("    mockClassMethod");
+		strMatcher.eq("");
+		endDefinition();
 
 		// Add the additional features
 		jclass.addMethod(mockVoidMethod);
@@ -237,7 +239,7 @@ public class JClassTest extends AbstractUnitTest {
 		jclass.annotate(TestPodAnnotation.class, JValueFactory.from(PoDType.BOOLEAN));
 
 		// Verify that it matches
-		assertGeneratedCode(expected);
+		assertGeneratedCode();
 		verify(mockVoidMethod).generate(any(CodeBuilder.class), anySet());
 		verify(mockPodMethod).generate(any(CodeBuilder.class), anySet());
 		verify(mockClassMethod).generate(any(CodeBuilder.class), anySet());
@@ -245,26 +247,18 @@ public class JClassTest extends AbstractUnitTest {
 
 	/**
 	 * Verify that the generated code matches the expected lines
-	 * 
-	 * @param expected {@link List} of {@link StringMatcher}s for each line that is to be present in the code
 	 */
-	private void assertGeneratedCode(List<StringMatcher> expected) {
-		String[] actual = jclass.generateCode().split(System.lineSeparator());
-
-		Assertions.assertEquals(expected.size(), actual.length);
-		for (int i = 0; i < expected.size(); i++) {
-			expected.get(i).assertMatches(actual[i], "Line " + (i + 1));
-		}
+	private void assertGeneratedCode() {
+	    strMatcher.match(jclass.generateCode());
 	}
 
 	/**
 	 * Prepare the expected matchers for the start of the class.
 	 * 
 	 * @param expectedImports {@link Class} representing what is expected to be imported
-	 * @return {@link List} of {@link StringMatcher}s to match the start of the class
 	 */
-	private List<StringMatcher> startDefinition(Class<?>... expectedImports) {
-		return startDefinition(Collections.emptyList(), expectedImports);
+	private void startDefinition(Class<?>... expectedImports) {
+		startDefinition(Collections.emptyList(), expectedImports);
 	}
 
 	/**
@@ -272,28 +266,27 @@ public class JClassTest extends AbstractUnitTest {
 	 * 
 	 * @param annotations     {@link List} of {@link String}s representing additional annotations that should be present
 	 * @param expectedImports {@link Class} representing what is expected to be imported
-	 * @return {@link List} of {@link StringMatcher}s to match the start of the class
 	 */
-	private List<StringMatcher> startDefinition(List<String> annotations, Class<?>... expectedImports) {
+	private void startDefinition(List<String> annotations, Class<?>... expectedImports) {
+        strMatcher = new MultiLineStringMatcher();
+        
 		// Prepare the package information
-		List<StringMatcher> expected = new ArrayList<>();
-		expected.add(StringMatcher.eq("package packageName;"));
-		expected.add(StringMatcher.eq(""));
+        strMatcher.eq("package packageName;");
+		strMatcher.eq((""));
 
 		// Include the imports
 		for (String s : prepareImports(expectedImports))
-			expected.add(StringMatcher.eq("import " + s + ";"));
+			strMatcher.eq(("import " + s + ";"));
 
 		// Add the annotations
-		expected.add(StringMatcher.eq(""));
-		expected.add(StringMatcher.eq("@Generated(date = \"TIMESTAMP\", value = \"tendril\")"));
+		strMatcher.eq((""));
+		strMatcher.eq(("@Generated(date = \"TIMESTAMP\", value = \"tendril\")"));
 		for (String s : annotations)
-			expected.add(StringMatcher.eq(s));
+			strMatcher.eq((s));
 
 		// Create the class signature
-		expected.add(StringMatcher.eq("mockVisibility ClassType ClassName {"));
-		expected.add(StringMatcher.eq(""));
-		return expected;
+		strMatcher.eq(("mockVisibility ClassType ClassName {"));
+		strMatcher.eq((""));
 	}
 
 	/**
@@ -315,10 +308,8 @@ public class JClassTest extends AbstractUnitTest {
 
 	/**
 	 * Add the termination of the class definition, after the meat of the class has been included.
-	 * 
-	 * @param expected {@link List} of {@link StringMatcher} where the matchers for the entire class have been registered
 	 */
-	private void endDefinition(List<StringMatcher> expected) {
-		expected.add(StringMatcher.eq("}"));
+	private void endDefinition() {
+		strMatcher.eq(("}"));
 	}
 }

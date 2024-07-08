@@ -1,4 +1,4 @@
-package test.assertions.string;
+package test.assertions.matchers;
 
 /**
  * Matcher for ensuring that the actual {@link String} is fully equal to expectations
@@ -15,7 +15,7 @@ public class EqualityMatcher extends StringMatcher {
 	}
 
 	/**
-	 * @see test.assertions.string.StringMatcher#match(java.lang.String)
+	 * @see test.assertions.matchers.StringMatcher#match(java.lang.String)
 	 */
 	@Override
 	boolean match(String actual) {
