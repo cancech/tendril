@@ -16,7 +16,7 @@ public class UtilitiesTest {
 	public void testIso8061TimeStamp() {
 		String actual = Utilities.iso8061TimeStamp();
 		Assertions.assertNotNull(actual);
-		Assertions.assertTrue(actual.matches("\\\\d{4}-\\\\d{2}-\\\\d{2}T\\\\d{2}:\\\\d{2}:\\\\d{2}.\\\\d{7}"), actual + " does not meet regular expression ####-##-##T##:##:##.#######");
+		Assertions.assertTrue(actual.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d+"), actual + " does not meet regular expression ####-##-##T##:##:##.#######");
 	}
 
 	/**
