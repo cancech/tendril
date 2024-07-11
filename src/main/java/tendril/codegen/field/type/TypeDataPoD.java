@@ -3,15 +3,26 @@ package tendril.codegen.field.type;
 import tendril.dom.type.core.PoDType;
 import tendril.dom.type.value.ValueElement;
 
+/**
+ * Representation of plain ol' data types
+ */
 class TypeDataPoD extends TypeData<PoDType> {
 
+    /**
+     * CTOR
+     * 
+     * @param type {@link PoDType} indication which POD to represent
+     */
     TypeDataPoD(PoDType type) {
         super(type, type.toString());
     }
 
+    /**
+     * @see tendril.codegen.field.type.TypeData#asValue(java.lang.Object)
+     */
     @Override
     public ValueElement<PoDType, ?> asValue(Object value) {
-        switch(type) {
+        switch (type) {
             case BOOLEAN:
                 return new ValueElement<PoDType, Boolean>(PoDType.BOOLEAN, (Boolean) value);
             case BYTE:
