@@ -20,7 +20,7 @@ import java.util.Collections;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import tendril.dom.type.Type;
+import tendril.codegen.field.type.Type;
 
 /**
  * Test case for {@link JMethodDefault}
@@ -40,8 +40,8 @@ public class JMethodDefaultTest extends SharedJMethodTest {
      */
     @Test
     public void testSignatureStart() {
-        JMethodDefault<Type> method = new JMethodDefault<>(mockVisibility, mockMethodElement, Collections.emptyList());
-        verifyMethodInit(method);
+        JMethodDefault<Type> method = new JMethodDefault<>(mockVisibility, mockReturnType, "defaultMethod", Collections.emptyList());
+        verifyMethodInit("defaultMethod", method);
 
         Assertions.assertEquals("mockVisibility abstract ", method.generateSignatureStart(false));
         Assertions.assertEquals("mockVisibility ", method.generateSignatureStart(true));

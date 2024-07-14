@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.VisibilityType;
-import tendril.dom.type.core.ClassType;
+import tendril.codegen.field.type.ClassType;
 import test.AbstractUnitTest;
 import test.assertions.ClassAssert;
 

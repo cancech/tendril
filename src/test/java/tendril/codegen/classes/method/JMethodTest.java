@@ -16,9 +16,7 @@
 package tendril.codegen.classes.method;
 
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,10 +28,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.codegen.field.type.TypeData;
-import tendril.dom.type.NamedTypeElement;
-import tendril.dom.type.Type;
-import tendril.dom.type.core.ClassType;
+import tendril.codegen.field.NamedType;
+import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.Type;
+import test.assertions.CollectionAssert;
 
 /**
  * Test case for {@link JMethod}
@@ -57,7 +55,7 @@ public class JMethodTest extends SharedJMethodTest {
          * @param implementation {@link List} of {@link String} lines of text for the implementation
          */
         protected TestJMethod(List<String> implementation) {
-            super(mockVisibility, mockMethodElement, implementation);
+            super(mockVisibility, mockReturnType, "mockMethodName", implementation);
         }
 
         /**
@@ -84,17 +82,17 @@ public class JMethodTest extends SharedJMethodTest {
 
     // Mocks to use for testing
     @Mock
-    private NamedTypeElement<Type> mockParam1;
+    private NamedType<Type> mockParam1;
     @Mock
-    private TypeData<Type> mockParam1Type;
+    private Type mockParam1Type;
     @Mock
-    private NamedTypeElement<Type> mockParam2;
+    private NamedType<Type> mockParam2;
     @Mock
-    private TypeData<Type> mockParam2Type;
+    private Type mockParam2Type;
     @Mock
-    private NamedTypeElement<Type> mockParam3;
+    private NamedType<Type> mockParam3;
     @Mock
-    private TypeData<Type> mockParam3Type;
+    private Type mockParam3Type;
 
     // Instance to use for testing
     private TestJMethod method;
@@ -123,12 +121,14 @@ public class JMethodTest extends SharedJMethodTest {
      * Initialize the method and ensure that its simple values are correct
      * 
      * @param code       {@link List} of {@link String} lines of code to use for the method implementation
-     * @param parameters {@link List} of {@link NamedTypeElement}s that are be used as parameters for the method
+     * @param parameters {@link List} of {@link NamedType}s that are be used as parameters for the method
      */
-    private void initMethod(List<String> code, List<NamedTypeElement<?>> parameters) {
-        when(mockMethodElement.getParameters()).thenReturn(parameters);
+    private void initMethod(List<String> code, List<NamedType<?>> parameters) {
         method = new TestJMethod(code);
-        verifyMethodInit(method);
+        for (NamedType<?> t : parameters)
+            method.addParameter(t);
+
+        verifyMethodInit("mockMethodName", method);
     }
 
     /**
@@ -141,6 +141,7 @@ public class JMethodTest extends SharedJMethodTest {
 
         // Populate the method details
         initMethod(null, Collections.emptyList());
+        CollectionAssert.assertEmpty(method.getParameters());
 
         // Verify that it produces what is expected
         generateAndVerifyCode(false);
@@ -156,6 +157,7 @@ public class JMethodTest extends SharedJMethodTest {
 
         // Populate the method details
         initMethod(null, Collections.singletonList(mockParam1));
+        Assertions.assertIterableEquals(Collections.singleton(mockParam1), method.getParameters());
 
         // Verify that it produces what is expected
         generateAndVerifyCode(false);
@@ -174,6 +176,7 @@ public class JMethodTest extends SharedJMethodTest {
 
         // Populate the method details
         initMethod(null, Arrays.asList(mockParam1, mockParam2, mockParam3));
+        Assertions.assertIterableEquals(Arrays.asList(mockParam1, mockParam2, mockParam3), method.getParameters());
 
         // Verify that it produces what is expected
         generateAndVerifyCode(false);
@@ -327,10 +330,8 @@ public class JMethodTest extends SharedJMethodTest {
         Set<ClassType> imports = new HashSet<ClassType>();
         method.generate(builder, imports);
         method.verifyGenerateCalled(1, expectedHasImplementation);
-        verify(mockMethodElement, times(3)).getType();
         verify(mockReturnType).registerImport(imports);
         verify(mockReturnType).getSimpleName();
-        verify(mockMethodElement).getParameters();
 
         matcher.match(builder.get());
     }

@@ -17,9 +17,9 @@ package test.assertions;
 
 import org.junit.jupiter.api.Assertions;
 
-import tendril.dom.classes.ImportElement;
-import tendril.dom.method.MethodElement;
-import tendril.dom.type.value.ValueElement;
+import tendril.codegen.classes.ImportElement;
+import tendril.codegen.classes.method.JMethod;
+import tendril.codegen.field.value.JValue;
 
 /**
  * Assertions to help with custom Tendril classes
@@ -39,6 +39,16 @@ public class TendrilAssert {
     /**
      * Assertion to verify that the {@link ImportElement} is as expected
      * 
+     * @param expected {@link Class} the class the import data is expected to reflect
+     * @param actual   {@link ImportElement} to verify
+     */
+    public static void assertImportData(Class<?> expected, ImportElement actual) {
+        assertImportData(expected.getPackageName(), expected.getSimpleName(), actual);
+    }
+
+    /**
+     * Assertion to verify that the {@link ImportElement} is as expected
+     * 
      * @param expectedPkg  {@link String} the expect package name of the import
      * @param expectedName {@link String} the expected class name of the import
      * @param actual       {@link ImportElement} to verify
@@ -49,12 +59,12 @@ public class TendrilAssert {
     }
 
     /**
-     * Verify that a {@link MethodElement} matches expectations
+     * Verify that a {@link JMethod} matches expectations
      * 
-     * @param expected {@link MethodElement} that is expected
-     * @param actual   {@link MethodElement} that was actually produced
+     * @param expected {@link JMethod} that is expected
+     * @param actual   {@link JMethod} that was actually produced
      */
-    public static void assertMethodElement(MethodElement<?> expected, MethodElement<?> actual) {
+    public static void assertMethodElement(JMethod<?> expected, JMethod<?> actual) {
         Assertions.assertEquals(expected.getType(), actual.getType());
         Assertions.assertEquals(expected.getName(), actual.getName());
         Assertions.assertEquals(expected.getAnnotations(), actual.getAnnotations());
@@ -62,12 +72,12 @@ public class TendrilAssert {
     }
 
     /**
-     * Verify that a {@link ValueElement} matches expectations
+     * Verify that a {@link JValue} matches expectations
      * 
-     * @param expected {@link ValueElement} that is expected
-     * @param actual   {@link ValueElement} that is actually produced
+     * @param expected {@link JValue} that is expected
+     * @param actual   {@link JValue} that is actually produced
      */
-    public static void assertValueElement(ValueElement<?, ?> expected, ValueElement<?, ?> actual) {
+    public static void assertJValue(JValue<?, ?> expected, JValue<?, ?> actual) {
         Assertions.assertEquals(expected.getType(), actual.getType());
         Assertions.assertEquals(expected.getValue(), actual.getValue());
     }

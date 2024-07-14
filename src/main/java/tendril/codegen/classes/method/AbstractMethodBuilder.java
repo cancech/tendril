@@ -18,9 +18,7 @@ package tendril.codegen.classes.method;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.MethodBuilder;
-import tendril.codegen.field.type.TypeData;
-import tendril.dom.method.MethodElement;
-import tendril.dom.type.Type;
+import tendril.codegen.field.type.Type;
 
 /**
  * Builder for creating abstract methods
@@ -33,10 +31,10 @@ public class AbstractMethodBuilder<RETURN_TYPE extends Type> extends MethodBuild
      * CTOR
      * 
      * @param encompassingClass {@link JClass} which contain the method
-     * @param returnType        {@link TypeData} representing what the method returns
+     * @param returnType        RETURN_TYPE representing what the method returns
      * @param name              {@link String} the name of the method
      */
-	public AbstractMethodBuilder(JClass encompassingClass, TypeData<RETURN_TYPE> returnType, String name) {
+	public AbstractMethodBuilder(JClass encompassingClass, RETURN_TYPE returnType, String name) {
 		super(encompassingClass, returnType, name);
 	}
 
@@ -55,8 +53,8 @@ public class AbstractMethodBuilder<RETURN_TYPE extends Type> extends MethodBuild
 	 * @see tendril.codegen.classes.MethodBuilder#buildMethod(tendril.dom.method.MethodElement)
 	 */
 	@Override
-	protected JMethod<RETURN_TYPE> buildMethod(MethodElement<RETURN_TYPE> methodElement) {
-		return new JMethodDefault<RETURN_TYPE>(visibility, methodElement, linesOfCode);
+	protected JMethod<RETURN_TYPE> buildMethod(RETURN_TYPE returnType, String name) {
+		return new JMethodDefault<RETURN_TYPE>(visibility, returnType, name, linesOfCode);
 	}
 
 }

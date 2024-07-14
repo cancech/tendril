@@ -36,14 +36,14 @@ import tendril.bean.EnumProvider;
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.Utilities;
 import tendril.codegen.VisibilityType;
+import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.method.JMethod;
-import tendril.codegen.field.JValueFactory;
-import tendril.codegen.field.type.TypeData;
-import tendril.codegen.field.type.TypeDataFactory;
-import tendril.dom.type.Type;
-import tendril.dom.type.core.ClassType;
-import tendril.dom.type.core.PoDType;
-import tendril.dom.type.core.VoidType;
+import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.PoDType;
+import tendril.codegen.field.type.Type;
+import tendril.codegen.field.type.VoidType;
+import tendril.codegen.field.value.JValueFactory;
+import tendril.helper.annotation.TestPodAnnotation;
 import test.AbstractUnitTest;
 import test.assertions.matchers.MultiLineStringMatcher;
 
@@ -57,7 +57,7 @@ public class JClassTest extends AbstractUnitTest {
 	 */
 	private class TestJClass extends JClass {
 		/** Holds the last method return type so that it can be verified */
-		private TypeData<?> methodReturnType;
+		private Type methodReturnType;
 		/** Holds the last method name so that it can be verified */
 		private String methodName;
 
@@ -73,7 +73,7 @@ public class JClassTest extends AbstractUnitTest {
 		 */
 		@SuppressWarnings("unchecked")
 		@Override
-		protected <RETURN_TYPE extends Type> MethodBuilder<RETURN_TYPE> createMethodBuilder(TypeData<RETURN_TYPE> returnType, String name) {
+		protected <RETURN_TYPE extends Type> MethodBuilder<RETURN_TYPE> createMethodBuilder(RETURN_TYPE returnType, String name) {
 			methodReturnType = returnType;
 			methodName = name;
 			return (MethodBuilder<RETURN_TYPE>) mockMethodBuilder;
@@ -82,10 +82,10 @@ public class JClassTest extends AbstractUnitTest {
 		/**
 		 * Verify the details from the last build method call.
 		 * 
-		 * @param expectedType {@link TypeData} the expected return type
+		 * @param expectedType {@link Type} the expected return type
 		 * @param expectedName {@link String} the expected method name
 		 */
-		public void verifyMethodDetails(TypeData<?> expectedType, String expectedName) {
+		public void verifyMethodDetails(Type expectedType, String expectedName) {
 			Assertions.assertEquals(expectedType.getSimpleName(), methodReturnType.getSimpleName());
 			Assertions.assertEquals(expectedName, methodName);
 		}
@@ -161,17 +161,17 @@ public class JClassTest extends AbstractUnitTest {
 	@Test
 	public void testBuildMethodBuilder() {
 		Assertions.assertEquals(mockMethodBuilder, jclass.buildMethod("voidMethodName"));
-		jclass.verifyMethodDetails(TypeDataFactory.create(), "voidMethodName");
+		jclass.verifyMethodDetails(VoidType.INSTANCE, "voidMethodName");
 
 		Assertions.assertEquals(mockMethodBuilder, jclass.buildMethod(PoDType.INT, "intMethodName"));
-		jclass.verifyMethodDetails(TypeDataFactory.create(PoDType.INT), "intMethodName");
+		jclass.verifyMethodDetails(PoDType.INT, "intMethodName");
 
 		Assertions.assertEquals(mockMethodBuilder, jclass.buildMethod(TestJClass.class, "classMethodName"));
-		jclass.verifyMethodDetails(TypeDataFactory.create(TestJClass.class), "classMethodName");
+		jclass.verifyMethodDetails(new ClassType(TestJClass.class), "classMethodName");
 
 		ClassType clsType = new ClassType("package", "class");
 		Assertions.assertEquals(mockMethodBuilder, jclass.buildMethod(clsType, "classMethodName"));
-		jclass.verifyMethodDetails(TypeDataFactory.create(clsType), "classMethodName");
+		jclass.verifyMethodDetails(clsType, "classMethodName");
 	}
 
 	/**
@@ -197,8 +197,8 @@ public class JClassTest extends AbstractUnitTest {
 		endDefinition();
 
 		// Add the additional features
-		jclass.annotate(EnumProvider.class);
-		jclass.annotate(TestPodAnnotation.class, JValueFactory.from(PoDType.BOOLEAN));
+		jclass.annotate(JAnnotationFactory.create(EnumProvider.class));
+		jclass.annotate(JAnnotationFactory.create(TestPodAnnotation.class, JValueFactory.create(PoDType.BOOLEAN)));
 
 		// Verify that it matches
 		assertGeneratedCode();
@@ -250,8 +250,8 @@ public class JClassTest extends AbstractUnitTest {
 		jclass.addMethod(mockVoidMethod);
 		jclass.addMethod(mockPodMethod);
 		jclass.addMethod(mockClassMethod);
-		jclass.annotate(EnumProvider.class);
-		jclass.annotate(TestPodAnnotation.class, JValueFactory.from(PoDType.BOOLEAN));
+		jclass.annotate(JAnnotationFactory.create(EnumProvider.class));
+		jclass.annotate(JAnnotationFactory.create(TestPodAnnotation.class, JValueFactory.create(PoDType.BOOLEAN)));
 
 		// Verify that it matches
 		assertGeneratedCode();

@@ -16,7 +16,7 @@
 package tendril.codegen.classes;
 
 import tendril.codegen.VisibilityType;
-import tendril.dom.type.core.ClassType;
+import tendril.codegen.field.type.ClassType;
 
 /**
  * Representation of an annotation

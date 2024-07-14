@@ -15,17 +15,12 @@
  */
 package tendril.codegen.classes;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.jupiter.api.Assertions;
 import org.mockito.Mock;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.JMethod;
-import tendril.codegen.field.type.TypeData;
-import tendril.dom.method.MethodElement;
-import tendril.dom.type.Type;
+import tendril.codegen.field.type.Type;
 import test.AbstractUnitTest;
 import test.assertions.ClassAssert;
 
@@ -38,11 +33,9 @@ public abstract class SharedMethodBuilderTest<T extends MethodBuilder<Type>> ext
     @Mock
     protected JClass mockClass;
     @Mock
-    protected TypeData<Type> mockReturnType;
+    protected Type mockReturnType;
     @Mock
     protected VisibilityType mockVisibilityType;
-    @Mock
-    protected MethodElement<Type> mockMethodElement;
 
     // Instance to test
     protected MethodBuilder<Type> builder;
@@ -73,8 +66,9 @@ public abstract class SharedMethodBuilderTest<T extends MethodBuilder<Type>> ext
      * @param expectedClass {@link Class} extending {@link JMethod} that is expected to be built
      */
     protected void verifyBuildMethodType(@SuppressWarnings("rawtypes") Class<? extends JMethod> expectedClass) {
-        when(mockMethodElement.getName()).thenReturn("mockMethod");
-        ClassAssert.assertInstance(expectedClass, builder.buildMethod(mockMethodElement));
-        verify(mockMethodElement).getName();
+        JMethod<Type> method = builder.buildMethod(mockReturnType, "myMethodName");
+        ClassAssert.assertInstance(expectedClass, method);
+        Assertions.assertEquals(mockReturnType, method.getType());
+        Assertions.assertEquals("myMethodName", method.getName());
     }
 }

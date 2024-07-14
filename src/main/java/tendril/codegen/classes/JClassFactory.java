@@ -16,12 +16,12 @@
 package tendril.codegen.classes;
 
 import tendril.codegen.VisibilityType;
-import tendril.dom.type.core.ClassType;
+import tendril.codegen.field.type.ClassType;
 
 /**
  * Factory for creating {@link JClass} representations of distinct types of classes
  */
-public class JClassFactory {
+public abstract class JClassFactory {
 
 	/**
 	 * Create a default (non-abstract, concrete) class

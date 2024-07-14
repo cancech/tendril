@@ -16,16 +16,13 @@
 package tendril.codegen.classes.method;
 
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Assertions;
 import org.mockito.Mock;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.VisibilityType;
-import tendril.codegen.field.type.TypeData;
-import tendril.dom.method.MethodElement;
-import tendril.dom.type.Type;
+import tendril.codegen.field.type.Type;
 import test.AbstractUnitTest;
 import test.assertions.matchers.MultiLineStringMatcher;
 
@@ -38,9 +35,7 @@ public abstract class SharedJMethodTest extends AbstractUnitTest {
     @Mock
     protected VisibilityType mockVisibility;
     @Mock
-    protected MethodElement<Type> mockMethodElement;
-    @Mock
-    protected TypeData<Type> mockReturnType;
+    protected Type mockReturnType;
 
     // For tracking the generated code
     protected CodeBuilder builder;
@@ -55,8 +50,6 @@ public abstract class SharedJMethodTest extends AbstractUnitTest {
         builder = new CodeBuilder();
         matcher = new MultiLineStringMatcher();
         
-        lenient().when(mockMethodElement.getName()).thenReturn("mockMethodName");
-        lenient().when(mockMethodElement.getType()).thenReturn(mockReturnType);
         lenient().when(mockReturnType.getSimpleName()).thenReturn("Return_Type");        
     }
 
@@ -64,12 +57,9 @@ public abstract class SharedJMethodTest extends AbstractUnitTest {
      * Initialize the method and ensure that its simple values are correct
      * 
      */
-    protected void verifyMethodInit(JMethod<?> method) {
-        verify(mockMethodElement).getName();
-        Assertions.assertEquals("mockMethodName", method.getName());
-
-        Assertions.assertEquals(mockReturnType, method.getReturnType());
-        verify(mockMethodElement).getType();
+    protected void verifyMethodInit(String methodName, JMethod<?> method) {
+        Assertions.assertEquals(methodName, method.getName());
+        Assertions.assertEquals(mockReturnType, method.getType());
     }
 
 }

@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import tendril.codegen.VisibilityType;
-import tendril.dom.type.Type;
+import tendril.codegen.field.type.Type;
 
 /**
  * Test case for {@link JMethodDefault}
@@ -41,8 +41,8 @@ public class JMethodInterfaceTest extends SharedJMethodTest {
      */
     @Test
     public void testSignatureStartNotPublic() {
-        JMethodInterface<Type> method = new JMethodInterface<>(mockVisibility, mockMethodElement, Collections.emptyList());
-        verifyMethodInit(method);
+        JMethodInterface<Type> method = new JMethodInterface<>(mockVisibility, mockReturnType, "interfaceMethod", Collections.emptyList());
+        verifyMethodInit("interfaceMethod", method);
 
         Assertions.assertEquals("mockVisibility ", method.generateSignatureStart(false));
         Assertions.assertEquals("mockVisibility ", method.generateSignatureStart(true));
@@ -53,8 +53,8 @@ public class JMethodInterfaceTest extends SharedJMethodTest {
      */
     @Test
     public void testSignatureStartPublic() {
-        JMethodInterface<Type> method = new JMethodInterface<>(VisibilityType.PUBLIC, mockMethodElement, Collections.emptyList());
-        verifyMethodInit(method);
+        JMethodInterface<Type> method = new JMethodInterface<>(VisibilityType.PUBLIC, mockReturnType, "publicInterfaceMethod", Collections.emptyList());
+        verifyMethodInit("publicInterfaceMethod", method);
 
         Assertions.assertEquals("", method.generateSignatureStart(false));
         Assertions.assertEquals("default ", method.generateSignatureStart(true));

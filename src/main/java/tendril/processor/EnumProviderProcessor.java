@@ -24,10 +24,10 @@ import javax.lang.model.element.TypeElement;
 
 import com.google.auto.service.AutoService;
 
-import tendril.dom.annotation.AppliedAnnotation;
-import tendril.dom.method.MethodElement;
-import tendril.dom.type.NamedTypeElement;
-import tendril.dom.type.core.ClassType;
+import tendril.codegen.annotation.JAnnotation;
+import tendril.codegen.classes.method.JMethod;
+import tendril.codegen.field.NamedType;
+import tendril.codegen.field.type.ClassType;
 
 @SupportedAnnotationTypes("tendril.bean.EnumProvider")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
@@ -49,12 +49,12 @@ public class EnumProviderProcessor extends AbstractTendrilProccessor {
     }
     
     @Override
-    protected void processMethod(ClassType classData, MethodElement<?> methodData) {
+    protected void processMethod(ClassType classData, JMethod<?> methodData) {
         String signature = classData.getFullyQualifiedName() + "::" + methodData.getName() + "[" + methodData.getType().getSimpleName() + "](";
-        for (NamedTypeElement<?> d: methodData.getParameters()) {
-            for (AppliedAnnotation ad: d.getAnnotations()) {
-                signature += "@" + ad.getClassName() + "[";
-                for (MethodElement<?> md: ad.getParameters())
+        for (NamedType<?> d: methodData.getParameters()) {
+            for (JAnnotation ad: d.getAnnotations()) {
+                signature += "@" + ad.getName() + "[";
+                for (JMethod<?> md: ad.getParameters())
                     signature += md.getName() + "=" + ad.getValue(md).getValue() + ", ";
                 signature += "] ";
             }

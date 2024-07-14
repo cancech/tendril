@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.SharedMethodBuilderTest;
-import tendril.dom.type.Type;
+import tendril.codegen.field.type.Type;
 
 /**
  * Test case for {@link InterfaceMethodBuilder}

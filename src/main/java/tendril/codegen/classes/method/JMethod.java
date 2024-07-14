@@ -15,16 +15,15 @@
  */
 package tendril.codegen.classes.method;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import tendril.codegen.BaseElement;
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.VisibilityType;
-import tendril.codegen.field.type.TypeData;
-import tendril.dom.method.MethodElement;
-import tendril.dom.type.Type;
-import tendril.dom.type.core.ClassType;
+import tendril.codegen.field.NamedType;
+import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.Type;
 import tendril.util.TendrilStringUtil;
 
 /**
@@ -32,11 +31,13 @@ import tendril.util.TendrilStringUtil;
  * 
  * @param <RETURN_TYPE> the {@link Type} representing what the method returns
  */
-public abstract class JMethod<RETURN_TYPE extends Type> extends BaseElement {
+public abstract class JMethod<RETURN_TYPE extends Type> extends NamedType<Type> {
+
+    /** List of parameters that the method takes */
+    private final List<NamedType<?>> parameters = new ArrayList<>();
+
     /** The visibility of the method */
     protected final VisibilityType visibility;
-    /** The metadata of the method */
-    protected final MethodElement<RETURN_TYPE> methodData;
     /** The lines of code that build up the implementation of the method */
     protected final List<String> implementation;
 
@@ -44,22 +45,40 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends BaseElement {
      * CTOR
      * 
      * @param visibility     {@link VisibilityType} indicating the desired visibility of the method
-     * @param methodData     {@link MethodElement} with the basic metadata of the method
+     * @param returnType     RETURN_TYPE representing what the method returns
+     * @param name           {@link String} the name of the method
      * @param implementation {@link List} of {@link String} lines of code with the implementation of the method
      */
-    protected JMethod(VisibilityType visibility, MethodElement<RETURN_TYPE> methodData, List<String> implementation) {
-        super(methodData.getName());
+    protected JMethod(VisibilityType visibility, RETURN_TYPE returnType, String name, List<String> implementation) {
+        super(returnType, name);
         this.visibility = visibility;
-        this.methodData = methodData;
         this.implementation = implementation;
     }
 
     /**
-     * @see tendril.codegen.BaseElement#generateSelf(tendril.codegen.CodeBuilder, java.util.Set)
+     * Add a parameter to the method. Parameters are expected to be added in the order they appear in the method.
+     * 
+     * @param parameter {@link NamedType} representing the method parameter
+     */
+    public void addParameter(NamedType<?> parameter) {
+        parameters.add(parameter);
+    }
+
+    /**
+     * Get all of the parameters of the method
+     * 
+     * @return {@link List} of {@link NamedType}s representing the parameters
+     */
+    public List<NamedType<?>> getParameters() {
+        return parameters;
+    }
+
+    /**
+     * @see tendril.codegen.JBase#generateSelf(tendril.codegen.CodeBuilder, java.util.Set)
      */
     @Override
     protected void generateSelf(CodeBuilder builder, Set<ClassType> classImports) {
-        getReturnType().registerImport(classImports);
+        getType().registerImport(classImports);
 
         boolean hasImplementation = implementation != null;
         builder.append(generateSignature(hasImplementation));
@@ -74,15 +93,6 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends BaseElement {
     }
 
     /**
-     * Get the metadata of the method return type
-     * 
-     * @return {@link TypeData}
-     */
-    protected TypeData<RETURN_TYPE> getReturnType() {
-        return methodData.getType();
-    }
-
-    /**
      * Generate the full method signature
      * 
      * @param hasImplementation boolean true if the method has an implementation provided
@@ -90,7 +100,7 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends BaseElement {
      */
     private String generateSignature(boolean hasImplementation) {
         StringBuilder signature = new StringBuilder(generateSignatureStart(hasImplementation));
-        signature.append(getReturnType().getSimpleName() + " " + name);
+        signature.append(getType().getSimpleName() + " " + getName());
         signature.append("(" + generateParameters() + ")");
         signature.append(hasImplementation ? " {" : ";");
         return signature.toString();
@@ -102,7 +112,7 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends BaseElement {
      * @return {@link String} containing the details of the parameters
      */
     private String generateParameters() {
-        return TendrilStringUtil.join(methodData.getParameters(), param -> {
+        return TendrilStringUtil.join(parameters, param -> {
             return param.getType().getSimpleName() + " " + param.getName();
         });
     }

@@ -29,20 +29,19 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ExecutableType;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import tendril.codegen.field.type.TypeData;
-import tendril.codegen.field.type.TypeDataFactory;
-import tendril.dom.annotation.AppliedAnnotation;
-import tendril.dom.method.MethodElement;
-import tendril.dom.type.NamedTypeElement;
-import tendril.dom.type.core.ClassType;
-import tendril.dom.type.core.PoDType;
-import tendril.dom.type.value.ValueElement;
+import tendril.codegen.annotation.JAnnotation;
+import tendril.codegen.classes.method.AnonymousMethod;
+import tendril.codegen.classes.method.JMethod;
+import tendril.codegen.field.NamedType;
+import tendril.codegen.field.ParameterType;
+import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
+import tendril.codegen.field.value.JValue;
 
 public abstract class AbstractTendrilProccessor extends AbstractProcessor {
 
@@ -81,30 +80,29 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
     }
 
     private void prepareMethod(ExecutableElement element) {
-        Pair<ClassType, MethodElement<?>> methodDetails = loadMethodDetails(element);
+        Pair<ClassType, JMethod<?>> methodDetails = loadMethodDetails(element);
         processMethod(methodDetails.getLeft(), methodDetails.getRight());
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private Pair<ClassType, MethodElement<?>> loadMethodDetails(ExecutableElement element) {
+    private Pair<ClassType, JMethod<?>> loadMethodDetails(ExecutableElement element) {
         ClassType classData = deriveClassData((TypeElement) element.getEnclosingElement());
         List<? extends TypeMirror> parameterTypes = ((ExecutableType) element.asType()).getParameterTypes();
         List<? extends VariableElement> parameters = element.getParameters();
         if (parameterTypes.size() != parameters.size())
             throw new IllegalStateException(element + " mismatch between number of parameters and parameter types");
 
-        MethodElement<?> method = new MethodElement<>(deriveType(element.getReturnType()), element.getSimpleName().toString());
+        JMethod<?> method = new AnonymousMethod<>(TypeFactory.create(element.getReturnType()), element.getSimpleName().toString());
         for (int i = 0; i < parameters.size(); i++) {
             VariableElement varElement = parameters.get(i);
-            NamedTypeElement paramData = new NamedTypeElement(deriveType(parameterTypes.get(i)), varElement.getSimpleName().toString());
+            NamedType<?> paramData = new ParameterType<>(TypeFactory.create(parameterTypes.get(i)), varElement.getSimpleName().toString());
             for (AnnotationMirror m : varElement.getAnnotationMirrors()) {
-                AppliedAnnotation annonData = new AppliedAnnotation(deriveClassData((TypeElement)m.getAnnotationType().asElement()));
+                JAnnotation annonData = new JAnnotation(deriveClassData((TypeElement)m.getAnnotationType().asElement()));
                 for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : m.getElementValues().entrySet()) {
-                    Pair<ClassType, MethodElement<?>> details = loadMethodDetails(entry.getKey());
-                    ValueElement<?,?> value = details.getRight().getType().asValue(entry.getValue().getValue());
+                    Pair<ClassType, JMethod<?>> details = loadMethodDetails(entry.getKey());
+                    JValue<?,?> value = details.getRight().getType().asValue(entry.getValue().getValue());
                     annonData.addParameter(details.getRight(), value);
                 }
-                paramData.addAnnotation(annonData);
+                paramData.annotate(annonData);
             }
             
             method.addParameter(paramData);
@@ -119,21 +117,9 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
         return new ClassType(packageName, typeName);
     }
 
-    private TypeData<?> deriveType(TypeMirror mirror) {
-        TypeKind kind = mirror.getKind();
-        if (TypeKind.VOID == kind)
-            return TypeDataFactory.create();
-        if (TypeKind.DECLARED == kind)
-            return TypeDataFactory.create(new ClassType(mirror.toString()));
-        if (kind.isPrimitive())
-            return TypeDataFactory.create(PoDType.valueOf(kind.toString()));
-
-        throw new IllegalArgumentException("Unknown type: " + mirror + "[" + kind + "]");
-    }
-    
     protected void processType(ClassType data) {
     }
 
-    protected void processMethod(ClassType classData, MethodElement<?> methodData) {
+    protected void processMethod(ClassType classData, JMethod<?> methodData) {
     }
 }

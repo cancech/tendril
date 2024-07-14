@@ -17,9 +17,8 @@ package tendril.codegen.classes;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.InterfaceMethodBuilder;
-import tendril.codegen.field.type.TypeData;
-import tendril.dom.type.Type;
-import tendril.dom.type.core.ClassType;
+import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.Type;
 
 /**
  * Representation of an interface
@@ -48,7 +47,7 @@ public class JClassInterface extends JClass {
 	 * @see tendril.codegen.classes.JClass#createMethodBuilder(tendril.codegen.field.type.TypeData, java.lang.String)
 	 */
 	@Override
-	protected <RETURN_TYPE extends Type> MethodBuilder<RETURN_TYPE> createMethodBuilder(TypeData<RETURN_TYPE> returnType, String name) {
+	protected <RETURN_TYPE extends Type> MethodBuilder<RETURN_TYPE> createMethodBuilder(RETURN_TYPE returnType, String name) {
 		return new InterfaceMethodBuilder<RETURN_TYPE>(this, returnType, name);
 	}
 

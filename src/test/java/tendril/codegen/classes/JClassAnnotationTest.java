@@ -24,9 +24,8 @@ import org.mockito.Mock;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.InterfaceMethodBuilder;
-import tendril.codegen.field.type.TypeData;
-import tendril.dom.type.Type;
-import tendril.dom.type.core.ClassType;
+import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.Type;
 import test.AbstractUnitTest;
 import test.assertions.ClassAssert;
 
@@ -41,7 +40,7 @@ public class JClassAnnotationTest extends AbstractUnitTest {
 	@Mock
 	private ClassType mockClassType;
 	@Mock
-	private TypeData<Type> mockReturnType;
+	private Type mockReturnType;
 
 	// Instance to test
 	private JClassAnnotation cls;
