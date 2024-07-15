@@ -22,10 +22,15 @@ import tendril.codegen.field.type.Type;
 
 /**
  * Representation of simple values (plain ol' data types, {@link String}s), where the value is presented verbatim and at most some decoration (prefix, suffix).
+ * 
+ * @param <DATA_TYPE> representing the {@link Type} of the value
+ * @param <VALUE_TYPE> the specific (Java) type storing the value
  */
-public class JValueSimple<DATA_TYPE extends Type, T> extends JValue<DATA_TYPE, T> {
+public class JValueSimple<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<DATA_TYPE, VALUE_TYPE> {
 
+    /** The prefix to place in front of the value when generating the code */ 
     private final String prefix;
+    /** The suffix to place after the value when generating the code */
     private final String suffix;
 
     /**
@@ -34,7 +39,7 @@ public class JValueSimple<DATA_TYPE extends Type, T> extends JValue<DATA_TYPE, T
      * @param dataType DATA_TYPE representing what type of value is stored
      * @param value    T the value to store
      */
-    public JValueSimple(DATA_TYPE dataType, T value) {
+    public JValueSimple(DATA_TYPE dataType, VALUE_TYPE value) {
         this(dataType, value, "", "");
     }
 
@@ -46,7 +51,7 @@ public class JValueSimple<DATA_TYPE extends Type, T> extends JValue<DATA_TYPE, T
      * @param prefix   {@link String} prefix to add before the value when generating it as code
      * @param suffix   {@link String} suffix to add after the value when generating it as code
      */
-    public JValueSimple(DATA_TYPE dataType, T value, String prefix, String suffix) {
+    public JValueSimple(DATA_TYPE dataType, VALUE_TYPE value, String prefix, String suffix) {
         super(dataType, value);
         this.prefix = prefix;
         this.suffix = suffix;

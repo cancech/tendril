@@ -19,14 +19,18 @@ package tendril.codegen;
  * Enumeration of the different visibilities that can be employed in the code
  */
 public enum VisibilityType {
+    /** public */
     PUBLIC("public"),
+    /** private */
     PRIVATE("private"),
+    /** package private (no explicit visibility) */
     PACKAGE_PRIVATE(""),
+    /** protected */
     PROTECTED("protected");
-    
-	/** The representation of the visibility type as code */
+
+    /** The representation of the visibility type as code */
     private final String code;
-    
+
     /**
      * CTOR
      * 
@@ -35,7 +39,7 @@ public enum VisibilityType {
     private VisibilityType(String code) {
         this.code = code;
     }
-    
+
     /**
      * Converts the "visibility" to code
      */

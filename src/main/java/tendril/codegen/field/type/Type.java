@@ -56,7 +56,7 @@ public interface Type extends Importable {
      * Create a value for the DATA_TYPE
      * 
      * @param value {@link Object} the value to employ
-     * @return {@link ValueElement}
+     * @return {@link JValue}
      */
     JValue<?, ?> asValue(Object value);
 }

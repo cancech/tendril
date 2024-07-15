@@ -23,6 +23,8 @@ import tendril.codegen.field.type.Type;
 
 /**
  * Representation of parameters (i.e.: type with a name)
+ * 
+ * @param <DATA_TYPE> representing the {@link Type} of the parameter
  */
 public class ParameterType<DATA_TYPE extends Type> extends NamedType<DATA_TYPE> {
 

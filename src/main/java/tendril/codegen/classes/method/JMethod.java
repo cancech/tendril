@@ -29,7 +29,7 @@ import tendril.util.TendrilStringUtil;
 /**
  * Representation of a method
  * 
- * @param <RETURN_TYPE> the {@link Type} representing what the method returns
+ * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
 public abstract class JMethod<RETURN_TYPE extends Type> extends NamedType<Type> {
 

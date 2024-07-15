@@ -24,7 +24,22 @@ import tendril.codegen.field.value.JValueFactory;
  * Enumeration of the plain ol' Data Types that can be used in Java
  */
 public enum PoDType implements Type {
-    BOOLEAN, BYTE, CHAR, DOUBLE, FLOAT, INT, LONG, SHORT;
+    /** boolean POD */
+    BOOLEAN,
+    /** byte POD */
+    BYTE,
+    /** char POD */
+    CHAR,
+    /** double POD */
+    DOUBLE,
+    /** float POD */
+    FLOAT,
+    /** int POD */
+    INT, 
+    /** long POD */
+    LONG,
+    /** short POD */
+    SHORT;
 
     /**
      * Provide the appropriate PoDType for the specified {@link Class}. If no PoDType exists for the specified {@link Class} an {@link IllegalArgumentException} is thrown

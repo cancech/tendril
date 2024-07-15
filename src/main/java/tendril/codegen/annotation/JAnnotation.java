@@ -67,7 +67,7 @@ public class JAnnotation extends JBase {
      * Add the defined parameter with value to the Annotation instance
      * 
      * @param parameter {@link JMethod} representing the parameter method
-     * @param value     {@link ValueElement} representing the value applied to the parameter
+     * @param value     {@link JValue} representing the value applied to the parameter
      */
     public void addParameter(JMethod<?> parameter, JValue<?, ?> value) {
         parameters.add(parameter);
@@ -87,7 +87,7 @@ public class JAnnotation extends JBase {
      * Get the value for the indicated parameter
      * 
      * @param parameter {@link JMethod} representing the desired parameter
-     * @return {@link ValueElement} containing the applied value
+     * @return {@link JValue} containing the applied value
      */
     public JValue<?, ?> getValue(JMethod<?> parameter) {
         return values.get(parameter);

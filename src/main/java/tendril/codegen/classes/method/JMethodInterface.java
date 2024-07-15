@@ -23,7 +23,7 @@ import tendril.codegen.field.type.Type;
 /**
  * Representation of a method that appears in an interface
  * 
- * @param <RETURN_TYPE> the {@link Type} that the method returns
+ * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
 public class JMethodInterface<RETURN_TYPE extends Type> extends JMethod<RETURN_TYPE> {
 

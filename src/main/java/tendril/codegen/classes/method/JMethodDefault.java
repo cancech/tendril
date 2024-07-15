@@ -23,7 +23,7 @@ import tendril.codegen.field.type.Type;
 /**
  * Representation of a default method that appears in (abstract) classes
  * 
- * @param <RETURN_TYPE> the {@link Type} that the method returns
+ * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
 public class JMethodDefault<RETURN_TYPE extends Type> extends JMethod<RETURN_TYPE> {
 

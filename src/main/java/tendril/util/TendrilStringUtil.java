@@ -20,7 +20,13 @@ import java.util.Collection;
 /**
  * A collection of {@link String} Utilities to facilitate {@link String} manipulation required, and which are not available elsewhere.
  */
-public class TendrilStringUtil {
+public abstract class TendrilStringUtil {
+
+    /**
+     * Hidden CTOR
+     */
+    private TendrilStringUtil() {
+    }
 
     /**
      * Joins a {@link Collection} of items to produce a comma (", ") delimited {@link String} of the items. The conversion to {@link String} is performed by using the items' {@code toString()} method.

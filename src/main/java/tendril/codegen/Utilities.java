@@ -21,7 +21,13 @@ import java.time.format.DateTimeFormatter;
 /**
  * Utility helper class
  */
-public class Utilities {
+public abstract class Utilities {
+
+    /**
+     * Hidden CTOR
+     */
+    private Utilities() {
+    }
 
 	/**
 	 * Generate a time stamp (current time) per the ISO 8061 standard

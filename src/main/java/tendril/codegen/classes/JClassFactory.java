@@ -23,6 +23,12 @@ import tendril.codegen.field.type.ClassType;
  */
 public abstract class JClassFactory {
 
+    /**
+     * Hidden CTOR
+     */
+    private JClassFactory() {
+    }
+
 	/**
 	 * Create a default (non-abstract, concrete) class
 	 * 

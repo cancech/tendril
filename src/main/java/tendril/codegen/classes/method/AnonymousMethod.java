@@ -23,6 +23,8 @@ import tendril.codegen.field.type.Type;
 /**
  * A simple anonymous method which cannot be used for code generation. This is to be used to represent method data in situations where the full method details are either not available or not
  * necessary. Namely during code generation when loading details from client code.
+ * 
+ * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
 public class AnonymousMethod<RETURN_TYPE extends Type> extends JMethod<RETURN_TYPE> {
 

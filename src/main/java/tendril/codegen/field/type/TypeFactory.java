@@ -21,7 +21,13 @@ import javax.lang.model.type.TypeMirror;
 /**
  * Factory to facilitate the creation of {@link Type} instances
  */
-public class TypeFactory {
+public abstract class TypeFactory {
+
+    /**
+     * Hidden CTOR
+     */
+    private TypeFactory() {
+    }
 
     /**
      * Creates a {@link Type} for the given {@link TypeMirror} definition

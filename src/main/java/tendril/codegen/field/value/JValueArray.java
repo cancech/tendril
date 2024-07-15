@@ -24,7 +24,9 @@ import tendril.codegen.field.type.Type;
 /**
  * Representation of an array value
  * 
- * @param <TYPE> the type of element to be stored in the array
+ * 
+ * @param <DATA_TYPE> representing the {@link Type} of the value
+ * @param <VALUE_TYPE> the specific (Java) type storing the values in the array
  */
 public class JValueArray<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<DATA_TYPE, List<JValue<DATA_TYPE, VALUE_TYPE>>> {
 

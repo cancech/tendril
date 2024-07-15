@@ -25,6 +25,12 @@ import tendril.codegen.field.type.PoDType;
  * Factory to facilitate the creation of {@link JValue}s
  */
 public class JValueFactory {
+    
+    /**
+     * Hidden CTOR
+     */
+    private JValueFactory() {
+    }
 
     /**
      * Create a {@link JValue} representing an {@link Enum}

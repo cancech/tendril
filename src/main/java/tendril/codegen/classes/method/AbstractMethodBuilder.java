@@ -23,7 +23,7 @@ import tendril.codegen.field.type.Type;
 /**
  * Builder for creating abstract methods
  * 
- * @param <RETURN_TYPE> the {@link Type} the method returns
+ * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
 public class AbstractMethodBuilder<RETURN_TYPE extends Type> extends MethodBuilder<RETURN_TYPE> {
 
@@ -50,7 +50,7 @@ public class AbstractMethodBuilder<RETURN_TYPE extends Type> extends MethodBuild
 	}
 
 	/**
-	 * @see tendril.codegen.classes.MethodBuilder#buildMethod(tendril.dom.method.MethodElement)
+	 * @see tendril.codegen.classes.MethodBuilder#buildMethod(tendril.codegen.field.type.Type, java.lang.String)
 	 */
 	@Override
 	protected JMethod<RETURN_TYPE> buildMethod(RETURN_TYPE returnType, String name) {

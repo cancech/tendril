@@ -24,7 +24,8 @@ import tendril.codegen.field.type.TypedElement;
 /**
  * The base representation of a value
  * 
- * @param <TYPE> indicating the type of value that is stored within
+ * @param <DATA_TYPE> representing the {@link Type} of the value
+ * @param <VALUE_TYPE> the specific (Java) type storing the value
  */
 public abstract class JValue<DATA_TYPE extends Type, VALUE_TYPE> implements TypedElement<DATA_TYPE> {
     

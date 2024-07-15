@@ -116,6 +116,12 @@ public class ImportElement {
         return getFullyQualifiedName();
     }
     
+    /**
+     * Get the {@link Class} for the defined element.
+     * 
+     * @return {@link Class}
+     * @throws ClassNotFoundException if no {@link Class} exists
+     */
     public Class<?> getDefinedClass() throws ClassNotFoundException {
         return Class.forName(getFullyQualifiedName());
     }

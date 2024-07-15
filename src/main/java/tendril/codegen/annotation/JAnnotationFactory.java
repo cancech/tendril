@@ -34,6 +34,12 @@ import tendril.util.TendrilStringUtil;
 public abstract class JAnnotationFactory {
 
     /**
+     * Hidden CTOR
+     */
+    private JAnnotationFactory() {
+    }
+
+    /**
      * Create a new marker annotation
      * 
      * @param annotationClass {@link Class} extending {@link Annotation} where the annotation is defined
@@ -310,7 +316,7 @@ public abstract class JAnnotationFactory {
 
             // Make sure that there are not extra parameters
             methods.removeIf(m -> !m.isDefault());
-            
+
             if (!methods.isEmpty())
                 throw new IllegalArgumentException(annotationClass.getName() + " annotation has parameters without assigned values [" + TendrilStringUtil.join(methods, m -> m.getName()) + "]");
         } else {

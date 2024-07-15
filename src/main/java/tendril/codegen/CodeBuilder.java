@@ -26,6 +26,12 @@ public class CodeBuilder {
     private final TextStringBuilder builder = new TextStringBuilder();
     /** The indentation level of the code */
     private int numIndents = 0;
+
+    /**
+     * CTOR
+     */
+    public CodeBuilder() {
+    }
     
     /**
      * Indent the code, such that subsequent lines are one additional "tab" indented
