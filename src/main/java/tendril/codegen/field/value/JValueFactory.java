@@ -31,7 +31,7 @@ public class JValueFactory {
      */
     private JValueFactory() {
     }
-
+    
     /**
      * Create a {@link JValue} representing an {@link Enum}
      * 

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.ImportElement;
 import tendril.codegen.field.NamedType;
+import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
 import test.assertions.TendrilAssert;
 
@@ -39,7 +40,7 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
     protected void prepareTest() {
         type = new ClassType(VisibilityType.class);
     }
-    
+
     /**
      * Verify that the correct import is registered
      */
@@ -49,27 +50,57 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
         verify(mockImports).add(type);
         verifyDataState();
     }
-    
-    /**
-     * Verify that the appropriate Enum element is created
-     */
-    @Test
-    public void testAsValueEnum() {
-        // Incorrect object type
-        Assertions.assertThrows(IllegalArgumentException.class, () -> type.asValue(new ImportElement("a", "b")));
-        
-        TendrilAssert.assertJValue(JValueFactory.create(VisibilityType.PUBLIC), type.asValue(VisibilityType.PUBLIC));
-        verifyDataState();
-    }
-    
+
+    /** Listing of all class types that are to be used for testing asValue */
+    private static final Class<?>[] allToTest = { VisibilityType.class, String.class, Boolean.class, Byte.class, Character.class, Double.class, Float.class, Integer.class, Long.class, Short.class };
+    /** Listing of all values that are to be passed for testing asValue */
+    private static final Object[] testValues = { VisibilityType.PUBLIC, "abc123", true, Byte.valueOf("10"), 'b', 1.23d, 2.34f, 345, 456l, Short.valueOf((short) 567) };
+
     /**
      * Verify that the appropriate Class element is created
      */
     @Test
-    public void testAsValueClass() {
+    public void testAsValue() {
+        // Enum, String, and Primitives properly generate a values (of the correct type)
+        verifyAsValue(VisibilityType.class, JValueFactory.create((VisibilityType) testValues[0]));
+        verifyAsValue(String.class, JValueFactory.create((String) testValues[1]));
+        verifyAsValue(Boolean.class, JValueFactory.create((boolean) testValues[2]));
+        verifyAsValue(Byte.class, JValueFactory.create((byte) testValues[3]));
+        verifyAsValue(Character.class, JValueFactory.create((char) testValues[4]));
+        verifyAsValue(Double.class, JValueFactory.create((double) testValues[5]));
+        verifyAsValue(Float.class, JValueFactory.create((float) testValues[6]));
+        verifyAsValue(Integer.class, JValueFactory.create((int) testValues[7]));
+        verifyAsValue(Long.class, JValueFactory.create((long) testValues[8]));
+        verifyAsValue(Short.class, JValueFactory.create((short) testValues[9]));
+        
+        // Everything else generates an exception
         type = new ClassType(ImportElement.class);
-        Assertions.assertThrows(NotImplementedException.class, () -> type.asValue(new ImportElement("a", "b")));
-        verifyDataState(ImportElement.class.getSimpleName(), false);
+        verifyDataState(ImportElement.class);
+        Assertions.assertThrows(NotImplementedException.class, () -> type.asValue(new ImportElement(getClass())));
+    }
+
+    /**
+     * Verify that the correct {@link JValue} is created or exception thrown when using {@link ClassType} to generate a {@link JValue}
+     * 
+     * @param <T>           the type of class which is to be stored in the {@link ClassType}
+     * @param valueClass    {@link Class} where the class represented by the {@link ClassType} is defined
+     * @param expectedValue {@link JValue} that is expected to be produced
+     */
+    private <T> void verifyAsValue(Class<T> valueClass, JValue<?, ?> expectedValue) {
+        type = new ClassType(valueClass);
+        verifyDataState(valueClass);
+
+        for (int i = 0; i < allToTest.length; i++) {
+            Class<?> test = allToTest[i];
+            Object value = testValues[i];
+
+            if ((valueClass.isEnum() && test.equals(Enum.class)) || test.equals(valueClass))
+                TendrilAssert.assertJValue(expectedValue, type.asValue(value));
+            else
+                Assertions.assertThrows(IllegalArgumentException.class, () -> type.asValue(value));
+        }
+
+        verifyDataState(valueClass);
     }
 
     /**
@@ -116,11 +147,18 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
         Assertions.assertTrue(lhs.isAssignableTo(new ClassType(NamedType.class.getName())));
         Assertions.assertTrue(lhs.isAssignableTo(new ClassType(NamedType.class.getPackageName(), NamedType.class.getSimpleName())));
     }
-    
+
     /**
      * Verify that the data state is correct
      */
     private void verifyDataState() {
-        verifyDataState(VisibilityType.class.getSimpleName(), false);
+        verifyDataState(VisibilityType.class);
+    }
+
+    /**
+     * Verify that the data state is correct
+     */
+    private void verifyDataState(Class<?> expectedClass) {
+        verifyDataState(expectedClass.getSimpleName(), false);
     }
 }

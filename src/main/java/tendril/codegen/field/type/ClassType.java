@@ -117,8 +117,26 @@ public class ClassType extends ImportElement implements Type {
         
         if (value.getClass().isEnum())
             return JValueFactory.create((Enum<?>) value);
+        if (value.getClass().equals(String.class))
+            return JValueFactory.create((String) value);
+        if (value.getClass().equals(Boolean.class))
+            return JValueFactory.create((Boolean) value);
+        if (value.getClass().equals(Byte.class))
+            return JValueFactory.create((Byte) value);
+        if (value.getClass().equals(Character.class))
+            return JValueFactory.create((Character) value);
+        if (value.getClass().equals(Double.class))
+            return JValueFactory.create((Double) value);
+        if (value.getClass().equals(Float.class))
+            return JValueFactory.create((Float) value);
+        if (value.getClass().equals(Integer.class))
+            return JValueFactory.create((Integer) value);
+        if (value.getClass().equals(Long.class))
+            return JValueFactory.create((Long) value);
+        if (value.getClass().equals(Short.class))
+            return JValueFactory.create((Short) value);
 
         // TODO expand to any object type
-        throw new NotImplementedException("Only enums are currently supported");
+        throw new NotImplementedException("Only enums and primitives are currently supported");
     }
 }
