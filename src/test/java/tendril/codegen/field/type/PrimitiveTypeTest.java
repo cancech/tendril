@@ -195,14 +195,14 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
      */
     @Test
     public void testInvalidAsValueObject() {
-        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.BOOLEAN.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.BYTE.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.CHAR.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.DOUBLE.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.FLOAT.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.INT.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.LONG.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.SHORT.asValue(mockImports));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.BOOLEAN.asValue(mockImports));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.BYTE.asValue(mockImports));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.CHAR.asValue(mockImports));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.DOUBLE.asValue(mockImports));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.FLOAT.asValue(mockImports));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.INT.asValue(mockImports));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.LONG.asValue(mockImports));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.SHORT.asValue(mockImports));
     }
     
     /**

@@ -139,25 +139,9 @@ public enum PrimitiveType implements Type {
      */
     @Override
     public JValue<?, ?> asValue(Object value) {
-        switch (this) {
-            case BOOLEAN:
-                return JValueFactory.create((Boolean) value);
-            case BYTE:
-                return JValueFactory.create((Byte) value);
-            case CHAR:
-                return JValueFactory.create((Character) value);
-            case DOUBLE:
-                return JValueFactory.create((Double) value);
-            case FLOAT:
-                return JValueFactory.create((Float) value);
-            case INT:
-                return JValueFactory.create((Integer) value);
-            case LONG:
-                return JValueFactory.create((Long) value);
-            case SHORT:
-                return JValueFactory.create((Short) value);
-        }
-
-        throw new IllegalArgumentException("Invalid type specified: " + getSimpleName());
+        if (!isTypeOf(value))
+            throw new IllegalArgumentException("Invalid value provided. Expected " + this + " but received " + value.getClass());
+        
+        return JValueFactory.create(value);
     }
 }

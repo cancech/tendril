@@ -20,6 +20,7 @@ import java.util.List;
 
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
+import tendril.codegen.field.type.Type;
 
 /**
  * Factory to facilitate the creation of {@link JValue}s
@@ -31,6 +32,66 @@ public class JValueFactory {
      */
     private JValueFactory() {
     }
+
+
+    /**
+     * Create a {@link JValue} representing an array of {@link Enum}s
+     * 
+     * @param values {@link Enum}... the specific values to place in the array
+     * @return {@link JValue}
+     */
+    @SafeVarargs
+    public static <DATA_TYPE extends Type, VALUE> JValue<DATA_TYPE, List<JValue<DATA_TYPE, VALUE>>> create(VALUE... values) {
+        List<JValue<DATA_TYPE, VALUE>> list = new ArrayList<>();
+        DATA_TYPE type = null;
+
+        for (VALUE value : values) {
+            JValue<DATA_TYPE, VALUE> valueWrapper = create(value);
+            if (type == null)
+                type = valueWrapper.getType();
+            list.add(valueWrapper);
+        }
+        return new JValueArray<DATA_TYPE, VALUE>(type, list);
+    }
+    
+    /**
+     * Create a {@link JValue} for the generic value provided
+     * 
+     * @param <DATA_TYPE> extends {@link Type} indicating which data type is expected to be contained in resulting {@link JValue}
+     * @param <VALUE> the type of value that is to be stored
+     * @param value VALUE that is to be stored
+     * @return {@link JValue}
+     */
+    @SuppressWarnings("unchecked")
+    public static <DATA_TYPE extends Type, VALUE> JValue<DATA_TYPE, VALUE> create(VALUE value) {
+        Class<?> cls = value.getClass();
+        
+        JValue<?, ?> createdValue = null;
+        if (cls.isEnum() || cls.equals(Enum.class))
+            createdValue = create((Enum<?>) value);
+        else if (cls.equals(String.class))
+            createdValue =  create((String) value);
+        else if (cls.equals(Boolean.class))
+            createdValue =  create((boolean) value);
+        else if (cls.equals(Byte.class))
+            createdValue =  create((byte) value);
+        else if (cls.equals(Character.class))
+            createdValue =  create((char) value);
+        else if (cls.equals(Double.class))
+            createdValue =  create((double) value);
+        else if (cls.equals(Float.class))
+            createdValue =  create((float) value);
+        else if (cls.equals(Integer.class))
+            createdValue =  create((int) value);
+        else if (cls.equals(Long.class))
+            createdValue =  create((long) value);
+        else if (cls.equals(Short.class))
+            createdValue =  create((short) value);
+        else
+            throw new IllegalArgumentException("No factory method exists for " + value);
+        
+        return (JValue<DATA_TYPE, VALUE>) createdValue;
+    }
     
     /**
      * Create a {@link JValue} representing an {@link Enum}
@@ -40,26 +101,6 @@ public class JValueFactory {
      */
     public static JValue<ClassType, Enum<?>> create(Enum<?> value) {
         return new JValueEnum(value);
-    }
-
-    /**
-     * Create a {@link JValue} representing an array of {@link Enum}s
-     * 
-     * @param values {@link Enum}... the specific values to place in the array
-     * @return {@link JValue}
-     */
-    @SafeVarargs
-    public static JValue<ClassType, List<JValue<ClassType, Enum<?>>>> create(Enum<?>... values) {
-        // TODO make this more generic such that it can be applied to any/all types
-        List<JValue<ClassType, Enum<?>>> list = new ArrayList<>();
-        ClassType enumType = null;
-
-        for (Enum<?> value : values) {
-            if (enumType == null)
-                enumType = new ClassType(value.getClass());
-            list.add(create(value));
-        }
-        return new JValueArray<ClassType, Enum<?>>(enumType, list);
     }
 
     /**

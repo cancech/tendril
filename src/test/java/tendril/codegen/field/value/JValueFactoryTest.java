@@ -20,6 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import tendril.codegen.VisibilityType;
@@ -33,6 +34,16 @@ public class JValueFactoryTest extends SharedJValueTest {
 
     private int timesImported = 1;
     private ClassType lastImport = null;
+    
+    /**
+     * @see tendril.codegen.field.value.SharedJValueTest#prepareTest()
+     */
+    @Override
+    protected void prepareTest() {
+        super.prepareTest();
+        lastImport = null;
+        timesImported = 1;
+    }
 
     /**
      * @see tendril.codegen.field.value.SharedJValueTest#verifyMockImports()
@@ -58,13 +69,32 @@ public class JValueFactoryTest extends SharedJValueTest {
         assertCode("2.3456f", JValueFactory.create(2.3456f));
         assertCode("false", JValueFactory.create(false));
         assertCode("true", JValueFactory.create(true));
+        assertCode("10", JValueFactory.create((byte) Byte.valueOf("10")));
         verifyNoInteractions(mockImports);
 
         lastImport = new ClassType(VisibilityType.class);
         assertCode("VisibilityType.PACKAGE_PRIVATE", JValueFactory.create(VisibilityType.PACKAGE_PRIVATE));
+        
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JValueFactory.create(new ClassType("a", "b")));
+    }
+    
+    /**
+     * Verify that can create arrays of all of the different supported values
+     */
+    @Test
+    public void testCreateArrays() {
+        assertCode("{\"abc\", \"def\", \"ghi\", \"jkl\"}", JValueFactory.create("abc", "def", "ghi", "jkl"));
+        assertCode("{true, false, false, true}", JValueFactory.create(true, false, false, true));
+        assertCode("{10, 101}", JValueFactory.create((byte) Byte.valueOf("10"), (byte) Byte.valueOf("101")));
+        assertCode("{'a', 'b', 'c', 'd'}", JValueFactory.create('a', 'b', 'c', 'd'));
+        assertCode("{1.234d, 5.678d, 9.012d, 0.123d}", JValueFactory.create(1.234, 5.678, 9.012, 0.123));
+        assertCode("{2.3456f, 7.8901f, 2.3456f}", JValueFactory.create(2.3456f, 7.8901f, 2.3456f));
+        assertCode("{123, 456, 789}", JValueFactory.create(123, 456, 789));
+        assertCode("{123456l, 234567l, 345678l, 456789l}", JValueFactory.create(123456l, 234567l, 345678l, 456789l));
+        assertCode("{(short) 1, (short) 2, (short) 3, (short) 4}", JValueFactory.create((short) 1, (short)2, (short) 3, (short) 4));
+
         lastImport = new ClassType(TestEnum.class);
         timesImported = 3;
         assertCode("{TestEnum.VALUE1, TestEnum.VALUE2, TestEnum.VALUE3}", JValueFactory.create(TestEnum.values()));
     }
-
 }
