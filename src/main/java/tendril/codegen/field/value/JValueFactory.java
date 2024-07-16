@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.PoDType;
+import tendril.codegen.field.type.PrimitiveType;
 
 /**
  * Factory to facilitate the creation of {@link JValue}s
@@ -78,8 +78,8 @@ public class JValueFactory {
      * @param value char
      * @return {@link JValue}
      */
-    public static JValue<PoDType, Character> create(char value) {
-        return new JValueSimple<PoDType, Character>(PoDType.CHAR, value, "'", "'");
+    public static JValue<PrimitiveType, Character> create(char value) {
+        return new JValueSimple<PrimitiveType, Character>(PrimitiveType.CHAR, value, "'", "'");
     }
 
     /**
@@ -88,8 +88,8 @@ public class JValueFactory {
      * @param value long
      * @return {@link JValue}
      */
-    public static JValue<PoDType, Long> create(long value) {
-        return new JValueSimple<PoDType, Long>(PoDType.LONG, value, "", "l");
+    public static JValue<PrimitiveType, Long> create(long value) {
+        return new JValueSimple<PrimitiveType, Long>(PrimitiveType.LONG, value, "", "l");
     }
 
     /**
@@ -98,8 +98,8 @@ public class JValueFactory {
      * @param value int
      * @return {@link JValue}
      */
-    public static JValue<PoDType, Integer> create(int value) {
-        return new JValueSimple<PoDType, Integer>(PoDType.INT, value);
+    public static JValue<PrimitiveType, Integer> create(int value) {
+        return new JValueSimple<PrimitiveType, Integer>(PrimitiveType.INT, value);
     }
 
     /**
@@ -108,8 +108,8 @@ public class JValueFactory {
      * @param value short
      * @return {@link JValue}
      */
-    public static JValue<PoDType, Short> create(short value) {
-        return new JValueSimple<PoDType, Short>(PoDType.SHORT, value, "(short) ", "");
+    public static JValue<PrimitiveType, Short> create(short value) {
+        return new JValueSimple<PrimitiveType, Short>(PrimitiveType.SHORT, value, "(short) ", "");
     }
 
     /**
@@ -118,8 +118,8 @@ public class JValueFactory {
      * @param value double
      * @return {@link JValue}
      */
-    public static JValue<PoDType, Double> create(double value) {
-        return new JValueSimple<PoDType, Double>(PoDType.DOUBLE, value, "", "d");
+    public static JValue<PrimitiveType, Double> create(double value) {
+        return new JValueSimple<PrimitiveType, Double>(PrimitiveType.DOUBLE, value, "", "d");
     }
 
     /**
@@ -128,8 +128,8 @@ public class JValueFactory {
      * @param value float
      * @return {@link JValue}
      */
-    public static JValue<PoDType, Float> create(float value) {
-        return new JValueSimple<PoDType, Float>(PoDType.FLOAT, value, "", "f");
+    public static JValue<PrimitiveType, Float> create(float value) {
+        return new JValueSimple<PrimitiveType, Float>(PrimitiveType.FLOAT, value, "", "f");
     }
 
     /**
@@ -138,8 +138,8 @@ public class JValueFactory {
      * @param value boolean
      * @return {@link JValue}
      */
-    public static JValue<PoDType, Boolean> create(boolean value) {
-        return new JValueSimple<PoDType, Boolean>(PoDType.BOOLEAN, value);
+    public static JValue<PrimitiveType, Boolean> create(boolean value) {
+        return new JValueSimple<PrimitiveType, Boolean>(PrimitiveType.BOOLEAN, value);
     }
 
     /**
@@ -148,7 +148,7 @@ public class JValueFactory {
      * @param value byte
      * @return {@link JValue}
      */
-    public static JValue<PoDType, Byte> create(byte value) {
-        return new JValueSimple<PoDType, Byte>(PoDType.BYTE, value);
+    public static JValue<PrimitiveType, Byte> create(byte value) {
+        return new JValueSimple<PrimitiveType, Byte>(PrimitiveType.BYTE, value);
     }
 }

@@ -18,7 +18,7 @@ package tendril.codegen.field.value;
 import org.junit.jupiter.api.Test;
 
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.PoDType;
+import tendril.codegen.field.type.PrimitiveType;
 
 /**
  * Test case for {@link JValueSimple}
@@ -39,9 +39,9 @@ public class JValueSimpleTest extends SharedJValueTest {
     @Test
     public void testGenerate() {
         assertCode("`dsf'", new JValueSimple<ClassType, String>(new ClassType(String.class), "dsf", "`", "'"));
-        assertCode("abc123efg", new JValueSimple<PoDType, Integer>(PoDType.INT, 123, "abc", "efg"));
-        assertCode("1.23", new JValueSimple<PoDType, Double>(PoDType.DOUBLE, 1.23, "", ""));
-        assertCode("321", new JValueSimple<PoDType, Short>(PoDType.SHORT, (short) 321));
+        assertCode("abc123efg", new JValueSimple<PrimitiveType, Integer>(PrimitiveType.INT, 123, "abc", "efg"));
+        assertCode("1.23", new JValueSimple<PrimitiveType, Double>(PrimitiveType.DOUBLE, 1.23, "", ""));
+        assertCode("321", new JValueSimple<PrimitiveType, Short>(PrimitiveType.SHORT, (short) 321));
     }
 
 }

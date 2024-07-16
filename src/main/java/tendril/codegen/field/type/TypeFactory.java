@@ -40,7 +40,7 @@ public abstract class TypeFactory {
         if (kind == TypeKind.VOID)
             return VoidType.INSTANCE;
         if (kind.isPrimitive())
-            return PoDType.valueOf(kind.toString());
+            return PrimitiveType.valueOf(kind.toString());
         if (kind == TypeKind.DECLARED)
             return new ClassType(mirror.toString());
 

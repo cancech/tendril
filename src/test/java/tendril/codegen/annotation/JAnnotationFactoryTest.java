@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import tendril.codegen.classes.method.AnonymousMethod;
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.PoDType;
+import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.helper.annotation.TestDefaultParamAnnotation;
@@ -191,7 +191,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateMultiValueAnnotationFromClass() {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
-        JValue<PoDType, Integer> intValue = JValueFactory.create(234);
+        JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
         JAnnotation annotation = JAnnotationFactory.create(TestMultiParamAnnotation.class, Map.of("valStr", strValue, "valInt", intValue));
         assertImportData(TestMultiParamAnnotation.class, annotation);
@@ -206,7 +206,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateMultiValueAnnotationFromFullyQualifiedName() {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
-        JValue<PoDType, Integer> intValue = JValueFactory.create(234);
+        JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
         JAnnotation annotation = JAnnotationFactory.create(TestMultiParamAnnotation.class.getName(), Map.of("valStr", strValue, "valInt", intValue));
         assertImportData(TestMultiParamAnnotation.class, annotation);
@@ -221,7 +221,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateMultiValueAnnotationFromSplitName() {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
-        JValue<PoDType, Integer> intValue = JValueFactory.create(234);
+        JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
         JAnnotation annotation = JAnnotationFactory.create(TestMultiParamAnnotation.class.getPackageName(), TestMultiParamAnnotation.class.getSimpleName(),
                 Map.of("valStr", strValue, "valInt", intValue));
@@ -237,7 +237,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateMultiValueAnnotationFromClassType() {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
-        JValue<PoDType, Integer> intValue = JValueFactory.create(234);
+        JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
         JAnnotation annotation = JAnnotationFactory.create(new ClassType(TestMultiParamAnnotation.class), Map.of("valStr", strValue, "valInt", intValue));
         assertImportData(TestMultiParamAnnotation.class, annotation);
@@ -252,7 +252,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateMultiValueAnnotationWithUnknownClass() {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
-        JValue<PoDType, Integer> intValue = JValueFactory.create(234);
+        JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
         JAnnotation annotation = JAnnotationFactory.create(new ClassType("a.b.c.D"), Map.of("valStr", strValue, "valInt", intValue));
         TendrilAssert.assertImportData("a.b.c", "D", annotation.getType());
@@ -267,7 +267,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     @Test
     public void testCannotCreateMultiValueFromMarker() {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
-        JValue<PoDType, Integer> intValue = JValueFactory.create(234);
+        JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMarkerAnnotation.class, Map.of("valStr", strValue, "valInt", intValue)));
     }
@@ -278,7 +278,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     @Test
     public void testCannotCreateMultiValueAnnotationValueMismatch() {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
-        JValue<PoDType, Integer> intValue = JValueFactory.create(234);
+        JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiParamAnnotation.class, Map.of("strVal", strValue, "valInt", intValue)));
         Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiParamAnnotation.class, Map.of("valStr", strValue, "intVal", intValue)));

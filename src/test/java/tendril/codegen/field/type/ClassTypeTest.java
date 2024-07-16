@@ -131,7 +131,7 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
         ClassType lhs = new ClassType("a.b.c.d.E");
 
         // These are expected to fail
-        for (PoDType pd : PoDType.values()) {
+        for (PrimitiveType pd : PrimitiveType.values()) {
             Assertions.assertFalse(lhs.isAssignableTo(pd));
         }
         Assertions.assertFalse(lhs.isAssignableTo(VoidType.INSTANCE));

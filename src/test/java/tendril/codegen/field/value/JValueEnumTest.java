@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.PoDType;
+import tendril.codegen.field.type.PrimitiveType;
 import tendril.helper.TestEnum;
 
 /**
@@ -38,7 +38,7 @@ public class JValueEnumTest extends SharedJValueTest {
     @Test
     public void testGenerate() {
         testEnum(VisibilityType.PROTECTED, VisibilityType.class);
-        testEnum(PoDType.DOUBLE, PoDType.class);
+        testEnum(PrimitiveType.DOUBLE, PrimitiveType.class);
         testEnum(TestEnum.VALUE3, TestEnum.class);
     }
 

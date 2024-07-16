@@ -224,7 +224,7 @@ public abstract class JAnnotationFactory {
 //            // Determine the appropriate type
 //            Type returnType;
 //            if (expectedReturn.isPrimitive())
-//                returnType = PoDType.from(expectedReturn);
+//                returnType = PrimitiveType.from(expectedReturn);
 //            else
 //                returnType = new ClassType(expectedReturn);
 //

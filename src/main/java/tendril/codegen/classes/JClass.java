@@ -30,7 +30,7 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.PoDType;
+import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.VoidType;
 import tendril.codegen.field.value.JValueFactory;
@@ -73,13 +73,13 @@ public abstract class JClass extends JBase {
     }
 
     /**
-     * Create a method builder through which to add a new method which returns a plain ol' data type to the class.
+     * Create a method builder through which to add a new method which returns a primitive to the class.
      * 
-     * @param returnType {@link PoDType} representing which PoD to return
+     * @param returnType {@link PrimitiveType} representing which primitive to return
      * @param name       {@link String} the name of the method
      * @return {@link MethodBuilder} for creating a the method
      */
-    public MethodBuilder<PoDType> buildMethod(PoDType returnType, String name) {
+    public MethodBuilder<PrimitiveType> buildMethod(PrimitiveType returnType, String name) {
         return createMethodBuilder(returnType, name);
     }
 

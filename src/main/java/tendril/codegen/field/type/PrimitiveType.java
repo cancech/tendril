@@ -21,33 +21,33 @@ import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
 
 /**
- * Enumeration of the plain ol' Data Types that can be used in Java
+ * Enumeration of all possible java primitives
  */
-public enum PoDType implements Type {
-    /** boolean POD */
+public enum PrimitiveType implements Type {
+    /** boolean primitive */
     BOOLEAN,
-    /** byte POD */
+    /** byte primitive */
     BYTE,
-    /** char POD */
+    /** char primitive */
     CHAR,
-    /** double POD */
+    /** double primitive */
     DOUBLE,
-    /** float POD */
+    /** float primitive */
     FLOAT,
-    /** int POD */
-    INT, 
-    /** long POD */
+    /** int primitive */
+    INT,
+    /** long primitive */
     LONG,
-    /** short POD */
+    /** short primitive */
     SHORT;
 
     /**
-     * Provide the appropriate PoDType for the specified {@link Class}. If no PoDType exists for the specified {@link Class} an {@link IllegalArgumentException} is thrown
+     * Provide the appropriate {@link PrimitiveType} for the specified {@link Class}. If no {@link PrimitiveType} exists for the specified {@link Class} an {@link IllegalArgumentException} is thrown
      * 
-     * @param klass {@link Class} for which to find the {@link PoDType}
-     * @return {@link PoDType} for the {@link Class} or {@link IllegalArgumentException} if no such {@link PoDType} exists
+     * @param klass {@link Class} for which to find the {@link PrimitiveType}
+     * @return {@link PrimitiveType} for the {@link Class} or {@link IllegalArgumentException} if no such {@link PrimitiveType} exists
      */
-    public static PoDType from(Class<?> klass) {
+    public static PrimitiveType from(Class<?> klass) {
         if (Boolean.class.equals(klass))
             return BOOLEAN;
         if (Byte.class.equals(klass))
@@ -65,7 +65,7 @@ public enum PoDType implements Type {
         if (Short.class.equals(klass))
             return SHORT;
 
-        throw new IllegalArgumentException("Invalid POD: " + klass.getName());
+        throw new IllegalArgumentException("Invalid Primitive: " + klass.getName());
     }
 
     /**

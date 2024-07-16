@@ -58,23 +58,23 @@ public class TypeFactoryTest extends AbstractUnitTest {
      * Verify that a primitive type can be created properly
      */
     @Test
-    public void testCreatePoD() {
+    public void testCreatePrimitive() {
         int timesGetKind = 0;
-        performCreateTest(TypeKind.BOOLEAN, PoDType.BOOLEAN);
+        performCreateTest(TypeKind.BOOLEAN, PrimitiveType.BOOLEAN);
         verify(mockMirror, times(++timesGetKind)).getKind();
-        performCreateTest(TypeKind.BYTE, PoDType.BYTE);
+        performCreateTest(TypeKind.BYTE, PrimitiveType.BYTE);
         verify(mockMirror, times(++timesGetKind)).getKind();
-        performCreateTest(TypeKind.CHAR, PoDType.CHAR);
+        performCreateTest(TypeKind.CHAR, PrimitiveType.CHAR);
         verify(mockMirror, times(++timesGetKind)).getKind();
-        performCreateTest(TypeKind.DOUBLE, PoDType.DOUBLE);
+        performCreateTest(TypeKind.DOUBLE, PrimitiveType.DOUBLE);
         verify(mockMirror, times(++timesGetKind)).getKind();
-        performCreateTest(TypeKind.FLOAT, PoDType.FLOAT);
+        performCreateTest(TypeKind.FLOAT, PrimitiveType.FLOAT);
         verify(mockMirror, times(++timesGetKind)).getKind();
-        performCreateTest(TypeKind.INT, PoDType.INT);
+        performCreateTest(TypeKind.INT, PrimitiveType.INT);
         verify(mockMirror, times(++timesGetKind)).getKind();
-        performCreateTest(TypeKind.LONG, PoDType.LONG);
+        performCreateTest(TypeKind.LONG, PrimitiveType.LONG);
         verify(mockMirror, times(++timesGetKind)).getKind();
-        performCreateTest(TypeKind.SHORT, PoDType.SHORT);
+        performCreateTest(TypeKind.SHORT, PrimitiveType.SHORT);
         verify(mockMirror, times(++timesGetKind)).getKind();
     }
 

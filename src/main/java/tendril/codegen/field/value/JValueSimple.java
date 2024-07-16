@@ -21,7 +21,7 @@ import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 
 /**
- * Representation of simple values (plain ol' data types, {@link String}s), where the value is presented verbatim and at most some decoration (prefix, suffix).
+ * Representation of simple values (primitives, {@link String}s), where the value is presented verbatim and at most some decoration (prefix, suffix).
  * 
  * @param <DATA_TYPE> representing the {@link Type} of the value
  * @param <VALUE_TYPE> the specific (Java) type storing the value

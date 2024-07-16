@@ -24,31 +24,31 @@ import tendril.codegen.field.value.JValueFactory;
 import test.assertions.TendrilAssert;
 
 /**
- * Test case for {@link PoDType}
+ * Test case for {@link PrimitiveType}
  */
-public class PoDTypeTest extends SharedTypeTest<PoDType> {
+public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
 
     /**
      * @see test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {
-        type = PoDType.BOOLEAN;
+        type = PrimitiveType.BOOLEAN;
     }
     
     /**
-     * Verify that the correct PoDType is provided for the class
+     * Verify that the correct {@link PrimitiveType} is provided for the class
      */
     @Test
     public void testFromClass() {
-        Assertions.assertEquals(PoDType.BOOLEAN, PoDType.from(Boolean.class));
-        Assertions.assertEquals(PoDType.BYTE, PoDType.from(Byte.class));
-        Assertions.assertEquals(PoDType.CHAR, PoDType.from(Character.class));
-        Assertions.assertEquals(PoDType.DOUBLE, PoDType.from(Double.class));
-        Assertions.assertEquals(PoDType.FLOAT, PoDType.from(Float.class));
-        Assertions.assertEquals(PoDType.INT, PoDType.from(Integer.class));
-        Assertions.assertEquals(PoDType.LONG, PoDType.from(Long.class));
-        Assertions.assertEquals(PoDType.SHORT, PoDType.from(Short.class));
+        Assertions.assertEquals(PrimitiveType.BOOLEAN, PrimitiveType.from(Boolean.class));
+        Assertions.assertEquals(PrimitiveType.BYTE, PrimitiveType.from(Byte.class));
+        Assertions.assertEquals(PrimitiveType.CHAR, PrimitiveType.from(Character.class));
+        Assertions.assertEquals(PrimitiveType.DOUBLE, PrimitiveType.from(Double.class));
+        Assertions.assertEquals(PrimitiveType.FLOAT, PrimitiveType.from(Float.class));
+        Assertions.assertEquals(PrimitiveType.INT, PrimitiveType.from(Integer.class));
+        Assertions.assertEquals(PrimitiveType.LONG, PrimitiveType.from(Long.class));
+        Assertions.assertEquals(PrimitiveType.SHORT, PrimitiveType.from(Short.class));
     }
     
     /**
@@ -56,15 +56,15 @@ public class PoDTypeTest extends SharedTypeTest<PoDType> {
      */
     @Test
     public void testToString() {
-        Assertions.assertEquals(8, PoDType.values().length);
-        Assertions.assertEquals("boolean", PoDType.BOOLEAN.toString());
-        Assertions.assertEquals("byte", PoDType.BYTE.toString());
-        Assertions.assertEquals("char", PoDType.CHAR.toString());
-        Assertions.assertEquals("double", PoDType.DOUBLE.toString());
-        Assertions.assertEquals("float", PoDType.FLOAT.toString());
-        Assertions.assertEquals("int", PoDType.INT.toString());
-        Assertions.assertEquals("long", PoDType.LONG.toString());
-        Assertions.assertEquals("short", PoDType.SHORT.toString());
+        Assertions.assertEquals(8, PrimitiveType.values().length);
+        Assertions.assertEquals("boolean", PrimitiveType.BOOLEAN.toString());
+        Assertions.assertEquals("byte", PrimitiveType.BYTE.toString());
+        Assertions.assertEquals("char", PrimitiveType.CHAR.toString());
+        Assertions.assertEquals("double", PrimitiveType.DOUBLE.toString());
+        Assertions.assertEquals("float", PrimitiveType.FLOAT.toString());
+        Assertions.assertEquals("int", PrimitiveType.INT.toString());
+        Assertions.assertEquals("long", PrimitiveType.LONG.toString());
+        Assertions.assertEquals("short", PrimitiveType.SHORT.toString());
     }
     
     /**
@@ -72,8 +72,8 @@ public class PoDTypeTest extends SharedTypeTest<PoDType> {
      */
     @Test
     public void testAssignable() {
-        for (PoDType i: PoDType.values()) {
-            for (PoDType j: PoDType.values())
+        for (PrimitiveType i: PrimitiveType.values()) {
+            for (PrimitiveType j: PrimitiveType.values())
                 Assertions.assertEquals(i == j, i.isAssignableTo(j));
         }
     }
@@ -83,10 +83,10 @@ public class PoDTypeTest extends SharedTypeTest<PoDType> {
      */
     @Test
     public void testBoolean() {
-        type = PoDType.BOOLEAN;
+        type = PrimitiveType.BOOLEAN;
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
-        verifyDataState(PoDType.BOOLEAN);
+        verifyDataState(PrimitiveType.BOOLEAN);
 
         TendrilAssert.assertJValue(JValueFactory.create(true), type.asValue(true));
         TendrilAssert.assertJValue(JValueFactory.create(false), type.asValue(false));
@@ -97,10 +97,10 @@ public class PoDTypeTest extends SharedTypeTest<PoDType> {
      */
     @Test
     public void testByte() {
-        type = PoDType.BYTE;
+        type = PrimitiveType.BYTE;
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
-        verifyDataState(PoDType.BYTE);
+        verifyDataState(PrimitiveType.BYTE);
 
         TendrilAssert.assertJValue(JValueFactory.create(Byte.valueOf("10")), type.asValue(Byte.valueOf("10")));
         TendrilAssert.assertJValue(JValueFactory.create(Byte.valueOf("101")), type.asValue(Byte.valueOf("101")));
@@ -111,10 +111,10 @@ public class PoDTypeTest extends SharedTypeTest<PoDType> {
      */
     @Test
     public void testChar() {
-        type = PoDType.CHAR;
+        type = PrimitiveType.CHAR;
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
-        verifyDataState(PoDType.CHAR);
+        verifyDataState(PrimitiveType.CHAR);
 
         TendrilAssert.assertJValue(JValueFactory.create('q'), type.asValue('q'));
         TendrilAssert.assertJValue(JValueFactory.create('b'), type.asValue('b'));
@@ -125,10 +125,10 @@ public class PoDTypeTest extends SharedTypeTest<PoDType> {
      */
     @Test
     public void testDouble() {
-        type = PoDType.DOUBLE;
+        type = PrimitiveType.DOUBLE;
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
-        verifyDataState(PoDType.DOUBLE);
+        verifyDataState(PrimitiveType.DOUBLE);
 
         TendrilAssert.assertJValue(JValueFactory.create(1.23), type.asValue(1.23));
         TendrilAssert.assertJValue(JValueFactory.create(4.567), type.asValue(4.567));
@@ -139,10 +139,10 @@ public class PoDTypeTest extends SharedTypeTest<PoDType> {
      */
     @Test
     public void testFloat() {
-        type = PoDType.FLOAT;
+        type = PrimitiveType.FLOAT;
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
-        verifyDataState(PoDType.FLOAT);
+        verifyDataState(PrimitiveType.FLOAT);
 
         TendrilAssert.assertJValue(JValueFactory.create(1.23f), type.asValue(1.23f));
         TendrilAssert.assertJValue(JValueFactory.create(4.567f), type.asValue(4.567f));
@@ -153,10 +153,10 @@ public class PoDTypeTest extends SharedTypeTest<PoDType> {
      */
     @Test
     public void testInteger() {
-        type = PoDType.INT;
+        type = PrimitiveType.INT;
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
-        verifyDataState(PoDType.INT);
+        verifyDataState(PrimitiveType.INT);
 
         TendrilAssert.assertJValue(JValueFactory.create(123), type.asValue(123));
         TendrilAssert.assertJValue(JValueFactory.create(456), type.asValue(456));
@@ -167,10 +167,10 @@ public class PoDTypeTest extends SharedTypeTest<PoDType> {
      */
     @Test
     public void testLong() {
-        type = PoDType.LONG;
+        type = PrimitiveType.LONG;
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
-        verifyDataState(PoDType.LONG);
+        verifyDataState(PrimitiveType.LONG);
 
         TendrilAssert.assertJValue(JValueFactory.create(1234567890l), type.asValue(1234567890l));
         TendrilAssert.assertJValue(JValueFactory.create(45645645645l), type.asValue(45645645645l));
@@ -181,10 +181,10 @@ public class PoDTypeTest extends SharedTypeTest<PoDType> {
      */
     @Test
     public void testShort() {
-        type = PoDType.SHORT;
+        type = PrimitiveType.SHORT;
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
-        verifyDataState(PoDType.SHORT);
+        verifyDataState(PrimitiveType.SHORT);
 
         TendrilAssert.assertJValue(JValueFactory.create((short) 789), type.asValue((short) 789));
         TendrilAssert.assertJValue(JValueFactory.create((short) 654), type.asValue((short) 654));
@@ -195,14 +195,14 @@ public class PoDTypeTest extends SharedTypeTest<PoDType> {
      */
     @Test
     public void testInvalidAsValueObject() {
-        Assertions.assertThrows(ClassCastException.class, () -> PoDType.BOOLEAN.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PoDType.BYTE.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PoDType.CHAR.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PoDType.DOUBLE.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PoDType.FLOAT.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PoDType.INT.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PoDType.LONG.asValue(mockImports));
-        Assertions.assertThrows(ClassCastException.class, () -> PoDType.SHORT.asValue(mockImports));
+        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.BOOLEAN.asValue(mockImports));
+        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.BYTE.asValue(mockImports));
+        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.CHAR.asValue(mockImports));
+        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.DOUBLE.asValue(mockImports));
+        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.FLOAT.asValue(mockImports));
+        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.INT.asValue(mockImports));
+        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.LONG.asValue(mockImports));
+        Assertions.assertThrows(ClassCastException.class, () -> PrimitiveType.SHORT.asValue(mockImports));
     }
     
     /**
@@ -210,32 +210,32 @@ public class PoDTypeTest extends SharedTypeTest<PoDType> {
      */
     @Test
     public void testTypeOf() {
-        for (PoDType type: PoDType.values()) {
-            Assertions.assertEquals(PoDType.BOOLEAN == type, type.isTypeOf(true));
-            Assertions.assertEquals(PoDType.BOOLEAN == type, type.isTypeOf(false));
-            Assertions.assertEquals(PoDType.BYTE == type, type.isTypeOf(Byte.valueOf("10")));
-            Assertions.assertEquals(PoDType.BYTE == type, type.isTypeOf(Byte.valueOf("101")));
-            Assertions.assertEquals(PoDType.CHAR == type, type.isTypeOf('q'));
-            Assertions.assertEquals(PoDType.CHAR == type, type.isTypeOf('2'));
-            Assertions.assertEquals(PoDType.DOUBLE == type, type.isTypeOf(1.23d));
-            Assertions.assertEquals(PoDType.DOUBLE == type, type.isTypeOf(2.34d));
-            Assertions.assertEquals(PoDType.FLOAT == type, type.isTypeOf(5.67f));
-            Assertions.assertEquals(PoDType.FLOAT == type, type.isTypeOf(6.78f));
-            Assertions.assertEquals(PoDType.INT == type, type.isTypeOf(123));
-            Assertions.assertEquals(PoDType.INT == type, type.isTypeOf(456));
-            Assertions.assertEquals(PoDType.LONG == type, type.isTypeOf(123456l));
-            Assertions.assertEquals(PoDType.LONG == type, type.isTypeOf(890123l));
-            Assertions.assertEquals(PoDType.SHORT == type, type.isTypeOf((short) 987));
-            Assertions.assertEquals(PoDType.SHORT == type, type.isTypeOf((short) 654));
+        for (PrimitiveType type: PrimitiveType.values()) {
+            Assertions.assertEquals(PrimitiveType.BOOLEAN == type, type.isTypeOf(true));
+            Assertions.assertEquals(PrimitiveType.BOOLEAN == type, type.isTypeOf(false));
+            Assertions.assertEquals(PrimitiveType.BYTE == type, type.isTypeOf(Byte.valueOf("10")));
+            Assertions.assertEquals(PrimitiveType.BYTE == type, type.isTypeOf(Byte.valueOf("101")));
+            Assertions.assertEquals(PrimitiveType.CHAR == type, type.isTypeOf('q'));
+            Assertions.assertEquals(PrimitiveType.CHAR == type, type.isTypeOf('2'));
+            Assertions.assertEquals(PrimitiveType.DOUBLE == type, type.isTypeOf(1.23d));
+            Assertions.assertEquals(PrimitiveType.DOUBLE == type, type.isTypeOf(2.34d));
+            Assertions.assertEquals(PrimitiveType.FLOAT == type, type.isTypeOf(5.67f));
+            Assertions.assertEquals(PrimitiveType.FLOAT == type, type.isTypeOf(6.78f));
+            Assertions.assertEquals(PrimitiveType.INT == type, type.isTypeOf(123));
+            Assertions.assertEquals(PrimitiveType.INT == type, type.isTypeOf(456));
+            Assertions.assertEquals(PrimitiveType.LONG == type, type.isTypeOf(123456l));
+            Assertions.assertEquals(PrimitiveType.LONG == type, type.isTypeOf(890123l));
+            Assertions.assertEquals(PrimitiveType.SHORT == type, type.isTypeOf((short) 987));
+            Assertions.assertEquals(PrimitiveType.SHORT == type, type.isTypeOf((short) 654));
         }
     }
     
     /**
      * Verify the data of the data
      * 
-     * @param type {@link PoDType} of the data
+     * @param type {@link PrimitiveType} of the data
      */
-    private void verifyDataState(PoDType type) {
+    private void verifyDataState(PrimitiveType type) {
         verifyDataState(type.toString(), false);
     }
 }

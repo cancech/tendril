@@ -15,12 +15,12 @@
  */
 package tendril.helper.annotation;
 
-import tendril.codegen.field.type.PoDType;
+import tendril.codegen.field.type.PrimitiveType;
 
 /**
  * Annotation to use for the purpose of testing
  */
-public @interface TestPodAnnotation {
+public @interface TestPrimitiveAnnotation {
 
-	PoDType value();
+	PrimitiveType value();
 }

@@ -39,11 +39,11 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.PoDType;
+import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.VoidType;
 import tendril.codegen.field.value.JValueFactory;
-import tendril.helper.annotation.TestPodAnnotation;
+import tendril.helper.annotation.TestPrimitiveAnnotation;
 import test.AbstractUnitTest;
 import test.assertions.matchers.MultiLineStringMatcher;
 
@@ -110,7 +110,7 @@ public class JClassTest extends AbstractUnitTest {
 	@Mock
 	private JMethod<VoidType> mockVoidMethod;
 	@Mock
-	private JMethod<PoDType> mockPodMethod;
+	private JMethod<PrimitiveType> mockPrimitiveMethod;
 	@Mock
 	private JMethod<ClassType> mockClassMethod;
 
@@ -125,7 +125,7 @@ public class JClassTest extends AbstractUnitTest {
 	@Override
 	protected void prepareTest() {
 		mockMethodGeneration(mockVoidMethod, "mockVoidMethod");
-		mockMethodGeneration(mockPodMethod, "mockPodMethod");
+		mockMethodGeneration(mockPrimitiveMethod, "mockPrimitiveMethod");
 		mockMethodGeneration(mockClassMethod, "mockClassMethod");
 
 		try (MockedStatic<Utilities> mockUtil = Mockito.mockStatic(Utilities.class)) {
@@ -163,8 +163,8 @@ public class JClassTest extends AbstractUnitTest {
 		Assertions.assertEquals(mockMethodBuilder, jclass.buildMethod("voidMethodName"));
 		jclass.verifyMethodDetails(VoidType.INSTANCE, "voidMethodName");
 
-		Assertions.assertEquals(mockMethodBuilder, jclass.buildMethod(PoDType.INT, "intMethodName"));
-		jclass.verifyMethodDetails(PoDType.INT, "intMethodName");
+		Assertions.assertEquals(mockMethodBuilder, jclass.buildMethod(PrimitiveType.INT, "intMethodName"));
+		jclass.verifyMethodDetails(PrimitiveType.INT, "intMethodName");
 
 		Assertions.assertEquals(mockMethodBuilder, jclass.buildMethod(TestJClass.class, "classMethodName"));
 		jclass.verifyMethodDetails(new ClassType(TestJClass.class), "classMethodName");
@@ -193,12 +193,12 @@ public class JClassTest extends AbstractUnitTest {
 	@Test
 	public void testGenerateCodeWithAnnotationsNoMethod() {
 		// Define what the code is expected to look like
-		startDefinition(Arrays.asList("@EnumProvider", "@TestPodAnnotation(PoDType.BOOLEAN)"), EnumProvider.class, TestPodAnnotation.class, PoDType.class);
+		startDefinition(Arrays.asList("@EnumProvider", "@TestPrimitiveAnnotation(PrimitiveType.BOOLEAN)"), EnumProvider.class, TestPrimitiveAnnotation.class, PrimitiveType.class);
 		endDefinition();
 
 		// Add the additional features
 		jclass.annotate(JAnnotationFactory.create(EnumProvider.class));
-		jclass.annotate(JAnnotationFactory.create(TestPodAnnotation.class, JValueFactory.create(PoDType.BOOLEAN)));
+		jclass.annotate(JAnnotationFactory.create(TestPrimitiveAnnotation.class, JValueFactory.create(PrimitiveType.BOOLEAN)));
 
 		// Verify that it matches
 		assertGeneratedCode();
@@ -213,7 +213,7 @@ public class JClassTest extends AbstractUnitTest {
 		startDefinition(Collections.emptyList());
 		strMatcher.eq(("    mockVoidMethod"));
 		strMatcher.eq((""));
-		strMatcher.eq(("    mockPodMethod"));
+		strMatcher.eq(("    mockPrimitiveMethod"));
 		strMatcher.eq((""));
 		strMatcher.eq(("    mockClassMethod"));
 		strMatcher.eq((""));
@@ -221,13 +221,13 @@ public class JClassTest extends AbstractUnitTest {
 
 		// Add the additional features
 		jclass.addMethod(mockVoidMethod);
-		jclass.addMethod(mockPodMethod);
+		jclass.addMethod(mockPrimitiveMethod);
 		jclass.addMethod(mockClassMethod);
 
 		// Verify that it matches
 		assertGeneratedCode();
 		verify(mockVoidMethod).generate(any(CodeBuilder.class), anySet());
-		verify(mockPodMethod).generate(any(CodeBuilder.class), anySet());
+		verify(mockPrimitiveMethod).generate(any(CodeBuilder.class), anySet());
 		verify(mockClassMethod).generate(any(CodeBuilder.class), anySet());
 	}
 
@@ -237,10 +237,10 @@ public class JClassTest extends AbstractUnitTest {
 	@Test
 	public void testGenerateCodeWithAnnotationsWithMethods() {
 		// Define what the code is expected to look like
-		startDefinition(Arrays.asList("@EnumProvider", "@TestPodAnnotation(PoDType.BOOLEAN)"), EnumProvider.class, TestPodAnnotation.class, PoDType.class);
+		startDefinition(Arrays.asList("@EnumProvider", "@TestPrimitiveAnnotation(PrimitiveType.BOOLEAN)"), EnumProvider.class, TestPrimitiveAnnotation.class, PrimitiveType.class);
 		strMatcher.eq("    mockVoidMethod");
 		strMatcher.eq("");
-		strMatcher.eq("    mockPodMethod");
+		strMatcher.eq("    mockPrimitiveMethod");
 		strMatcher.eq("");
 		strMatcher.eq("    mockClassMethod");
 		strMatcher.eq("");
@@ -248,15 +248,15 @@ public class JClassTest extends AbstractUnitTest {
 
 		// Add the additional features
 		jclass.addMethod(mockVoidMethod);
-		jclass.addMethod(mockPodMethod);
+		jclass.addMethod(mockPrimitiveMethod);
 		jclass.addMethod(mockClassMethod);
 		jclass.annotate(JAnnotationFactory.create(EnumProvider.class));
-		jclass.annotate(JAnnotationFactory.create(TestPodAnnotation.class, JValueFactory.create(PoDType.BOOLEAN)));
+		jclass.annotate(JAnnotationFactory.create(TestPrimitiveAnnotation.class, JValueFactory.create(PrimitiveType.BOOLEAN)));
 
 		// Verify that it matches
 		assertGeneratedCode();
 		verify(mockVoidMethod).generate(any(CodeBuilder.class), anySet());
-		verify(mockPodMethod).generate(any(CodeBuilder.class), anySet());
+		verify(mockPrimitiveMethod).generate(any(CodeBuilder.class), anySet());
 		verify(mockClassMethod).generate(any(CodeBuilder.class), anySet());
 	}
 
