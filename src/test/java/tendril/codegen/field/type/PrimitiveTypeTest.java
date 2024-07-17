@@ -49,6 +49,7 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
         Assertions.assertEquals(PrimitiveType.INT, PrimitiveType.from(Integer.class));
         Assertions.assertEquals(PrimitiveType.LONG, PrimitiveType.from(Long.class));
         Assertions.assertEquals(PrimitiveType.SHORT, PrimitiveType.from(Short.class));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.from(ClassType.class));
     }
     
     /**

@@ -122,6 +122,10 @@ public class UtilitiesTest {
 		verifyIdentifier("a|", true);
 		verifyIdentifier("a`", true);
 		verifyIdentifier("a~", true);
+		verifyIdentifier(null, true);
+        verifyIdentifier("", true);
+        verifyIdentifier("     ", true);
+        verifyIdentifier("          ", true);
 	}
 
 	/**

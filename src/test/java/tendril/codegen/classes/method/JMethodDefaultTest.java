@@ -20,6 +20,7 @@ import java.util.Collections;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.Type;
 
 /**
@@ -45,5 +46,17 @@ public class JMethodDefaultTest extends SharedJMethodTest {
 
         Assertions.assertEquals("mockVisibility abstract ", method.generateSignatureStart(false));
         Assertions.assertEquals("mockVisibility ", method.generateSignatureStart(true));
+    }
+    
+    /**
+     * Verify that the package private special case works as expected
+     */
+    @Test
+    public void testPackagePrivateSignatureStart() {
+        JMethodDefault<Type> method = new JMethodDefault<>(VisibilityType.PACKAGE_PRIVATE, mockReturnType, "defaultMethod", Collections.emptyList());
+        verifyMethodInit("defaultMethod", method);
+
+        Assertions.assertEquals("abstract ", method.generateSignatureStart(false));
+        Assertions.assertEquals("", method.generateSignatureStart(true));
     }
 }

@@ -99,5 +99,6 @@ public class NamedTypeTest extends AbstractUnitTest {
         Assertions.assertTrue(element.equals(new TestNamedType(mockTypeData, "MyName")));
         Assertions.assertFalse(element.equals(new TestNamedType(mockTypeData, "OtherName")));
         Assertions.assertFalse(element.equals(new TestNamedType(mockOTherTypeData, "MyName")));
+        Assertions.assertFalse(element.equals(mockTypeData));
     }
 }

@@ -43,12 +43,21 @@ public class JValueTest extends SharedJValueTest {
         
         /** Counter for how many times generate() was called */
         private int timesGenerateCalled = 0;
+        
+        /**
+         * CTOR
+         * 
+         * @param type {@link Type} to use for the test {@link JValue}
+         */
+        protected TestJValue(Type type) {
+            super(type, mockValue);
+        }
 
         /**
          * CTOR 
          */
         protected TestJValue() {
-            super(mockType, mockValue);
+            this(mockType);
         }
 
         /**
@@ -116,6 +125,7 @@ public class JValueTest extends SharedJValueTest {
     public void testInstanceOf() {
         // If either type is null, fail the test
         Assertions.assertFalse(value.isInstanceOf(null));
+        Assertions.assertFalse(new TestJValue(null).isInstanceOf(mockOtherDataType));
         
         // If the equals check fails, check fails
         when(mockType.isAssignableTo(mockOtherDataType)).thenReturn(false);
