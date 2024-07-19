@@ -53,7 +53,7 @@ public class EnumProviderProcessor extends AbstractTendrilProccessor {
         String signature = classData.getFullyQualifiedName() + "::" + methodData.getName() + "[" + methodData.getType().getSimpleName() + "](";
         for (NamedType<?> d: methodData.getParameters()) {
             for (JAnnotation ad: d.getAnnotations()) {
-                signature += "@" + ad.getName() + "[";
+                signature += ad.getName() + "[";
                 for (JMethod<?> md: ad.getParameters())
                     signature += md.getName() + "=" + ad.getValue(md).getValue() + ", ";
                 signature += "] ";
