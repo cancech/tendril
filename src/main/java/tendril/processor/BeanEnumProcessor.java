@@ -58,7 +58,7 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
     private String generateCode(ClassType provider, ClassType sourceEnum) throws ClassNotFoundException {
         JClass cls = JClassFactory.createAnnotation(VisibilityType.PUBLIC, provider);
         cls.annotate(JAnnotationFactory.create(Retention.class, JValueFactory.create(RetentionPolicy.RUNTIME)));
-        cls.annotate(JAnnotationFactory.create(Target.class, JValueFactory.create(ElementType.METHOD, ElementType.TYPE)));
+        cls.annotate(JAnnotationFactory.create(Target.class, JValueFactory.createArray(ElementType.METHOD, ElementType.TYPE)));
         cls.annotate(JAnnotationFactory.create(EnumProvider.class));
         cls.buildMethod(sourceEnum, "value").setVisibility(VisibilityType.PUBLIC).build();
         return cls.generateCode();

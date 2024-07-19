@@ -68,8 +68,8 @@ public class VoidTypeTest extends SharedTypeTest<VoidType> {
     @Test
     public void testOthers() {
         Assertions.assertEquals("void", VoidType.INSTANCE.toString());
-        Assertions.assertFalse(VoidType.INSTANCE.isAssignableTo(null));
-        Assertions.assertFalse(VoidType.INSTANCE.isAssignableTo(mockType));
+        Assertions.assertFalse(VoidType.INSTANCE.isAssignableFrom(null));
+        Assertions.assertFalse(VoidType.INSTANCE.isAssignableFrom(mockType));
     }
 
     /**

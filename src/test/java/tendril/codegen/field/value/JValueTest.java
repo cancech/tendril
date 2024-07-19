@@ -128,13 +128,13 @@ public class JValueTest extends SharedJValueTest {
         Assertions.assertFalse(new TestJValue(null).isInstanceOf(mockOtherDataType));
         
         // If the equals check fails, check fails
-        when(mockType.isAssignableTo(mockOtherDataType)).thenReturn(false);
+        when(mockOtherDataType.isAssignableFrom(mockType)).thenReturn(false);
         Assertions.assertFalse(value.isInstanceOf(mockOtherDataType));
-        verify(mockType).isAssignableTo(mockOtherDataType);
+        verify(mockOtherDataType).isAssignableFrom(mockType);
         
         // If the equals check passes, check passes
-        when(mockType.isAssignableTo(mockOtherDataType)).thenReturn(true);
+        when(mockOtherDataType.isAssignableFrom(mockType)).thenReturn(true);
         Assertions.assertTrue(value.isInstanceOf(mockOtherDataType));
-        verify(mockType, times(2)).isAssignableTo(mockOtherDataType);
+        verify(mockOtherDataType, times(2)).isAssignableFrom(mockType);
     }
 }

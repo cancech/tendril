@@ -15,11 +15,14 @@
  */
 package test.assertions;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 
 import tendril.codegen.classes.ImportElement;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.value.JValue;
+import tendril.codegen.field.value.JValueArray;
 
 /**
  * Assertions to help with custom Tendril classes
@@ -80,5 +83,22 @@ public class TendrilAssert {
     public static void assertJValue(JValue<?, ?> expected, JValue<?, ?> actual) {
         Assertions.assertEquals(expected.getType(), actual.getType());
         Assertions.assertEquals(expected.getValue(), actual.getValue());
+    }
+
+    /**
+     * Verify that a {@link JValueArray} matches expectations
+     * 
+     * @param expected {@link JValueArray} that is expected
+     * @param actual   {@link JValueArray} that is actually produced
+     */
+    @SuppressWarnings("unchecked")
+    public static void assertJValue(JValueArray<?, ?> expected, JValueArray<?, ?> actual) {
+        Assertions.assertEquals(expected.getType(), actual.getType());
+
+        List<JValue<?,?>> expectedValues = (List<JValue<?, ?>>) (Object) expected.getValue();
+        List<JValue<?,?>> actualValues = (List<JValue<?, ?>>) (Object) actual.getValue();
+        CollectionAssert.assertSize(expectedValues, actualValues);
+        for (int i = 0; i < expectedValues.size(); i++)
+            assertJValue(expectedValues.get(i), actualValues.get(i));
     }
 }

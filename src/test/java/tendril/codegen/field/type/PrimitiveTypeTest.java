@@ -42,13 +42,21 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
     @Test
     public void testFromClass() {
         Assertions.assertEquals(PrimitiveType.BOOLEAN, PrimitiveType.from(Boolean.class));
+        Assertions.assertEquals(PrimitiveType.BOOLEAN, PrimitiveType.from(boolean.class));
         Assertions.assertEquals(PrimitiveType.BYTE, PrimitiveType.from(Byte.class));
+        Assertions.assertEquals(PrimitiveType.BYTE, PrimitiveType.from(byte.class));
         Assertions.assertEquals(PrimitiveType.CHAR, PrimitiveType.from(Character.class));
+        Assertions.assertEquals(PrimitiveType.CHAR, PrimitiveType.from(char.class));
         Assertions.assertEquals(PrimitiveType.DOUBLE, PrimitiveType.from(Double.class));
+        Assertions.assertEquals(PrimitiveType.DOUBLE, PrimitiveType.from(double.class));
         Assertions.assertEquals(PrimitiveType.FLOAT, PrimitiveType.from(Float.class));
+        Assertions.assertEquals(PrimitiveType.FLOAT, PrimitiveType.from(float.class));
         Assertions.assertEquals(PrimitiveType.INT, PrimitiveType.from(Integer.class));
+        Assertions.assertEquals(PrimitiveType.INT, PrimitiveType.from(int.class));
         Assertions.assertEquals(PrimitiveType.LONG, PrimitiveType.from(Long.class));
+        Assertions.assertEquals(PrimitiveType.LONG, PrimitiveType.from(long.class));
         Assertions.assertEquals(PrimitiveType.SHORT, PrimitiveType.from(Short.class));
+        Assertions.assertEquals(PrimitiveType.SHORT, PrimitiveType.from(short.class));
         Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.from(ClassType.class));
     }
     
@@ -75,7 +83,7 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
     public void testAssignable() {
         for (PrimitiveType i: PrimitiveType.values()) {
             for (PrimitiveType j: PrimitiveType.values())
-                Assertions.assertEquals(i == j, i.isAssignableTo(j));
+                Assertions.assertEquals(i == j, i.isAssignableFrom(j));
         }
     }
     

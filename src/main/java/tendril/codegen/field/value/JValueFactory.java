@@ -18,6 +18,7 @@ package tendril.codegen.field.value;
 import java.util.ArrayList;
 import java.util.List;
 
+import tendril.codegen.field.type.ArrayType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
@@ -26,22 +27,23 @@ import tendril.codegen.field.type.Type;
  * Factory to facilitate the creation of {@link JValue}s
  */
 public class JValueFactory {
-    
+
     /**
      * Hidden CTOR
      */
     private JValueFactory() {
     }
 
-
     /**
-     * Create a {@link JValue} representing an array of {@link Enum}s
+     * Create a {@link JValue} representing an array of VALUEs
      * 
-     * @param values {@link Enum}... the specific values to place in the array
+     * @param <DATA_TYPE> extends {@link Type} representing what data type is contained within the array
+     * @param <VALUE>     representing the specific Java data type containing the desired values
+     * @param values      {@link Enum}... the specific values to place in the array
      * @return {@link JValue}
      */
     @SafeVarargs
-    public static <DATA_TYPE extends Type, VALUE> JValue<DATA_TYPE, List<JValue<DATA_TYPE, VALUE>>> create(VALUE... values) {
+    public static <DATA_TYPE extends Type, VALUE> JValue<ArrayType<DATA_TYPE>, List<JValue<DATA_TYPE, VALUE>>> createArray(VALUE... values) {
         List<JValue<DATA_TYPE, VALUE>> list = new ArrayList<>();
         DATA_TYPE type = null;
 
@@ -53,13 +55,13 @@ public class JValueFactory {
         }
         return new JValueArray<DATA_TYPE, VALUE>(type, list);
     }
-    
+
     /**
      * Create a {@link JValue} for the generic value provided
      * 
      * @param <DATA_TYPE> extends {@link Type} indicating which data type is expected to be contained in resulting {@link JValue}
-     * @param <VALUE> the type of value that is to be stored
-     * @param value VALUE that is to be stored
+     * @param <VALUE>     the type of value that is to be stored
+     * @param value       VALUE that is to be stored
      * @return {@link JValue}
      */
     @SuppressWarnings("unchecked")
@@ -70,29 +72,29 @@ public class JValueFactory {
         if (cls.isEnum() || cls.equals(Enum.class))
             createdValue = create((Enum<?>) value);
         else if (cls.equals(String.class))
-            createdValue =  create((String) value);
+            createdValue = create((String) value);
         else if (cls.equals(Boolean.class))
-            createdValue =  create((boolean) value);
+            createdValue = create((boolean) value);
         else if (cls.equals(Byte.class))
-            createdValue =  create((byte) value);
+            createdValue = create((byte) value);
         else if (cls.equals(Character.class))
-            createdValue =  create((char) value);
+            createdValue = create((char) value);
         else if (cls.equals(Double.class))
-            createdValue =  create((double) value);
+            createdValue = create((double) value);
         else if (cls.equals(Float.class))
-            createdValue =  create((float) value);
+            createdValue = create((float) value);
         else if (cls.equals(Integer.class))
-            createdValue =  create((int) value);
+            createdValue = create((int) value);
         else if (cls.equals(Long.class))
-            createdValue =  create((long) value);
+            createdValue = create((long) value);
         else if (cls.equals(Short.class))
-            createdValue =  create((short) value);
+            createdValue = create((short) value);
         else
-            throw new IllegalArgumentException("No factory method exists for " + value);
-        
+            throw new IllegalArgumentException("No factory method exists to create a JValue for " + value);
+
         return (JValue<DATA_TYPE, VALUE>) createdValue;
     }
-    
+
     /**
      * Create a {@link JValue} representing an {@link Enum}
      * 

@@ -83,18 +83,18 @@ public class JValueFactoryTest extends SharedJValueTest {
      */
     @Test
     public void testCreateArrays() {
-        assertCode("{\"abc\", \"def\", \"ghi\", \"jkl\"}", JValueFactory.create("abc", "def", "ghi", "jkl"));
-        assertCode("{true, false, false, true}", JValueFactory.create(true, false, false, true));
-        assertCode("{10, 101}", JValueFactory.create((byte) Byte.valueOf("10"), (byte) Byte.valueOf("101")));
-        assertCode("{'a', 'b', 'c', 'd'}", JValueFactory.create('a', 'b', 'c', 'd'));
-        assertCode("{1.234d, 5.678d, 9.012d, 0.123d}", JValueFactory.create(1.234, 5.678, 9.012, 0.123));
-        assertCode("{2.3456f, 7.8901f, 2.3456f}", JValueFactory.create(2.3456f, 7.8901f, 2.3456f));
-        assertCode("{123, 456, 789}", JValueFactory.create(123, 456, 789));
-        assertCode("{123456l, 234567l, 345678l, 456789l}", JValueFactory.create(123456l, 234567l, 345678l, 456789l));
-        assertCode("{(short) 1, (short) 2, (short) 3, (short) 4}", JValueFactory.create((short) 1, (short)2, (short) 3, (short) 4));
+        assertCode("{\"abc\", \"def\", \"ghi\", \"jkl\"}", JValueFactory.createArray("abc", "def", "ghi", "jkl"));
+        assertCode("{true, false, false, true}", JValueFactory.createArray(true, false, false, true));
+        assertCode("{10, 101}", JValueFactory.createArray((byte) Byte.valueOf("10"), (byte) Byte.valueOf("101")));
+        assertCode("{'a', 'b', 'c', 'd'}", JValueFactory.createArray('a', 'b', 'c', 'd'));
+        assertCode("{1.234d, 5.678d, 9.012d, 0.123d}", JValueFactory.createArray(1.234, 5.678, 9.012, 0.123));
+        assertCode("{2.3456f, 7.8901f, 2.3456f}", JValueFactory.createArray(2.3456f, 7.8901f, 2.3456f));
+        assertCode("{123, 456, 789}", JValueFactory.createArray(123, 456, 789));
+        assertCode("{123456l, 234567l, 345678l, 456789l}", JValueFactory.createArray(123456l, 234567l, 345678l, 456789l));
+        assertCode("{(short) 1, (short) 2, (short) 3, (short) 4}", JValueFactory.createArray((short) 1, (short)2, (short) 3, (short) 4));
 
         lastImport = new ClassType(TestEnum.class);
         timesImported = 3;
-        assertCode("{TestEnum.VALUE1, TestEnum.VALUE2, TestEnum.VALUE3}", JValueFactory.create(TestEnum.values()));
+        assertCode("{TestEnum.VALUE1, TestEnum.VALUE2, TestEnum.VALUE3}", JValueFactory.createArray(TestEnum.values()));
     }
 }

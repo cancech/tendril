@@ -19,27 +19,28 @@ import java.util.Set;
 
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
+import tendril.util.TendrilUtil;
 
 /**
  * Enumeration of all possible java primitives
  */
 public enum PrimitiveType implements Type {
     /** boolean primitive */
-    BOOLEAN,
+    BOOLEAN(Boolean.class, boolean.class),
     /** byte primitive */
-    BYTE,
+    BYTE(Byte.class, byte.class),
     /** char primitive */
-    CHAR,
+    CHAR(Character.class, char.class),
     /** double primitive */
-    DOUBLE,
+    DOUBLE(Double.class, double.class),
     /** float primitive */
-    FLOAT,
+    FLOAT(Float.class, float.class),
     /** int primitive */
-    INT,
+    INT(Integer.class, int.class),
     /** long primitive */
-    LONG,
+    LONG(Long.class, long.class),
     /** short primitive */
-    SHORT;
+    SHORT(Short.class, short.class);
 
     /**
      * Provide the appropriate {@link PrimitiveType} for the specified {@link Class}. If no {@link PrimitiveType} exists for the specified {@link Class} an {@link IllegalArgumentException} is thrown
@@ -48,24 +49,37 @@ public enum PrimitiveType implements Type {
      * @return {@link PrimitiveType} for the {@link Class} or {@link IllegalArgumentException} if no such {@link PrimitiveType} exists
      */
     public static PrimitiveType from(Class<?> klass) {
-        if (Boolean.class.equals(klass))
-            return BOOLEAN;
-        if (Byte.class.equals(klass))
-            return BYTE;
-        if (Character.class.equals(klass))
-            return CHAR;
-        if (Double.class.equals(klass))
-            return DOUBLE;
-        if (Float.class.equals(klass))
-            return FLOAT;
-        if (Integer.class.equals(klass))
-            return INT;
-        if (Long.class.equals(klass))
-            return LONG;
-        if (Short.class.equals(klass))
-            return SHORT;
+        for (PrimitiveType type : PrimitiveType.values()) {
+            if (type.isCorrecTypeForClass(klass))
+                return type;
+        }
 
         throw new IllegalArgumentException("Invalid Primitive: " + klass.getName());
+    }
+
+    /** Class where the object version of the primitive is defined */
+    private final Class<?> objectClass;
+    /** Class where the primitive version of the primitive if defined */
+    private final Class<?> primitiveClass;
+
+    /**
+     * CTOR
+     * 
+     * @param objectClass    {@link Class} where the object version of the primitive is defined
+     * @param primitiveClass {@link Class} where the primitive version of the primitive if defined
+     */
+    private PrimitiveType(Class<?> objectClass, Class<?> primitiveClass) {
+        this.objectClass = objectClass;
+        this.primitiveClass = primitiveClass;
+    }
+
+    /**
+     * Check whether the provided class  
+     * @param desiredClass
+     * @return
+     */
+    private boolean isCorrecTypeForClass(Class<?> desiredClass) {
+        return TendrilUtil.oneOfMany(desiredClass, objectClass, primitiveClass);
     }
 
     /**
@@ -77,10 +91,10 @@ public enum PrimitiveType implements Type {
     }
 
     /**
-     * @see tendril.codegen.field.type.Type#isAssignableTo(tendril.codegen.field.type.Type)
+     * @see tendril.codegen.field.type.Type#isAssignableFrom(tendril.codegen.field.type.Type)
      */
     @Override
-    public boolean isAssignableTo(Type other) {
+    public boolean isAssignableFrom(Type other) {
         return this == other;
     }
 
@@ -106,9 +120,9 @@ public enum PrimitiveType implements Type {
                 return value instanceof Long;
             case SHORT:
                 return value instanceof Short;
-            default:
-                return false;
         }
+        
+        throw new IllegalArgumentException("Invalid primitive type " + this);
     }
 
     /**
@@ -141,7 +155,7 @@ public enum PrimitiveType implements Type {
     public JValue<?, ?> asValue(Object value) {
         if (!isTypeOf(value))
             throw new IllegalArgumentException("Invalid value provided. Expected " + this + " but received " + value.getClass());
-        
+
         return JValueFactory.create(value);
     }
 }

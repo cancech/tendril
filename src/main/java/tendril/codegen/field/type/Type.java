@@ -45,12 +45,12 @@ public interface Type extends Importable {
     boolean isTypeOf(Object value);
 
     /**
-     * Check if this can be assigned to the other type
+     * Check if this can be assigned from the other type
      * 
-     * @param other {@link Type} to check assignment to
-     * @return boolean true if this can be assigned to other
+     * @param other {@link Type} to check assignment from
+     * @return boolean true if this can be assigned from other
      */
-    boolean isAssignableTo(Type other);
+    boolean isAssignableFrom(Type other);
 
     /**
      * Create a value for the DATA_TYPE

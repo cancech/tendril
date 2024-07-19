@@ -55,7 +55,7 @@ public abstract class JValue<DATA_TYPE extends Type, VALUE_TYPE> implements Type
         if (otherType == null || type == null)
             return false;
 
-        return type.isAssignableTo(otherType);
+        return otherType.isAssignableFrom(type);
     }
 
     /**

@@ -54,10 +54,10 @@ public class VoidType implements Type {
     /**
      * Always returns false, as void cannot be assigned to/from anything
      * 
-     * @see tendril.codegen.field.type.Type#isAssignableTo(tendril.codegen.field.type.Type)
+     * @see tendril.codegen.field.type.Type#isAssignableFrom(tendril.codegen.field.type.Type)
      */
     @Override
-    public boolean isAssignableTo(Type other) {
+    public boolean isAssignableFrom(Type other) {
         return false;
     }
 

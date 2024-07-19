@@ -25,6 +25,8 @@ import java.util.Map;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.JMethodInterface;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.Type;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValue;
 import tendril.util.TendrilStringUtil;
 
@@ -220,17 +222,10 @@ public abstract class JAnnotationFactory {
             if (Void.TYPE.equals(expectedReturn))
                 throw new IllegalArgumentException(annotationClass.getName() + " cannot have a void parameter " + paramName);
 
-            // TODO fix this
-//            // Determine the appropriate type
-//            Type returnType;
-//            if (expectedReturn.isPrimitive())
-//                returnType = PrimitiveType.from(expectedReturn);
-//            else
-//                returnType = new ClassType(expectedReturn);
-//
-//            // Make sure that this is a correct instance
-//            if (!value.isInstanceOf(returnType))
-//                throw new IllegalArgumentException("Incompatible parameter " + paramName + ", expect " + returnType + " but got " + value.getType());
+            // Make sure that this is a correct instance
+            Type returnType = TypeFactory.create(expectedReturn);
+            if (!value.isInstanceOf(returnType))
+                throw new IllegalArgumentException("Incompatible parameter " + paramName + ", expect " + returnType.getSimpleName() + " but got " + value.getType());
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Parameter " + paramName + " does not exist in " + annotationClass.getName());
         } catch (SecurityException e) {

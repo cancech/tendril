@@ -18,6 +18,7 @@ package tendril.codegen.field.value;
 import java.util.List;
 import java.util.Set;
 
+import tendril.codegen.field.type.ArrayType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 
@@ -28,7 +29,7 @@ import tendril.codegen.field.type.Type;
  * @param <DATA_TYPE> representing the {@link Type} of the value
  * @param <VALUE_TYPE> the specific (Java) type storing the values in the array
  */
-public class JValueArray<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<DATA_TYPE, List<JValue<DATA_TYPE, VALUE_TYPE>>> {
+public class JValueArray<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<ArrayType<DATA_TYPE>, List<JValue<DATA_TYPE, VALUE_TYPE>>> {
 
     /**
      * CTOR
@@ -37,7 +38,7 @@ public class JValueArray<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<DATA
      * @param values {@link List} of {@link JValue}s representing all of the elements to appear in the array
      */
     protected JValueArray(DATA_TYPE dataType, List<JValue<DATA_TYPE, VALUE_TYPE>> values) {
-        super(dataType, values);
+        super(new ArrayType<>(dataType), values);
     }
 
     /**

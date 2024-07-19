@@ -17,8 +17,6 @@ package tendril.codegen.field.type;
 
 import java.util.Set;
 
-import org.apache.commons.lang3.NotImplementedException;
-
 import tendril.codegen.classes.ImportElement;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
@@ -67,11 +65,11 @@ public class ClassType extends ImportElement implements Type {
     }
 
     /**
-     * @see tendril.codegen.field.type.Type#isAssignableTo(tendril.codegen.field.type.Type)
+     * @see tendril.codegen.field.type.Type#isAssignableFrom(tendril.codegen.field.type.Type)
      */
     @SuppressWarnings("unlikely-arg-type")
     @Override
-    public boolean isAssignableTo(Type other) {
+    public boolean isAssignableFrom(Type other) {
         return super.equals(other);
     }
 
@@ -115,28 +113,6 @@ public class ClassType extends ImportElement implements Type {
         if (!isTypeOf(value))
             throw new IllegalArgumentException("Invalid object provided: require " + getFullyQualifiedName() + " but received " + value.getClass().getName());
         
-        if (value.getClass().isEnum())
-            return JValueFactory.create((Enum<?>) value);
-        if (value.getClass().equals(String.class))
-            return JValueFactory.create((String) value);
-        if (value.getClass().equals(Boolean.class))
-            return JValueFactory.create((Boolean) value);
-        if (value.getClass().equals(Byte.class))
-            return JValueFactory.create((Byte) value);
-        if (value.getClass().equals(Character.class))
-            return JValueFactory.create((Character) value);
-        if (value.getClass().equals(Double.class))
-            return JValueFactory.create((Double) value);
-        if (value.getClass().equals(Float.class))
-            return JValueFactory.create((Float) value);
-        if (value.getClass().equals(Integer.class))
-            return JValueFactory.create((Integer) value);
-        if (value.getClass().equals(Long.class))
-            return JValueFactory.create((Long) value);
-        if (value.getClass().equals(Short.class))
-            return JValueFactory.create((Short) value);
-
-        // TODO expand to any object type
-        throw new NotImplementedException("Only enums and primitives are currently supported");
+        return JValueFactory.create(value);
     }
 }

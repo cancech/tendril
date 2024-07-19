@@ -17,7 +17,6 @@ package tendril.codegen.field.type;
 
 import static org.mockito.Mockito.verify;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -76,7 +75,7 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
         // Everything else generates an exception
         type = new ClassType(ImportElement.class);
         verifyDataState(ImportElement.class);
-        Assertions.assertThrows(NotImplementedException.class, () -> type.asValue(new ImportElement(getClass())));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> type.asValue(new ImportElement(getClass())));
     }
 
     /**
@@ -132,20 +131,20 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 
         // These are expected to fail
         for (PrimitiveType pd : PrimitiveType.values()) {
-            Assertions.assertFalse(lhs.isAssignableTo(pd));
+            Assertions.assertFalse(lhs.isAssignableFrom(pd));
         }
-        Assertions.assertFalse(lhs.isAssignableTo(VoidType.INSTANCE));
-        Assertions.assertFalse(lhs.isAssignableTo(new ClassType("a.b.c.D")));
-        Assertions.assertFalse(lhs.isAssignableTo(new ClassType(NamedType.class)));
-        Assertions.assertFalse(lhs.isAssignableTo(new ClassType("a.b.c.d.e")));
+        Assertions.assertFalse(lhs.isAssignableFrom(VoidType.INSTANCE));
+        Assertions.assertFalse(lhs.isAssignableFrom(new ClassType("a.b.c.D")));
+        Assertions.assertFalse(lhs.isAssignableFrom(new ClassType(NamedType.class)));
+        Assertions.assertFalse(lhs.isAssignableFrom(new ClassType("a.b.c.d.e")));
 
         // These are expected to pass
-        Assertions.assertTrue(lhs.isAssignableTo(new ClassType("a.b.c.d.E")));
-        Assertions.assertTrue(lhs.isAssignableTo(new ClassType("a.b.c.d", "E")));
+        Assertions.assertTrue(lhs.isAssignableFrom(new ClassType("a.b.c.d.E")));
+        Assertions.assertTrue(lhs.isAssignableFrom(new ClassType("a.b.c.d", "E")));
         lhs = new ClassType(NamedType.class);
-        Assertions.assertTrue(lhs.isAssignableTo(new ClassType(NamedType.class)));
-        Assertions.assertTrue(lhs.isAssignableTo(new ClassType(NamedType.class.getName())));
-        Assertions.assertTrue(lhs.isAssignableTo(new ClassType(NamedType.class.getPackageName(), NamedType.class.getSimpleName())));
+        Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(NamedType.class)));
+        Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(NamedType.class.getName())));
+        Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(NamedType.class.getPackageName(), NamedType.class.getSimpleName())));
     }
 
     /**

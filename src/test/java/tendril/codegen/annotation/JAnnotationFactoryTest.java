@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import tendril.codegen.classes.method.AnonymousMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
+import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.helper.annotation.TestDefaultParamAnnotation;
@@ -292,7 +293,11 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
      */
     @Test
     public void testMultiValueAnnotationWithDefaults() {
-        JValue<ClassType, String> value = JValueFactory.create("value");
+        verifyMultiValueAnnotationWithOptionalArray(JValueFactory.createArray("value"));
+        verifyMultiValueAnnotationWithOptionalArray(JValueFactory.create("value"));
+    }
+
+    private <DATA_TYPE extends Type, VALUE> void verifyMultiValueAnnotationWithOptionalArray(JValue<DATA_TYPE, VALUE> value) {
         JValue<ClassType, String> date = JValueFactory.create("date");
         JValue<ClassType, String> comments = JValueFactory.create("comments");
 
@@ -307,7 +312,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
         assertImportData(Generated.class, annotation);
         CollectionAssert.assertEquivalent(annotation.getParameters(), new AnonymousMethod<>(value.getType(), "value"), new AnonymousMethod<>(date.getType(), "date"));
         Assertions.assertEquals(value, annotation.getValue(new AnonymousMethod<>(value.getType(), "value")));
-        Assertions.assertEquals(date, annotation.getValue(new AnonymousMethod<>(value.getType(), "date")));
+        Assertions.assertEquals(date, annotation.getValue(new AnonymousMethod<>(date.getType(), "date")));
 
         // Override all default
         annotation = JAnnotationFactory.create(Generated.class, Map.of("value", value, "date", date, "comments", comments));

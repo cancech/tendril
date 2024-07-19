@@ -46,4 +46,20 @@ public abstract class TypeFactory {
 
         throw new IllegalArgumentException("Unknown type: " + mirror + "[" + kind + "]");
     }
+    
+    /**
+     * Create a {@link Type} from a defining {@link Class}
+     * 
+     * @param klass {@link Class} defining the data type
+     * @return {@link Type} representing the data type
+     */
+    public static Type create(Class<?> klass) {
+        if (klass.isArray())
+            return new ArrayType<Type>(create(klass.getComponentType()));
+        try {
+            return PrimitiveType.from(klass);
+        } catch (IllegalArgumentException e) {
+            return new ClassType(klass);
+        }
+    }
 }
