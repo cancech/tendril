@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.JMethodInterface;
@@ -34,6 +35,9 @@ import tendril.util.TendrilStringUtil;
  * Factory to facilitate the creation of {@link JAnnotation}s
  */
 public abstract class JAnnotationFactory {
+
+    /** Logger for creating log messages when running */
+    private static Logger LOGGER = Logger.getLogger(JAnnotationFactory.class.getSimpleName());
 
     /**
      * Hidden CTOR
@@ -95,8 +99,7 @@ public abstract class JAnnotationFactory {
                 throw new IllegalArgumentException(classType.getFullyQualifiedName() + " is not an enumeration");
             return klass;
         } catch (ClassNotFoundException e) {
-            // TODO generate warning, unable to find class file
-            e.printStackTrace();
+            LOGGER.severe("Cannot find Class for " + classType.getFullyQualifiedName() + ". It does not exist on the classpath");
         }
 
         return null;
@@ -176,10 +179,21 @@ public abstract class JAnnotationFactory {
             if (methods.length != 1 || !"value".equals(methods[0].getName()))
                 throw new IllegalArgumentException(annotationClass.getSimpleName() + " annotation must have exactly one parameter named value");
         } else {
-            // TODO warning that cannot validate
+            LOGGER.warning(buildAnnotationClassNotFoundWarning("Default Value", annotationType));
         }
 
         return createAnnotationWithValues(annotationClass, annotationType, Map.of("value", value));
+    }
+
+    /**
+     * Create the warning message when creating an annotation that cannot be validated due to Class not found
+     * 
+     * @param annotationType  {@link String} describing the type of annotation to be created (in plain language)
+     * @param annotationClass {@link ClassType} describing the annotation class
+     * @return {@link String} the message toe present to the user
+     */
+    private static String buildAnnotationClassNotFoundWarning(String annotationType, ClassType annotationClass) {
+        return "Cannot perform validation for " + annotationType + " Annotation " + annotationClass.getFullyQualifiedName() + ". It does not exist on the classpath";
     }
 
     /**
@@ -315,7 +329,7 @@ public abstract class JAnnotationFactory {
             if (!methods.isEmpty())
                 throw new IllegalArgumentException(annotationClass.getName() + " annotation has parameters without assigned values [" + TendrilStringUtil.join(methods, m -> m.getName()) + "]");
         } else {
-            // TODO warning that cannot validate
+            LOGGER.warning(buildAnnotationClassNotFoundWarning("Multi-Value", annotationType));
         }
 
         return createAnnotationWithValues(annotationClass, annotationType, values);
