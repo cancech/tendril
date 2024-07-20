@@ -1,0 +1,11 @@
+plugins {
+    id 'shared-library'
+}
+
+dependencies {
+    // Tendril
+    api project(':tendril-util')
+    testImplementation project(':tendril-test')
+}
+
+

@@ -1,0 +1,6 @@
+rootProject.name = 'tendril'
+
+include 'tendril-util'
+include 'tendril-codegen'
+include 'tendril-di'
+include 'tendril-test'

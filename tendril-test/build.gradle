@@ -1,0 +1,9 @@
+plugins {
+    id 'shared-library'
+}
+
+dependencies {
+	// Test Dependencies
+    api "org.junit.jupiter:junit-jupiter:5.11.0-M2"
+    api "org.mockito:mockito-junit-jupiter:5.12.0"
+}

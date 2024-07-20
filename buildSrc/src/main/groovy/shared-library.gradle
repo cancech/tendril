@@ -1,0 +1,20 @@
+plugins {
+	id "java-library"
+	id "maven-publish"
+    id 'shared-common'
+}
+
+group='cancech'
+
+java {    
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
