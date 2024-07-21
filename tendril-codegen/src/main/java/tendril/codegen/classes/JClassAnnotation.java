@@ -16,7 +16,9 @@
 package tendril.codegen.classes;
 
 import tendril.codegen.VisibilityType;
+import tendril.codegen.classes.method.AnnotationMethodBuilder;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.Type;
 
 /**
  * Representation of an annotation
@@ -40,4 +42,12 @@ public class JClassAnnotation extends JClassInterface {
 	protected String classType() {
 		return "@" + super.classType();
 	}
+
+    /**
+     * @see tendril.codegen.classes.JClass#createMethodBuilder(tendril.codegen.field.type.TypeData, java.lang.String)
+     */
+    @Override
+    protected <RETURN_TYPE extends Type> MethodBuilder<RETURN_TYPE> createMethodBuilder(RETURN_TYPE returnType, String name) {
+        return new AnnotationMethodBuilder<RETURN_TYPE>(this, returnType, name);
+    }
 }

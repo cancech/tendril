@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.VisibilityType;
-import tendril.codegen.classes.method.InterfaceMethodBuilder;
+import tendril.codegen.classes.method.AnnotationMethodBuilder;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
@@ -70,7 +70,7 @@ public class JClassAnnotationTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testMethodBuilder() {
-		ClassAssert.assertInstance(InterfaceMethodBuilder.class, cls.createMethodBuilder(mockReturnType, "someName"));
+		ClassAssert.assertInstance(AnnotationMethodBuilder.class, cls.createMethodBuilder(mockReturnType, "someName"));
 	}
 
 }
