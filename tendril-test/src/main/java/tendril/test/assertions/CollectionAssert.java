@@ -25,7 +25,13 @@ import org.junit.jupiter.api.Assertions;
 /**
  * Assertion helper for handling common asserts for {@link Collection}s
  */
-public class CollectionAssert {
+public abstract class CollectionAssert {
+
+    /**
+     * Hidden CTOR
+     */
+    private CollectionAssert() {
+    }
 
     /**
      * Verify that a collection is empty

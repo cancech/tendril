@@ -24,9 +24,16 @@ import org.junit.jupiter.api.Assertions;
  * Matcher for multi-line {@link String}s. Each expected line of the {@link String} is added as a separate entry into the matcher, which then compares each line by line to the provided actual.
  */
 public class MultiLineStringMatcher {
+    
     /** All registered lines that are expected */
     private final List<StringMatcher> expectedLines = new ArrayList<>();
 
+    /**
+     * CTOR
+     */
+    public MultiLineStringMatcher() {
+    }
+    
     /**
      * Add a line that should be matched exactly.
      * 

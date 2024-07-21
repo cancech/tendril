@@ -43,6 +43,12 @@ public abstract class AbstractUnitTest {
     private final MockCreationListener mockListener = (mock, settings) -> mocks.add(mock);
 
     /**
+     * CTOR
+     */
+    protected AbstractUnitTest() {
+    }
+
+    /**
      * Before performing any/all tests, listen for the creation of mocks
      */
     @BeforeAll

@@ -20,7 +20,13 @@ import org.junit.jupiter.api.Assertions;
 /**
  * Assertion helper for verifying and validating class information in unit tests
  */
-public class ClassAssert {
+public abstract class ClassAssert {
+
+    /**
+     * Hidden CTOR
+     */
+    private ClassAssert() {
+    }
 
 	/**
 	 * Verify that a given object is of an expected type
