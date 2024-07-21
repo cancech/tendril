@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.assertions;
+package tendril.test.assertions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
@@ -72,11 +71,7 @@ public class CollectionAssert {
      */
     public static <T> void assertEquals(Collection<T> expected, Collection<T> actual) {
         assertSize(expected, actual);
-        Iterator<T> expectedIter = expected.iterator();
-        Iterator<T> actualIter = expected.iterator();
-        while (expectedIter.hasNext() && actualIter.hasNext()) {
-            Assertions.assertEquals(expectedIter.next(), actualIter.next());
-        }
+        Assertions.assertIterableEquals(expected, actual);
     }
 
     /**

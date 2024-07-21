@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test;
+package tendril.test;
 
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 

@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.field.type.Type;
-import test.AbstractUnitTest;
+import tendril.test.AbstractUnitTest;
 
 /**
  * Test case for {@link AnonymousMethod}
@@ -33,7 +33,7 @@ public class AnonymousMethodTest extends AbstractUnitTest {
     private Type mockReturnType;
     
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import test.AbstractUnitTest;
+import tendril.test.AbstractUnitTest;
 
 /**
  * Test case for {@link TypeFactory}
@@ -38,7 +38,7 @@ public class TypeFactoryTest extends AbstractUnitTest {
     private TypeMirror mockMirror;
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

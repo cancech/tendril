@@ -33,7 +33,7 @@ import tendril.helper.assertions.TendrilAssert;
 public class ClassTypeTest extends SharedTypeTest<ClassType> {
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

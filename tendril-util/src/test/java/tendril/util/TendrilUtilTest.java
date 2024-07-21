@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.helper.StringPair;
-import test.AbstractUnitTest;
+import tendril.test.AbstractUnitTest;
+import tendril.test.helper.StringPair;
 
 /**
  * Test case for {@link TendrilUtil}
@@ -36,7 +36,7 @@ public class TendrilUtilTest extends AbstractUnitTest {
     private Comparator<String> mockComparator;
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import test.AbstractUnitTest;
+import tendril.test.AbstractUnitTest;
 
 /**
  * Test case for {@link CodeBuilder}
@@ -34,7 +34,7 @@ public class CodeBuilderTest extends AbstractUnitTest {
 	private final List<String> expectedLines = new ArrayList<>();
 
 	/**
-	 * @see test.AbstractUnitTest#prepareTest()
+	 * @see tendril.test.AbstractUnitTest#prepareTest()
 	 */
 	@Override
 	protected void prepareTest() {

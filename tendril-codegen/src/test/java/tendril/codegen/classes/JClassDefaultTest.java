@@ -26,8 +26,8 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.ConcreteMethodBuilder;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
-import test.AbstractUnitTest;
-import test.assertions.ClassAssert;
+import tendril.test.AbstractUnitTest;
+import tendril.test.assertions.ClassAssert;
 
 /**
  * Test case for {@link JClassDefault}
@@ -46,7 +46,7 @@ public class JClassDefaultTest extends AbstractUnitTest {
 	private JClassDefault cls;
 
 	/**
-	 * @see test.AbstractUnitTest#prepareTest()
+	 * @see tendril.test.AbstractUnitTest#prepareTest()
 	 */
 	@Override
 	protected void prepareTest() {

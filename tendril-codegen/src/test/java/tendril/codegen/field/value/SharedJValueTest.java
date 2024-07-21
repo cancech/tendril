@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Assertions;
 import org.mockito.Mock;
 
 import tendril.codegen.field.type.ClassType;
-import test.AbstractUnitTest;
+import tendril.test.AbstractUnitTest;
 
 /**
  * Test case covering the shared/common needs for JValue tests
@@ -35,7 +35,7 @@ public class SharedJValueTest extends AbstractUnitTest {
     protected Set<ClassType> mockImports;
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

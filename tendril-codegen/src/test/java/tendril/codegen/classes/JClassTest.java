@@ -46,8 +46,8 @@ import tendril.codegen.field.type.VoidType;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.helper.annotation.TestMarkerAnnotation;
 import tendril.helper.annotation.TestPrimitiveAnnotation;
-import test.AbstractUnitTest;
-import test.assertions.matchers.MultiLineStringMatcher;
+import tendril.test.AbstractUnitTest;
+import tendril.test.assertions.matchers.MultiLineStringMatcher;
 
 /**
  * Test case for {@link JClass}
@@ -130,7 +130,7 @@ public class JClassTest extends AbstractUnitTest {
     private TestJClass jclass;
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

@@ -27,7 +27,7 @@ import org.mockito.Mock;
 
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.field.type.ClassType;
-import test.AbstractUnitTest;
+import tendril.test.AbstractUnitTest;
 
 /**
  * Test case for {@link JBase}
@@ -85,7 +85,7 @@ public class JBaseTest extends AbstractUnitTest {
     private TestBaseElement element;
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

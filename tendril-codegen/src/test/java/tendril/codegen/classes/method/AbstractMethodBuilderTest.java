@@ -27,7 +27,7 @@ import tendril.codegen.field.type.Type;
 public class AbstractMethodBuilderTest extends SharedMethodBuilderTest<AbstractMethodBuilder<Type>> {
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

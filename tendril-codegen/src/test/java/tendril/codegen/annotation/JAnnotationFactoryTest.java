@@ -34,8 +34,8 @@ import tendril.helper.annotation.TestMarkerAnnotation;
 import tendril.helper.annotation.TestMultiParamAnnotation;
 import tendril.helper.annotation.TestNonDefaultParamAnnotation;
 import tendril.helper.assertions.TendrilAssert;
-import test.AbstractUnitTest;
-import test.assertions.CollectionAssert;
+import tendril.test.AbstractUnitTest;
+import tendril.test.assertions.CollectionAssert;
 
 /**
  * Test case for the {@link JAnnotationFactory}
@@ -43,7 +43,7 @@ import test.assertions.CollectionAssert;
 public class JAnnotationFactoryTest extends AbstractUnitTest {
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

@@ -13,22 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.assertions;
-
-import org.junit.jupiter.api.Assertions;
+package tendril.test.assertions.matchers;
 
 /**
- * Assertion helper for verifying and validating class information in unit tests
+ * Performs matching to see whether the actual {@link String} matches the provided regular expression
  */
-public class ClassAssert {
+class RegexMatcher extends StringMatcher {
 
 	/**
-	 * Verify that a given object is of an expected type
+	 * CTOR
 	 * 
-	 * @param expectedType {@link Class} that is expected
-	 * @param actual       {@link Object} the instance to check
+	 * @param regex {@link String} the regular expression expected to conform to
 	 */
-	public static void assertInstance(Class<?> expectedType, Object actual) {
-		Assertions.assertTrue(expectedType.isInstance(actual), "Not an instance: expected " + expectedType.getSimpleName() + " but was " + actual.getClass().getSimpleName());
+	RegexMatcher(String regex) {
+		super(regex);
+	}
+
+	/**
+	 * @see tendril.test.assertions.matchers.StringMatcher#match(java.lang.String)
+	 */
+	@Override
+	protected boolean match(String actual) {
+		if (expected == null || actual == null)
+			return false;
+
+		return actual.matches(expected);
 	}
 }

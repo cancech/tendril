@@ -32,7 +32,7 @@ import tendril.codegen.Utilities;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.Type;
-import test.AbstractUnitTest;
+import tendril.test.AbstractUnitTest;
 
 /**
  * Test case for {@link MethodBuilder}
@@ -128,7 +128,7 @@ public class MethodBuilderTest extends AbstractUnitTest {
     private TestMethodBuilder builder;
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

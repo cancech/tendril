@@ -24,7 +24,7 @@ import org.mockito.Mock;
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
-import test.AbstractUnitTest;
+import tendril.test.AbstractUnitTest;
 
 /**
  * Test case for {@link NamedType}
@@ -67,7 +67,7 @@ public class NamedTypeTest extends AbstractUnitTest {
     private TestNamedType element;
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

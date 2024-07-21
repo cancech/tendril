@@ -29,7 +29,7 @@ import tendril.helper.assertions.TendrilAssert;
 public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

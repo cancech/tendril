@@ -31,7 +31,7 @@ import org.mockito.Mock;
 import tendril.codegen.field.NamedType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
-import test.assertions.CollectionAssert;
+import tendril.test.assertions.CollectionAssert;
 
 /**
  * Test case for {@link JMethod}
@@ -98,7 +98,7 @@ public class JMethodTest extends SharedJMethodTest {
     private TestJMethod method;
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

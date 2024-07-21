@@ -13,30 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.assertions.matchers;
+package tendril.test.assertions.matchers;
 
 /**
- * Performs matching to see whether the actual {@link String} matches the provided regular expression
+ * Matcher for ensuring that the actual {@link String} is fully equal to expectations
  */
-class RegexMatcher extends StringMatcher {
+public class EqualityMatcher extends StringMatcher {
 
 	/**
 	 * CTOR
 	 * 
-	 * @param regex {@link String} the regular expression expected to conform to
+	 * @param expected {@link String} the exact {@link String} to match
 	 */
-	RegexMatcher(String regex) {
-		super(regex);
+	EqualityMatcher(String expected) {
+		super(expected);
 	}
 
 	/**
-	 * @see test.assertions.matchers.StringMatcher#match(java.lang.String)
+	 * @see tendril.test.assertions.matchers.StringMatcher#match(java.lang.String)
 	 */
 	@Override
-	protected boolean match(String actual) {
-		if (actual == null)
-			return false;
+	boolean match(String actual) {
+		if (actual == null && expected == null)
+			return true;
 
-		return actual.matches(expected);
+		if (actual != null)
+			return actual.equals(expected);
+
+		return false;
 	}
+
 }

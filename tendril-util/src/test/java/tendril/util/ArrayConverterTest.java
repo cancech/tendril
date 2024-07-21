@@ -20,7 +20,7 @@ import java.time.DayOfWeek;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import tendril.helper.StringPair;
+import tendril.test.helper.StringPair;
 
 /**
  * Test case for {@link ArrayConverter}

@@ -26,7 +26,7 @@ import tendril.codegen.field.type.PrimitiveType;
 public class JValueSimpleTest extends SharedJValueTest {
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

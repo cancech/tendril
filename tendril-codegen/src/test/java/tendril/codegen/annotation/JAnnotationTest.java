@@ -34,8 +34,8 @@ import tendril.codegen.field.value.JValue;
 import tendril.helper.annotation.TestDefaultParamAnnotation;
 import tendril.helper.annotation.TestMarkerAnnotation;
 import tendril.helper.annotation.TestNonDefaultParamAnnotation;
-import test.AbstractUnitTest;
-import test.assertions.CollectionAssert;
+import tendril.test.AbstractUnitTest;
+import tendril.test.assertions.CollectionAssert;
 
 /**
  * Test case for {@link JAnnotation}
@@ -59,7 +59,7 @@ public class JAnnotationTest extends AbstractUnitTest {
     private JValue<Type, Integer> mockIntValue;
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

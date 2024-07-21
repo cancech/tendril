@@ -20,7 +20,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.Mock;
 
-import test.AbstractUnitTest;
+import tendril.test.AbstractUnitTest;
 
 /**
  * Shared test features for the various {@link TypeData} tests

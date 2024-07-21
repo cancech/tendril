@@ -23,8 +23,8 @@ import org.mockito.Mock;
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.Type;
-import test.AbstractUnitTest;
-import test.assertions.matchers.MultiLineStringMatcher;
+import tendril.test.AbstractUnitTest;
+import tendril.test.assertions.matchers.MultiLineStringMatcher;
 
 /**
  * Contains the shared elements which are needed for all {@link JMethod} tests
@@ -43,7 +43,7 @@ public abstract class SharedJMethodTest extends AbstractUnitTest {
     protected MultiLineStringMatcher matcher;
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

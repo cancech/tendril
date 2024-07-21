@@ -27,7 +27,7 @@ import org.mockito.Mock;
 
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
-import test.AbstractUnitTest;
+import tendril.test.AbstractUnitTest;
 
 /**
  * Test case for {@link JValueArray}
@@ -50,7 +50,7 @@ public class JValueArrayTest extends AbstractUnitTest {
     private JValueArray<Type, Type> value;
     
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

@@ -23,8 +23,7 @@ import tendril.codegen.classes.ImportElement;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueArray;
-import test.assertions.CollectionAssert;
-import test.assertions.TestHelper;
+import tendril.test.assertions.CollectionAssert;
 
 /**
  * Assertions to help with custom Tendril classes
@@ -59,8 +58,8 @@ public class TendrilAssert {
      * @param actual       {@link ImportElement} to verify
      */
     public static void assertImportData(String expectedPkg, String expectedName, ImportElement actual) {
-        TestHelper.assertEquals(expectedPkg, actual.getPackageName(), "ImportData package name mismatch");
-        TestHelper.assertEquals(expectedName, actual.getClassName(), "ImportData class name mismatch");
+        Assertions.assertEquals(expectedPkg, actual.getPackageName(), "ImportData package name mismatch");
+        Assertions.assertEquals(expectedName, actual.getClassName(), "ImportData class name mismatch");
     }
 
     /**

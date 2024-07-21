@@ -93,7 +93,7 @@ public class JValueTest extends SharedJValueTest {
     private TestJValue value;
 
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

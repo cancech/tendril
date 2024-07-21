@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.assertions;
+package tendril.test.assertions;
 
 import org.junit.jupiter.api.Assertions;
 
-public class TestHelper {
+/**
+ * Assertion helper for verifying and validating class information in unit tests
+ */
+public class ClassAssert {
 
-    public static void assertEquals(String expected, String actual, String msgIntro) {
-        Assertions.assertEquals(expected, actual, msgIntro + ", expected \"" + expected + "\", but was \"" + actual + "\"");
-    }
+	/**
+	 * Verify that a given object is of an expected type
+	 * 
+	 * @param expectedType {@link Class} that is expected
+	 * @param actual       {@link Object} the instance to check
+	 */
+	public static void assertInstance(Class<?> expectedType, Object actual) {
+		Assertions.assertTrue(expectedType.isInstance(actual), "Not an instance: expected " + expectedType.getSimpleName() + " but was " + actual.getClass().getSimpleName());
+	}
 }

@@ -30,7 +30,7 @@ import org.mockito.Mock;
 import tendril.codegen.field.value.JValueArray;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.helper.assertions.TendrilAssert;
-import test.AbstractUnitTest;
+import tendril.test.AbstractUnitTest;
 
 /**
  * Test case for {@link ArrayType}
@@ -51,7 +51,7 @@ public class ArrayTypeTest extends AbstractUnitTest {
     private ArrayType<Type> type;
     
     /**
-     * @see test.AbstractUnitTest#prepareTest()
+     * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {

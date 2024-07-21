@@ -23,8 +23,8 @@ import org.mockito.Mock;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.ClassType;
-import test.AbstractUnitTest;
-import test.assertions.ClassAssert;
+import tendril.test.AbstractUnitTest;
+import tendril.test.assertions.ClassAssert;
 
 /**
  * Test case for {@link JClassFactory}
@@ -38,7 +38,7 @@ public class JClassFactoryTest extends AbstractUnitTest {
 	private ClassType mockClassType;
 
 	/**
-	 * @see test.AbstractUnitTest#prepareTest()
+	 * @see tendril.test.AbstractUnitTest#prepareTest()
 	 */
 	@Override
 	protected void prepareTest() {

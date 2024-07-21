@@ -21,8 +21,8 @@ import org.mockito.Mock;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.Type;
-import test.AbstractUnitTest;
-import test.assertions.ClassAssert;
+import tendril.test.AbstractUnitTest;
+import tendril.test.assertions.ClassAssert;
 
 /**
  * Class which contains the shared elements of the specific method builders
