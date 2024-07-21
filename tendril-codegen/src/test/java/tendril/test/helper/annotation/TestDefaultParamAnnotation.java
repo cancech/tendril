@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.helper;
+package tendril.test.helper.annotation;
 
 /**
- * Enumeration to use for testing
+ * Test annotation which takes a default parameter
  */
-public enum TestEnum {
-    VALUE1, VALUE2, VALUE3;
+public @interface TestDefaultParamAnnotation {
+    String value();
+
 }

@@ -31,11 +31,11 @@ import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
-import tendril.helper.annotation.TestDefaultParamAnnotation;
-import tendril.helper.annotation.TestMarkerAnnotation;
-import tendril.helper.annotation.TestNonDefaultParamAnnotation;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.CollectionAssert;
+import tendril.test.helper.annotation.TestDefaultParamAnnotation;
+import tendril.test.helper.annotation.TestMarkerAnnotation;
+import tendril.test.helper.annotation.TestNonDefaultParamAnnotation;
 
 /**
  * Test case for {@link JAnnotation}

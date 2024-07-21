@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import tendril.codegen.field.value.JValueFactory;
-import tendril.helper.assertions.TendrilAssert;
+import tendril.test.helper.assertions.TendrilAssert;
 
 /**
  * Test case for {@link PrimitiveType}

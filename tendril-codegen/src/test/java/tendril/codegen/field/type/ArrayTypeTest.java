@@ -29,8 +29,8 @@ import org.mockito.Mock;
 
 import tendril.codegen.field.value.JValueArray;
 import tendril.codegen.field.value.JValueFactory;
-import tendril.helper.assertions.TendrilAssert;
 import tendril.test.AbstractUnitTest;
+import tendril.test.helper.assertions.TendrilAssert;
 
 /**
  * Test case for {@link ArrayType}

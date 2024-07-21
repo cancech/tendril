@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
-import tendril.helper.TestEnum;
+import tendril.test.helper.TestEnum;
 
 /**
  * Test case for {@link JValueEnum}

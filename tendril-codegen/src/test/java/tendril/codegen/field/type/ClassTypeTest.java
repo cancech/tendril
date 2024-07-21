@@ -25,7 +25,7 @@ import tendril.codegen.classes.ImportElement;
 import tendril.codegen.field.NamedType;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
-import tendril.helper.assertions.TendrilAssert;
+import tendril.test.helper.assertions.TendrilAssert;
 
 /**
  * Test case for {@link ClassType}

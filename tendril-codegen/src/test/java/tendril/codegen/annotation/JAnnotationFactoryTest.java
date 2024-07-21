@@ -29,13 +29,13 @@ import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
-import tendril.helper.annotation.TestDefaultParamAnnotation;
-import tendril.helper.annotation.TestMarkerAnnotation;
-import tendril.helper.annotation.TestMultiParamAnnotation;
-import tendril.helper.annotation.TestNonDefaultParamAnnotation;
-import tendril.helper.assertions.TendrilAssert;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.CollectionAssert;
+import tendril.test.helper.annotation.TestDefaultParamAnnotation;
+import tendril.test.helper.annotation.TestMarkerAnnotation;
+import tendril.test.helper.annotation.TestMultiParamAnnotation;
+import tendril.test.helper.annotation.TestNonDefaultParamAnnotation;
+import tendril.test.helper.assertions.TendrilAssert;
 
 /**
  * Test case for the {@link JAnnotationFactory}

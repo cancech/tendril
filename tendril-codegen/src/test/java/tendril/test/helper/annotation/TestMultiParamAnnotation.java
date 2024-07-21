@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.helper.annotation;
+package tendril.test.helper.annotation;
 
 /**
- * Test annotation which takes no parameters
+ * Test annotation which takes a multiple parameters
  */
-public @interface TestMarkerAnnotation {
+public @interface TestMultiParamAnnotation {
+    String valStr();
+
+    int valInt();
 
 }

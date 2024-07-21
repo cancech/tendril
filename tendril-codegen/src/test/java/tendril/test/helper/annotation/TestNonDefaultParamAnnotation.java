@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.helper.annotation;
-
-import tendril.codegen.field.type.PrimitiveType;
+package tendril.test.helper.annotation;
 
 /**
- * Annotation to use for the purpose of testing
+ * Test annotation which contains a single parameter, but which is not a default (i.e.: not named value)
  */
-public @interface TestPrimitiveAnnotation {
+public @interface TestNonDefaultParamAnnotation {
 
-	PrimitiveType value();
+    String myString();
 }

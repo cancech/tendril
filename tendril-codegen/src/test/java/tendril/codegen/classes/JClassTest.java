@@ -44,10 +44,10 @@ import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.VoidType;
 import tendril.codegen.field.value.JValueFactory;
-import tendril.helper.annotation.TestMarkerAnnotation;
-import tendril.helper.annotation.TestPrimitiveAnnotation;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.matchers.MultiLineStringMatcher;
+import tendril.test.helper.annotation.TestMarkerAnnotation;
+import tendril.test.helper.annotation.TestPrimitiveAnnotation;
 
 /**
  * Test case for {@link JClass}
