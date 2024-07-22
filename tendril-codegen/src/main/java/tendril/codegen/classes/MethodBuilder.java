@@ -77,7 +77,7 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
      * @param annotation {@link JAnnotation} to apply
      * @return {@link MethodBuilder}
      */
-    public MethodBuilder<RETURN_TYPE> annotate(JAnnotation annotation) {
+    public MethodBuilder<RETURN_TYPE> addAnnotation(JAnnotation annotation) {
         annotations.add(annotation);
         return this;
     }

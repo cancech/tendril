@@ -108,7 +108,7 @@ public class CreateAnnotationTest {
     public void createComplexAnnotation() {
         JClass annotation = JClassFactory.createAnnotation(VisibilityType.PUBLIC, new ClassType("a.b.c", "D"));
         annotation.addAnnotation(JAnnotationFactory.create(new ClassType("d.e.f", "G")));
-        annotation.buildMethod(String.class, "strMethod").annotate(JAnnotationFactory.create(TestMarkerAnnotation.class)).build();
+        annotation.buildMethod(String.class, "strMethod").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).build();
         annotation.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
         annotation.buildMethod(Integer.class, "intMethod").build();
         

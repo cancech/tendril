@@ -238,9 +238,9 @@ public class MethodBuilderTest extends AbstractUnitTest {
     @Test
     public void testBuildWithAnnotation() {
         try (MockedStatic<Utilities> mockUtil = Mockito.mockStatic(Utilities.class)) {
-            builder.annotate(mockAnnotation1);
-            builder.annotate(mockAnnotation2);
-            builder.annotate(mockAnnotation3);
+            builder.addAnnotation(mockAnnotation1);
+            builder.addAnnotation(mockAnnotation2);
+            builder.addAnnotation(mockAnnotation3);
             builder.build();
             mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("MethodName"));
             verify(mockMethod).addAnnotation(mockAnnotation1);
