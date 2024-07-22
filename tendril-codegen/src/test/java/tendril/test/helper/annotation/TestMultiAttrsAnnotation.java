@@ -16,9 +16,11 @@
 package tendril.test.helper.annotation;
 
 /**
- * Test annotation which contains a single parameter, but which is not a default (i.e.: not named value)
+ * Test annotation which takes a multiple attributes
  */
-public @interface TestNonDefaultParamAnnotation {
+public @interface TestMultiAttrsAnnotation {
+    String valStr();
 
-    String myString();
+    int valInt();
+
 }

@@ -36,9 +36,9 @@ import tendril.util.TendrilStringUtil;
  */
 public class JAnnotation extends JBase {
 
-    /** The parameters (methods) that have been applied to the annotation */
-    private final List<JMethod<?>> parameters = new ArrayList<>();
-    /** The values that have been applied to the parameters (methods) of the annotation */
+    /** The attributes (methods) that have been applied to the annotation */
+    private final List<JMethod<?>> attributes = new ArrayList<>();
+    /** The values that have been applied to the attributes (methods) of the annotation */
     private final Map<JMethod<?>, JValue<?, ?>> values = new HashMap<>();
 
     /** The class that is to be imported for this annotation */
@@ -53,7 +53,7 @@ public class JAnnotation extends JBase {
         super("@" + classType.getClassName());
         this.annotationClass = classType;
     }
-    
+
     /**
      * Get the type of class defining this annotation
      * 
@@ -64,33 +64,33 @@ public class JAnnotation extends JBase {
     }
 
     /**
-     * Add the defined parameter with value to the Annotation instance
+     * Add the defined attribute with value to the Annotation instance
      * 
-     * @param parameter {@link JMethod} representing the parameter method
-     * @param value     {@link JValue} representing the value applied to the parameter
+     * @param attribute {@link JMethod} representing the attribute method
+     * @param value     {@link JValue} representing the value applied to the attribute
      */
-    public void addParameter(JMethod<?> parameter, JValue<?, ?> value) {
-        parameters.add(parameter);
-        values.put(parameter, value);
+    public void addAttribute(JMethod<?> attribute, JValue<?, ?> value) {
+        attributes.add(attribute);
+        values.put(attribute, value);
     }
 
     /**
-     * Get all of the parameters specified for the Annotation
+     * Get all of the attributes specified for the Annotation
      * 
-     * @return {@link List} of {@link JMethod} representing the specified parameters
+     * @return {@link List} of {@link JMethod} representing the specified attributes
      */
-    public List<JMethod<?>> getParameters() {
-        return parameters;
+    public List<JMethod<?>> getAttributes() {
+        return attributes;
     }
 
     /**
-     * Get the value for the indicated parameter
+     * Get the value for the indicated attribute
      * 
-     * @param parameter {@link JMethod} representing the desired parameter
+     * @param attribute {@link JMethod} representing the desired attribute
      * @return {@link JValue} containing the applied value
      */
-    public JValue<?, ?> getValue(JMethod<?> parameter) {
-        return values.get(parameter);
+    public JValue<?, ?> getValue(JMethod<?> attribute) {
+        return values.get(attribute);
     }
 
     /**
@@ -107,9 +107,9 @@ public class JAnnotation extends JBase {
      */
     @Override
     protected void generateSelf(CodeBuilder builder, Set<ClassType> classImports) {
-        if (parameters.isEmpty())
+        if (attributes.isEmpty())
             generateMarker(builder);
-        else if (parameters.size() == 1 && parameters.get(0).getName().equals("value"))
+        else if (attributes.size() == 1 && attributes.get(0).getName().equals("value"))
             generateDefaultValue(builder, classImports);
         else
             generateFull(builder, classImports);
@@ -131,18 +131,18 @@ public class JAnnotation extends JBase {
      * @param classImports {@link Set} of {@link ClassType} where the imports for the overall class are being assembled
      */
     private void generateDefaultValue(CodeBuilder builder, Set<ClassType> classImports) {
-        builder.append(name + "(" + values.get(parameters.get(0)).generate(classImports) + ")");
+        builder.append(name + "(" + values.get(attributes.get(0)).generate(classImports) + ")");
     }
 
     /**
-     * Generate the code for an annotation arbitrary parameters
+     * Generate the code for an annotation with arbitrary attributes
      * 
      * @param builder      {@link CodeBuilder} where the code is being assembled
      * @param classImports {@link Set} of {@link ClassType} where the imports for the overall class are being assembled
      */
     private void generateFull(CodeBuilder builder, Set<ClassType> classImports) {
         String code = name + "(";
-        code += TendrilStringUtil.join(parameters, p -> p.getName() + " = " + values.get(p).generate(classImports));
+        code += TendrilStringUtil.join(attributes, p -> p.getName() + " = " + values.get(p).generate(classImports));
         builder.append(code + ")");
     }
 }

@@ -16,8 +16,9 @@
 package tendril.test.helper.annotation;
 
 /**
- * Test annotation which takes a default parameter
+ * Test annotation which contains a single attribute, but which is not a default (i.e.: not named value)
  */
-public @interface TestDefaultParamAnnotation {
-    String value();
+public @interface TestNonDefaultAttrAnnotation {
+
+    String myString();
 }

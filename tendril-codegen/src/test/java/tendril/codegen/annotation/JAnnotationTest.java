@@ -33,9 +33,9 @@ import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.CollectionAssert;
-import tendril.test.helper.annotation.TestDefaultParamAnnotation;
+import tendril.test.helper.annotation.TestDefaultAttrAnnotation;
 import tendril.test.helper.annotation.TestMarkerAnnotation;
-import tendril.test.helper.annotation.TestNonDefaultParamAnnotation;
+import tendril.test.helper.annotation.TestNonDefaultAttrAnnotation;
 
 /**
  * Test case for {@link JAnnotation}
@@ -81,7 +81,7 @@ public class JAnnotationTest extends AbstractUnitTest {
         // Verify its contents
         Assertions.assertEquals(mockAnnotationClass, annotation.getType());
         Assertions.assertEquals(expectedName, annotation.getName());
-        Assertions.assertEquals(Collections.emptyList(), annotation.getParameters());
+        Assertions.assertEquals(Collections.emptyList(), annotation.getAttributes());
 
         // Verify the code is properly generated
         annotation.generate(mockBuilder, mockImportSet);
@@ -94,22 +94,22 @@ public class JAnnotationTest extends AbstractUnitTest {
      */
     @Test
     public void testDefaultValueAnnotation() {
-        when(mockAnnotationClass.getClassName()).thenReturn(TestDefaultParamAnnotation.class.getSimpleName());
+        when(mockAnnotationClass.getClassName()).thenReturn(TestDefaultAttrAnnotation.class.getSimpleName());
         when(mockMethod1.getName()).thenReturn("value");
         when(mockStringValue.generate(mockImportSet)).thenReturn("abc123");
 
-        String expectedName = "@TestDefaultParamAnnotation";
+        String expectedName = "@TestDefaultAttrAnnotation";
         String expectedCode = expectedName + "(abc123)";
 
         // Create the annotation
         JAnnotation annotation = new JAnnotation(mockAnnotationClass);
         verify(mockAnnotationClass).getClassName();
-        annotation.addParameter(mockMethod1, mockStringValue);
+        annotation.addAttribute(mockMethod1, mockStringValue);
 
         // Verify its contents
         Assertions.assertEquals(mockAnnotationClass, annotation.getType());
         Assertions.assertEquals(expectedName, annotation.getName());
-        CollectionAssert.assertEquals(Collections.singleton(mockMethod1), annotation.getParameters());
+        CollectionAssert.assertEquals(Collections.singleton(mockMethod1), annotation.getAttributes());
         Assertions.assertEquals(mockStringValue, annotation.getValue(mockMethod1));
 
         // Verify the code is properly generated
@@ -120,26 +120,26 @@ public class JAnnotationTest extends AbstractUnitTest {
     }
 
     /**
-     * Verify that an annotation with a single non-default parameter is properly represented
+     * Verify that an annotation with a single non-default attribute is properly represented
      */
     @Test
     public void testSingleValueNonDefaultAnnotation() {
-        when(mockAnnotationClass.getClassName()).thenReturn(TestNonDefaultParamAnnotation.class.getSimpleName());
+        when(mockAnnotationClass.getClassName()).thenReturn(TestNonDefaultAttrAnnotation.class.getSimpleName());
         when(mockMethod1.getName()).thenReturn("myString");
         when(mockStringValue.generate(mockImportSet)).thenReturn("abc123");
 
-        String expectedName = "@TestNonDefaultParamAnnotation";
+        String expectedName = "@TestNonDefaultAttrAnnotation";
         String expectedCode = expectedName + "(myString = abc123)";
 
         // Create the annotation
         JAnnotation annotation = new JAnnotation(mockAnnotationClass);
         verify(mockAnnotationClass).getClassName();
-        annotation.addParameter(mockMethod1, mockStringValue);
+        annotation.addAttribute(mockMethod1, mockStringValue);
 
         // Verify its contents
         Assertions.assertEquals(mockAnnotationClass, annotation.getType());
         Assertions.assertEquals(expectedName, annotation.getName());
-        CollectionAssert.assertEquals(Collections.singleton(mockMethod1), annotation.getParameters());
+        CollectionAssert.assertEquals(Collections.singleton(mockMethod1), annotation.getAttributes());
         Assertions.assertEquals(mockStringValue, annotation.getValue(mockMethod1));
 
         // Verify the code is properly generated
@@ -154,25 +154,25 @@ public class JAnnotationTest extends AbstractUnitTest {
      */
     @Test
     public void testMultiParamAnnotation() {
-        when(mockAnnotationClass.getClassName()).thenReturn(TestDefaultParamAnnotation.class.getSimpleName());
+        when(mockAnnotationClass.getClassName()).thenReturn(TestDefaultAttrAnnotation.class.getSimpleName());
         when(mockMethod1.getName()).thenReturn("valStr");
         when(mockStringValue.generate(mockImportSet)).thenReturn("123abc");
         when(mockMethod2.getName()).thenReturn("valInt");
         when(mockIntValue.generate(mockImportSet)).thenReturn("5678");
 
-        String expectedName = "@TestDefaultParamAnnotation";
+        String expectedName = "@TestDefaultAttrAnnotation";
         String expectedCode = expectedName + "(valStr = 123abc, valInt = 5678)";
 
         // Create the annotation
         JAnnotation annotation = new JAnnotation(mockAnnotationClass);
         verify(mockAnnotationClass).getClassName();
-        annotation.addParameter(mockMethod1, mockStringValue);
-        annotation.addParameter(mockMethod2, mockIntValue);
+        annotation.addAttribute(mockMethod1, mockStringValue);
+        annotation.addAttribute(mockMethod2, mockIntValue);
 
         // Verify its contents
         Assertions.assertEquals(mockAnnotationClass, annotation.getType());
         Assertions.assertEquals(expectedName, annotation.getName());
-        Assertions.assertEquals(Arrays.asList(mockMethod1, mockMethod2), annotation.getParameters());
+        Assertions.assertEquals(Arrays.asList(mockMethod1, mockMethod2), annotation.getAttributes());
         Assertions.assertEquals(mockStringValue, annotation.getValue(mockMethod1));
         Assertions.assertEquals(mockIntValue, annotation.getValue(mockMethod2));
 

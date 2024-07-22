@@ -16,7 +16,7 @@
 package tendril.test.helper.annotation;
 
 /**
- * Test annotation which takes no parameters
+ * Test annotation which takes no attributes
  */
 public @interface TestMarkerAnnotation {
 

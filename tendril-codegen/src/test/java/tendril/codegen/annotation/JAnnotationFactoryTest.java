@@ -31,10 +31,10 @@ import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.CollectionAssert;
-import tendril.test.helper.annotation.TestDefaultParamAnnotation;
+import tendril.test.helper.annotation.TestDefaultAttrAnnotation;
 import tendril.test.helper.annotation.TestMarkerAnnotation;
-import tendril.test.helper.annotation.TestMultiParamAnnotation;
-import tendril.test.helper.annotation.TestNonDefaultParamAnnotation;
+import tendril.test.helper.annotation.TestMultiAttrsAnnotation;
+import tendril.test.helper.annotation.TestNonDefaultAttrAnnotation;
 import tendril.test.helper.assertions.TendrilAssert;
 
 /**
@@ -57,7 +57,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     public void testCreateMarkerAnnotationFromClass() {
         JAnnotation annotation = JAnnotationFactory.create(TestMarkerAnnotation.class);
         assertImportData(TestMarkerAnnotation.class, annotation);
-        CollectionAssert.assertEmpty(annotation.getParameters());
+        CollectionAssert.assertEmpty(annotation.getAttributes());
     }
 
     /**
@@ -67,7 +67,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     public void testCreateMarkerAnnotationFromFullyQualifiedName() {
         JAnnotation annotation = JAnnotationFactory.create(TestMarkerAnnotation.class.getName());
         assertImportData(TestMarkerAnnotation.class, annotation);
-        CollectionAssert.assertEmpty(annotation.getParameters());
+        CollectionAssert.assertEmpty(annotation.getAttributes());
     }
 
     /**
@@ -77,7 +77,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     public void testCreateMarkerAnnotationFromSplitName() {
         JAnnotation annotation = JAnnotationFactory.create(TestMarkerAnnotation.class.getPackageName(), TestMarkerAnnotation.class.getSimpleName());
         assertImportData(TestMarkerAnnotation.class, annotation);
-        CollectionAssert.assertEmpty(annotation.getParameters());
+        CollectionAssert.assertEmpty(annotation.getAttributes());
     }
 
     /**
@@ -87,7 +87,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     public void testCreateMarkerAnnotationFromClassType() {
         JAnnotation annotation = JAnnotationFactory.create(new ClassType(TestMarkerAnnotation.class));
         assertImportData(TestMarkerAnnotation.class, annotation);
-        CollectionAssert.assertEmpty(annotation.getParameters());
+        CollectionAssert.assertEmpty(annotation.getAttributes());
     }
 
     /**
@@ -97,7 +97,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     public void testCreateMarkerAnnotationWhenAllAttributesHaveDefaults() {
         JAnnotation annotation = JAnnotationFactory.create(Deprecated.class);
         assertImportData(Deprecated.class, annotation);
-        CollectionAssert.assertEmpty(annotation.getParameters());
+        CollectionAssert.assertEmpty(annotation.getAttributes());
     }
 
     /**
@@ -107,68 +107,68 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     public void testCreateMarkerAnnotationWithUnknownClass() {
         JAnnotation annotation = JAnnotationFactory.create(new ClassType("a.b.c.D"));
         TendrilAssert.assertImportData("a.b.c", "D", annotation.getType());
-        CollectionAssert.assertEmpty(annotation.getParameters());
+        CollectionAssert.assertEmpty(annotation.getAttributes());
     }
 
     /**
-     * Verify that marker annotations cannot have any parameters
+     * Verify that marker annotations cannot have any attributes
      */
     @Test
     public void testCreateMarkerAnnotationNotADefaultClass() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(new ClassType(JAnnotation.class)));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestDefaultParamAnnotation.class));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiParamAnnotation.class));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestDefaultAttrAnnotation.class));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class));
     }
 
     /**
-     * Verify that an annotation with a default parameter can be created properly
+     * Verify that an annotation with a default attribute can be created properly
      */
     @Test
     public void testCreateDefaultValueAnnotationFromClass() {
         JValue<ClassType, String> value = JValueFactory.create("abc123");
 
-        JAnnotation annotation = JAnnotationFactory.create(TestDefaultParamAnnotation.class, value);
-        assertImportData(TestDefaultParamAnnotation.class, annotation);
-        CollectionAssert.assertEquals(Collections.singleton(new AnonymousMethod<>(value.getType(), "value")), annotation.getParameters());
+        JAnnotation annotation = JAnnotationFactory.create(TestDefaultAttrAnnotation.class, value);
+        assertImportData(TestDefaultAttrAnnotation.class, annotation);
+        CollectionAssert.assertEquals(Collections.singleton(new AnonymousMethod<>(value.getType(), "value")), annotation.getAttributes());
         Assertions.assertEquals(value, annotation.getValue(new AnonymousMethod<>(value.getType(), "value")));
     }
 
     /**
-     * Verify that an annotation with a default parameter can be created properly
+     * Verify that an annotation with a default attribute can be created properly
      */
     @Test
     public void testCreateDefaultValueAnnotationFromFullyQualifiedName() {
         JValue<ClassType, String> value = JValueFactory.create("abc123");
 
-        JAnnotation annotation = JAnnotationFactory.create(TestDefaultParamAnnotation.class.getName(), value);
-        assertImportData(TestDefaultParamAnnotation.class, annotation);
-        CollectionAssert.assertEquals(Collections.singleton(new AnonymousMethod<>(value.getType(), "value")), annotation.getParameters());
+        JAnnotation annotation = JAnnotationFactory.create(TestDefaultAttrAnnotation.class.getName(), value);
+        assertImportData(TestDefaultAttrAnnotation.class, annotation);
+        CollectionAssert.assertEquals(Collections.singleton(new AnonymousMethod<>(value.getType(), "value")), annotation.getAttributes());
         Assertions.assertEquals(value, annotation.getValue(new AnonymousMethod<>(value.getType(), "value")));
     }
 
     /**
-     * Verify that an annotation with a default parameter can be created properly
+     * Verify that an annotation with a default attribute can be created properly
      */
     @Test
     public void testCreateDefaultValueAnnotationFromSplitName() {
         JValue<ClassType, String> value = JValueFactory.create("abc123");
 
-        JAnnotation annotation = JAnnotationFactory.create(TestDefaultParamAnnotation.class.getPackageName(), TestDefaultParamAnnotation.class.getSimpleName(), value);
-        assertImportData(TestDefaultParamAnnotation.class, annotation);
-        CollectionAssert.assertEquals(Collections.singleton(new AnonymousMethod<>(value.getType(), "value")), annotation.getParameters());
+        JAnnotation annotation = JAnnotationFactory.create(TestDefaultAttrAnnotation.class.getPackageName(), TestDefaultAttrAnnotation.class.getSimpleName(), value);
+        assertImportData(TestDefaultAttrAnnotation.class, annotation);
+        CollectionAssert.assertEquals(Collections.singleton(new AnonymousMethod<>(value.getType(), "value")), annotation.getAttributes());
         Assertions.assertEquals(value, annotation.getValue(new AnonymousMethod<>(value.getType(), "value")));
     }
 
     /**
-     * Verify that an annotation with a default parameter can be created properly
+     * Verify that an annotation with a default attribute can be created properly
      */
     @Test
     public void testCreateDefaultValueAnnotationFromClassType() {
         JValue<ClassType, String> value = JValueFactory.create("abc123");
 
-        JAnnotation annotation = JAnnotationFactory.create(new ClassType(TestDefaultParamAnnotation.class), value);
-        assertImportData(TestDefaultParamAnnotation.class, annotation);
-        CollectionAssert.assertEquals(Collections.singleton(new AnonymousMethod<>(value.getType(), "value")), annotation.getParameters());
+        JAnnotation annotation = JAnnotationFactory.create(new ClassType(TestDefaultAttrAnnotation.class), value);
+        assertImportData(TestDefaultAttrAnnotation.class, annotation);
+        CollectionAssert.assertEquals(Collections.singleton(new AnonymousMethod<>(value.getType(), "value")), annotation.getAttributes());
         Assertions.assertEquals(value, annotation.getValue(new AnonymousMethod<>(value.getType(), "value")));
     }
 
@@ -181,78 +181,78 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
 
         JAnnotation annotation = JAnnotationFactory.create(new ClassType("a.b.c.D"), value);
         TendrilAssert.assertImportData("a.b.c", "D", annotation.getType());
-        CollectionAssert.assertEquals(Collections.singleton(new AnonymousMethod<>(value.getType(), "value")), annotation.getParameters());
+        CollectionAssert.assertEquals(Collections.singleton(new AnonymousMethod<>(value.getType(), "value")), annotation.getAttributes());
         Assertions.assertEquals(value, annotation.getValue(new AnonymousMethod<>(value.getType(), "value")));
     }
 
     /**
-     * Verify that an annotation with a default parameter must have exactly one "value" parameter
+     * Verify that an annotation with a default attribute must have exactly one "value" attribute
      */
     @Test
     public void testCreateDefaultValueAnnotationNotADefaultClass() {
         JValue<ClassType, String> value = JValueFactory.create("abc123");
         Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMarkerAnnotation.class, value));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiParamAnnotation.class, value));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestNonDefaultParamAnnotation.class, value));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, value));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, value));
     }
 
     /**
-     * Verify that an annotation with a multiple parameters can be created properly
+     * Verify that an annotation with a multiple attributes can be created properly
      */
     @Test
     public void testCreateMultiValueAnnotationFromClass() {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
         JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
-        JAnnotation annotation = JAnnotationFactory.create(TestMultiParamAnnotation.class, Map.of("valStr", strValue, "valInt", intValue));
-        assertImportData(TestMultiParamAnnotation.class, annotation);
-        CollectionAssert.assertEquivalent(annotation.getParameters(), new AnonymousMethod<>(strValue.getType(), "valStr"), new AnonymousMethod<>(intValue.getType(), "valInt"));
+        JAnnotation annotation = JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", strValue, "valInt", intValue));
+        assertImportData(TestMultiAttrsAnnotation.class, annotation);
+        CollectionAssert.assertEquivalent(annotation.getAttributes(), new AnonymousMethod<>(strValue.getType(), "valStr"), new AnonymousMethod<>(intValue.getType(), "valInt"));
         Assertions.assertEquals(strValue, annotation.getValue(new AnonymousMethod<>(strValue.getType(), "valStr")));
         Assertions.assertEquals(intValue, annotation.getValue(new AnonymousMethod<>(intValue.getType(), "valInt")));
     }
 
     /**
-     * Verify that an annotation with a multiple parameters can be created properly
+     * Verify that an annotation with a multiple attributes can be created properly
      */
     @Test
     public void testCreateMultiValueAnnotationFromFullyQualifiedName() {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
         JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
-        JAnnotation annotation = JAnnotationFactory.create(TestMultiParamAnnotation.class.getName(), Map.of("valStr", strValue, "valInt", intValue));
-        assertImportData(TestMultiParamAnnotation.class, annotation);
-        CollectionAssert.assertEquivalent(annotation.getParameters(), new AnonymousMethod<>(strValue.getType(), "valStr"), new AnonymousMethod<>(intValue.getType(), "valInt"));
+        JAnnotation annotation = JAnnotationFactory.create(TestMultiAttrsAnnotation.class.getName(), Map.of("valStr", strValue, "valInt", intValue));
+        assertImportData(TestMultiAttrsAnnotation.class, annotation);
+        CollectionAssert.assertEquivalent(annotation.getAttributes(), new AnonymousMethod<>(strValue.getType(), "valStr"), new AnonymousMethod<>(intValue.getType(), "valInt"));
         Assertions.assertEquals(strValue, annotation.getValue(new AnonymousMethod<>(strValue.getType(), "valStr")));
         Assertions.assertEquals(intValue, annotation.getValue(new AnonymousMethod<>(intValue.getType(), "valInt")));
     }
 
     /**
-     * Verify that an annotation with a multiple parameters can be created properly
+     * Verify that an annotation with a multiple attributes can be created properly
      */
     @Test
     public void testCreateMultiValueAnnotationFromSplitName() {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
         JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
-        JAnnotation annotation = JAnnotationFactory.create(TestMultiParamAnnotation.class.getPackageName(), TestMultiParamAnnotation.class.getSimpleName(),
+        JAnnotation annotation = JAnnotationFactory.create(TestMultiAttrsAnnotation.class.getPackageName(), TestMultiAttrsAnnotation.class.getSimpleName(),
                 Map.of("valStr", strValue, "valInt", intValue));
-        assertImportData(TestMultiParamAnnotation.class, annotation);
-        CollectionAssert.assertEquivalent(annotation.getParameters(), new AnonymousMethod<>(strValue.getType(), "valStr"), new AnonymousMethod<>(intValue.getType(), "valInt"));
+        assertImportData(TestMultiAttrsAnnotation.class, annotation);
+        CollectionAssert.assertEquivalent(annotation.getAttributes(), new AnonymousMethod<>(strValue.getType(), "valStr"), new AnonymousMethod<>(intValue.getType(), "valInt"));
         Assertions.assertEquals(strValue, annotation.getValue(new AnonymousMethod<>(strValue.getType(), "valStr")));
         Assertions.assertEquals(intValue, annotation.getValue(new AnonymousMethod<>(intValue.getType(), "valInt")));
     }
 
     /**
-     * Verify that an annotation with a multiple parameters can be created properly
+     * Verify that an annotation with a multiple attributes can be created properly
      */
     @Test
     public void testCreateMultiValueAnnotationFromClassType() {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
         JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
-        JAnnotation annotation = JAnnotationFactory.create(new ClassType(TestMultiParamAnnotation.class), Map.of("valStr", strValue, "valInt", intValue));
-        assertImportData(TestMultiParamAnnotation.class, annotation);
-        CollectionAssert.assertEquivalent(annotation.getParameters(), new AnonymousMethod<>(strValue.getType(), "valStr"), new AnonymousMethod<>(intValue.getType(), "valInt"));
+        JAnnotation annotation = JAnnotationFactory.create(new ClassType(TestMultiAttrsAnnotation.class), Map.of("valStr", strValue, "valInt", intValue));
+        assertImportData(TestMultiAttrsAnnotation.class, annotation);
+        CollectionAssert.assertEquivalent(annotation.getAttributes(), new AnonymousMethod<>(strValue.getType(), "valStr"), new AnonymousMethod<>(intValue.getType(), "valInt"));
         Assertions.assertEquals(strValue, annotation.getValue(new AnonymousMethod<>(strValue.getType(), "valStr")));
         Assertions.assertEquals(intValue, annotation.getValue(new AnonymousMethod<>(intValue.getType(), "valInt")));
     }
@@ -267,7 +267,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
 
         JAnnotation annotation = JAnnotationFactory.create(new ClassType("a.b.c.D"), Map.of("valStr", strValue, "valInt", intValue));
         TendrilAssert.assertImportData("a.b.c", "D", annotation.getType());
-        CollectionAssert.assertEquivalent(annotation.getParameters(), new AnonymousMethod<>(strValue.getType(), "valStr"), new AnonymousMethod<>(intValue.getType(), "valInt"));
+        CollectionAssert.assertEquivalent(annotation.getAttributes(), new AnonymousMethod<>(strValue.getType(), "valStr"), new AnonymousMethod<>(intValue.getType(), "valInt"));
         Assertions.assertEquals(strValue, annotation.getValue(new AnonymousMethod<>(strValue.getType(), "valStr")));
         Assertions.assertEquals(intValue, annotation.getValue(new AnonymousMethod<>(intValue.getType(), "valInt")));
     }
@@ -284,18 +284,18 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     }
 
     /**
-     * Verify that a parameter mismatch will produce an error
+     * Verify that a attribute mismatch will produce an error
      */
     @Test
     public void testCannotCreateMultiValueAnnotationValueMismatch() {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
         JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiParamAnnotation.class, Map.of("strVal", strValue, "valInt", intValue)));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiParamAnnotation.class, Map.of("valStr", strValue, "intVal", intValue)));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiParamAnnotation.class, Map.of("strVal", strValue, "intVal", intValue, "extra", intValue)));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiParamAnnotation.class, Map.of("strVal", strValue)));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiParamAnnotation.class, Map.of("strVal", intValue, "valInt", strValue)));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("strVal", strValue, "valInt", intValue)));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", strValue, "intVal", intValue)));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("strVal", strValue, "intVal", intValue, "extra", intValue)));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("strVal", strValue)));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("strVal", intValue, "valInt", strValue)));
     }
 
     /**
@@ -317,20 +317,20 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
         // All defaults
         JAnnotation annotation = JAnnotationFactory.create(Generated.class, Map.of("value", value));
         assertImportData(Generated.class, annotation);
-        CollectionAssert.assertEquivalent(annotation.getParameters(), new AnonymousMethod<>(value.getType(), "value"));
+        CollectionAssert.assertEquivalent(annotation.getAttributes(), new AnonymousMethod<>(value.getType(), "value"));
         Assertions.assertEquals(value, annotation.getValue(new AnonymousMethod<>(value.getType(), "value")));
 
         // Override one default
         annotation = JAnnotationFactory.create(Generated.class, Map.of("value", value, "date", date));
         assertImportData(Generated.class, annotation);
-        CollectionAssert.assertEquivalent(annotation.getParameters(), new AnonymousMethod<>(value.getType(), "value"), new AnonymousMethod<>(date.getType(), "date"));
+        CollectionAssert.assertEquivalent(annotation.getAttributes(), new AnonymousMethod<>(value.getType(), "value"), new AnonymousMethod<>(date.getType(), "date"));
         Assertions.assertEquals(value, annotation.getValue(new AnonymousMethod<>(value.getType(), "value")));
         Assertions.assertEquals(date, annotation.getValue(new AnonymousMethod<>(date.getType(), "date")));
 
         // Override all default
         annotation = JAnnotationFactory.create(Generated.class, Map.of("value", value, "date", date, "comments", comments));
         assertImportData(Generated.class, annotation);
-        CollectionAssert.assertEquivalent(annotation.getParameters(), new AnonymousMethod<>(value.getType(), "value"), new AnonymousMethod<>(date.getType(), "date"),
+        CollectionAssert.assertEquivalent(annotation.getAttributes(), new AnonymousMethod<>(value.getType(), "value"), new AnonymousMethod<>(date.getType(), "date"),
                 new AnonymousMethod<>(comments.getType(), "comments"));
         Assertions.assertEquals(value, annotation.getValue(new AnonymousMethod<>(value.getType(), "value")));
         Assertions.assertEquals(date, annotation.getValue(new AnonymousMethod<>(date.getType(), "date")));

@@ -108,7 +108,7 @@ public abstract class JAnnotationFactory {
     }
 
     /**
-     * Create a marker {@link JAnnotation}, throwing an {@link IllegalArgumentException} if the annotation has any actual parameters
+     * Create a marker {@link JAnnotation}, throwing an {@link IllegalArgumentException} if the annotation has any actual attributes
      * 
      * @param annotationClass {@link Class} which defined the annotation itself
      * @param classType       {@link ClassType} representing the class
@@ -125,7 +125,7 @@ public abstract class JAnnotationFactory {
      * Create an annotation which takes a single default value
      * 
      * @param annotationClass {@link Class} extending {@link Annotation} where the annotation is defined
-     * @param value           {@link JValue} to assign to the default parameter
+     * @param value           {@link JValue} to assign to the default attribute
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(Class<? extends Annotation> annotationClass, JValue<?, ?> value) {
@@ -136,7 +136,7 @@ public abstract class JAnnotationFactory {
      * Create an annotation which takes a single default value
      * 
      * @param fullyQualifiedName {@link String} the fully qualified name of the annotation
-     * @param value              {@link JValue} to assign to the default parameter
+     * @param value              {@link JValue} to assign to the default attribute
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(String fullyQualifiedName, JValue<?, ?> value) {
@@ -148,7 +148,7 @@ public abstract class JAnnotationFactory {
      * 
      * @param packageName {@link String} the name of the package where the annotation resides
      * @param className   {@link String} the name of the annotation
-     * @param value       {@link JValue} to assign to the default parameter
+     * @param value       {@link JValue} to assign to the default attribute
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(String packageName, String className, JValue<?, ?> value) {
@@ -159,7 +159,7 @@ public abstract class JAnnotationFactory {
      * Create an annotation which takes a single default value
      * 
      * @param annotationClass {@link ClassType} representing the annotation
-     * @param value           {@link JValue} to assign to the default parameter
+     * @param value           {@link JValue} to assign to the default attribute
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(ClassType annotationClass, JValue<?, ?> value) {
@@ -179,7 +179,7 @@ public abstract class JAnnotationFactory {
         if (annotationClass != null) {
             Method[] methods = annotationClass.getDeclaredMethods();
             if (methods.length != 1 || !"value".equals(methods[0].getName()))
-                throw new IllegalArgumentException(annotationClass.getSimpleName() + " annotation must have exactly one parameter named value");
+                throw new IllegalArgumentException(annotationClass.getSimpleName() + " annotation must have exactly one attribute named value");
         } else {
             LOGGER.warning(buildAnnotationClassNotFoundWarning("Default Value", annotationType));
         }
@@ -199,11 +199,11 @@ public abstract class JAnnotationFactory {
     }
 
     /**
-     * Create an annotation which contains any number of values/parameters
+     * Create an annotation which contains any number of values/attributes
      * 
      * @param annotationClass {@link Class} where the annotation is defined
      * @param annotationType  {@link ClassType} representing the class
-     * @param values          {@link Map} of {@link String} parameter names to their desired {@link JValue}
+     * @param values          {@link Map} of {@link String} attribute names to their desired {@link JValue}
      * @return {@link JAnnotation}
      */
     private static JAnnotation createAnnotationWithValues(Class<?> annotationClass, ClassType annotationType, Map<String, JValue<?, ?>> values) {
@@ -214,38 +214,38 @@ public abstract class JAnnotationFactory {
         for (String name : sortedNames) {
             JValue<?, ?> value = values.get(name);
             validateCorrectType(annotationClass, name, value);
-            annotation.addParameter(new JMethodInterface<>(VisibilityType.PUBLIC, value.getType(), name, null), value);
+            annotation.addAttribute(new JMethodInterface<>(VisibilityType.PUBLIC, value.getType(), name, null), value);
         }
 
         return annotation;
     }
 
     /**
-     * Validate that the {@link JValue} can be assigned to the annotation parameter
+     * Validate that the {@link JValue} can be assigned to the annotation attribute
      * 
      * @param annotationClass {@link Class} where the annotation is defined
-     * @param paramName       {@link String} the name of the parameter (i.e.: annotation method)
-     * @param value           {@link JValue} to be assigned to the parameter
+     * @param attrName        {@link String} the name of the attribute (i.e.: annotation method)
+     * @param value           {@link JValue} to be assigned to the attribute
      */
-    private static void validateCorrectType(Class<?> annotationClass, String paramName, JValue<?, ?> value) {
+    private static void validateCorrectType(Class<?> annotationClass, String attrName, JValue<?, ?> value) {
         // If the class is not known, then no validation can be performed
         if (annotationClass == null)
             return;
 
         try {
             // The annotation method cannot be void
-            Class<?> expectedReturn = annotationClass.getDeclaredMethod(paramName).getReturnType();
+            Class<?> expectedReturn = annotationClass.getDeclaredMethod(attrName).getReturnType();
             if (Void.TYPE.equals(expectedReturn))
-                throw new IllegalArgumentException(annotationClass.getName() + " cannot have a void parameter " + paramName);
+                throw new IllegalArgumentException(annotationClass.getName() + " cannot have a void attribute " + attrName);
 
             // Make sure that this is a correct instance
             Type returnType = TypeFactory.create(expectedReturn);
             if (!value.isInstanceOf(returnType))
-                throw new IllegalArgumentException("Incompatible parameter " + paramName + ", expect " + returnType.getSimpleName() + " but got " + value.getType());
+                throw new IllegalArgumentException("Incompatible attribute " + attrName + ", expect " + returnType.getSimpleName() + " but got " + value.getType());
         } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException("Parameter " + paramName + " does not exist in " + annotationClass.getName());
+            throw new IllegalArgumentException("attribute " + attrName + " does not exist in " + annotationClass.getName());
         } catch (SecurityException e) {
-            throw new IllegalArgumentException("Unable to apply parameter " + paramName + " to " + annotationClass.getName(), e);
+            throw new IllegalArgumentException("Unable to apply attribute " + attrName + " to " + annotationClass.getName(), e);
         }
     }
 
@@ -253,7 +253,7 @@ public abstract class JAnnotationFactory {
      * Create an annotation which takes a single default value
      * 
      * @param annotationClass {@link Class} extending {@link Annotation} where the annotation is defined
-     * @param values          {@link Map} of {@link String} parameter name to it intended {@link JValue}
+     * @param values          {@link Map} of {@link String} attribute name to it intended {@link JValue}
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(Class<? extends Annotation> annotationClass, Map<String, JValue<?, ?>> values) {
@@ -264,7 +264,7 @@ public abstract class JAnnotationFactory {
      * Create an annotation which takes a single default value
      * 
      * @param fullyQualifiedName {@link String} the fully qualified name of the annotation
-     * @param values             {@link Map} of {@link String} parameter name to it intended {@link JValue}
+     * @param values             {@link Map} of {@link String} attribute name to it intended {@link JValue}
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(String fullyQualifiedName, Map<String, JValue<?, ?>> values) {
@@ -276,7 +276,7 @@ public abstract class JAnnotationFactory {
      * 
      * @param packageName {@link String} the name of the package where the annotation resides
      * @param className   {@link String} the name of the annotation
-     * @param values      {@link Map} of {@link String} parameter name to it intended {@link JValue}
+     * @param values      {@link Map} of {@link String} attribute name to it intended {@link JValue}
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(String packageName, String className, Map<String, JValue<?, ?>> values) {
@@ -287,7 +287,7 @@ public abstract class JAnnotationFactory {
      * Create an annotation which takes a single default value
      * 
      * @param annotationClass {@link ClassType} representing the annotation
-     * @param values          {@link Map} of {@link String} parameter name to it intended {@link JValue}
+     * @param values          {@link Map} of {@link String} attribute name to it intended {@link JValue}
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(ClassType annotationClass, Map<String, JValue<?, ?>> values) {
@@ -295,18 +295,18 @@ public abstract class JAnnotationFactory {
     }
 
     /**
-     * Create an annotation which contains an arbitrary number of parameters (at least one)
+     * Create an annotation which contains an arbitrary number of attributes (at least one)
      * 
      * @param annotationClass {@link Class} where the annotation is defined
      * @param annotationType  {@link ClassType} representing the annotation
-     * @param values          {@link Map} of {@link String} parameter name to it intended {@link JValue}
+     * @param values          {@link Map} of {@link String} attribute name to it intended {@link JValue}
      * @return {@link JAnnotation}
      */
     private static JAnnotation createMultiValue(Class<?> annotationClass, ClassType annotationType, Map<String, JValue<?, ?>> values) {
-        // Verify that at a basic level all parameters are accounted for
+        // Verify that at a basic level all attributes are accounted for
         if (annotationClass != null) {
             if (annotationClass.getDeclaredMethods().length == 0)
-                throw new IllegalArgumentException(annotationClass.getName() + " annotation must have at least one parameter");
+                throw new IllegalArgumentException(annotationClass.getName() + " annotation must have at least one attribute");
             checkUnsatisfiedAttributes(annotationClass, values.keySet());
         } else {
             LOGGER.warning(buildAnnotationClassNotFoundWarning("Multi-Value", annotationType));
@@ -324,7 +324,7 @@ public abstract class JAnnotationFactory {
     private static void checkUnsatisfiedAttributes(Class<?> annotationClass, Collection<String> providedValues) {
         List<Method> methods = new ArrayList<>(Arrays.asList(annotationClass.getDeclaredMethods()));
 
-        // Make sure that all of the specified parameters apply to the annotation
+        // Make sure that all of the specified attributes apply to the annotation
         for (String s : providedValues) {
             Method foundMethod = null;
             for (Method m : methods) {
@@ -335,15 +335,15 @@ public abstract class JAnnotationFactory {
             }
 
             if (foundMethod == null)
-                throw new IllegalArgumentException("Specified paramter " + s + " does not appear in " + annotationClass.getName());
+                throw new IllegalArgumentException("Specified attribute " + s + " does not appear in " + annotationClass.getName());
             else
                 methods.remove(foundMethod);
         }
 
-        // Make sure that there are no extra parameters
+        // Make sure that there are no extra attributes
         methods.removeIf(m -> m.getDefaultValue() != null);
 
         if (!methods.isEmpty())
-            throw new IllegalArgumentException(annotationClass.getName() + " annotation has parameters without assigned values [" + TendrilStringUtil.join(methods, m -> m.getName()) + "]");
+            throw new IllegalArgumentException(annotationClass.getName() + " annotation has attributes without assigned values [" + TendrilStringUtil.join(methods, m -> m.getName()) + "]");
     }
 }

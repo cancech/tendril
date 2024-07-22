@@ -100,7 +100,7 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
                 for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : m.getElementValues().entrySet()) {
                     Pair<ClassType, JMethod<?>> details = loadMethodDetails(entry.getKey());
                     JValue<?,?> value = details.getRight().getType().asValue(entry.getValue().getValue());
-                    annonData.addParameter(details.getRight(), value);
+                    annonData.addAttribute(details.getRight(), value);
                 }
                 paramData.annotate(annonData);
             }

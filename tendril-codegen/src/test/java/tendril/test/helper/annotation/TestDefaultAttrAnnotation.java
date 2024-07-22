@@ -16,11 +16,8 @@
 package tendril.test.helper.annotation;
 
 /**
- * Test annotation which takes a multiple parameters
+ * Test annotation which takes a default attribute
  */
-public @interface TestMultiParamAnnotation {
-    String valStr();
-
-    int valInt();
-
+public @interface TestDefaultAttrAnnotation {
+    String value();
 }
