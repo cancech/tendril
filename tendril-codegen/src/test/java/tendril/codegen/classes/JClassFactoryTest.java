@@ -15,9 +15,11 @@
  */
 package tendril.codegen.classes;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
@@ -71,9 +73,18 @@ public class JClassFactoryTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testInterfaceCreation() {
-		ClassAssert.assertInstance(JClassInterface.class, JClassFactory.createInterface(mockVisibility, mockClassType));
-		verify(mockClassType).getPackageName();
-		verify(mockClassType).getClassName();
+	    // Visibilities that are not allowed
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JClassFactory.createInterface(VisibilityType.PROTECTED, mockClassType));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JClassFactory.createInterface(VisibilityType.PRIVATE, mockClassType));
+        
+        // Visibilities that are allowed
+        ClassAssert.assertInstance(JClassInterface.class, JClassFactory.createInterface(VisibilityType.PUBLIC, mockClassType));
+        verify(mockClassType).getPackageName();
+        verify(mockClassType).getClassName();
+        ClassAssert.assertInstance(JClassInterface.class, JClassFactory.createInterface(VisibilityType.PACKAGE_PRIVATE, mockClassType));
+        verify(mockClassType, times(2)).getPackageName();
+        verify(mockClassType, times(2)).getClassName();
+
 	}
 
 	/**
@@ -81,8 +92,15 @@ public class JClassFactoryTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testAnnotationCreation() {
-		ClassAssert.assertInstance(JClassAnnotation.class, JClassFactory.createAnnotation(mockVisibility, mockClassType));
-		verify(mockClassType).getPackageName();
-		verify(mockClassType).getClassName();
+        // Visibilities that are not allowed
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JClassFactory.createAnnotation(VisibilityType.PROTECTED, mockClassType));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JClassFactory.createAnnotation(VisibilityType.PRIVATE, mockClassType));
+        
+        ClassAssert.assertInstance(JClassAnnotation.class, JClassFactory.createAnnotation(VisibilityType.PUBLIC, mockClassType));
+        verify(mockClassType).getPackageName();
+        verify(mockClassType).getClassName();
+        ClassAssert.assertInstance(JClassAnnotation.class, JClassFactory.createAnnotation(VisibilityType.PACKAGE_PRIVATE, mockClassType));
+        verify(mockClassType, times(2)).getPackageName();
+        verify(mockClassType, times(2)).getClassName();
 	}
 }

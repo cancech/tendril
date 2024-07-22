@@ -17,6 +17,7 @@ package tendril.codegen.classes;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.ClassType;
+import tendril.util.TendrilUtil;
 
 /**
  * Factory for creating {@link JClass} representations of distinct types of classes
@@ -59,7 +60,18 @@ public abstract class JClassFactory {
 	 * @return {@link JClass}
 	 */
 	public static JClass createInterface(VisibilityType visibility, ClassType data) {
+	    validateForInterface(visibility);
 		return new JClassInterface(visibility, data);
+	}
+	
+	/**
+	 * Verify that the {@link VisibilityType} specified is valid for an interface
+	 * 
+	 * @param visibility {@link VisibilityType} desired
+	 */
+	private static void validateForInterface(VisibilityType visibility) {
+	    if (TendrilUtil.oneOfMany(visibility, VisibilityType.PROTECTED, VisibilityType.PRIVATE))
+	        throw new IllegalArgumentException("Illegal visibility " + visibility.name() + ". Only PUBLIC and PACKAGE_PRIVATE are allowed");
 	}
 
 	/**
@@ -70,6 +82,7 @@ public abstract class JClassFactory {
 	 * @return {@link JClass}
 	 */
 	public static JClass createAnnotation(VisibilityType visibility, ClassType data) {
+        validateForInterface(visibility);
 		return new JClassAnnotation(visibility, data);
 	}
 }
