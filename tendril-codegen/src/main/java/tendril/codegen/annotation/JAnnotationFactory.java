@@ -19,6 +19,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -113,8 +115,8 @@ public abstract class JAnnotationFactory {
      * @return {@link JAnnotation}
      */
     private static JAnnotation createMarker(Class<?> annotationClass, ClassType classType) {
-        if (annotationClass != null && annotationClass.getDeclaredMethods().length != 0)
-            throw new IllegalArgumentException(classType.getClassName() + " is not a marker annotation, it has parameters.");
+        if (annotationClass != null)
+            checkUnsatisfiedAttributes(annotationClass, Collections.emptyList());
 
         return new JAnnotation(classType);
     }
@@ -303,35 +305,45 @@ public abstract class JAnnotationFactory {
     private static JAnnotation createMultiValue(Class<?> annotationClass, ClassType annotationType, Map<String, JValue<?, ?>> values) {
         // Verify that at a basic level all parameters are accounted for
         if (annotationClass != null) {
-            List<Method> methods = new ArrayList<>(Arrays.asList(annotationClass.getDeclaredMethods()));
-            if (methods.size() == 0)
+            if (annotationClass.getDeclaredMethods().length == 0)
                 throw new IllegalArgumentException(annotationClass.getName() + " annotation must have at least one parameter");
-
-            // Make sure that all of the specified parameters apply to the annotation
-            for (String s : values.keySet()) {
-                Method foundMethod = null;
-                for (Method m : methods) {
-                    if (m.getName().equals(s)) {
-                        foundMethod = m;
-                        break;
-                    }
-                }
-
-                if (foundMethod == null)
-                    throw new IllegalArgumentException("Specified paramter " + s + " does not appear in " + annotationClass.getName());
-                else
-                    methods.remove(foundMethod);
-            }
-
-            // Make sure that there are not extra parameters
-            methods.removeIf(m -> !m.isDefault());
-
-            if (!methods.isEmpty())
-                throw new IllegalArgumentException(annotationClass.getName() + " annotation has parameters without assigned values [" + TendrilStringUtil.join(methods, m -> m.getName()) + "]");
+            checkUnsatisfiedAttributes(annotationClass, values.keySet());
         } else {
             LOGGER.warning(buildAnnotationClassNotFoundWarning("Multi-Value", annotationType));
         }
 
         return createAnnotationWithValues(annotationClass, annotationType, values);
+    }
+
+    /**
+     * Check if there are any unsatisfied attributes for the annotation (i.e.: any attributes that need a value to be specified that are not specified).
+     * 
+     * @param annotationClass {@link Class} defining the annotation
+     * @param providedValues  {@link Collection} of {@link String}s indicating which attributes have been provided with values
+     */
+    private static void checkUnsatisfiedAttributes(Class<?> annotationClass, Collection<String> providedValues) {
+        List<Method> methods = new ArrayList<>(Arrays.asList(annotationClass.getDeclaredMethods()));
+
+        // Make sure that all of the specified parameters apply to the annotation
+        for (String s : providedValues) {
+            Method foundMethod = null;
+            for (Method m : methods) {
+                if (m.getName().equals(s)) {
+                    foundMethod = m;
+                    break;
+                }
+            }
+
+            if (foundMethod == null)
+                throw new IllegalArgumentException("Specified paramter " + s + " does not appear in " + annotationClass.getName());
+            else
+                methods.remove(foundMethod);
+        }
+
+        // Make sure that there are no extra parameters
+        methods.removeIf(m -> m.getDefaultValue() != null);
+
+        if (!methods.isEmpty())
+            throw new IllegalArgumentException(annotationClass.getName() + " annotation has parameters without assigned values [" + TendrilStringUtil.join(methods, m -> m.getName()) + "]");
     }
 }

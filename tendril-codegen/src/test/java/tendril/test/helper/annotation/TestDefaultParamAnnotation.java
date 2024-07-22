@@ -20,5 +20,4 @@ package tendril.test.helper.annotation;
  */
 public @interface TestDefaultParamAnnotation {
     String value();
-
 }

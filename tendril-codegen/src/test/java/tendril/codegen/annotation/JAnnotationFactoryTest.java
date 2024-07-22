@@ -94,6 +94,16 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
      * Verify that marker annotations can be created properly
      */
     @Test
+    public void testCreateMarkerAnnotationWhenAllAttributesHaveDefaults() {
+        JAnnotation annotation = JAnnotationFactory.create(Deprecated.class);
+        assertImportData(Deprecated.class, annotation);
+        CollectionAssert.assertEmpty(annotation.getParameters());
+    }
+
+    /**
+     * Verify that marker annotations can be created properly
+     */
+    @Test
     public void testCreateMarkerAnnotationWithUnknownClass() {
         JAnnotation annotation = JAnnotationFactory.create(new ClassType("a.b.c.D"));
         TendrilAssert.assertImportData("a.b.c", "D", annotation.getType());
@@ -300,6 +310,9 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     private <DATA_TYPE extends Type, VALUE> void verifyMultiValueAnnotationWithOptionalArray(JValue<DATA_TYPE, VALUE> value) {
         JValue<ClassType, String> date = JValueFactory.create("date");
         JValue<ClassType, String> comments = JValueFactory.create("comments");
+        
+        // None provided, exception is thrown
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(Generated.class, Map.of()));
 
         // All defaults
         JAnnotation annotation = JAnnotationFactory.create(Generated.class, Map.of("value", value));
