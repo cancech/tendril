@@ -243,9 +243,9 @@ public class MethodBuilderTest extends AbstractUnitTest {
             builder.annotate(mockAnnotation3);
             builder.build();
             mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("MethodName"));
-            verify(mockMethod).annotate(mockAnnotation1);
-            verify(mockMethod).annotate(mockAnnotation2);
-            verify(mockMethod).annotate(mockAnnotation3);
+            verify(mockMethod).addAnnotation(mockAnnotation1);
+            verify(mockMethod).addAnnotation(mockAnnotation2);
+            verify(mockMethod).addAnnotation(mockAnnotation3);
             verify(mockClass).addMethod(mockMethod);
             builder.verifyTimesCalled(1, 1, mockReturnType, "MethodName");
         }

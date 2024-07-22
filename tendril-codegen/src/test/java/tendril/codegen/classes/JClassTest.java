@@ -220,8 +220,8 @@ public class JClassTest extends AbstractUnitTest {
         endDefinition();
 
         // Add the additional features
-        jclass.annotate(JAnnotationFactory.create(TestMarkerAnnotation.class));
-        jclass.annotate(JAnnotationFactory.create(TestPrimitiveAnnotation.class, JValueFactory.create(PrimitiveType.BOOLEAN)));
+        jclass.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
+        jclass.addAnnotation(JAnnotationFactory.create(TestPrimitiveAnnotation.class, JValueFactory.create(PrimitiveType.BOOLEAN)));
 
         // Verify that it matches
         assertGeneratedCode();
@@ -281,8 +281,8 @@ public class JClassTest extends AbstractUnitTest {
         jclass.addMethod(mockVoidMethod);
         jclass.addMethod(mockPrimitiveMethod);
         jclass.addMethod(mockClassMethod);
-        jclass.annotate(JAnnotationFactory.create(TestMarkerAnnotation.class));
-        jclass.annotate(JAnnotationFactory.create(TestPrimitiveAnnotation.class, JValueFactory.create(PrimitiveType.BOOLEAN)));
+        jclass.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
+        jclass.addAnnotation(JAnnotationFactory.create(TestPrimitiveAnnotation.class, JValueFactory.create(PrimitiveType.BOOLEAN)));
 
         // Verify that it matches
         assertGeneratedCode();

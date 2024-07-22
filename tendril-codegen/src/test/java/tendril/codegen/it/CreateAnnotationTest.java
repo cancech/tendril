@@ -57,8 +57,8 @@ public class CreateAnnotationTest {
     @Test
     public void createAnnotatedAnnotation() {
         JClass annotation = JClassFactory.createAnnotation(VisibilityType.PUBLIC, new ClassType("a.b.c", "D"));
-        annotation.annotate(JAnnotationFactory.create(new ClassType("d.e.f", "G")));
-        annotation.annotate(JAnnotationFactory.create(TestMarkerAnnotation.class));
+        annotation.addAnnotation(JAnnotationFactory.create(new ClassType("d.e.f", "G")));
+        annotation.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package a.b.c;");
@@ -107,9 +107,9 @@ public class CreateAnnotationTest {
     @Test
     public void createComplexAnnotation() {
         JClass annotation = JClassFactory.createAnnotation(VisibilityType.PUBLIC, new ClassType("a.b.c", "D"));
-        annotation.annotate(JAnnotationFactory.create(new ClassType("d.e.f", "G")));
+        annotation.addAnnotation(JAnnotationFactory.create(new ClassType("d.e.f", "G")));
         annotation.buildMethod(String.class, "strMethod").annotate(JAnnotationFactory.create(TestMarkerAnnotation.class)).build();
-        annotation.annotate(JAnnotationFactory.create(TestMarkerAnnotation.class));
+        annotation.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
         annotation.buildMethod(Integer.class, "intMethod").build();
         
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();

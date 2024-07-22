@@ -118,7 +118,7 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
         validateData();
         JMethod<RETURN_TYPE> method = buildMethod(returnType, name);
         for (JAnnotation anno: annotations)
-            method.annotate(anno);
+            method.addAnnotation(anno);
         encompassingClass.addMethod(method);
     }
 

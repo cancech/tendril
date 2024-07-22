@@ -19,72 +19,75 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import tendril.codegen.annotation.Annotatable;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.field.type.ClassType;
 
 /**
  * The base of any element that is to be part of the generated code.
  */
-public abstract class JBase {
-	/** The name of the element */
-	protected final String name;
-	/** List of annotations that are applied to the element */
-	private final List<JAnnotation> annotations = new ArrayList<>();
+public abstract class JBase implements Annotatable {
+    /** The name of the element */
+    protected final String name;
+    /** List of annotations that are applied to the element */
+    private final List<JAnnotation> annotations = new ArrayList<>();
 
-	/**
-	 * CTOR
-	 * 
-	 * @param name {@link String} the name of the element
-	 */
-	protected JBase(String name) {
-		this.name = name;
-	}
-	
-	/**
-	 * Get the name of the element
-	 * 
-	 * @return {@link String}
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * CTOR
+     * 
+     * @param name {@link String} the name of the element
+     */
+    protected JBase(String name) {
+        this.name = name;
+    }
 
-	/**
-	 * Add an annotation to the element
-	 * 
-	 * @param annotation {@link JAnnotation} representing the annotation to apply
-	 */
-	public void annotate(JAnnotation annotation) {
-		annotations.add(annotation);
-	}
-	
-	/**
-	 * Get all applied annotations
-	 * 
-	 * @return {@link List} of {@link JAnnotation} that have been applied to the item
-	 */
-	public List<JAnnotation> getAnnotations() {
-	    return annotations;
-	}
+    /**
+     * Get the name of the element
+     * 
+     * @return {@link String}
+     */
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * Generate the code for the element. Performs the common code generation, relying on {@code generateSelf()} to perform the specific code generation for this specific element.
-	 * 
-	 * @param builder      {@link CodeBuilder} which is assembling/building the code
-	 * @param classImports {@link Set} of {@link ClassType}s representing the imports for the code
-	 */
-	public void generate(CodeBuilder builder, Set<ClassType> classImports) {
-		for (JAnnotation annon : annotations)
-			annon.generate(builder, classImports);
-		generateSelf(builder, classImports);
-	}
+    /**
+     * Add an annotation to the element
+     * 
+     * @param annotation {@link JAnnotation} representing the annotation to apply
+     */
+    @Override
+    public void addAnnotation(JAnnotation annotation) {
+        annotations.add(annotation);
+    }
 
-	/**
-	 * Generate the appropriate code that is specific and unique to this element. {@code generate()} takes care of the common portions of code generation, with this method performing what is unique to
-	 * this particular element.
-	 * 
-	 * @param builder      {@link CodeBuilder} which is assembling/building the code
-	 * @param classImports {@link Set} of {@link ClassType}s representing the imports for the code
-	 */
-	protected abstract void generateSelf(CodeBuilder builder, Set<ClassType> classImports);
+    /**
+     * Get all applied annotations
+     * 
+     * @return {@link List} of {@link JAnnotation} that have been applied to the item
+     */
+    @Override
+    public List<JAnnotation> getAnnotations() {
+        return annotations;
+    }
+
+    /**
+     * Generate the code for the element. Performs the common code generation, relying on {@code generateSelf()} to perform the specific code generation for this specific element.
+     * 
+     * @param builder      {@link CodeBuilder} which is assembling/building the code
+     * @param classImports {@link Set} of {@link ClassType}s representing the imports for the code
+     */
+    public void generate(CodeBuilder builder, Set<ClassType> classImports) {
+        for (JAnnotation annon : annotations)
+            annon.generate(builder, classImports);
+        generateSelf(builder, classImports);
+    }
+
+    /**
+     * Generate the appropriate code that is specific and unique to this element. {@code generate()} takes care of the common portions of code generation, with this method performing what is unique to
+     * this particular element.
+     * 
+     * @param builder      {@link CodeBuilder} which is assembling/building the code
+     * @param classImports {@link Set} of {@link ClassType}s representing the imports for the code
+     */
+    protected abstract void generateSelf(CodeBuilder builder, Set<ClassType> classImports);
 }

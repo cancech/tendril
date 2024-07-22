@@ -109,7 +109,7 @@ public class JBaseTest extends AbstractUnitTest {
      */
     @Test
     public void testSingleAnnotation() {
-        element.annotate(mockAnnotation1);
+        element.addAnnotation(mockAnnotation1);
         Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
         
         element.generate(mockCodeBuilder, mockImports);
@@ -122,11 +122,11 @@ public class JBaseTest extends AbstractUnitTest {
      */
     @Test
     public void testMultipleAnnotations() {
-        element.annotate(mockAnnotation1);
+        element.addAnnotation(mockAnnotation1);
         Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
-        element.annotate(mockAnnotation2);
+        element.addAnnotation(mockAnnotation2);
         Assertions.assertIterableEquals(Arrays.asList(mockAnnotation1, mockAnnotation2), element.getAnnotations());
-        element.annotate(mockAnnotation3);
+        element.addAnnotation(mockAnnotation3);
         Assertions.assertIterableEquals(Arrays.asList(mockAnnotation1, mockAnnotation2, mockAnnotation3), element.getAnnotations());
         
         element.generate(mockCodeBuilder, mockImports);

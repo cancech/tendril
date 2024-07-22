@@ -59,7 +59,7 @@ public abstract class JClass extends JBase {
         this.visibility = visibility;
         this.pkg = data.getPackageName();
 
-        annotate(JAnnotationFactory.create(Generated.class, Map.of("value", JValueFactory.create("tendril"), "date", JValueFactory.create(Utilities.iso8061TimeStamp()))));
+        addAnnotation(JAnnotationFactory.create(Generated.class, Map.of("value", JValueFactory.create("tendril"), "date", JValueFactory.create(Utilities.iso8061TimeStamp()))));
     }
 
     /**

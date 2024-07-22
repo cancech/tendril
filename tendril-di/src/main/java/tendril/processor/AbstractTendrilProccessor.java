@@ -102,7 +102,7 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
                     JValue<?,?> value = details.getRight().getType().asValue(entry.getValue().getValue());
                     annonData.addAttribute(details.getRight(), value);
                 }
-                paramData.annotate(annonData);
+                paramData.addAnnotation(annonData);
             }
             
             method.addParameter(paramData);
