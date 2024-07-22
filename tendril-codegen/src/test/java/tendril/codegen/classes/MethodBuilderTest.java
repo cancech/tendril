@@ -30,6 +30,7 @@ import org.mockito.Mockito;
 
 import tendril.codegen.Utilities;
 import tendril.codegen.VisibilityType;
+import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
@@ -123,6 +124,12 @@ public class MethodBuilderTest extends AbstractUnitTest {
     private VisibilityType mockVisibilityType;
     @Mock
     private JMethod<Type> mockMethod;
+    @Mock
+    private JAnnotation mockAnnotation1;
+    @Mock
+    private JAnnotation mockAnnotation2;
+    @Mock
+    private JAnnotation mockAnnotation3;
 
     // Instance to test
     private TestMethodBuilder builder;
@@ -216,10 +223,29 @@ public class MethodBuilderTest extends AbstractUnitTest {
      * Verify that the process of building the method works as expected.
      */
     @Test
-    public void testBuild() {
+    public void testBuildWithoutAnnotation() {
         try (MockedStatic<Utilities> mockUtil = Mockito.mockStatic(Utilities.class)) {
             builder.build();
             mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("MethodName"));
+            verify(mockClass).addMethod(mockMethod);
+            builder.verifyTimesCalled(1, 1, mockReturnType, "MethodName");
+        }
+    }
+
+    /**
+     * Verify that the process of building the method works as expected.
+     */
+    @Test
+    public void testBuildWithAnnotation() {
+        try (MockedStatic<Utilities> mockUtil = Mockito.mockStatic(Utilities.class)) {
+            builder.annotate(mockAnnotation1);
+            builder.annotate(mockAnnotation2);
+            builder.annotate(mockAnnotation3);
+            builder.build();
+            mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("MethodName"));
+            verify(mockMethod).annotate(mockAnnotation1);
+            verify(mockMethod).annotate(mockAnnotation2);
+            verify(mockMethod).annotate(mockAnnotation3);
             verify(mockClass).addMethod(mockMethod);
             builder.verifyTimesCalled(1, 1, mockReturnType, "MethodName");
         }

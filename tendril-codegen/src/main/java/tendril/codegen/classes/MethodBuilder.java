@@ -20,6 +20,7 @@ import java.util.List;
 
 import tendril.codegen.Utilities;
 import tendril.codegen.VisibilityType;
+import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.Type;
 
@@ -43,6 +44,8 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
     protected VisibilityType visibility = VisibilityType.PUBLIC;
     /** List of individual lines of code that comprise the method implementation. If null, no implementation is present */
     protected List<String> linesOfCode = null;
+    /** List of annotations applied to the method */
+    private final List<JAnnotation> annotations = new ArrayList<>();
 
     /**
      * CTOR
@@ -65,6 +68,17 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
      */
     public MethodBuilder<RETURN_TYPE> setVisibility(VisibilityType visibility) {
         this.visibility = visibility;
+        return this;
+    }
+    
+    /**
+     * Add an annotation to the method
+     * 
+     * @param annotation {@link JAnnotation} to apply
+     * @return {@link MethodBuilder}
+     */
+    public MethodBuilder<RETURN_TYPE> annotate(JAnnotation annotation) {
+        annotations.add(annotation);
         return this;
     }
 
@@ -102,7 +116,10 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
     public void build() throws IllegalArgumentException {
         Utilities.throwIfNotValidIdentifier(name);
         validateData();
-        encompassingClass.addMethod(buildMethod(returnType, name));
+        JMethod<RETURN_TYPE> method = buildMethod(returnType, name);
+        for (JAnnotation anno: annotations)
+            method.annotate(anno);
+        encompassingClass.addMethod(method);
     }
 
     /**
