@@ -15,9 +15,12 @@
  */
 package tendril.codegen.classes.method;
 
+import java.util.Set;
+
 import org.apache.commons.lang3.NotImplementedException;
 
 import tendril.codegen.VisibilityType;
+import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 
 /**
@@ -43,6 +46,14 @@ public class AnonymousMethod<RETURN_TYPE extends Type> extends JMethod<RETURN_TY
      */
     @Override
     protected String generateSignatureStart(boolean hasImplementation) {
+        throw new NotImplementedException("An annonymous method cannot be used to generate code");
+    }
+
+    /**
+     * @see tendril.codegen.JBase#generateSelf(java.util.Set)
+     */
+    @Override
+    public String generateSelf(Set<ClassType> classImports) {
         throw new NotImplementedException("An annonymous method cannot be used to generate code");
     }
 

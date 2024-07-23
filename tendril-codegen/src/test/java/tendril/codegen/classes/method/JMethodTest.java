@@ -20,7 +20,6 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,7 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.codegen.field.NamedType;
+import tendril.codegen.field.JParameter;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.test.assertions.CollectionAssert;
@@ -82,17 +81,19 @@ public class JMethodTest extends SharedJMethodTest {
 
     // Mocks to use for testing
     @Mock
-    private NamedType<Type> mockParam1;
+    private JParameter<Type> mockParam1;
     @Mock
     private Type mockParam1Type;
     @Mock
-    private NamedType<Type> mockParam2;
+    private JParameter<Type> mockParam2;
     @Mock
     private Type mockParam2Type;
     @Mock
-    private NamedType<Type> mockParam3;
+    private JParameter<Type> mockParam3;
     @Mock
     private Type mockParam3Type;
+    @Mock
+    private Set<ClassType> mockImports;
 
     // Instance to use for testing
     private TestJMethod method;
@@ -104,28 +105,20 @@ public class JMethodTest extends SharedJMethodTest {
     protected void prepareTest() {
         super.prepareTest();
 
-        lenient().when(mockParam1.getName()).thenReturn("mockParam1");
-        lenient().when(mockParam2.getName()).thenReturn("mockParam2");
-        lenient().when(mockParam3.getName()).thenReturn("mockParam3");
-
-        lenient().when(mockParam1.getType()).thenReturn(mockParam1Type);
-        lenient().when(mockParam2.getType()).thenReturn(mockParam2Type);
-        lenient().when(mockParam3.getType()).thenReturn(mockParam3Type);
-
-        lenient().when(mockParam1Type.getSimpleName()).thenReturn("Type1");
-        lenient().when(mockParam2Type.getSimpleName()).thenReturn("Type2");
-        lenient().when(mockParam3Type.getSimpleName()).thenReturn("Type3");
+        lenient().when(mockParam1.generateSelf(mockImports)).thenReturn("mockParam1");
+        lenient().when(mockParam2.generateSelf(mockImports)).thenReturn("mockParam2");
+        lenient().when(mockParam3.generateSelf(mockImports)).thenReturn("mockParam3");
     }
 
     /**
      * Initialize the method and ensure that its simple values are correct
      * 
      * @param code       {@link List} of {@link String} lines of code to use for the method implementation
-     * @param parameters {@link List} of {@link NamedType}s that are be used as parameters for the method
+     * @param parameters {@link List} of {@link JParameter}s that are be used as parameters for the method
      */
-    private void initMethod(List<String> code, List<NamedType<?>> parameters) {
+    private void initMethod(List<String> code, List<JParameter<?>> parameters) {
         method = new TestJMethod(code);
-        for (NamedType<?> t : parameters)
+        for (JParameter<?> t : parameters)
             method.addParameter(t);
 
         verifyMethodInit("mockMethodName", method);
@@ -153,7 +146,7 @@ public class JMethodTest extends SharedJMethodTest {
     @Test
     public void testNoImplementationOneParameter() {
         // What code is expected
-        matcher.eq(GENERATED_TEXT + "Return_Type mockMethodName(Type1 mockParam1);");
+        matcher.eq(GENERATED_TEXT + "Return_Type mockMethodName(mockParam1);");
 
         // Populate the method details
         initMethod(null, Collections.singletonList(mockParam1));
@@ -161,9 +154,7 @@ public class JMethodTest extends SharedJMethodTest {
 
         // Verify that it produces what is expected
         generateAndVerifyCode(false);
-        verify(mockParam1).getType();
-        verify(mockParam1).getName();
-        verify(mockParam1Type).getSimpleName();
+        verify(mockParam1).generateSelf(mockImports);
     }
 
     /**
@@ -172,7 +163,7 @@ public class JMethodTest extends SharedJMethodTest {
     @Test
     public void testNoImplementationSeveralParameters() {
         // What code is expected
-        matcher.eq(GENERATED_TEXT + "Return_Type mockMethodName(Type1 mockParam1, Type2 mockParam2, Type3 mockParam3);");
+        matcher.eq(GENERATED_TEXT + "Return_Type mockMethodName(mockParam1, mockParam2, mockParam3);");
 
         // Populate the method details
         initMethod(null, Arrays.asList(mockParam1, mockParam2, mockParam3));
@@ -180,15 +171,9 @@ public class JMethodTest extends SharedJMethodTest {
 
         // Verify that it produces what is expected
         generateAndVerifyCode(false);
-        verify(mockParam1).getType();
-        verify(mockParam1).getName();
-        verify(mockParam1Type).getSimpleName();
-        verify(mockParam2).getType();
-        verify(mockParam2).getName();
-        verify(mockParam2Type).getSimpleName();
-        verify(mockParam3).getType();
-        verify(mockParam3).getName();
-        verify(mockParam3Type).getSimpleName();
+        verify(mockParam1).generateSelf(mockImports);
+        verify(mockParam2).generateSelf(mockImports);
+        verify(mockParam3).generateSelf(mockImports);
     }
 
     /**
@@ -213,7 +198,7 @@ public class JMethodTest extends SharedJMethodTest {
     @Test
     public void testEmptyImplementationOneParameter() {
         // What code is expected
-        matcher.eq(GENERATED_TEXT + "Return_Type mockMethodName(Type1 mockParam1) {");
+        matcher.eq(GENERATED_TEXT + "Return_Type mockMethodName(mockParam1) {");
         matcher.eq("}");
 
         // Populate the method details
@@ -221,9 +206,7 @@ public class JMethodTest extends SharedJMethodTest {
 
         // Verify that it produces what is expected
         generateAndVerifyCode(true);
-        verify(mockParam1).getType();
-        verify(mockParam1).getName();
-        verify(mockParam1Type).getSimpleName();
+        verify(mockParam1).generateSelf(mockImports);
     }
 
     /**
@@ -232,7 +215,7 @@ public class JMethodTest extends SharedJMethodTest {
     @Test
     public void testEmptyImplementationSeveralParameters() {
         // What code is expected
-        matcher.eq(GENERATED_TEXT + "Return_Type mockMethodName(Type1 mockParam1, Type2 mockParam2, Type3 mockParam3) {");
+        matcher.eq(GENERATED_TEXT + "Return_Type mockMethodName(mockParam1, mockParam2, mockParam3) {");
         matcher.eq("}");
 
         // Populate the method details
@@ -240,15 +223,9 @@ public class JMethodTest extends SharedJMethodTest {
 
         // Verify that it produces what is expected
         generateAndVerifyCode(true);
-        verify(mockParam1).getType();
-        verify(mockParam1).getName();
-        verify(mockParam1Type).getSimpleName();
-        verify(mockParam2).getType();
-        verify(mockParam2).getName();
-        verify(mockParam2Type).getSimpleName();
-        verify(mockParam3).getType();
-        verify(mockParam3).getName();
-        verify(mockParam3Type).getSimpleName();
+        verify(mockParam1).generateSelf(mockImports);
+        verify(mockParam2).generateSelf(mockImports);
+        verify(mockParam3).generateSelf(mockImports);
     }
 
     /**
@@ -274,7 +251,7 @@ public class JMethodTest extends SharedJMethodTest {
     @Test
     public void testSomeImplementationOneParameter() {
         // What code is expected
-        matcher.eq(GENERATED_TEXT + "Return_Type mockMethodName(Type1 mockParam1) {");
+        matcher.eq(GENERATED_TEXT + "Return_Type mockMethodName(mockParam1) {");
         matcher.eq("    qwerty");
         matcher.eq("    asdfg");
         matcher.eq("    zxcvb");
@@ -285,9 +262,7 @@ public class JMethodTest extends SharedJMethodTest {
 
         // Verify that it produces what is expected
         generateAndVerifyCode(true);
-        verify(mockParam1).getType();
-        verify(mockParam1).getName();
-        verify(mockParam1Type).getSimpleName();
+        verify(mockParam1).generateSelf(mockImports);
     }
 
     /**
@@ -296,7 +271,7 @@ public class JMethodTest extends SharedJMethodTest {
     @Test
     public void testSomeImplementationSeveralParameters() {
         // What code is expected
-        matcher.eq(GENERATED_TEXT + "Return_Type mockMethodName(Type1 mockParam1, Type2 mockParam2, Type3 mockParam3) {");
+        matcher.eq(GENERATED_TEXT + "Return_Type mockMethodName(mockParam1, mockParam2, mockParam3) {");
         matcher.eq("    qwerty");
         matcher.eq("    asdfg");
         matcher.eq("    zxcvb");
@@ -310,15 +285,9 @@ public class JMethodTest extends SharedJMethodTest {
 
         // Verify that it produces what is expected
         generateAndVerifyCode(true);
-        verify(mockParam1).getType();
-        verify(mockParam1).getName();
-        verify(mockParam1Type).getSimpleName();
-        verify(mockParam2).getType();
-        verify(mockParam2).getName();
-        verify(mockParam2Type).getSimpleName();
-        verify(mockParam3).getType();
-        verify(mockParam3).getName();
-        verify(mockParam3Type).getSimpleName();
+        verify(mockParam1).generateSelf(mockImports);
+        verify(mockParam2).generateSelf(mockImports);
+        verify(mockParam3).generateSelf(mockImports);
     }
 
     /**
@@ -327,10 +296,9 @@ public class JMethodTest extends SharedJMethodTest {
      * @param expectedHasImplementation boolean true if generateSignatureStart is expected to be called with an implementation
      */
     private void generateAndVerifyCode(boolean expectedHasImplementation) {
-        Set<ClassType> imports = new HashSet<ClassType>();
-        method.generate(builder, imports);
+        method.generate(builder, mockImports);
         method.verifyGenerateCalled(1, expectedHasImplementation);
-        verify(mockReturnType).registerImport(imports);
+        verify(mockReturnType).registerImport(mockImports);
         verify(mockReturnType).getSimpleName();
 
         matcher.match(builder.get());

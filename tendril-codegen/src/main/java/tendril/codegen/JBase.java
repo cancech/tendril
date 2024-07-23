@@ -79,15 +79,24 @@ public abstract class JBase implements Annotatable {
     public void generate(CodeBuilder builder, Set<ClassType> classImports) {
         for (JAnnotation annon : annotations)
             annon.generate(builder, classImports);
-        generateSelf(builder, classImports);
+        appendSelf(builder, classImports);
     }
 
     /**
      * Generate the appropriate code that is specific and unique to this element. {@code generate()} takes care of the common portions of code generation, with this method performing what is unique to
-     * this particular element.
+     * this particular element. Can be thought of an as wrapper for generating the code and appending it directly to the larger code.
      * 
      * @param builder      {@link CodeBuilder} which is assembling/building the code
      * @param classImports {@link Set} of {@link ClassType}s representing the imports for the code
      */
-    protected abstract void generateSelf(CodeBuilder builder, Set<ClassType> classImports);
+    protected abstract void appendSelf(CodeBuilder builder, Set<ClassType> classImports);
+
+    /**
+     * Generate the appropriate code that is specific and unique to this element. Regardless of where this elements fits into the larger code, produce a {@link String} which is representative of this
+     * element.
+     * 
+     * @param classImports {@link Set} of {@link ClassType}s representing the imports for the code
+     * @return {@link String} code representing this element
+     */
+    public abstract String generateSelf(Set<ClassType> classImports);
 }

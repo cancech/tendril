@@ -22,6 +22,7 @@ import tendril.codegen.Utilities;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.classes.method.JMethod;
+import tendril.codegen.field.JParameter;
 import tendril.codegen.field.type.Type;
 
 /**
@@ -46,6 +47,8 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
     protected List<String> linesOfCode = null;
     /** List of annotations applied to the method */
     private final List<JAnnotation> annotations = new ArrayList<>();
+    /** List of parameters the method is to take */
+    private final List<JParameter<?>> parameters = new ArrayList<>();
 
     /**
      * CTOR
@@ -79,6 +82,17 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
      */
     public MethodBuilder<RETURN_TYPE> addAnnotation(JAnnotation annotation) {
         annotations.add(annotation);
+        return this;
+    }
+    
+    /**
+     * Add a parameter to the method
+     * 
+     * @param parameter {@link JParameter} to add
+     * @return {@link MethodBuilder}
+     */
+    public MethodBuilder<RETURN_TYPE> addParameter(JParameter<?> parameter) {
+        parameters.add(parameter);
         return this;
     }
 
@@ -119,6 +133,8 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
         JMethod<RETURN_TYPE> method = buildMethod(returnType, name);
         for (JAnnotation anno: annotations)
             method.addAnnotation(anno);
+        for (JParameter<?> param: parameters)
+            method.addParameter(param);
         encompassingClass.addMethod(method);
     }
 

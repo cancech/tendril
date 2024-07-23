@@ -50,5 +50,4 @@ public class JClassInterface extends JClass {
 	protected <RETURN_TYPE extends Type> MethodBuilder<RETURN_TYPE> createMethodBuilder(RETURN_TYPE returnType, String name) {
 		return new InterfaceMethodBuilder<RETURN_TYPE>(this, returnType, name);
 	}
-
 }

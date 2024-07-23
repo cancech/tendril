@@ -37,8 +37,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.classes.method.AnonymousMethod;
 import tendril.codegen.classes.method.JMethod;
-import tendril.codegen.field.NamedType;
-import tendril.codegen.field.ParameterType;
+import tendril.codegen.field.JParameter;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValue;
@@ -94,7 +93,7 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
         JMethod<?> method = new AnonymousMethod<>(TypeFactory.create(element.getReturnType()), element.getSimpleName().toString());
         for (int i = 0; i < parameters.size(); i++) {
             VariableElement varElement = parameters.get(i);
-            NamedType<?> paramData = new ParameterType<>(TypeFactory.create(parameterTypes.get(i)), varElement.getSimpleName().toString());
+            JParameter<?> paramData = new JParameter<>(TypeFactory.create(parameterTypes.get(i)), varElement.getSimpleName().toString());
             for (AnnotationMirror m : varElement.getAnnotationMirrors()) {
                 JAnnotation annonData = new JAnnotation(deriveClassData((TypeElement)m.getAnnotationType().asElement()));
                 for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : m.getElementValues().entrySet()) {

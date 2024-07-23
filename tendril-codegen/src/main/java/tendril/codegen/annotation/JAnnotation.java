@@ -99,50 +99,58 @@ public class JAnnotation extends JBase {
     @Override
     public void generate(CodeBuilder builder, Set<ClassType> classImports) {
         classImports.add(annotationClass);
-        generateSelf(builder, classImports);
+        appendSelf(builder, classImports);
     }
 
     /**
-     * @see tendril.codegen.JBase#generateSelf(tendril.codegen.CodeBuilder, java.util.Set)
+     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
      */
     @Override
-    protected void generateSelf(CodeBuilder builder, Set<ClassType> classImports) {
+    protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
+        builder.append(generateSelf(classImports));
+    }
+
+    /**
+     * @see tendril.codegen.JBase#generateSelf(java.util.Set)
+     */
+    @Override
+    public String generateSelf(Set<ClassType> classImports) {
         if (attributes.isEmpty())
-            generateMarker(builder);
+            return generateMarker();
         else if (attributes.size() == 1 && attributes.get(0).getName().equals("value"))
-            generateDefaultValue(builder, classImports);
-        else
-            generateFull(builder, classImports);
+            return generateDefaultValue(classImports);
+        return generateFull(classImports);
     }
 
     /**
      * Generate the code for a marker annotation (has no values)
      * 
      * @param builder {@link CodeBuilder} where the code is being assembled
+     * @return {@link String} the code for the marker annotation
      */
-    private void generateMarker(CodeBuilder builder) {
-        builder.append(name);
+    private String generateMarker() {
+        return name;
     }
 
     /**
      * Generate the code for an annotation with a single default value
      * 
-     * @param builder      {@link CodeBuilder} where the code is being assembled
      * @param classImports {@link Set} of {@link ClassType} where the imports for the overall class are being assembled
+     * @return {@link String} the code for the default value annotation
      */
-    private void generateDefaultValue(CodeBuilder builder, Set<ClassType> classImports) {
-        builder.append(name + "(" + values.get(attributes.get(0)).generate(classImports) + ")");
+    private String generateDefaultValue(Set<ClassType> classImports) {
+        return name + "(" + values.get(attributes.get(0)).generate(classImports) + ")";
     }
 
     /**
      * Generate the code for an annotation with arbitrary attributes
      * 
-     * @param builder      {@link CodeBuilder} where the code is being assembled
      * @param classImports {@link Set} of {@link ClassType} where the imports for the overall class are being assembled
+     * @return {@link String} the code for the annotation with arbitrary values
      */
-    private void generateFull(CodeBuilder builder, Set<ClassType> classImports) {
+    private String generateFull(Set<ClassType> classImports) {
         String code = name + "(";
         code += TendrilStringUtil.join(attributes, p -> p.getName() + " = " + values.get(p).generate(classImports));
-        builder.append(code + ")");
+        return code + ")";
     }
 }

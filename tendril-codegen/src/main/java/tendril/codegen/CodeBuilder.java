@@ -61,6 +61,16 @@ public class CodeBuilder {
     }
     
     /**
+     * Append multiple lines to the code, such that each line is "indented" as appropriate for the current indentation level of the builder.
+     * 
+     * @param multipleLines {@link String} containing multiple lines (divided by {@code System.lineSeparator()}) that are to be added
+     */
+    public void appendMultiLine(String multipleLines) {
+        for (String line: multipleLines.split(System.lineSeparator()))
+            append(line);
+    }
+    
+    /**
      * Insert a blank line into the code
      */
     public void blankLine() {

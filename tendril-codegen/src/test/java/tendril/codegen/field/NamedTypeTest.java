@@ -47,11 +47,20 @@ public class NamedTypeTest extends AbstractUnitTest {
         }
 
         /**
-         * @see tendril.codegen.JBase#generateSelf(tendril.codegen.CodeBuilder, java.util.Set)
+         * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
          */
         @Override
-        protected void generateSelf(CodeBuilder builder, Set<ClassType> classImports) {
+        protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
+            Assertions.fail("appendSelf should not be called, no need to test it here...");
+        }
+
+        /**
+         * @see tendril.codegen.JBase#generateSelf(java.util.Set)
+         */
+        @Override
+        public String generateSelf(Set<ClassType> classImports) {
             Assertions.fail("generateSelf should not be called, no need to test it here...");
+            return "";
         }
         
     }

@@ -21,6 +21,7 @@ import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.VisibilityType;
+import tendril.codegen.field.JParameter;
 import tendril.codegen.field.NamedType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
@@ -34,7 +35,7 @@ import tendril.util.TendrilStringUtil;
 public abstract class JMethod<RETURN_TYPE extends Type> extends NamedType<Type> {
 
     /** List of parameters that the method takes */
-    private final List<NamedType<?>> parameters = new ArrayList<>();
+    private final List<JParameter<?>> parameters = new ArrayList<>();
 
     /** The visibility of the method */
     protected final VisibilityType visibility;
@@ -60,7 +61,7 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends NamedType<Type> 
      * 
      * @param parameter {@link NamedType} representing the method parameter
      */
-    public void addParameter(NamedType<?> parameter) {
+    public void addParameter(JParameter<?> parameter) {
         parameters.add(parameter);
     }
 
@@ -69,19 +70,28 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends NamedType<Type> 
      * 
      * @return {@link List} of {@link NamedType}s representing the parameters
      */
-    public List<NamedType<?>> getParameters() {
+    public List<JParameter<?>> getParameters() {
         return parameters;
     }
 
     /**
-     * @see tendril.codegen.JBase#generateSelf(tendril.codegen.CodeBuilder, java.util.Set)
+     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
      */
     @Override
-    protected void generateSelf(CodeBuilder builder, Set<ClassType> classImports) {
+    protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
+        builder.appendMultiLine(generateSelf(classImports));
+    }
+
+    /**
+     * @see tendril.codegen.JBase#generateSelf(java.util.Set)
+     */
+    @Override
+    public String generateSelf(Set<ClassType> classImports) {
+        CodeBuilder builder = new CodeBuilder();
         getType().registerImport(classImports);
 
         boolean hasImplementation = implementation != null;
-        builder.append(generateSignature(hasImplementation));
+        builder.append(generateSignature(classImports, hasImplementation));
 
         if (hasImplementation) {
             builder.indent();
@@ -90,6 +100,7 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends NamedType<Type> 
             builder.deIndent();
             builder.append("}");
         }
+        return builder.get();
     }
 
     /**
@@ -98,10 +109,10 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends NamedType<Type> 
      * @param hasImplementation boolean true if the method has an implementation provided
      * @return {@link String}
      */
-    private String generateSignature(boolean hasImplementation) {
+    private String generateSignature(Set<ClassType> classImports, boolean hasImplementation) {
         StringBuilder signature = new StringBuilder(generateSignatureStart(hasImplementation));
         signature.append(getType().getSimpleName() + " " + getName());
-        signature.append("(" + generateParameters() + ")");
+        signature.append("(" + generateParameters(classImports) + ")");
         signature.append(hasImplementation ? " {" : ";");
         return signature.toString();
     }
@@ -111,10 +122,8 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends NamedType<Type> 
      * 
      * @return {@link String} containing the details of the parameters
      */
-    private String generateParameters() {
-        return TendrilStringUtil.join(parameters, param -> {
-            return param.getType().getSimpleName() + " " + param.getName();
-        });
+    private String generateParameters(Set<ClassType> classImports) {
+        return TendrilStringUtil.join(parameters, param -> param.generateSelf(classImports));
     }
 
     /**

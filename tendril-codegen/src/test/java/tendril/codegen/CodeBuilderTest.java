@@ -16,6 +16,7 @@
 package tendril.codegen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import tendril.test.AbstractUnitTest;
+import tendril.util.TendrilStringUtil;
 
 /**
  * Test case for {@link CodeBuilder}
@@ -113,6 +115,42 @@ public class CodeBuilderTest extends AbstractUnitTest {
 		append(1, "ghijk");
 		assertBuilder();
 		
+	}
+	
+	/**
+	 * Verify that multi-line Strings can be added properly
+	 */
+	@Test
+	public void testMultiLineAppend() {
+	    builder.appendMultiLine(TendrilStringUtil.join(Arrays.asList("abc", "def", "ghi"), System.lineSeparator()));
+        expectedLines.add("abc");
+        expectedLines.add("def");
+        expectedLines.add("ghi");
+        assertBuilder();
+        
+        builder.indent();
+        builder.appendMultiLine(TendrilStringUtil.join(Arrays.asList("jkl", "mno", "pqr"), System.lineSeparator()));
+        expectedLines.add("    jkl");
+        expectedLines.add("    mno");
+        expectedLines.add("    pqr");
+        assertBuilder();
+        
+        builder.indent();
+        builder.appendMultiLine(TendrilStringUtil.join(Arrays.asList("stu", "vwx", "yz"), System.lineSeparator()));
+        expectedLines.add("        stu");
+        expectedLines.add("        vwx");
+        expectedLines.add("        yz");
+        assertBuilder();
+        
+        builder.deIndent();
+        builder.appendMultiLine("123");
+        expectedLines.add("    123");
+        assertBuilder();
+        
+        builder.deIndent();
+        builder.appendMultiLine("");
+        expectedLines.add("");
+        assertBuilder();
 	}
 
 	/**

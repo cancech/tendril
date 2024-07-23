@@ -162,11 +162,23 @@ public abstract class JClass extends JBase {
     }
 
     /**
-     * @see tendril.codegen.JBase#generateSelf(tendril.codegen.CodeBuilder, java.util.Set)
+     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
      */
     @Override
-    protected void generateSelf(CodeBuilder builder, Set<ClassType> imports) {
-        builder.append(visibility + " " + classType() + " " + name + " {");
+    protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
+        builder.appendMultiLine(generateSelf(classImports));
+    }
+
+    /**
+     * @see tendril.codegen.JBase#generateSelf(java.util.Set)
+     */
+    @Override
+    public String generateSelf(Set<ClassType> classImports) {
+        CodeBuilder builder = new CodeBuilder();
+        String visStr = visibility.toString();
+        if (!visStr.isEmpty())
+            visStr += " ";
+        builder.append(visStr + classType() + " " + name + " {");
         builder.blankLine();
         builder.indent();
 
@@ -179,6 +191,7 @@ public abstract class JClass extends JBase {
         builder.deIndent();
         builder.append("}");
         builder.blankLine();
+        return builder.get();
     }
 
     /**

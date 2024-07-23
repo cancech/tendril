@@ -37,7 +37,9 @@ public class JBaseTest extends AbstractUnitTest {
     /**
      * Concrete implementation of the {@link JBase} to allow for testing {@link JBase}
      */
-    private static class TestBaseElement extends JBase {
+    private class TestBaseElement extends JBase {
+        // Counter for how many times appendSelf has been called
+        private int timesAppendSelfCalled = 0;
         // Counter for how many times generateSelf has been called
         private int timesGenerateSelfCalled = 0;
 
@@ -54,17 +56,29 @@ public class JBaseTest extends AbstractUnitTest {
          * Does nothing other than count how many times it has been called
          */
         @Override
-        protected void generateSelf(CodeBuilder builder, Set<ClassType> classImports) {
-            timesGenerateSelfCalled++;
+        protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
+            timesAppendSelfCalled++;
         }
 
         /**
-         * Verify that the generateSelf method has been called the expected number of times
-         * 
-         * @param expected int the number of times the method is expected to have been called
+         * @see tendril.codegen.JBase#generateSelf(java.util.Set)
          */
-        public void verifyTimesGenerateSelfCalled(int expected) {
-            Assertions.assertEquals(expected, timesGenerateSelfCalled);
+        @Override
+        public String generateSelf(Set<ClassType> classImports) {
+            Assertions.assertEquals(mockImports, classImports);
+            timesGenerateSelfCalled++;
+            return "generateSelf";
+        }
+
+        /**
+         * Verify that the overridden methods have been called the expected number of times
+         * 
+         * @param expected int the number of times the appendSelf method is expected to have been called
+         * @param expected int the number of times the generateSelf method is expected to have been called
+         */
+        public void verifyTimesCalled(int expectedAppend, int expectedGenerate) {
+            Assertions.assertEquals(expectedAppend, timesAppendSelfCalled);
+            Assertions.assertEquals(expectedGenerate, timesGenerateSelfCalled);
         }
 
     }
@@ -101,7 +115,7 @@ public class JBaseTest extends AbstractUnitTest {
         Assertions.assertIterableEquals(Collections.emptyList(), element.getAnnotations());
         
         element.generate(mockCodeBuilder, mockImports);
-        element.verifyTimesGenerateSelfCalled(1);
+        element.verifyTimesCalled(1, 0);
     }
 
     /**
@@ -114,7 +128,7 @@ public class JBaseTest extends AbstractUnitTest {
         
         element.generate(mockCodeBuilder, mockImports);
         verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
-        element.verifyTimesGenerateSelfCalled(1);
+        element.verifyTimesCalled(1, 0);
     }
 
     /**
@@ -133,6 +147,15 @@ public class JBaseTest extends AbstractUnitTest {
         verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
         verify(mockAnnotation2).generate(mockCodeBuilder, mockImports);
         verify(mockAnnotation3).generate(mockCodeBuilder, mockImports);
-        element.verifyTimesGenerateSelfCalled(1);
+        element.verifyTimesCalled(1, 0);
+    }
+    
+    /**
+     * Verify that there are no side-effect to generateSelf
+     */
+    @Test
+    public void testGenerateSelf() {
+        Assertions.assertEquals("generateSelf", element.generateSelf(mockImports));
+        element.verifyTimesCalled(0, 1);
     }
 }
