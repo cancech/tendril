@@ -29,14 +29,6 @@ import tendril.codegen.field.type.Type;
 public class JMethodInterfaceTest extends SharedJMethodTest {
 
     /**
-     * @see tendril.codegen.classes.method.SharedJMethodTest#prepareTest()
-     */
-    @Override
-    protected void prepareTest() {
-        super.prepareTest();
-    }
-
-    /**
      * Verify that the appropriate method signature start is generated
      */
     @Test
