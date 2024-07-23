@@ -236,6 +236,7 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
             Assertions.assertEquals(PrimitiveType.LONG == type, type.isTypeOf(890123l));
             Assertions.assertEquals(PrimitiveType.SHORT == type, type.isTypeOf((short) 987));
             Assertions.assertEquals(PrimitiveType.SHORT == type, type.isTypeOf((short) 654));
+            Assertions.assertFalse(type.isTypeOf(null));
         }
     }
     
