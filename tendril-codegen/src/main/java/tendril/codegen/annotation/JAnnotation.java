@@ -98,7 +98,6 @@ public class JAnnotation extends JBase {
      */
     @Override
     public void generate(CodeBuilder builder, Set<ClassType> classImports) {
-        classImports.add(annotationClass);
         appendSelf(builder, classImports);
     }
 
@@ -115,6 +114,7 @@ public class JAnnotation extends JBase {
      */
     @Override
     public String generateSelf(Set<ClassType> classImports) {
+        classImports.add(annotationClass);
         if (attributes.isEmpty())
             return generateMarker();
         else if (attributes.size() == 1 && attributes.get(0).getName().equals("value"))
