@@ -24,6 +24,8 @@ import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JClassFactory;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.PrimitiveType;
+import tendril.codegen.field.value.JValueFactory;
 import tendril.test.assertions.matchers.MultiLineStringMatcher;
 import tendril.test.helper.annotation.TestMarkerAnnotation;
 
@@ -82,7 +84,7 @@ public class CreateAnnotationTest {
     @Test
     public void createAnnotationWithMethods() {
         JClass annotation = JClassFactory.createAnnotation(VisibilityType.PUBLIC, new ClassType("a.b.c", "D"));
-        annotation.buildMethod(String.class, "strMethod").build();
+        annotation.buildMethod(String.class, "strMethod").setDefaultValue(JValueFactory.create("abc123")).build();
         annotation.buildMethod(Integer.class, "intMethod").build();
         
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
@@ -93,7 +95,7 @@ public class CreateAnnotationTest {
         matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
         matcher.eq("public @interface D {");
         matcher.eq("");
-        matcher.eq("    String strMethod();");
+        matcher.eq("    String strMethod() default \"abc123\";");
         matcher.eq("");
         matcher.eq("    Integer intMethod();");
         matcher.eq("");
@@ -110,7 +112,7 @@ public class CreateAnnotationTest {
         annotation.addAnnotation(JAnnotationFactory.create(new ClassType("d.e.f", "G")));
         annotation.buildMethod(String.class, "strMethod").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).build();
         annotation.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
-        annotation.buildMethod(Integer.class, "intMethod").build();
+        annotation.buildMethod(PrimitiveType.INT, "intMethod").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).setDefaultValue(JValueFactory.create(123456)).build();
         
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package a.b.c;");
@@ -127,7 +129,8 @@ public class CreateAnnotationTest {
         matcher.eq("    @TestMarkerAnnotation");
         matcher.eq("    String strMethod();");
         matcher.eq("");
-        matcher.eq("    Integer intMethod();");
+        matcher.eq("    @TestMarkerAnnotation");
+        matcher.eq("    int intMethod() default 123456;");
         matcher.eq("");
         matcher.eq("}");
         matcher.match(annotation.generateCode());

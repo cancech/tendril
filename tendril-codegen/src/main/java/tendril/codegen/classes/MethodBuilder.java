@@ -24,6 +24,7 @@ import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JParameter;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.value.JValue;
 
 /**
  * Used to build methods, allowing for their wide permutation possibilities to be accounted for in a relatively straightforward manner. The method is by default public and with no implementation.
@@ -73,7 +74,7 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
         this.visibility = visibility;
         return this;
     }
-    
+
     /**
      * Add an annotation to the method
      * 
@@ -84,7 +85,7 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
         annotations.add(annotation);
         return this;
     }
-    
+
     /**
      * Add a parameter to the method
      * 
@@ -123,6 +124,16 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
     }
 
     /**
+     * Add a default value to the method. Note this only works if the method is being applied to an annotation.
+     * 
+     * @param value {@link JValue} to apply as the default value
+     * @return {@link MethodBuilder}
+     */
+    public MethodBuilder<RETURN_TYPE> setDefaultValue(JValue<RETURN_TYPE, ?> value) {
+        throw new IllegalArgumentException("Only annotations support default values for methods values");
+    }
+
+    /**
      * Validate the provided values to ensure that they are sane for the enclosing class and build the method. The method is automatically added to the enclosing class.
      * 
      * @throws IllegalArgumentException if any issue is encountered with the provided method details
@@ -131,9 +142,9 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
         Utilities.throwIfNotValidIdentifier(name);
         validateData();
         JMethod<RETURN_TYPE> method = buildMethod(returnType, name);
-        for (JAnnotation anno: annotations)
+        for (JAnnotation anno : annotations)
             method.addAnnotation(anno);
-        for (JParameter<?> param: parameters)
+        for (JParameter<?> param : parameters)
             method.addParameter(param);
         encompassingClass.addMethod(method);
     }

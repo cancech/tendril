@@ -33,6 +33,7 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.value.JValue;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -130,6 +131,8 @@ public class MethodBuilderTest extends AbstractUnitTest {
     private JAnnotation mockAnnotation2;
     @Mock
     private JAnnotation mockAnnotation3;
+    @Mock
+    private JValue<Type, ?> mockValue;
 
     // Instance to test
     private TestMethodBuilder builder;
@@ -249,5 +252,13 @@ public class MethodBuilderTest extends AbstractUnitTest {
             verify(mockClass).addMethod(mockMethod);
             builder.verifyTimesCalled(1, 1, mockReturnType, "MethodName");
         }
+    }
+    
+    /**
+     * Verify that default values are not supported by default
+     */
+    @Test
+    public void testDefaultValueThrowsException() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.setDefaultValue(mockValue));
     }
 }

@@ -289,6 +289,15 @@ public class JMethodTest extends SharedJMethodTest {
         verify(mockParam2).generateSelf(mockImports);
         verify(mockParam3).generateSelf(mockImports);
     }
+    
+    /**
+     * Verify that the signature end if properly generated
+     */
+    @Test
+    public void testGenerateSignatureEnd() {
+        Assertions.assertEquals(" {", method.generateSignatureEnd(true));
+        Assertions.assertEquals(";", method.generateSignatureEnd(false));
+    }
 
     /**
      * Generate the code and verify that it matches expectations
@@ -303,4 +312,5 @@ public class JMethodTest extends SharedJMethodTest {
 
         matcher.match(builder.get());
     }
+    
 }

@@ -19,6 +19,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import tendril.codegen.VisibilityType;
@@ -29,7 +30,7 @@ import tendril.codegen.field.type.Type;
  * Test case for {@link InterfaceMethodBuilder}
  */
 public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<ConcreteMethodBuilder<Type>> {
-
+    
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
      */
@@ -45,7 +46,7 @@ public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<Concret
     public void testValidateNotVoid() {
         when(mockReturnType.isVoid()).thenReturn(false);
         
-        // No code, only private fails
+        // Only public is allowed
         verifyValidateDoesNotThrow(VisibilityType.PUBLIC);
         verify(mockReturnType).isVoid();
         verifyValidateDoesThrow(VisibilityType.PROTECTED);
@@ -54,17 +55,6 @@ public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<Concret
         verify(mockReturnType, times(3)).isVoid();
         verifyValidateDoesThrow(VisibilityType.PRIVATE);
         verify(mockReturnType, times(4)).isVoid();
-
-        // With code, all pass
-        builder.emptyImplementation();
-        verifyValidateDoesNotThrow(VisibilityType.PUBLIC);
-        verify(mockReturnType, times(5)).isVoid();
-        verifyValidateDoesThrow(VisibilityType.PROTECTED);
-        verify(mockReturnType, times(6)).isVoid();
-        verifyValidateDoesThrow(VisibilityType.PACKAGE_PRIVATE);
-        verify(mockReturnType, times(7)).isVoid();
-        verifyValidateDoesNotThrow(VisibilityType.PRIVATE);
-        verify(mockReturnType, times(8)).isVoid();
     }
 
     /**
@@ -74,7 +64,7 @@ public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<Concret
     public void testValidateIsVoid() {
         when(mockReturnType.isVoid()).thenReturn(true);
         
-        // No code, only private fails
+        // Void is not allowed at all
         verifyValidateDoesThrow(VisibilityType.PUBLIC);
         verify(mockReturnType).isVoid();
         verifyValidateDoesThrow(VisibilityType.PROTECTED);
@@ -83,17 +73,6 @@ public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<Concret
         verify(mockReturnType, times(3)).isVoid();
         verifyValidateDoesThrow(VisibilityType.PRIVATE);
         verify(mockReturnType, times(4)).isVoid();
-
-        // With code, all pass
-        builder.emptyImplementation();
-        verifyValidateDoesThrow(VisibilityType.PUBLIC);
-        verify(mockReturnType, times(5)).isVoid();
-        verifyValidateDoesThrow(VisibilityType.PROTECTED);
-        verify(mockReturnType, times(6)).isVoid();
-        verifyValidateDoesThrow(VisibilityType.PACKAGE_PRIVATE);
-        verify(mockReturnType, times(7)).isVoid();
-        verifyValidateDoesThrow(VisibilityType.PRIVATE);
-        verify(mockReturnType, times(8)).isVoid();
     }
 
     /**
@@ -101,6 +80,16 @@ public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<Concret
      */
     @Test
     public void testBuildMethod() {
-        verifyBuildMethodType(JMethodInterface.class);
+        verifyBuildMethodType(JMethodAnnotation.class);
+    }
+    
+    /**
+     * Verify that code cannot be added to the annotation
+     */
+    @Test
+    public void testAddCodeThrowsException() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.emptyImplementation());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.addCode());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.addCode("a", "b", "c", "d"));
     }
 }

@@ -113,7 +113,7 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends NamedType<Type> 
         StringBuilder signature = new StringBuilder(generateSignatureStart(hasImplementation));
         signature.append(getType().getSimpleName() + " " + getName());
         signature.append("(" + generateParameters(classImports) + ")");
-        signature.append(hasImplementation ? " {" : ";");
+        signature.append(generateSignatureEnd(hasImplementation));
         return signature.toString();
     }
 
@@ -133,4 +133,16 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends NamedType<Type> 
      * @return {@link String} the code for the start of the method signature.
      */
     protected abstract String generateSignatureStart(boolean hasImplementation);
+
+    /**
+     * Generate the end of the method signature (after the closing parameter bracket).
+     * 
+     * @param hasImplementation boolean true if the method has an implementation present
+     * @return {@link String} the code for the end of the method signature.
+     */
+    protected String generateSignatureEnd(boolean hasImplementation) {
+        if (hasImplementation)
+            return " {";
+        return ";";
+    }
 }
