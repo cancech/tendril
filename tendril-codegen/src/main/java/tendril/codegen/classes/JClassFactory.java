@@ -38,6 +38,7 @@ public abstract class JClassFactory {
 	 * @return {@link JClass}
 	 */
 	public static JClass createClass(VisibilityType visibility, ClassType data) {
+        validateForClass(visibility);
 		return new JClassDefault(visibility, data);
 	}
 
@@ -49,8 +50,19 @@ public abstract class JClassFactory {
 	 * @return {@link JClass}
 	 */
 	public static JClass createAbstractClass(VisibilityType visibility, ClassType data) {
+	    validateForClass(visibility);
 		return new JClassAbstract(visibility, data);
 	}
+    
+    /**
+     * Verify that the {@link VisibilityType} specified is valid for a class
+     * 
+     * @param visibility {@link VisibilityType} desired
+     */
+    private static void validateForClass(VisibilityType visibility) {
+        if (visibility == VisibilityType.PRIVATE)
+            throw new IllegalArgumentException("Illegal visibility " + visibility.name() + ". PRIVATE classes are not allowed");
+    }
 
 	/**
 	 * Create an interface

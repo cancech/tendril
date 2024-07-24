@@ -35,8 +35,6 @@ public class JClassFactoryTest extends AbstractUnitTest {
 	
 	// Mocks to use for testing
 	@Mock
-	private VisibilityType mockVisibility;
-	@Mock
 	private ClassType mockClassType;
 
 	/**
@@ -53,9 +51,17 @@ public class JClassFactoryTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testDefaultCreation() {
-		ClassAssert.assertInstance(JClassDefault.class, JClassFactory.createClass(mockVisibility, mockClassType));
-		verify(mockClassType).getPackageName();
-		verify(mockClassType).getClassName();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JClassFactory.createClass(VisibilityType.PRIVATE, mockClassType));
+
+        ClassAssert.assertInstance(JClassDefault.class, JClassFactory.createClass(VisibilityType.PUBLIC, mockClassType));
+        verify(mockClassType).getPackageName();
+        verify(mockClassType).getClassName();
+        ClassAssert.assertInstance(JClassDefault.class, JClassFactory.createClass(VisibilityType.PROTECTED, mockClassType));
+        verify(mockClassType, times(2)).getPackageName();
+        verify(mockClassType, times(2)).getClassName();
+        ClassAssert.assertInstance(JClassDefault.class, JClassFactory.createClass(VisibilityType.PACKAGE_PRIVATE, mockClassType));
+        verify(mockClassType, times(3)).getPackageName();
+        verify(mockClassType, times(3)).getClassName();
 	}
 
 	/**
@@ -63,9 +69,17 @@ public class JClassFactoryTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testAbstractCreation() {
-		ClassAssert.assertInstance(JClassAbstract.class, JClassFactory.createAbstractClass(mockVisibility, mockClassType));
-		verify(mockClassType).getPackageName();
-		verify(mockClassType).getClassName();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JClassFactory.createAbstractClass(VisibilityType.PRIVATE, mockClassType));
+
+        ClassAssert.assertInstance(JClassAbstract.class, JClassFactory.createAbstractClass(VisibilityType.PUBLIC, mockClassType));
+        verify(mockClassType).getPackageName();
+        verify(mockClassType).getClassName();
+        ClassAssert.assertInstance(JClassAbstract.class, JClassFactory.createAbstractClass(VisibilityType.PROTECTED, mockClassType));
+        verify(mockClassType, times(2)).getPackageName();
+        verify(mockClassType, times(2)).getClassName();
+        ClassAssert.assertInstance(JClassAbstract.class, JClassFactory.createAbstractClass(VisibilityType.PACKAGE_PRIVATE, mockClassType));
+        verify(mockClassType, times(3)).getPackageName();
+        verify(mockClassType, times(3)).getClassName();
 	}
 
 	/**
