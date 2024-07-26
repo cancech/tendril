@@ -92,8 +92,6 @@ public class CreateInterfaceTest {
         iface.buildMethod("voidMethod").setVisibility(VisibilityType.PUBLIC).addParameter(stringParam).build();
         iface.buildMethod(String.class, "annotatedMethod").addAnnotation(JAnnotationFactory.create(Deprecated.class)).addCode("abc123", "321cba").setVisibility(VisibilityType.PUBLIC).build();
 
-        System.out.println(iface.generateCode());
-        
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package q.w.e.r.t;");
         matcher.eq("");

@@ -129,8 +129,6 @@ public class CreateAbstractClassTest {
         abstractCls.buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
                 .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).build();
 
-        System.out.println(abstractCls.generateCode());
-
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
         matcher.eq("");
