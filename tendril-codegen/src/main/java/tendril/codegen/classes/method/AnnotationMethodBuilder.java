@@ -62,6 +62,9 @@ public class AnnotationMethodBuilder<RETURN_TYPE extends Type> extends Interface
 	 */
 	@Override
 	public MethodBuilder<RETURN_TYPE> setDefaultValue(JValue<RETURN_TYPE, ?> value) {
+	    RETURN_TYPE valueType = value.getType();
+	    if (!returnType.isAssignableFrom(valueType))
+	        throw new IllegalArgumentException("Invalid value type. Expected " + returnType + " but " + valueType + " was provided");
 	    defaultValue = value;
 	    return this;
 	}

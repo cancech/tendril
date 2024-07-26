@@ -19,17 +19,35 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.SharedMethodBuilderTest;
+import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.value.JValue;
 
 /**
  * Test case for {@link InterfaceMethodBuilder}
  */
 public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<ConcreteMethodBuilder<Type>> {
+    
+    // Mocks to use for testing
+    @Mock
+    private JValue<PrimitiveType, ?> mockPrimitiveValue;
+    @Mock
+    private JValue<ClassType, ?> mockClassValue;
+    @Mock
+    private ClassType mockReturnTypeClassType;
+    @Mock
+    private ClassType mockValueClassType;
+    @Mock
+    private Set<ClassType> mockImports;
     
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
@@ -91,5 +109,40 @@ public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<Concret
         Assertions.assertThrows(IllegalArgumentException.class, () -> builder.emptyImplementation());
         Assertions.assertThrows(IllegalArgumentException.class, () -> builder.addCode());
         Assertions.assertThrows(IllegalArgumentException.class, () -> builder.addCode("a", "b", "c", "d"));
+    }
+    
+    /**
+     * Verify that applying a different primitive type to a primitive attribute results in an exception
+     */
+    @Test
+    public void testApplyDifferentPrimitiveValueTypeFails() {
+        int times = 0;
+        
+        for (PrimitiveType methodType: PrimitiveType.values()) {
+            AnnotationMethodBuilder<PrimitiveType> builder = new AnnotationMethodBuilder<>(mockClass, methodType, "primitiveAttr");
+
+            for (PrimitiveType valueType: PrimitiveType.values()) {
+                if (methodType == valueType)
+                    continue;
+
+                when(mockPrimitiveValue.getType()).thenReturn(valueType);
+                Assertions.assertThrows(IllegalArgumentException.class, ()-> builder.setDefaultValue(mockPrimitiveValue));
+                verify(mockPrimitiveValue, times(++times)).getType();
+            }
+        }
+    }
+    
+    /**
+     * Verify that applying a different class type to a class type attribute results in an exception
+     */
+    @Test
+    public void testApplyDifferentClassValueTypeFails() {
+        when(mockClassValue.getType()).thenReturn(mockValueClassType);
+        when(mockReturnTypeClassType.isAssignableFrom(mockValueClassType)).thenReturn(false);
+        
+        AnnotationMethodBuilder<ClassType> builder = new AnnotationMethodBuilder<>(mockClass, mockReturnTypeClassType, "classAttr");
+        Assertions.assertThrows(IllegalArgumentException.class, ()-> builder.setDefaultValue(mockClassValue));
+        verify(mockClassValue).getType();
+        verify(mockReturnTypeClassType).isAssignableFrom(mockValueClassType);
     }
 }
