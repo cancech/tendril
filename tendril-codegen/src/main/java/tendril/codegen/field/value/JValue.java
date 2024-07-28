@@ -75,6 +75,18 @@ public abstract class JValue<DATA_TYPE extends Type, VALUE_TYPE> implements Type
     public VALUE_TYPE getValue() {
         return value;
     }
+    
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj instanceof JValue))
+            return false;
+        
+        JValue<?,?> other = (JValue<?, ?>) obj;
+        return type.equals(other.type) && value.equals(other.value);
+    }
 
     /**
      * Generate a code representation of the value

@@ -64,5 +64,17 @@ public class JValueSimple<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<DAT
     public String generate(Set<ClassType> classImports) {
         return prefix + value.toString() + suffix;
     }
+    
+    /**
+     * @see tendril.codegen.field.value.JValue#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj instanceof JValueSimple))
+            return false;
+        
+        JValueSimple<?,?> value = (JValueSimple<?, ?>) obj;
+        return super.equals(obj) && prefix.equals(value.prefix) && suffix.equals(value.suffix);
+    }
 
 }

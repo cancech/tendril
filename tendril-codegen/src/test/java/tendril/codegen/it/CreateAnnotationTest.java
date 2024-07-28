@@ -17,15 +17,18 @@ package tendril.codegen.it;
 
 import javax.annotation.processing.Generated;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.JClass;
+import tendril.codegen.classes.JClassAnnotation;
 import tendril.codegen.classes.JClassFactory;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.value.JValueFactory;
+import tendril.test.assertions.ClassAssert;
 import tendril.test.assertions.matchers.MultiLineStringMatcher;
 import tendril.test.helper.annotation.TestMarkerAnnotation;
 
@@ -33,6 +36,31 @@ import tendril.test.helper.annotation.TestMarkerAnnotation;
  * Test case to ensure that annotation classes can be generated
  */
 public class CreateAnnotationTest {
+    
+    /**
+     * Verify that attempting to create a private or protected annotation is not allowed
+     */
+    @Test
+    public void cannotCreatePrivateOrProtected() {
+        ClassAssert.assertInstance(JClassAnnotation.class, JClassFactory.createAnnotation(VisibilityType.PUBLIC, new ClassType("a.b.c.d", "D")));
+        ClassAssert.assertInstance(JClassAnnotation.class, JClassFactory.createAnnotation(VisibilityType.PACKAGE_PRIVATE, new ClassType("a.b.c.d", "D")));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JClassFactory.createAnnotation(VisibilityType.PROTECTED, new ClassType("a.b.c.d", "D")));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> JClassFactory.createAnnotation(VisibilityType.PRIVATE, new ClassType("a.b.c.d", "D")));
+    }
+    
+    /**
+     * Verify that only supported method can be added to the annotation
+     */
+    @Test
+    public void cannotAddInvalidMethods() {
+        JClass annotation = JClassFactory.createAnnotation(VisibilityType.PUBLIC, new ClassType("a.b.c", "D"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod("voidNotAllowed").build());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod(PrimitiveType.BOOLEAN, "implementationNotAllowed").emptyImplementation());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod(PrimitiveType.BOOLEAN, "implementationNotAllowed").addCode(""));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod(PrimitiveType.BOOLEAN, "privateNotAllowed").setVisibility(VisibilityType.PRIVATE).build());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod(PrimitiveType.BOOLEAN, "protectedNotAllowed").setVisibility(VisibilityType.PROTECTED).build());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod(PrimitiveType.BOOLEAN, "packagePrivateNotAllowed").setVisibility(VisibilityType.PACKAGE_PRIVATE).build());
+    }
     
     /**
      * Verify that the empty annotation generates properly

@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 
@@ -136,5 +137,83 @@ public class JValueTest extends SharedJValueTest {
         when(mockOtherDataType.isAssignableFrom(mockType)).thenReturn(true);
         Assertions.assertTrue(value.isInstanceOf(mockOtherDataType));
         verify(mockOtherDataType, times(2)).isAssignableFrom(mockType);
+    }
+    
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void testEquals() {
+        // Not equals
+        Assertions.assertFalse(value.equals(null));
+        Assertions.assertFalse(value.equals("abc123"));
+        Assertions.assertFalse(JValueFactory.create(false).equals(null));
+        
+        Assertions.assertFalse(JValueFactory.create(false).equals(JValueFactory.create(true)));
+        Assertions.assertFalse(JValueFactory.create(true).equals(JValueFactory.create(false)));
+        Assertions.assertFalse(JValueFactory.create(true).equals(JValueFactory.create(123)));
+        Assertions.assertFalse(JValueFactory.create(true).equals(JValueFactory.create(1.23)));
+        Assertions.assertFalse(JValueFactory.create(true).equals(JValueFactory.create((short) 1.23)));
+        Assertions.assertFalse(JValueFactory.create(true).equals(JValueFactory.create("abc")));
+        Assertions.assertFalse(JValueFactory.create(true).equals(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)));
+
+        Assertions.assertFalse(JValueFactory.create(123).equals(JValueFactory.create(true)));
+        Assertions.assertFalse(JValueFactory.create(123).equals(JValueFactory.create(false)));
+        Assertions.assertFalse(JValueFactory.create(123).equals(JValueFactory.create(1.23)));
+        Assertions.assertFalse(JValueFactory.create(123).equals(JValueFactory.create((short) 1.23)));
+        Assertions.assertFalse(JValueFactory.create(123).equals(JValueFactory.create("abc")));
+        Assertions.assertFalse(JValueFactory.create(123).equals(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)));
+        Assertions.assertFalse(JValueFactory.create(123).equals(JValueFactory.create(1234)));
+
+        Assertions.assertFalse(JValueFactory.create(1.23).equals(JValueFactory.create(true)));
+        Assertions.assertFalse(JValueFactory.create(1.23).equals(JValueFactory.create(false)));
+        Assertions.assertFalse(JValueFactory.create(1.23).equals(JValueFactory.create(123)));
+        Assertions.assertFalse(JValueFactory.create(1.23).equals(JValueFactory.create((short) 1.23)));
+        Assertions.assertFalse(JValueFactory.create(1.23).equals(JValueFactory.create("abc")));
+        Assertions.assertFalse(JValueFactory.create(1.23).equals(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)));
+        Assertions.assertFalse(JValueFactory.create(1.23).equals(JValueFactory.create(1.234)));
+
+        Assertions.assertFalse(JValueFactory.create("abc").equals(JValueFactory.create(true)));
+        Assertions.assertFalse(JValueFactory.create("abc").equals(JValueFactory.create(false)));
+        Assertions.assertFalse(JValueFactory.create("abc").equals(JValueFactory.create(123)));
+        Assertions.assertFalse(JValueFactory.create("abc").equals(JValueFactory.create(1.23)));
+        Assertions.assertFalse(JValueFactory.create("abc").equals(JValueFactory.create((short) 1.23)));
+        Assertions.assertFalse(JValueFactory.create("abc").equals(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)));
+        Assertions.assertFalse(JValueFactory.create("abc").equals(JValueFactory.create("ABC")));
+
+        Assertions.assertFalse(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE).equals(JValueFactory.create(true)));
+        Assertions.assertFalse(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE).equals(JValueFactory.create(false)));
+        Assertions.assertFalse(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE).equals(JValueFactory.create(123)));
+        Assertions.assertFalse(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE).equals(JValueFactory.create(1.23)));
+        Assertions.assertFalse(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE).equals(JValueFactory.create((short) 1.23)));
+        Assertions.assertFalse(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE).equals(JValueFactory.create("abc")));
+        Assertions.assertFalse(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE).equals(VisibilityType.PRIVATE));
+
+        Assertions.assertFalse(JValueFactory.create((short) 1.23).equals(JValueFactory.create(true)));
+        Assertions.assertFalse(JValueFactory.create((short) 1.23).equals(JValueFactory.create(false)));
+        Assertions.assertFalse(JValueFactory.create((short) 1.23).equals(JValueFactory.create(123)));
+        Assertions.assertFalse(JValueFactory.create((short) 1.23).equals(JValueFactory.create(1.23)));
+        Assertions.assertFalse(JValueFactory.create((short) 1.23).equals(JValueFactory.create("abc")));
+        Assertions.assertFalse(JValueFactory.create((short) 1.23).equals(VisibilityType.PRIVATE));
+        Assertions.assertFalse(JValueFactory.create((short) 1.23).equals(JValueFactory.create((short) 2.34)));
+
+        Assertions.assertFalse(JValueFactory.create("abc").equals(new JValueSimple<ClassType, String>(new ClassType(String.class), "abc", "\"", "a")));
+        Assertions.assertFalse(JValueFactory.create("abc").equals(new JValueSimple<ClassType, String>(new ClassType(String.class), "abc", "a", "\"")));
+
+        Assertions.assertFalse(JValueFactory.createArray(false, true, false).equals(JValueFactory.createArray(true, true, true)));
+        Assertions.assertFalse(JValueFactory.createArray(false, true, false).equals(JValueFactory.createArray(false, true)));
+        Assertions.assertFalse(JValueFactory.createArray(false, true, false).equals(JValueFactory.createArray(true)));
+        Assertions.assertFalse(JValueFactory.createArray(false, true, false).equals(JValueFactory.create(true)));
+        Assertions.assertFalse(JValueFactory.createArray(false, true, false).equals(JValueFactory.create("abc")));
+        Assertions.assertFalse(JValueFactory.createArray(false, true, false).equals(JValueFactory.createArray("abc", "abc", "abc")));
+        
+        // Equals
+        Assertions.assertTrue(value.equals(value));
+        Assertions.assertTrue(JValueFactory.create(false).equals(JValueFactory.create(false)));
+        Assertions.assertTrue(JValueFactory.create(true).equals(JValueFactory.create(true)));
+        Assertions.assertTrue(JValueFactory.create(123).equals(JValueFactory.create(123)));
+        Assertions.assertTrue(JValueFactory.create(1.23).equals(JValueFactory.create(1.23)));
+        Assertions.assertTrue(JValueFactory.create("abc").equals(JValueFactory.create("abc")));
+        Assertions.assertTrue(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE).equals(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)));
+        Assertions.assertTrue(JValueFactory.create((short) 1.23).equals(JValueFactory.create((short) 1.23)));
+        Assertions.assertTrue(JValueFactory.createArray(false, true, false).equals(JValueFactory.createArray(false, true, false)));
     }
 }

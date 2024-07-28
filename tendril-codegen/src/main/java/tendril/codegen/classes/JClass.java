@@ -29,6 +29,7 @@ import tendril.codegen.Utilities;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.method.JMethod;
+import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
@@ -41,6 +42,8 @@ import tendril.codegen.field.value.JValueFactory;
 public abstract class JClass extends JBase {
     /** The imports that this class requires, assembled/collected as part of code generation */
     private final Set<ClassType> imports = new HashSet<>();
+    /** The fields that appear in this class */
+    private final List<JField<?>> fields = new ArrayList<>();
     /** The methods that this class is composed of */
     private final List<JMethod<?>> methods = new ArrayList<>();
     /** The visibility of this class */
@@ -60,6 +63,15 @@ public abstract class JClass extends JBase {
         this.pkg = data.getPackageName();
 
         addAnnotation(JAnnotationFactory.create(Generated.class, Map.of("value", JValueFactory.create("tendril"), "date", JValueFactory.create(Utilities.iso8061TimeStamp()))));
+    }
+    
+    /**
+     * Add a field to the class
+     * 
+     * @param field {@link JField} to add
+     */
+    public void addField(JField<?> field) {
+        fields.add(field);
     }
 
     /**
@@ -181,6 +193,12 @@ public abstract class JClass extends JBase {
         builder.append(visStr + classType() + " " + name + " {");
         builder.blankLine();
         builder.indent();
+        
+        // Process fields
+        for (JField<?> f: fields) {
+            f.generate(builder, classImports);
+            builder.blankLine();
+        }
 
         // Process methods
         for (JMethod<?> m : methods) {
