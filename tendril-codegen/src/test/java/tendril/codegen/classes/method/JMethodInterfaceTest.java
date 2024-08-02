@@ -33,7 +33,8 @@ public class JMethodInterfaceTest extends SharedJMethodTest {
      */
     @Test
     public void testSignatureStartNotPublic() {
-        JMethodInterface<Type> method = new JMethodInterface<>(mockVisibility, mockReturnType, "interfaceMethod", Collections.emptyList());
+        JMethodInterface<Type> method = new JMethodInterface<>(mockReturnType, "interfaceMethod", Collections.emptyList());
+        method.setVisibility(mockVisibility);
         verifyMethodInit("interfaceMethod", method);
 
         Assertions.assertEquals("mockVisibility ", method.generateSignatureStart(false));
@@ -45,7 +46,8 @@ public class JMethodInterfaceTest extends SharedJMethodTest {
      */
     @Test
     public void testSignatureStartPublic() {
-        JMethodInterface<Type> method = new JMethodInterface<>(VisibilityType.PUBLIC, mockReturnType, "publicInterfaceMethod", Collections.emptyList());
+        JMethodInterface<Type> method = new JMethodInterface<>(mockReturnType, "publicInterfaceMethod", Collections.emptyList());
+        method.setVisibility(VisibilityType.PUBLIC);
         verifyMethodInit("publicInterfaceMethod", method);
 
         Assertions.assertEquals("", method.generateSignatureStart(false));

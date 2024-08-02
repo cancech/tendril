@@ -29,7 +29,7 @@ import tendril.util.TendrilStringUtil;
  * 
  * @param <DATA_TYPE> representing the {@link Type} of the parameter
  */
-public class JParameter<DATA_TYPE extends Type> extends NamedType<DATA_TYPE> {
+public class JParameter<DATA_TYPE extends Type> extends JType<DATA_TYPE> {
 
     /**
      * CTOR

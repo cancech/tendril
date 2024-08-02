@@ -41,7 +41,8 @@ public class JMethodDefaultTest extends SharedJMethodTest {
      */
     @Test
     public void testSignatureStart() {
-        JMethodDefault<Type> method = new JMethodDefault<>(mockVisibility, mockReturnType, "defaultMethod", Collections.emptyList());
+        JMethodDefault<Type> method = new JMethodDefault<>(mockReturnType, "defaultMethod", Collections.emptyList());
+        method.setVisibility(mockVisibility);
         verifyMethodInit("defaultMethod", method);
 
         Assertions.assertEquals("mockVisibility abstract ", method.generateSignatureStart(false));
@@ -53,7 +54,8 @@ public class JMethodDefaultTest extends SharedJMethodTest {
      */
     @Test
     public void testPackagePrivateSignatureStart() {
-        JMethodDefault<Type> method = new JMethodDefault<>(VisibilityType.PACKAGE_PRIVATE, mockReturnType, "defaultMethod", Collections.emptyList());
+        JMethodDefault<Type> method = new JMethodDefault<>(mockReturnType, "defaultMethod", Collections.emptyList());
+        method.setVisibility(VisibilityType.PACKAGE_PRIVATE);
         verifyMethodInit("defaultMethod", method);
 
         Assertions.assertEquals("abstract ", method.generateSignatureStart(false));

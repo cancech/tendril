@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
+import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
-import tendril.codegen.classes.JClassFactory;
 import tendril.codegen.classes.JClassInterface;
 import tendril.codegen.field.JParameter;
 import tendril.codegen.field.type.ClassType;
@@ -46,10 +46,11 @@ public class CreateInterfaceTest {
      */
     @Test
     public void cannotCreatePrivateOrProtected() {
-        ClassAssert.assertInstance(JClassInterface.class, JClassFactory.createInterface(VisibilityType.PUBLIC, new ClassType("q.w.e.r.t", "Y")));
-        ClassAssert.assertInstance(JClassInterface.class, JClassFactory.createInterface(VisibilityType.PACKAGE_PRIVATE, new ClassType("q.w.e.r.t", "Y")));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JClassFactory.createInterface(VisibilityType.PROTECTED, new ClassType("q.w.e.r.t", "Y")));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JClassFactory.createInterface(VisibilityType.PRIVATE, new ClassType("q.w.e.r.t", "Y")));
+        ClassBuilder builder = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y"));
+        ClassAssert.assertInstance(JClassInterface.class, builder.setVisibility(VisibilityType.PUBLIC).build());
+        ClassAssert.assertInstance(JClassInterface.class, builder.setVisibility(VisibilityType.PACKAGE_PRIVATE).build());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.setVisibility(VisibilityType.PROTECTED).build());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.setVisibility(VisibilityType.PRIVATE).build());
     }
 
     /**
@@ -57,10 +58,10 @@ public class CreateInterfaceTest {
      */
     @Test
     public void cannotAddInvalidMethods() {
-        JClass annotation = JClassFactory.createInterface(VisibilityType.PACKAGE_PRIVATE, new ClassType("q.w.e.r.t", "Y"));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod(PrimitiveType.BOOLEAN, "privateNoCodeNotAllowed").setVisibility(VisibilityType.PRIVATE).build());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod(PrimitiveType.BOOLEAN, "protectedNotAllowed").setVisibility(VisibilityType.PROTECTED).build());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod(PrimitiveType.BOOLEAN, "packagePrivateNotAllowed").setVisibility(VisibilityType.PACKAGE_PRIVATE).build());
+        ClassBuilder builder = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "privateNoCodeNotAllowed").setVisibility(VisibilityType.PRIVATE).finish());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "protectedNotAllowed").setVisibility(VisibilityType.PROTECTED).finish());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "packagePrivateNotAllowed").setVisibility(VisibilityType.PACKAGE_PRIVATE).finish());
     }
 
     /**
@@ -68,7 +69,7 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createEmptyInterface() {
-        JClass iface = JClassFactory.createInterface(VisibilityType.PACKAGE_PRIVATE, new ClassType("q.w.e.r.t", "Y"));
+        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package q.w.e.r.t;");
@@ -87,9 +88,10 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createAnnotatedInterface() {
-        JClass iface = JClassFactory.createInterface(VisibilityType.PACKAGE_PRIVATE, new ClassType("q.w.e.r.t", "Y"));
-        iface.addAnnotation(JAnnotationFactory.create(new ClassType("this.that", "Something"), Map.of("val1", JValueFactory.create("string"), "val2", JValueFactory.create(123))));
-        iface.addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123")));
+        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE)
+                .addAnnotation(JAnnotationFactory.create(new ClassType("this.that", "Something"), Map.of("val1", JValueFactory.create("string"), "val2", JValueFactory.create(123))))
+                .addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123")))
+                .build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package q.w.e.r.t;");
@@ -112,7 +114,7 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createInterfaceWithFields() {
-        JClass iface = JClassFactory.createInterface(VisibilityType.PACKAGE_PRIVATE, new ClassType("q.w.e.r.t", "Y"));
+        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package q.w.e.r.t;");
@@ -131,11 +133,13 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createInterfaceWithMethods() {
-        JClass iface = JClassFactory.createInterface(VisibilityType.PACKAGE_PRIVATE, new ClassType("q.w.e.r.t", "Y"));
         JParameter<ClassType> stringParam = new JParameter<ClassType>(new ClassType(String.class), "stringParam");
         stringParam.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
-        iface.buildMethod("voidMethod").setVisibility(VisibilityType.PUBLIC).addParameter(stringParam).build();
-        iface.buildMethod(String.class, "annotatedMethod").addAnnotation(JAnnotationFactory.create(Deprecated.class)).addCode("abc123", "321cba").setVisibility(VisibilityType.PUBLIC).build();
+        
+        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE)
+                .buildMethod("voidMethod").setVisibility(VisibilityType.PUBLIC).addParameter(stringParam).finish()
+                .buildMethod(String.class, "annotatedMethod").addAnnotation(JAnnotationFactory.create(Deprecated.class)).addCode("abc123", "321cba").setVisibility(VisibilityType.PUBLIC).finish()
+                .build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package q.w.e.r.t;");
@@ -163,13 +167,15 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createInterfaceWithAnnotationsAndMethods() {
-        JClass iface = JClassFactory.createInterface(VisibilityType.PACKAGE_PRIVATE, new ClassType("q.w.e.r.t", "Y"));
         JParameter<ClassType> stringParam = new JParameter<ClassType>(new ClassType(String.class), "stringParam");
         stringParam.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
-        iface.buildMethod("voidMethod").setVisibility(VisibilityType.PUBLIC).addParameter(stringParam).build();
-        iface.buildMethod(String.class, "annotatedMethod").setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Deprecated.class)).addCode("abc123", "321cba").build();
-        iface.addAnnotation(JAnnotationFactory.create(new ClassType("this.that", "Something"), Map.of("val1", JValueFactory.create("string"), "val2", JValueFactory.create(123))));
-        iface.addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123")));
+        
+        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE)
+                .buildMethod("voidMethod").setVisibility(VisibilityType.PUBLIC).addParameter(stringParam).finish()
+                .buildMethod(String.class, "annotatedMethod").setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Deprecated.class)).addCode("abc123", "321cba").finish()
+                .addAnnotation(JAnnotationFactory.create(new ClassType("this.that", "Something"), Map.of("val1", JValueFactory.create("string"), "val2", JValueFactory.create(123))))
+                .addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123")))
+                .build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package q.w.e.r.t;");

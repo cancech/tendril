@@ -36,7 +36,6 @@ import org.mockito.Mockito;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.Utilities;
-import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
@@ -59,38 +58,12 @@ public class JClassTest extends AbstractUnitTest {
      * Concrete implementation of {@link JClass} to be used for testing
      */
     private class TestJClass extends JClass {
-        /** Holds the last method return type so that it can be verified */
-        private Type methodReturnType;
-        /** Holds the last method name so that it can be verified */
-        private String methodName;
 
         /**
          * CTOR
          */
         protected TestJClass() {
-            super(mockVisibility, mockClassType);
-        }
-
-        /**
-         * Track the details of the last call, and return the mock builder
-         */
-        @SuppressWarnings("unchecked")
-        @Override
-        protected <RETURN_TYPE extends Type> MethodBuilder<RETURN_TYPE> createMethodBuilder(RETURN_TYPE returnType, String name) {
-            methodReturnType = returnType;
-            methodName = name;
-            return (MethodBuilder<RETURN_TYPE>) mockMethodBuilder;
-        }
-
-        /**
-         * Verify the details from the last build method call.
-         * 
-         * @param expectedType {@link Type} the expected return type
-         * @param expectedName {@link String} the expected method name
-         */
-        public void verifyMethodDetails(Type expectedType, String expectedName) {
-            Assertions.assertEquals(expectedType.getSimpleName(), methodReturnType.getSimpleName());
-            Assertions.assertEquals(expectedName, methodName);
+            super(mockClassType);
         }
 
         /**
@@ -104,8 +77,6 @@ public class JClassTest extends AbstractUnitTest {
     }
 
     // Mocks to use for testing
-    @Mock
-    private VisibilityType mockVisibility;
     @Mock
     private ClassType mockClassType;
     @Mock
@@ -208,25 +179,6 @@ public class JClassTest extends AbstractUnitTest {
                 ((Set<ClassType>) inv.getArgument(1)).add(ct);
             return null;
         }).when(mockMethod).generate(any(CodeBuilder.class), anySet());
-    }
-
-    /**
-     * Verify that the method builder is properly created
-     */
-    @Test
-    public void testBuildMethodBuilder() {
-        Assertions.assertEquals(mockMethodBuilder, jclass.buildMethod("voidMethodName"));
-        jclass.verifyMethodDetails(VoidType.INSTANCE, "voidMethodName");
-
-        Assertions.assertEquals(mockMethodBuilder, jclass.buildMethod(PrimitiveType.INT, "intMethodName"));
-        jclass.verifyMethodDetails(PrimitiveType.INT, "intMethodName");
-
-        Assertions.assertEquals(mockMethodBuilder, jclass.buildMethod(TestJClass.class, "classMethodName"));
-        jclass.verifyMethodDetails(new ClassType(TestJClass.class), "classMethodName");
-
-        ClassType clsType = new ClassType("package", "class");
-        Assertions.assertEquals(mockMethodBuilder, jclass.buildMethod(clsType, "classMethodName"));
-        jclass.verifyMethodDetails(clsType, "classMethodName");
     }
 
     /**
@@ -442,7 +394,7 @@ public class JClassTest extends AbstractUnitTest {
             strMatcher.eq((s));
 
         // Create the class signature
-        strMatcher.eq(("mockVisibility ClassType ClassName {"));
+        strMatcher.eq(("ClassType ClassName {"));
         strMatcher.eq((""));
     }
 

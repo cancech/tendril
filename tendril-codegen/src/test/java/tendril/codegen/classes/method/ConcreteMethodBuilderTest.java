@@ -18,6 +18,7 @@ package tendril.codegen.classes.method;
 import org.junit.jupiter.api.Test;
 
 import tendril.codegen.VisibilityType;
+import tendril.codegen.classes.MethodBuilder;
 import tendril.codegen.classes.SharedMethodBuilderTest;
 import tendril.codegen.field.type.Type;
 
@@ -27,11 +28,11 @@ import tendril.codegen.field.type.Type;
 public class ConcreteMethodBuilderTest extends SharedMethodBuilderTest<ConcreteMethodBuilder<Type>> {
 
     /**
-     * @see tendril.test.AbstractUnitTest#prepareTest()
+     * @see tendril.codegen.classes.SharedMethodBuilderTest#createBuilder()
      */
     @Override
-    protected void prepareTest() {
-        builder = new ConcreteMethodBuilder<Type>(mockClass, mockReturnType, "MethodName");
+    protected MethodBuilder<Type> createBuilder() {
+        return new ConcreteMethodBuilder<Type>(mockClassBuilder, METHOD_NAME);
     }
 
     /**

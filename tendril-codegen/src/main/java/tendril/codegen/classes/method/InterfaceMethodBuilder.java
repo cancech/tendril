@@ -16,7 +16,7 @@
 package tendril.codegen.classes.method;
 
 import tendril.codegen.VisibilityType;
-import tendril.codegen.classes.JClass;
+import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.MethodBuilder;
 import tendril.codegen.field.type.Type;
 
@@ -30,31 +30,32 @@ public class InterfaceMethodBuilder<RETURN_TYPE extends Type> extends MethodBuil
     /**
      * CTOR
      * 
-     * @param encompassingClass {@link JClass} which contain the method
-     * @param returnType        RETURN_TYPE representing what the method returns
-     * @param name              {@link String} the name of the method
+     * @param classBuilder {@link ClassBuilder} building the class to which the method belongs
+     * @param name         {@link String} the name of the method
      */
-	public InterfaceMethodBuilder(JClass encompassingClass, RETURN_TYPE returnType, String name) {
-		super(encompassingClass, returnType, name);
-	}
+    public InterfaceMethodBuilder(ClassBuilder classBuilder, String name) {
+        super(classBuilder, name);
+    }
 
-	/**
-	 * Interface methods may or may not have an implementation, unless they're private in which case they must have code
-	 * 
-	 * @see tendril.codegen.classes.MethodBuilder#validateData()
-	 */
-	@Override
-	protected void validateData() throws IllegalArgumentException {
-		if (visibility != VisibilityType.PUBLIC && !(visibility == VisibilityType.PRIVATE && hasCode()))
-			throw new IllegalArgumentException("Interface method can only be public, or private if it has an implementation");
-	}
+    /**
+     * Interface methods may or may not have an implementation, unless they're private in which case they must have code
+     * 
+     * @see tendril.codegen.classes.MethodBuilder#validate()
+     */
+    @Override
+    protected void validate() {
+        super.validate();
+        
+        if (visibility != VisibilityType.PUBLIC && !(visibility == VisibilityType.PRIVATE && hasCode()))
+            throw new IllegalArgumentException("Interface method can only be public, or private if it has an implementation");
+    }
 
-	/**
-	 * @see tendril.codegen.classes.MethodBuilder#buildMethod(tendril.codegen.field.type.Type, java.lang.String)
-	 */
-	@Override
-	protected JMethod<RETURN_TYPE> buildMethod(RETURN_TYPE returnType, String name) {
-		return new JMethodInterface<RETURN_TYPE>(visibility, returnType, name, linesOfCode);
-	}
+    /**
+     * @see tendril.codegen.BaseBuilder#create()
+     */
+    @Override
+    protected JMethodInterface<RETURN_TYPE> create() {
+        return new JMethodInterface<RETURN_TYPE>(type, name, linesOfCode);
+    }
 
 }

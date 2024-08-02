@@ -19,18 +19,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import tendril.codegen.annotation.Annotatable;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.field.type.ClassType;
 
 /**
  * The base of any element that is to be part of the generated code.
  */
-public abstract class JBase implements Annotatable {
+public abstract class JBase {
     /** The name of the element */
     protected final String name;
     /** List of annotations that are applied to the element */
     private final List<JAnnotation> annotations = new ArrayList<>();
+    /** Flag for whether the element is final */
+    private boolean isFinal = false;
 
     /**
      * CTOR
@@ -39,6 +40,24 @@ public abstract class JBase implements Annotatable {
      */
     protected JBase(String name) {
         this.name = name;
+    }
+
+    /**
+     * Mark the element as final
+     * 
+     * @param isFinal boolean true if it should be final
+     */
+    public void setFinal(boolean isFinal) {
+        this.isFinal = isFinal;
+    }
+
+    /**
+     * Check if the element is final
+     * 
+     * @return boolean true if it is final
+     */
+    public boolean isFinal() {
+        return isFinal;
     }
 
     /**
@@ -55,7 +74,6 @@ public abstract class JBase implements Annotatable {
      * 
      * @param annotation {@link JAnnotation} representing the annotation to apply
      */
-    @Override
     public void addAnnotation(JAnnotation annotation) {
         annotations.add(annotation);
     }
@@ -65,9 +83,16 @@ public abstract class JBase implements Annotatable {
      * 
      * @return {@link List} of {@link JAnnotation} that have been applied to the item
      */
-    @Override
     public List<JAnnotation> getAnnotations() {
         return annotations;
+    }
+
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 
     /**

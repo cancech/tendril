@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
+import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
-import tendril.codegen.classes.JClassFactory;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.JParameter;
 import tendril.codegen.field.type.ClassType;
@@ -44,7 +44,7 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateEmptyClass() {
-        JClass cls = JClassFactory.createClass(VisibilityType.PROTECTED, new ClassType("z.x.c.v", "B"));
+        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
@@ -63,7 +63,7 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateEmptyAnnotatedClass() {
-        JClass cls = JClassFactory.createClass(VisibilityType.PROTECTED, new ClassType("z.x.c.v", "B"));
+        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).build();
         cls.addAnnotation(JAnnotationFactory.create(Deprecated.class, Map.of("since", JValueFactory.create("yesterday"), "forRemoval", JValueFactory.create(true))));
         cls.addAnnotation(JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", JValueFactory.create("qwerty"), "valInt", JValueFactory.create(789))));
 
@@ -87,7 +87,7 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateClassWithFields() {
-        JClass cls = JClassFactory.createClass(VisibilityType.PROTECTED, new ClassType("z.x.c.v", "B"));
+        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).build();
         cls.addField(new JField<>(VisibilityType.PUBLIC, PrimitiveType.BOOLEAN, "booleanField", JValueFactory.create(false)));
         cls.addField(new JField<>(VisibilityType.PRIVATE, new ClassType(VisibilityType.class), "enumField", JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)));
         
@@ -114,11 +114,11 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateClassWithMethods() {
-        JClass cls = JClassFactory.createClass(VisibilityType.PROTECTED, new ClassType("z.x.c.v", "B"));
-        cls.buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED).addParameter(new JParameter<>(new ClassType(String.class), "strParam")).emptyImplementation()
+        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+                .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED).addParameter(new JParameter<>(new ClassType(String.class), "strParam")).emptyImplementation().finish()
+                .buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
+                    .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
                 .build();
-        cls.buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
-                .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
@@ -148,13 +148,13 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateComplexClass() {
-        JClass cls = JClassFactory.createClass(VisibilityType.PROTECTED, new ClassType("z.x.c.v", "B"));
-        cls.buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED).addParameter(new JParameter<>(new ClassType(String.class), "strParam")).emptyImplementation()
+        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+                .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED).addParameter(new JParameter<>(new ClassType(String.class), "strParam")).emptyImplementation().finish()
+                .addAnnotation(JAnnotationFactory.create(Deprecated.class, Map.of("since", JValueFactory.create("yesterday"), "forRemoval", JValueFactory.create(true))))
+                .buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
+                    .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
+                .addAnnotation(JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", JValueFactory.create("qwerty"), "valInt", JValueFactory.create(789))))
                 .build();
-        cls.addAnnotation(JAnnotationFactory.create(Deprecated.class, Map.of("since", JValueFactory.create("yesterday"), "forRemoval", JValueFactory.create(true))));
-        cls.buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
-                .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).build();
-        cls.addAnnotation(JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", JValueFactory.create("qwerty"), "valInt", JValueFactory.create(789))));
         cls.addField(new JField<>(VisibilityType.PUBLIC, PrimitiveType.BOOLEAN, "booleanField", JValueFactory.create(false)));
         cls.addField(new JField<>(VisibilityType.PRIVATE, new ClassType(VisibilityType.class), "enumField", JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)));
 

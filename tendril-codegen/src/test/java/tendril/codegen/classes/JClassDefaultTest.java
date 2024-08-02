@@ -22,12 +22,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.codegen.VisibilityType;
-import tendril.codegen.classes.method.ConcreteMethodBuilder;
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
-import tendril.test.assertions.ClassAssert;
 
 /**
  * Test case for {@link JClassDefault}
@@ -36,11 +32,7 @@ public class JClassDefaultTest extends AbstractUnitTest {
 
 	// Mocks to use for testing
 	@Mock
-	private VisibilityType mockVisibility;
-	@Mock
 	private ClassType mockClassType;
-	@Mock
-	private Type mockReturnType;
 
 	// Instance to test
 	private JClassDefault cls;
@@ -52,7 +44,7 @@ public class JClassDefaultTest extends AbstractUnitTest {
 	protected void prepareTest() {
 		when(mockClassType.getPackageName()).thenReturn("packageName");
 		when(mockClassType.getClassName()).thenReturn("ClassName");
-		cls = new JClassDefault(mockVisibility, mockClassType);
+		cls = new JClassDefault(mockClassType);
 		verify(mockClassType).getPackageName();
 		verify(mockClassType).getClassName();
 	}
@@ -64,13 +56,4 @@ public class JClassDefaultTest extends AbstractUnitTest {
 	public void testClassType() {
 		Assertions.assertEquals("class", cls.classType());
 	}
-
-	/**
-	 * Verify that the method builder is properly created
-	 */
-	@Test
-	public void testMethodBuilder() {
-		ClassAssert.assertInstance(ConcreteMethodBuilder.class, cls.createMethodBuilder(mockReturnType, "someName"));
-	}
-
 }

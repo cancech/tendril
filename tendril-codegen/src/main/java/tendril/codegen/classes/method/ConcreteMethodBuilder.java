@@ -15,7 +15,7 @@
  */
 package tendril.codegen.classes.method;
 
-import tendril.codegen.classes.JClass;
+import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.MethodBuilder;
 import tendril.codegen.field.type.Type;
 
@@ -29,31 +29,32 @@ public class ConcreteMethodBuilder<RETURN_TYPE extends Type> extends MethodBuild
     /**
      * CTOR
      * 
-     * @param encompassingClass {@link JClass} which contain the method
-     * @param returnType        RETURN_TYPE representing what the method returns
-     * @param name              {@link String} the name of the method
+     * @param classBuilder {@link ClassBuilder} building the class to which the method belongs
+     * @param name         {@link String} the name of the method
      */
-	public ConcreteMethodBuilder(JClass encompassingClass, RETURN_TYPE returnType, String name) {
-		super(encompassingClass, returnType, name);
-	}
+    public ConcreteMethodBuilder(ClassBuilder classBuilder, String name) {
+        super(classBuilder, name);
+    }
 
-	/**
-	 * Method must have an implementation.
-	 * 
-	 * @see tendril.codegen.classes.MethodBuilder#validateData()
-	 */
-	@Override
-	protected void validateData() throws IllegalArgumentException {
-		if (!hasCode())
-			throw new IllegalArgumentException("Concrete methods much have an implementation");
-	}
+    /**
+     * Method must have an implementation.
+     * 
+     * @see tendril.codegen.BaseBuilder#validate()
+     */
+    @Override
+    protected void validate() {
+        if (!hasCode())
+            throw new IllegalArgumentException("Concrete methods much have an implementation");
 
-	/**
-	 * @see tendril.codegen.classes.MethodBuilder#buildMethod(tendril.codegen.field.type.Type, java.lang.String)
-	 */
-	@Override
-	protected JMethod<RETURN_TYPE> buildMethod(RETURN_TYPE returnType, String name) {
-		return new JMethodDefault<RETURN_TYPE>(visibility, returnType, name, linesOfCode);
-	}
+        super.validate();
+    }
+
+    /**
+     * @see tendril.codegen.BaseBuilder#create()
+     */
+    @Override
+    protected JMethodDefault<RETURN_TYPE> create() {
+        return new JMethodDefault<RETURN_TYPE>(type, name, linesOfCode);
+    }
 
 }

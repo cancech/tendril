@@ -22,12 +22,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.codegen.VisibilityType;
-import tendril.codegen.classes.method.InterfaceMethodBuilder;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
-import tendril.test.assertions.ClassAssert;
 
 /**
  * Test case for {@link JClassInterface}
@@ -35,8 +32,6 @@ import tendril.test.assertions.ClassAssert;
 public class JClassInterfaceTest extends AbstractUnitTest {
 
 	// Mocks to use for testing
-	@Mock
-	private VisibilityType mockVisibility;
 	@Mock
 	private ClassType mockClassType;
 	@Mock
@@ -52,7 +47,7 @@ public class JClassInterfaceTest extends AbstractUnitTest {
 	protected void prepareTest() {
 		when(mockClassType.getPackageName()).thenReturn("packageName");
 		when(mockClassType.getClassName()).thenReturn("ClassName");
-		cls = new JClassInterface(mockVisibility, mockClassType);
+		cls = new JClassInterface(mockClassType);
 		verify(mockClassType).getPackageName();
 		verify(mockClassType).getClassName();
 	}
@@ -64,13 +59,4 @@ public class JClassInterfaceTest extends AbstractUnitTest {
 	public void testClassType() {
 		Assertions.assertEquals("interface", cls.classType());
 	}
-
-	/**
-	 * Verify that the method builder is properly created
-	 */
-	@Test
-	public void testMethodBuilder() {
-		ClassAssert.assertInstance(InterfaceMethodBuilder.class, cls.createMethodBuilder(mockReturnType, "someName"));
-	}
-
 }

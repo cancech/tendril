@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
+import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JClassAnnotation;
-import tendril.codegen.classes.JClassFactory;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.value.JValueFactory;
@@ -42,10 +42,11 @@ public class CreateAnnotationTest {
      */
     @Test
     public void cannotCreatePrivateOrProtected() {
-        ClassAssert.assertInstance(JClassAnnotation.class, JClassFactory.createAnnotation(VisibilityType.PUBLIC, new ClassType("a.b.c.d", "D")));
-        ClassAssert.assertInstance(JClassAnnotation.class, JClassFactory.createAnnotation(VisibilityType.PACKAGE_PRIVATE, new ClassType("a.b.c.d", "D")));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JClassFactory.createAnnotation(VisibilityType.PROTECTED, new ClassType("a.b.c.d", "D")));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JClassFactory.createAnnotation(VisibilityType.PRIVATE, new ClassType("a.b.c.d", "D")));
+        ClassBuilder builder = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D"));
+        ClassAssert.assertInstance(JClassAnnotation.class, builder.setVisibility(VisibilityType.PUBLIC).build());
+        ClassAssert.assertInstance(JClassAnnotation.class, builder.setVisibility(VisibilityType.PACKAGE_PRIVATE).build());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.setVisibility(VisibilityType.PROTECTED).build());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.setVisibility(VisibilityType.PRIVATE).build());
     }
     
     /**
@@ -53,13 +54,13 @@ public class CreateAnnotationTest {
      */
     @Test
     public void cannotAddInvalidMethods() {
-        JClass annotation = JClassFactory.createAnnotation(VisibilityType.PUBLIC, new ClassType("a.b.c", "D"));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod("voidNotAllowed").build());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod(PrimitiveType.BOOLEAN, "implementationNotAllowed").emptyImplementation());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod(PrimitiveType.BOOLEAN, "implementationNotAllowed").addCode(""));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod(PrimitiveType.BOOLEAN, "privateNotAllowed").setVisibility(VisibilityType.PRIVATE).build());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod(PrimitiveType.BOOLEAN, "protectedNotAllowed").setVisibility(VisibilityType.PROTECTED).build());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.buildMethod(PrimitiveType.BOOLEAN, "packagePrivateNotAllowed").setVisibility(VisibilityType.PACKAGE_PRIVATE).build());
+        ClassBuilder builder = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildMethod("voidNotAllowed").finish());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "implementationNotAllowed").emptyImplementation().finish());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "implementationNotAllowed").addCode("").finish());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "privateNotAllowed").setVisibility(VisibilityType.PRIVATE).finish());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "protectedNotAllowed").setVisibility(VisibilityType.PROTECTED).finish());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "packagePrivateNotAllowed").setVisibility(VisibilityType.PACKAGE_PRIVATE).finish());
     }
     
     /**
@@ -67,7 +68,7 @@ public class CreateAnnotationTest {
      */
     @Test
     public void createEmptyAnnotation() {
-        JClass annotation = JClassFactory.createAnnotation(VisibilityType.PUBLIC, new ClassType("a.b.c", "D"));
+        JClass annotation = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package a.b.c;");
@@ -86,7 +87,7 @@ public class CreateAnnotationTest {
      */
     @Test
     public void createAnnotatedAnnotation() {
-        JClass annotation = JClassFactory.createAnnotation(VisibilityType.PUBLIC, new ClassType("a.b.c", "D"));
+        JClass annotation = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC).build();
         annotation.addAnnotation(JAnnotationFactory.create(new ClassType("d.e.f", "G")));
         annotation.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
 
@@ -111,9 +112,10 @@ public class CreateAnnotationTest {
      */
     @Test
     public void createAnnotationWithMethods() {
-        JClass annotation = JClassFactory.createAnnotation(VisibilityType.PUBLIC, new ClassType("a.b.c", "D"));
-        annotation.buildMethod(String.class, "strMethod").setDefaultValue(JValueFactory.create("abc123")).build();
-        annotation.buildMethod(Integer.class, "intMethod").build();
+        JClass annotation = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC)
+                .buildMethod(String.class, "strMethod").setDefaultValue(JValueFactory.create("abc123")).finish()
+                .buildMethod(Integer.class, "intMethod").finish()
+                .build();
         
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package a.b.c;");
@@ -136,11 +138,12 @@ public class CreateAnnotationTest {
      */
     @Test
     public void createComplexAnnotation() {
-        JClass annotation = JClassFactory.createAnnotation(VisibilityType.PUBLIC, new ClassType("a.b.c", "D"));
-        annotation.addAnnotation(JAnnotationFactory.create(new ClassType("d.e.f", "G")));
-        annotation.buildMethod(String.class, "strMethod").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).build();
-        annotation.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
-        annotation.buildMethod(PrimitiveType.INT, "intMethod").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).setDefaultValue(JValueFactory.create(123456)).build();
+        JClass annotation = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC)
+                .buildMethod(String.class, "strMethod").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).finish()
+                .addAnnotation(JAnnotationFactory.create(new ClassType("d.e.f", "G")))
+                .buildMethod(PrimitiveType.INT, "intMethod").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).setDefaultValue(JValueFactory.create(123456)).finish()
+                .addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class))
+                .build();
         
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package a.b.c;");

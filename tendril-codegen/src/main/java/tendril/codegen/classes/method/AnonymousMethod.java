@@ -19,7 +19,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.NotImplementedException;
 
-import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 
@@ -38,7 +37,7 @@ public class AnonymousMethod<RETURN_TYPE extends Type> extends JMethod<RETURN_TY
      * @param name       {@link String} the name of the method
      */
     public AnonymousMethod(RETURN_TYPE returnType, String name) {
-        super(VisibilityType.PUBLIC, returnType, name, null);
+        super(returnType, name, null);
     }
 
     /**

@@ -15,6 +15,8 @@
  */
 package tendril.codegen.classes;
 
+import java.lang.reflect.Method;
+
 import org.junit.jupiter.api.Assertions;
 import org.mockito.Mock;
 
@@ -28,10 +30,12 @@ import tendril.test.assertions.ClassAssert;
  * Class which contains the shared elements of the specific method builders
  */
 public abstract class SharedMethodBuilderTest<T extends MethodBuilder<Type>> extends AbstractUnitTest {
+    /** The name of the method to be used for testing */
+    protected static final String METHOD_NAME = "myMethodName";
 
     // Mocks to use for testing
     @Mock
-    protected JClass mockClass;
+    protected ClassBuilder mockClassBuilder;
     @Mock
     protected Type mockReturnType;
     @Mock
@@ -39,6 +43,17 @@ public abstract class SharedMethodBuilderTest<T extends MethodBuilder<Type>> ext
 
     // Instance to test
     protected MethodBuilder<Type> builder;
+    
+    /**
+     * @see tendril.test.AbstractUnitTest#prepareTest()
+     */
+    @Override
+    protected void prepareTest() {
+        builder = createBuilder();
+        builder.setType(mockReturnType);
+    }
+    
+    protected abstract MethodBuilder<Type> createBuilder();
 
     /**
      * Apply the visibility and ensure that no exception is thrown
@@ -47,7 +62,7 @@ public abstract class SharedMethodBuilderTest<T extends MethodBuilder<Type>> ext
      */
     protected void verifyValidateDoesNotThrow(VisibilityType visibility) {
         builder.setVisibility(visibility);
-        Assertions.assertDoesNotThrow(() -> builder.validateData());
+        Assertions.assertDoesNotThrow(() -> builder.validate());
     }
 
     /**
@@ -57,7 +72,7 @@ public abstract class SharedMethodBuilderTest<T extends MethodBuilder<Type>> ext
      */
     protected void verifyValidateDoesThrow(VisibilityType visibility) {
         builder.setVisibility(visibility);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.validateData());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.validate());
     }
 
     /**
@@ -66,9 +81,18 @@ public abstract class SharedMethodBuilderTest<T extends MethodBuilder<Type>> ext
      * @param expectedClass {@link Class} extending {@link JMethod} that is expected to be built
      */
     protected void verifyBuildMethodType(@SuppressWarnings("rawtypes") Class<? extends JMethod> expectedClass) {
-        JMethod<Type> method = builder.buildMethod(mockReturnType, "myMethodName");
-        ClassAssert.assertInstance(expectedClass, method);
-        Assertions.assertEquals(mockReturnType, method.getType());
-        Assertions.assertEquals("myMethodName", method.getName());
+        try {
+            // Use reflection to trigger the method call
+            Method m = builder.getClass().getDeclaredMethod("create");
+            m.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            JMethod<Type> method = (JMethod<Type>) m.invoke(builder);
+            
+            ClassAssert.assertInstance(expectedClass, method);
+            Assertions.assertEquals(mockReturnType, method.getType());
+            Assertions.assertEquals(METHOD_NAME, method.getName());
+        } catch (Exception e) {
+            Assertions.fail(e);
+        }
     }
 }

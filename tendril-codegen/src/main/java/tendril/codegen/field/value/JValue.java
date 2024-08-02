@@ -63,6 +63,7 @@ public abstract class JValue<DATA_TYPE extends Type, VALUE_TYPE> implements Type
      * 
      * @return DATA_TYPE
      */
+    @Override
     public DATA_TYPE getType() {
         return type;
     }

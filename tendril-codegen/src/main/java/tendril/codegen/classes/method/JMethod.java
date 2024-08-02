@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
-import tendril.codegen.VisibilityType;
 import tendril.codegen.field.JParameter;
-import tendril.codegen.field.NamedType;
+import tendril.codegen.field.JType;
+import tendril.codegen.field.JVisibleType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.util.TendrilStringUtil;
@@ -32,34 +32,30 @@ import tendril.util.TendrilStringUtil;
  * 
  * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
-public abstract class JMethod<RETURN_TYPE extends Type> extends NamedType<Type> {
+public abstract class JMethod<RETURN_TYPE extends Type> extends JVisibleType<RETURN_TYPE> {
 
     /** List of parameters that the method takes */
     private final List<JParameter<?>> parameters = new ArrayList<>();
 
-    /** The visibility of the method */
-    protected final VisibilityType visibility;
     /** The lines of code that build up the implementation of the method */
     protected final List<String> implementation;
 
     /**
      * CTOR
      * 
-     * @param visibility     {@link VisibilityType} indicating the desired visibility of the method
      * @param returnType     RETURN_TYPE representing what the method returns
      * @param name           {@link String} the name of the method
      * @param implementation {@link List} of {@link String} lines of code with the implementation of the method
      */
-    protected JMethod(VisibilityType visibility, RETURN_TYPE returnType, String name, List<String> implementation) {
+    protected JMethod(RETURN_TYPE returnType, String name, List<String> implementation) {
         super(returnType, name);
-        this.visibility = visibility;
         this.implementation = implementation;
     }
 
     /**
      * Add a parameter to the method. Parameters are expected to be added in the order they appear in the method.
      * 
-     * @param parameter {@link NamedType} representing the method parameter
+     * @param parameter {@link JType} representing the method parameter
      */
     public void addParameter(JParameter<?> parameter) {
         parameters.add(parameter);
@@ -68,7 +64,7 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends NamedType<Type> 
     /**
      * Get all of the parameters of the method
      * 
-     * @return {@link List} of {@link NamedType}s representing the parameters
+     * @return {@link List} of {@link JType}s representing the parameters
      */
     public List<JParameter<?>> getParameters() {
         return parameters;

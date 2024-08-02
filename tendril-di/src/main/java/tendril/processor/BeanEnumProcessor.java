@@ -32,8 +32,8 @@ import com.google.auto.service.AutoService;
 import tendril.bean.EnumProvider;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
+import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
-import tendril.codegen.classes.JClassFactory;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.value.JValueFactory;
 
@@ -56,11 +56,12 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
     }
 
     private String generateCode(ClassType provider, ClassType sourceEnum) throws ClassNotFoundException {
-        JClass cls = JClassFactory.createAnnotation(VisibilityType.PUBLIC, provider);
-        cls.addAnnotation(JAnnotationFactory.create(Retention.class, JValueFactory.create(RetentionPolicy.RUNTIME)));
-        cls.addAnnotation(JAnnotationFactory.create(Target.class, JValueFactory.createArray(ElementType.METHOD, ElementType.TYPE)));
-        cls.addAnnotation(JAnnotationFactory.create(EnumProvider.class));
-        cls.buildMethod(sourceEnum, "value").setVisibility(VisibilityType.PUBLIC).build();
+        JClass cls = ClassBuilder.forAnnotation(provider).setVisibility(VisibilityType.PUBLIC)
+                .addAnnotation(JAnnotationFactory.create(Retention.class, JValueFactory.create(RetentionPolicy.RUNTIME)))
+                .addAnnotation(JAnnotationFactory.create(Target.class, JValueFactory.createArray(ElementType.METHOD, ElementType.TYPE)))
+                .addAnnotation(JAnnotationFactory.create(EnumProvider.class))
+                .buildMethod(sourceEnum, "value").setVisibility(VisibilityType.PUBLIC).finish()
+                .build();
         return cls.generateCode();
     }
 }

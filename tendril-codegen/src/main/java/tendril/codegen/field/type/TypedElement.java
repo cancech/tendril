@@ -27,5 +27,11 @@ package tendril.codegen.field.type;
  * @param <DATA_TYPE> The representation of the type of data which is stored within.
  */
 public interface TypedElement<DATA_TYPE extends Type> {
-
+    
+    /**
+     * Get the DATA_TYPE for the element
+     * 
+     * @return The {@link Type}
+     */
+    DATA_TYPE getType();
 }

@@ -46,64 +46,32 @@ public class MethodBuilderTest extends AbstractUnitTest {
      */
     private class TestMethodBuilder extends MethodBuilder<Type> {
         // Counters to verify times abstract methods have been called
-        private int timesValidateCalled = 0;
         private int timesBuildMethodCalled = 0;
-        // Track the last methodElement so that it can be verified
-        private Type returnType;
-        private String name;
 
         /**
          * CTOR
          */
         protected TestMethodBuilder() {
-            super(mockClass, mockReturnType, "MethodName");
+            super(mockClassBuilder, "MethodName");
+            setType(mockReturnType);
         }
 
         /**
-         * Track the number of times it has been called
+         * Track the number of times it have been called
          */
         @Override
-        protected void validateData() throws IllegalArgumentException {
-            timesValidateCalled++;
-        }
-
-        /**
-         * Track the number of times it have been called and the method element provided
-         */
-        @Override
-        protected JMethod<Type> buildMethod(Type returnType, String name) {
+        protected JMethod<Type> create() {
             timesBuildMethodCalled++;
-            this.returnType = returnType;
-            this.name = name;
             return mockMethod;
         }
 
         /**
          * Verify the number of times the abstract methods have been called.
          * 
-         * @param expectedTimesValidateCalled int expected number of times validateData() should have been called
-         * @param expetedTimesBuildCalled     int expected number of times buildMethod() should have been called
-         * @param expectedReturnType          {@link Type} that should have been provided to buildMethod()
-         * @param expectedName                {@link String} that should have been provided to buildMethod()
+         * @param expetedTimesBuildCalled int expected number of times buildMethod() should have been called
          */
-        public void verifyTimesCalled(int expectedTimesValidateCalled, int expetedTimesBuildCalled, Type expectedReturnType, String expectedName) {
-            Assertions.assertEquals(expectedTimesValidateCalled, timesValidateCalled);
+        public void verifyTimesCalled(int expetedTimesBuildCalled) {
             Assertions.assertEquals(expetedTimesBuildCalled, timesBuildMethodCalled);
-            if (expectedReturnType == null)
-                Assertions.assertNull(returnType);
-            else {
-                Assertions.assertEquals(returnType, expectedReturnType);
-                Assertions.assertEquals(name, expectedName);
-            }
-        }
-
-        /**
-         * Verify that the visibility parameter is correct
-         * 
-         * @param expected {@link VisibilityType} that should be applied to the method
-         */
-        public void verifyVisibility(VisibilityType expected) {
-            Assertions.assertEquals(expected, visibility);
         }
 
         /**
@@ -118,11 +86,9 @@ public class MethodBuilderTest extends AbstractUnitTest {
 
     // Mocks to use for testing
     @Mock
-    private JClass mockClass;
+    private ClassBuilder mockClassBuilder;
     @Mock
     private Type mockReturnType;
-    @Mock
-    private VisibilityType mockVisibilityType;
     @Mock
     private JMethod<Type> mockMethod;
     @Mock
@@ -143,27 +109,6 @@ public class MethodBuilderTest extends AbstractUnitTest {
     @Override
     protected void prepareTest() {
         builder = new TestMethodBuilder();
-
-        // Verify the default values
-        builder.verifyVisibility(VisibilityType.PUBLIC);
-    }
-
-    /**
-     * Verify that the visibility can be properly updated
-     */
-    @Test
-    public void changeVisibility() {
-        builder.verifyVisibility(VisibilityType.PUBLIC);
-        builder.setVisibility(mockVisibilityType);
-        builder.verifyVisibility(mockVisibilityType);
-
-        for (VisibilityType t : VisibilityType.values()) {
-            builder.setVisibility(t);
-            builder.verifyVisibility(t);
-        }
-
-        // Make sure that nothing in the build chain is called
-        builder.verifyTimesCalled(0, 0, null, null);
     }
 
     /**
@@ -203,7 +148,7 @@ public class MethodBuilderTest extends AbstractUnitTest {
         builder.verifyImplementation(Arrays.asList(toAdd));
 
         // Make sure that nothing in the build chain is called
-        builder.verifyTimesCalled(0, 0, null, null);
+        builder.verifyTimesCalled(0);
     }
 
     /**
@@ -219,7 +164,7 @@ public class MethodBuilderTest extends AbstractUnitTest {
         builder.verifyImplementation(Collections.emptyList());
 
         // Make sure that nothing in the build chain is called
-        builder.verifyTimesCalled(0, 0, null, null);
+        builder.verifyTimesCalled(0);
     }
 
     /**
@@ -230,8 +175,26 @@ public class MethodBuilderTest extends AbstractUnitTest {
         try (MockedStatic<Utilities> mockUtil = Mockito.mockStatic(Utilities.class)) {
             builder.build();
             mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("MethodName"));
-            verify(mockClass).addMethod(mockMethod);
-            builder.verifyTimesCalled(1, 1, mockReturnType, "MethodName");
+            verify(mockMethod).setFinal(false);
+            verify(mockMethod).setStatic(false);
+            verify(mockMethod).setVisibility(VisibilityType.PACKAGE_PRIVATE);
+            builder.verifyTimesCalled(1);
+        }
+    }
+
+    /**
+     * Verify that the process of building the method works as expected.
+     */
+    @Test
+    public void testFinishWithoutAnnotation() {
+        try (MockedStatic<Utilities> mockUtil = Mockito.mockStatic(Utilities.class)) {
+            builder.finish();
+            mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("MethodName"));
+            verify(mockMethod).setFinal(false);
+            verify(mockMethod).setStatic(false);
+            verify(mockMethod).setVisibility(VisibilityType.PACKAGE_PRIVATE);
+            verify(mockClassBuilder).addMethod(mockMethod);
+            builder.verifyTimesCalled(1);
         }
     }
 
@@ -249,11 +212,35 @@ public class MethodBuilderTest extends AbstractUnitTest {
             verify(mockMethod).addAnnotation(mockAnnotation1);
             verify(mockMethod).addAnnotation(mockAnnotation2);
             verify(mockMethod).addAnnotation(mockAnnotation3);
-            verify(mockClass).addMethod(mockMethod);
-            builder.verifyTimesCalled(1, 1, mockReturnType, "MethodName");
+            verify(mockMethod).setFinal(false);
+            verify(mockMethod).setStatic(false);
+            verify(mockMethod).setVisibility(VisibilityType.PACKAGE_PRIVATE);
+            builder.verifyTimesCalled(1);
         }
     }
-    
+
+    /**
+     * Verify that the process of building the method works as expected.
+     */
+    @Test
+    public void testFinishWithAnnotation() {
+        try (MockedStatic<Utilities> mockUtil = Mockito.mockStatic(Utilities.class)) {
+            builder.addAnnotation(mockAnnotation1);
+            builder.addAnnotation(mockAnnotation2);
+            builder.addAnnotation(mockAnnotation3);
+            builder.finish();
+            mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("MethodName"));
+            verify(mockMethod).addAnnotation(mockAnnotation1);
+            verify(mockMethod).addAnnotation(mockAnnotation2);
+            verify(mockMethod).addAnnotation(mockAnnotation3);
+            verify(mockClassBuilder).addMethod(mockMethod);
+            verify(mockMethod).setFinal(false);
+            verify(mockMethod).setStatic(false);
+            verify(mockMethod).setVisibility(VisibilityType.PACKAGE_PRIVATE);
+            builder.verifyTimesCalled(1);
+        }
+    }
+
     /**
      * Verify that default values are not supported by default
      */

@@ -105,6 +105,7 @@ public class JBaseTest extends AbstractUnitTest {
     protected void prepareTest() {
         element = new TestBaseElement("MyElementName");
         Assertions.assertEquals("MyElementName", element.getName());
+        Assertions.assertEquals("MyElementName".hashCode(), element.hashCode());
     }
 
     /**
@@ -123,6 +124,7 @@ public class JBaseTest extends AbstractUnitTest {
      */
     @Test
     public void testSingleAnnotation() {
+        element.setFinal(true);
         element.addAnnotation(mockAnnotation1);
         Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
         
@@ -155,7 +157,20 @@ public class JBaseTest extends AbstractUnitTest {
      */
     @Test
     public void testGenerateSelf() {
+        element.setFinal(true);
         Assertions.assertEquals("generateSelf", element.generateSelf(mockImports));
         element.verifyTimesCalled(0, 1);
+    }
+    
+    /**
+     * Verify that the final flag is properly applied
+     */
+    @Test
+    public void testFinal() {
+        Assertions.assertFalse(element.isFinal());
+        element.setFinal(true);
+        Assertions.assertTrue(element.isFinal());
+        element.setFinal(false);
+        Assertions.assertFalse(element.isFinal());
     }
 }

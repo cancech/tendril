@@ -27,14 +27,14 @@ import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
 
 /**
- * Test case for {@link NamedType}
+ * Test case for {@link JType}
  */
-public class NamedTypeTest extends AbstractUnitTest {
+public class JTypeTest extends AbstractUnitTest {
     
     /**
-     * Concrete implementation of {@link NamedType} to employ for testing
+     * Concrete implementation of {@link JType} to employ for testing
      */
-    private class TestNamedType extends NamedType<Type> {
+    private class TestNamedType extends JType<Type> {
 
         /**
          * CTOR

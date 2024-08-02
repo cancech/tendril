@@ -18,7 +18,7 @@ package tendril.codegen.classes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import tendril.codegen.field.NamedType;
+import tendril.codegen.field.JType;
 import tendril.test.helper.assertions.TendrilAssert;
 
 /**
@@ -31,7 +31,7 @@ public class ImportElementTest {
      */
     @Test
     public void testCtor() {
-        TendrilAssert.assertImportData(NamedType.class, new ImportElement(NamedType.class));
+        TendrilAssert.assertImportData(JType.class, new ImportElement(JType.class));
         TendrilAssert.assertImportData("a.b.c.d", "EfGh", new ImportElement("a.b.c.d.EfGh"));
         TendrilAssert.assertImportData("1.2.3.4", "Abcd", new ImportElement("1.2.3.4", "Abcd"));
     }
@@ -41,9 +41,9 @@ public class ImportElementTest {
      */
     @Test
     public void testFullyQualifiedName() {
-        ImportElement data = new ImportElement(NamedType.class);
-        Assertions.assertEquals(NamedType.class.getName(), data.getFullyQualifiedName());
-        Assertions.assertEquals(NamedType.class.getName(), data.toString());
+        ImportElement data = new ImportElement(JType.class);
+        Assertions.assertEquals(JType.class.getName(), data.getFullyQualifiedName());
+        Assertions.assertEquals(JType.class.getName(), data.toString());
         
         data = new ImportElement("a.b.c.d.EfGh");
         Assertions.assertEquals("a.b.c.d.EfGh", data.getFullyQualifiedName());
@@ -87,15 +87,15 @@ public class ImportElementTest {
         // These are expected to fail
         Assertions.assertFalse(lhs.equals("abc123"));
         Assertions.assertFalse(lhs.equals(new ImportElement("a.b.c.D")));
-        Assertions.assertFalse(lhs.equals(new ImportElement(NamedType.class)));
+        Assertions.assertFalse(lhs.equals(new ImportElement(JType.class)));
         Assertions.assertFalse(lhs.equals(new ImportElement("a.b.c.d.e")));
         
         // These are expected to pass
         Assertions.assertTrue(lhs.equals(new ImportElement("a.b.c.d.E")));
         Assertions.assertTrue(lhs.equals(new ImportElement("a.b.c.d", "E")));
-        lhs = new ImportElement(NamedType.class);
-        Assertions.assertTrue(lhs.equals(new ImportElement(NamedType.class)));
-        Assertions.assertTrue(lhs.equals(new ImportElement(NamedType.class.getName())));
-        Assertions.assertTrue(lhs.equals(new ImportElement(NamedType.class.getPackageName(), NamedType.class.getSimpleName())));
+        lhs = new ImportElement(JType.class);
+        Assertions.assertTrue(lhs.equals(new ImportElement(JType.class)));
+        Assertions.assertTrue(lhs.equals(new ImportElement(JType.class.getName())));
+        Assertions.assertTrue(lhs.equals(new ImportElement(JType.class.getPackageName(), JType.class.getSimpleName())));
     }
 }

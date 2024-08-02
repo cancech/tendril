@@ -26,7 +26,7 @@ import com.google.auto.service.AutoService;
 
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.classes.method.JMethod;
-import tendril.codegen.field.NamedType;
+import tendril.codegen.field.JType;
 import tendril.codegen.field.type.ClassType;
 
 @SupportedAnnotationTypes("tendril.bean.EnumProvider")
@@ -51,7 +51,7 @@ public class EnumProviderProcessor extends AbstractTendrilProccessor {
     @Override
     protected void processMethod(ClassType classData, JMethod<?> methodData) {
         String signature = classData.getFullyQualifiedName() + "::" + methodData.getName() + "[" + methodData.getType().getSimpleName() + "](";
-        for (NamedType<?> d: methodData.getParameters()) {
+        for (JType<?> d: methodData.getParameters()) {
             for (JAnnotation ad: d.getAnnotations()) {
                 signature += ad.getName() + "[";
                 for (JMethod<?> md: ad.getAttributes())

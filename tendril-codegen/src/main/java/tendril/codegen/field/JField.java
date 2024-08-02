@@ -28,7 +28,7 @@ import tendril.codegen.field.value.JValue;
  * 
  * @param <DATA_TYPE> indicating the type of data that is to be stored in the field
  */
-public class JField<DATA_TYPE extends Type> extends NamedType<DATA_TYPE> {
+public class JField<DATA_TYPE extends Type> extends JType<DATA_TYPE> {
     /** The visibility of the field */
     private final VisibilityType visibility;
     /** The value applied to the field */
@@ -60,7 +60,7 @@ public class JField<DATA_TYPE extends Type> extends NamedType<DATA_TYPE> {
     }
     
     /**
-     * @see tendril.codegen.field.NamedType#equals(java.lang.Object)
+     * @see tendril.codegen.field.JType#equals(java.lang.Object)
      */
     @Override
     public boolean equals(Object other) {

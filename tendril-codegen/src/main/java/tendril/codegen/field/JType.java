@@ -30,12 +30,10 @@ import tendril.codegen.field.type.TypedElement;
  * 
  * @param <DATA_TYPE> the {@link Type} indicating what kind of data structure is represented
  */
-public abstract class NamedType<DATA_TYPE extends Type> extends JBase implements TypedElement<DATA_TYPE> {
+public abstract class JType<DATA_TYPE extends Type> extends JBase implements TypedElement<DATA_TYPE> {
 
     /** The {@link Type} of the named element */
     protected final DATA_TYPE type;
-    /** The name of the element */
-    protected final String name;
 
     /**
      * CTOR
@@ -43,28 +41,17 @@ public abstract class NamedType<DATA_TYPE extends Type> extends JBase implements
      * @param type DATA_TYPE indicating what {@link Type} is the data structure
      * @param name {@link String} the name of the element
      */
-    public NamedType(DATA_TYPE type, String name) {
+    public JType(DATA_TYPE type, String name) {
         super(name);
         this.type = type;
-        this.name = name;
     }
 
     /**
-     * Get the DATA_TYPE for the element
-     * 
-     * @return The {@link Type}
+     * @see tendril.codegen.field.type.TypedElement#getType()
      */
+    @Override
     public DATA_TYPE getType() {
         return type;
-    }
-
-    /**
-     * Get the name of the element
-     * 
-     * @return {@link String} name
-     */
-    public String getName() {
-        return name;
     }
     
     /**
@@ -72,8 +59,7 @@ public abstract class NamedType<DATA_TYPE extends Type> extends JBase implements
      */
     @Override
     public int hashCode() {
-        super.hashCode();
-        return type.hashCode() + name.hashCode();
+        return type.hashCode() + super.hashCode();
     }
     
     /**
@@ -81,10 +67,10 @@ public abstract class NamedType<DATA_TYPE extends Type> extends JBase implements
      */
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof NamedType))
+        if (!(other instanceof JType))
             return false;
         
-        NamedType<?> otherElem = (NamedType<?>) other;
+        JType<?> otherElem = (JType<?>) other;
         return type.equals(otherElem.getType()) && name.equals(otherElem.getName());
     }
 }

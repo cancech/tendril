@@ -24,47 +24,39 @@ import java.util.Set;
 import javax.annotation.processing.Generated;
 
 import tendril.codegen.CodeBuilder;
-import tendril.codegen.JBase;
 import tendril.codegen.Utilities;
-import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
+import tendril.codegen.field.JVisibleType;
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.PrimitiveType;
-import tendril.codegen.field.type.Type;
-import tendril.codegen.field.type.VoidType;
 import tendril.codegen.field.value.JValueFactory;
 
 /**
  * Representation of a class, the core construct of any generated code
  */
-public abstract class JClass extends JBase {
+public abstract class JClass extends JVisibleType<ClassType> {
     /** The imports that this class requires, assembled/collected as part of code generation */
     private final Set<ClassType> imports = new HashSet<>();
     /** The fields that appear in this class */
     private final List<JField<?>> fields = new ArrayList<>();
     /** The methods that this class is composed of */
     private final List<JMethod<?>> methods = new ArrayList<>();
-    /** The visibility of this class */
-    private final VisibilityType visibility;
     /** The name of the package in which this class appears */
     private final String pkg;
 
     /**
      * CTOR
      * 
-     * @param visibility {@link VisibilityType} what the visibility of the class is
-     * @param data       {@link ClassType} the information about the class
+     * @param data {@link ClassType} the information about the class
      */
-    protected JClass(VisibilityType visibility, ClassType data) {
-        super(data.getClassName());
-        this.visibility = visibility;
+    protected JClass(ClassType data) {
+        super(data, data.getClassName());
         this.pkg = data.getPackageName();
 
         addAnnotation(JAnnotationFactory.create(Generated.class, Map.of("value", JValueFactory.create("tendril"), "date", JValueFactory.create(Utilities.iso8061TimeStamp()))));
     }
-    
+
     /**
      * Add a field to the class
      * 
@@ -75,64 +67,11 @@ public abstract class JClass extends JBase {
     }
 
     /**
-     * Create a method builder through which to add a new void method to the class.
-     * 
-     * @param name {@link String} the name of the method
-     * @return {@link MethodBuilder} for creating a the method
-     */
-    public MethodBuilder<VoidType> buildMethod(String name) {
-        return createMethodBuilder(VoidType.INSTANCE, name);
-    }
-
-    /**
-     * Create a method builder through which to add a new method which returns a primitive to the class.
-     * 
-     * @param returnType {@link PrimitiveType} representing which primitive to return
-     * @param name       {@link String} the name of the method
-     * @return {@link MethodBuilder} for creating a the method
-     */
-    public MethodBuilder<PrimitiveType> buildMethod(PrimitiveType returnType, String name) {
-        return createMethodBuilder(returnType, name);
-    }
-
-    /**
-     * Create a method builder through which to add a new method which returns a Class object.
-     * 
-     * @param returnType {@link Class} of the object that is to be returned
-     * @param name       {@link String} the name of the method
-     * @return {@link MethodBuilder} for creating a the method
-     */
-    public MethodBuilder<ClassType> buildMethod(Class<?> returnType, String name) {
-        return buildMethod(new ClassType(returnType), name);
-    }
-
-    /**
-     * Create a method builder through which to add a new method which returns a Class object.
-     * 
-     * @param returnType {@link ClassType} representing the class that is to be returned
-     * @param name       {@link String} the name of the method
-     * @return {@link MethodBuilder} for creating a the method
-     */
-    public MethodBuilder<ClassType> buildMethod(ClassType returnType, String name) {
-        return createMethodBuilder(returnType, name);
-    }
-
-    /**
-     * Creates the {@link MethodBuilder} instance that is to be used for the purpose of defining methods
-     * 
-     * @param <RETURN_TYPE> extends {@link Type} indicating what type is to be returned by the method
-     * @param returnType    RETURN_TYPE representing what the method is to return
-     * @param name          {@link String} the name of the method to build
-     * @return {@link MethodBuilder}
-     */
-    protected abstract <RETURN_TYPE extends Type> MethodBuilder<RETURN_TYPE> createMethodBuilder(RETURN_TYPE returnType, String name);
-
-    /**
      * Add a new method to the class. It is intended for this to be used by the {@link MethodBuilder}.
      * 
      * @param method {@link JMethod} to add to the class
      */
-    void addMethod(JMethod<?> method) {
+    public void addMethod(JMethod<?> method) {
         methods.add(method);
     }
 
@@ -193,9 +132,9 @@ public abstract class JClass extends JBase {
         builder.append(visStr + classType() + " " + name + " {");
         builder.blankLine();
         builder.indent();
-        
+
         // Process fields
-        for (JField<?> f: fields) {
+        for (JField<?> f : fields) {
             f.generate(builder, classImports);
             builder.blankLine();
         }

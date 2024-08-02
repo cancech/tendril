@@ -17,7 +17,6 @@ package tendril.codegen.classes.method;
 
 import java.util.HashSet;
 
-import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 
@@ -27,21 +26,22 @@ import tendril.codegen.field.value.JValue;
  * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
 public class JMethodAnnotation<RETURN_TYPE extends Type> extends JMethodInterface<RETURN_TYPE> {
-    
+
     /** The default value to apply to the annotation attribute */
     private final JValue<RETURN_TYPE, ?> defaultValue;
-    
+
     /**
      * CTOR
      * 
-     * @param returnType     RETURN_TYPE representing what the method returns
-     * @param name           {@link String} the name of the method
+     * @param returnType   RETURN_TYPE representing what the method returns
+     * @param name         {@link String} the name of the method
+     * @param defaultValue {@link JValue} for the attribute (null if no default value is to be applied)
      */
     public JMethodAnnotation(RETURN_TYPE returnType, String name, JValue<RETURN_TYPE, ?> defaultValue) {
-        super(VisibilityType.PUBLIC, returnType, name, null);
+        super(returnType, name, null);
         this.defaultValue = defaultValue;
     }
-    
+
     /**
      * @see tendril.codegen.classes.method.JMethod#generateSignatureEnd(boolean)
      */
@@ -49,7 +49,7 @@ public class JMethodAnnotation<RETURN_TYPE extends Type> extends JMethodInterfac
     protected String generateSignatureEnd(boolean hasImplementation) {
         if (defaultValue == null)
             return ";";
-        
+
         return " default " + defaultValue.generate(new HashSet<>()) + ";";
     }
 

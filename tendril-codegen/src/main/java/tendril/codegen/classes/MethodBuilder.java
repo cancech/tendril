@@ -19,10 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tendril.codegen.Utilities;
-import tendril.codegen.VisibilityType;
-import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JParameter;
+import tendril.codegen.field.VisibileTypeBuilder;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 
@@ -34,56 +33,24 @@ import tendril.codegen.field.value.JValue;
  * 
  * @param <RETURN_TYPE> extends {@link Type} indicating what the method is to return
  */
-public abstract class MethodBuilder<RETURN_TYPE extends Type> {
+public abstract class MethodBuilder<RETURN_TYPE extends Type> extends VisibileTypeBuilder<RETURN_TYPE, JMethod<RETURN_TYPE>, MethodBuilder<RETURN_TYPE>> {
     /** The class containing the method */
-    private final JClass encompassingClass;
+    private final ClassBuilder classBuilder;
 
-    /** Representation of what the method is to return */
-    protected final RETURN_TYPE returnType;
-    /** The name of the method */
-    protected final String name;
-    /** The visibility of the method */
-    protected VisibilityType visibility = VisibilityType.PUBLIC;
     /** List of individual lines of code that comprise the method implementation. If null, no implementation is present */
     protected List<String> linesOfCode = null;
-    /** List of annotations applied to the method */
-    private final List<JAnnotation> annotations = new ArrayList<>();
     /** List of parameters the method is to take */
-    private final List<JParameter<?>> parameters = new ArrayList<>();
+    protected final List<JParameter<?>> parameters = new ArrayList<>();
 
     /**
      * CTOR
      * 
-     * @param encompassingClass {@link JClass} which contain the method
-     * @param returnType        RETURN_TYPE representing what the method returns
-     * @param name              {@link String} the name of the method
+     * @param classBuilder {@link ClassBuilder} building the class to which the method belongs
+     * @param name         {@link String} the name of the method
      */
-    protected MethodBuilder(JClass encompassingClass, RETURN_TYPE returnType, String name) {
-        this.encompassingClass = encompassingClass;
-        this.returnType = returnType;
-        this.name = name;
-    }
-
-    /**
-     * Set the visibility of the method. By default the method is public.
-     * 
-     * @param visibility {@link VisibilityType} to employ
-     * @return {@link MethodBuilder}
-     */
-    public MethodBuilder<RETURN_TYPE> setVisibility(VisibilityType visibility) {
-        this.visibility = visibility;
-        return this;
-    }
-
-    /**
-     * Add an annotation to the method
-     * 
-     * @param annotation {@link JAnnotation} to apply
-     * @return {@link MethodBuilder}
-     */
-    public MethodBuilder<RETURN_TYPE> addAnnotation(JAnnotation annotation) {
-        annotations.add(annotation);
-        return this;
+    protected MethodBuilder(ClassBuilder classBuilder, String name) {
+        super(name);
+        this.classBuilder = classBuilder;
     }
 
     /**
@@ -132,21 +99,36 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
     public MethodBuilder<RETURN_TYPE> setDefaultValue(JValue<RETURN_TYPE, ?> value) {
         throw new IllegalArgumentException("Only annotations support default values for methods values");
     }
+    
+    /**
+     * Finish specifying the details of the method, build it, and apply it to the target class
+     * 
+     * @return {@link ClassBuilder} to which the method is applied
+     */
+    public ClassBuilder finish() {
+        classBuilder.addMethod(build());
+        return classBuilder;
+    }
+    
+    /**
+     * @see tendril.codegen.BaseBuilder#validate()
+     */
+    @Override
+    protected void validate() {
+        super.validate();
+        Utilities.throwIfNotValidIdentifier(name);
+    }
 
     /**
-     * Validate the provided values to ensure that they are sane for the enclosing class and build the method. The method is automatically added to the enclosing class.
-     * 
-     * @throws IllegalArgumentException if any issue is encountered with the provided method details
+     * @see tendril.codegen.BaseBuilder#applyDetails(tendril.codegen.JBase)
      */
-    public void build() throws IllegalArgumentException {
-        Utilities.throwIfNotValidIdentifier(name);
-        validateData();
-        JMethod<RETURN_TYPE> method = buildMethod(returnType, name);
-        for (JAnnotation anno : annotations)
-            method.addAnnotation(anno);
+    @Override
+    protected JMethod<RETURN_TYPE> applyDetails(JMethod<RETURN_TYPE> method) {
+        super.applyDetails(method);
         for (JParameter<?> param : parameters)
             method.addParameter(param);
-        encompassingClass.addMethod(method);
+
+        return method;
     }
 
     /**
@@ -157,20 +139,4 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> {
     protected boolean hasCode() {
         return linesOfCode != null;
     }
-
-    /**
-     * Validate the data, ensuring that it is applicable for the enclosing class.
-     * 
-     * @throws IllegalArgumentException for any issues encountered
-     */
-    protected abstract void validateData() throws IllegalArgumentException;
-
-    /**
-     * Build the method using the provided details.
-     * 
-     * @param returnType RETURN_TYPE representing what the method returns
-     * @param name       {@link String} the name of the method
-     * @return {@link JMethod} representation for the enclosing class
-     */
-    protected abstract JMethod<RETURN_TYPE> buildMethod(RETURN_TYPE returnType, String name);
 }

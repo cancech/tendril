@@ -54,7 +54,8 @@ public class JMethodTest extends SharedJMethodTest {
          * @param implementation {@link List} of {@link String} lines of text for the implementation
          */
         protected TestJMethod(List<String> implementation) {
-            super(mockVisibility, mockReturnType, "mockMethodName", implementation);
+            super(mockReturnType, "mockMethodName", implementation);
+            setVisibility(mockVisibility);
         }
 
         /**

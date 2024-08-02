@@ -30,13 +30,12 @@ public class JMethodDefault<RETURN_TYPE extends Type> extends JMethod<RETURN_TYP
     /**
      * CTOR
      * 
-     * @param visibility     {@link VisibilityType} indicating the desired visibility of the method
      * @param returnType     RETURN_TYPE representing what the method returns
      * @param name           {@link String} the name of the method
      * @param implementation {@link List} of {@link String} lines of code with the implementation of the method
      */
-    public JMethodDefault(VisibilityType visibility, RETURN_TYPE returnType, String name, List<String> implementation) {
-        super(visibility, returnType, name, implementation);
+    public JMethodDefault(RETURN_TYPE returnType, String name, List<String> implementation) {
+        super(returnType, name, implementation);
     }
 
     /**

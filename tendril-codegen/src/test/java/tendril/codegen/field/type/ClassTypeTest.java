@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.ImportElement;
-import tendril.codegen.field.NamedType;
+import tendril.codegen.field.JType;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.test.helper.assertions.TendrilAssert;
@@ -107,7 +107,7 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
      */
     @Test
     public void testCtor() {
-        TendrilAssert.assertImportData(NamedType.class, new ClassType(NamedType.class));
+        TendrilAssert.assertImportData(JType.class, new ClassType(JType.class));
         TendrilAssert.assertImportData("a.b.c.d", "EfGh", new ClassType("a.b.c.d.EfGh"));
         TendrilAssert.assertImportData("1.2.3.4", "Abcd", new ClassType("1.2.3.4", "Abcd"));
     }
@@ -135,16 +135,16 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
         }
         Assertions.assertFalse(lhs.isAssignableFrom(VoidType.INSTANCE));
         Assertions.assertFalse(lhs.isAssignableFrom(new ClassType("a.b.c.D")));
-        Assertions.assertFalse(lhs.isAssignableFrom(new ClassType(NamedType.class)));
+        Assertions.assertFalse(lhs.isAssignableFrom(new ClassType(JType.class)));
         Assertions.assertFalse(lhs.isAssignableFrom(new ClassType("a.b.c.d.e")));
 
         // These are expected to pass
         Assertions.assertTrue(lhs.isAssignableFrom(new ClassType("a.b.c.d.E")));
         Assertions.assertTrue(lhs.isAssignableFrom(new ClassType("a.b.c.d", "E")));
-        lhs = new ClassType(NamedType.class);
-        Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(NamedType.class)));
-        Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(NamedType.class.getName())));
-        Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(NamedType.class.getPackageName(), NamedType.class.getSimpleName())));
+        lhs = new ClassType(JType.class);
+        Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(JType.class)));
+        Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(JType.class.getName())));
+        Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(JType.class.getPackageName(), JType.class.getSimpleName())));
     }
 
     /**
