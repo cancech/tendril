@@ -30,8 +30,6 @@ import tendril.codegen.field.type.ClassType;
  * Representation of a class, the core construct of any generated code
  */
 public abstract class JClass extends JVisibleType<ClassType> {
-    /** The imports that this class requires, assembled/collected as part of code generation */
-    private final Set<ClassType> imports = new HashSet<>();
     /** The fields that appear in this class */
     private final List<JField<?>> fields = new ArrayList<>();
     /** The methods that this class is composed of */
@@ -74,6 +72,7 @@ public abstract class JClass extends JVisibleType<ClassType> {
      */
     public String generateCode() {
         // Generate the class body
+        Set<ClassType> imports = new HashSet<>();
         CodeBuilder body = new CodeBuilder();
         generate(body, imports);
 
@@ -81,7 +80,7 @@ public abstract class JClass extends JVisibleType<ClassType> {
         CodeBuilder preamble = new CodeBuilder();
         preamble.append("package " + pkg + ";");
         preamble.blankLine();
-        addImports(preamble);
+        addImports(preamble, imports);
         preamble.blankLine();
 
         // Combine it to build the whole class
@@ -93,7 +92,7 @@ public abstract class JClass extends JVisibleType<ClassType> {
      * 
      * @param builder {@link CodeBuilder} where to populate the import statements
      */
-    private void addImports(CodeBuilder builder) {
+    private void addImports(CodeBuilder builder, Set<ClassType> imports) {
         List<ClassType> sortedImports = new ArrayList<>(imports);
         sortedImports.sort((l, r) -> l.getFullyQualifiedName().compareTo(r.getFullyQualifiedName()));
         for (ClassType toImport : sortedImports) {
@@ -133,7 +132,7 @@ public abstract class JClass extends JVisibleType<ClassType> {
 
         // Process methods
         for (JMethod<?> m : methods) {
-            m.generate(builder, imports);
+            m.generate(builder, classImports);
             builder.blankLine();
         }
 
