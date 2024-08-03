@@ -31,11 +31,8 @@ import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import tendril.codegen.CodeBuilder;
-import tendril.codegen.Utilities;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
@@ -134,18 +131,13 @@ public class JClassTest extends AbstractUnitTest {
         mockMethodGeneration(mockPrimitiveMethod, "mockPrimitiveMethod", mockEmptyPackageClassType);
         mockMethodGeneration(mockClassMethod, "mockClassMethod", mockJavaLangPackageClassType);
 
-        try (MockedStatic<Utilities> mockUtil = Mockito.mockStatic(Utilities.class)) {
-            mockUtil.when(() -> Utilities.iso8061TimeStamp()).thenReturn("TIMESTAMP");
+        when(mockClassType.getPackageName()).thenReturn("packageName");
+        when(mockClassType.getClassName()).thenReturn("ClassName");
+        jclass = new TestJClass();
+        verify(mockClassType).getPackageName();
+        verify(mockClassType).getClassName();
 
-            when(mockClassType.getPackageName()).thenReturn("packageName");
-            when(mockClassType.getClassName()).thenReturn("ClassName");
-            jclass = new TestJClass();
-            verify(mockClassType).getPackageName();
-            verify(mockClassType).getClassName();
-            mockUtil.verify(() -> Utilities.iso8061TimeStamp());
-
-            Assertions.assertEquals("ClassName", jclass.getName());
-        }
+        Assertions.assertEquals("ClassName", jclass.getName());
     }
 
     /**
@@ -382,14 +374,12 @@ public class JClassTest extends AbstractUnitTest {
 
         // Include the imports
         List<String> imports = new ArrayList<>(expectedImports);
-        imports.add("javax.annotation.processing.Generated");
         imports.sort((l, r) -> l.compareTo(r));
         for (String s : imports)
             strMatcher.eq(("import " + s + ";"));
 
         // Add the annotations
         strMatcher.eq((""));
-        strMatcher.eq(("@Generated(date = \"TIMESTAMP\", value = \"tendril\")"));
         for (String s : annotations)
             strMatcher.eq((s));
 

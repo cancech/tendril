@@ -43,9 +43,11 @@ public abstract class TypeBuilder<DATA_TYPE extends Type, ELEMENT extends JType<
      * Set the specific data type of the element
      * 
      * @param type DATA_TYPE of the element
+     * @return BUILDER
      */
-    public void setType(DATA_TYPE type) {
+    public BUILDER setType(DATA_TYPE type) {
         this.type = type;
+        return get();
     }
 
     /**

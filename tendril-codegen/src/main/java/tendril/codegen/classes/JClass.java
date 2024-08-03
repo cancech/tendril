@@ -18,19 +18,13 @@ package tendril.codegen.classes;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.processing.Generated;
-
 import tendril.codegen.CodeBuilder;
-import tendril.codegen.Utilities;
-import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.JVisibleType;
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.value.JValueFactory;
 
 /**
  * Representation of a class, the core construct of any generated code
@@ -53,8 +47,6 @@ public abstract class JClass extends JVisibleType<ClassType> {
     protected JClass(ClassType data) {
         super(data, data.getClassName());
         this.pkg = data.getPackageName();
-
-        addAnnotation(JAnnotationFactory.create(Generated.class, Map.of("value", JValueFactory.create("tendril"), "date", JValueFactory.create(Utilities.iso8061TimeStamp()))));
     }
 
     /**

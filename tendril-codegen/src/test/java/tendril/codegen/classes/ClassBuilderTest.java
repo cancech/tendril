@@ -18,17 +18,22 @@ package tendril.codegen.classes;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import javax.annotation.processing.Generated;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import tendril.codegen.VisibilityType;
+import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.VoidType;
 import tendril.test.AbstractUnitTest;
+import tendril.test.assertions.CollectionAssert;
 
 /**
  * Test case for {@link ClassBuilder}
@@ -137,9 +142,7 @@ public class ClassBuilderTest extends AbstractUnitTest {
     @Test
     public void testApplyDetailsNoMethod() {
         builder.applyDetails(mockClass);
-        verify(mockClass).setVisibility(VisibilityType.PACKAGE_PRIVATE);
-        verify(mockClass).setFinal(false);
-        verify(mockClass).setStatic(false);
+        verifyCommonDetailsApplied();
     }
     
     /**
@@ -153,12 +156,21 @@ public class ClassBuilderTest extends AbstractUnitTest {
         
         builder.applyDetails(mockClass);
 
-        verify(mockClass).setVisibility(VisibilityType.PACKAGE_PRIVATE);
-        verify(mockClass).setFinal(false);
-        verify(mockClass).setStatic(false);
+        verifyCommonDetailsApplied();
         verify(mockClass).addMethod(mockMethod1);
         verify(mockClass).addMethod(mockMethod2);
         verify(mockClass).addMethod(mockMethod3);
+    }
+    
+    private void verifyCommonDetailsApplied() {
+        verify(mockClass).setVisibility(VisibilityType.PACKAGE_PRIVATE);
+        verify(mockClass).setFinal(false);
+        verify(mockClass).setStatic(false);
+        
+        ArgumentCaptor<JAnnotation> captor = ArgumentCaptor.forClass(JAnnotation.class);
+        verify(mockClass).addAnnotation(captor.capture());
+        CollectionAssert.assertSize(1, captor.getAllValues());
+        Assertions.assertEquals(new ClassType(Generated.class), captor.getValue().getType());
     }
 
 }

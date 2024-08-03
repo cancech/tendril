@@ -57,7 +57,23 @@ public class CollectionAssertTest {
      * Verify that the size is properly of collections is properly verified
      */
     @Test
-    public void testAssertSize() {
+    public void testAssertSizeByInt() {
+        // Pass
+        CollectionAssert.assertSize(0, Collections.emptySet());
+        CollectionAssert.assertSize(1, Collections.singletonList("abc123"));
+        CollectionAssert.assertSize(4, Arrays.asList(1, 2, 3, 4));
+        
+        // Fail
+        Assertions.assertThrows(AssertionFailedError.class, () -> CollectionAssert.assertSize(0, Collections.singletonList("abc123")));
+        Assertions.assertThrows(AssertionFailedError.class, () -> CollectionAssert.assertSize(4, Collections.singleton("abc123")));
+        Assertions.assertThrows(AssertionFailedError.class, () -> CollectionAssert.assertSize(5, Collections.emptySet()));
+    }
+    
+    /**
+     * Verify that the size is properly of collections is properly verified
+     */
+    @Test
+    public void testAssertSizeByCollection() {
         // Pass
         CollectionAssert.assertSize(Collections.emptyList(), Collections.emptySet());
         CollectionAssert.assertSize(Collections.singleton("str"), Collections.singletonList("abc123"));

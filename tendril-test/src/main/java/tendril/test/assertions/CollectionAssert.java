@@ -44,6 +44,18 @@ public abstract class CollectionAssert {
     }
 
     /**
+     * Verify that the collection has the expected number of elements
+     * 
+     * @param <T>          what the collection contains
+     * @param expectedSize int the expected number of elements
+     * @param actual       {@link Collection} that was actually produced
+     */
+    public static <T> void assertSize(int expectedSize, Collection<T> actual) {
+        int actualSize = actual.size();
+        Assertions.assertEquals(expectedSize, actualSize, "Different number of elements. Expected " + expectedSize + " but was " + actualSize);
+    }
+
+    /**
      * Verify that two collections have the same number of elements
      * 
      * @param <T>      what the collections contain
@@ -91,7 +103,7 @@ public abstract class CollectionAssert {
     public static <T> void assertEquivalent(Collection<T> actual, T... expected) {
         assertEquivalent(Arrays.asList(expected), actual);
     }
-    
+
     /**
      * Verify that two collections have the same element regardless of order
      * 

@@ -26,7 +26,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import tendril.codegen.VisibilityType;
-import tendril.codegen.classes.method.JMethodInterface;
+import tendril.codegen.classes.method.InterfaceMethodBuilder;
+import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypeFactory;
@@ -214,8 +215,7 @@ public abstract class JAnnotationFactory {
         for (String name : sortedNames) {
             JValue<?, ?> value = values.get(name);
             validateCorrectType(annotationClass, name, value);
-            JMethodInterface<?> method = new JMethodInterface<>(value.getType(), name, null);
-            method.setVisibility(VisibilityType.PUBLIC);
+            JMethod<?> method = new InterfaceMethodBuilder<>(null, name).setType(value.getType()).setVisibility(VisibilityType.PUBLIC).build();
             annotation.addAttribute(method, value);
         }
 

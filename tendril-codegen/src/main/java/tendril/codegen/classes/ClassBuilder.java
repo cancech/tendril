@@ -17,13 +17,19 @@ package tendril.codegen.classes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import javax.annotation.processing.Generated;
+
+import tendril.codegen.Utilities;
+import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.VisibileTypeBuilder;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.VoidType;
+import tendril.codegen.field.value.JValueFactory;
 
 /**
  * The common logic/capability to power builders which create class definitions of different types.
@@ -81,6 +87,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     ClassBuilder(ClassType type) {
         super(type.getSimpleName());
         setType(type);
+        addAnnotation(JAnnotationFactory.create(Generated.class, Map.of("value", JValueFactory.create("tendril"), "date", JValueFactory.create(Utilities.iso8061TimeStamp()))));
     }
 
     /**
