@@ -51,10 +51,40 @@ public class JMethodTest extends SharedJMethodTest {
         /**
          * CTOR
          * 
+         * @param name {@link String} the name of the method
+         */
+        protected TestJMethod(String name) {
+            this(mockReturnType, name);
+        }
+
+        /**
+         * CTOR
+         * 
+         * @param returnType {@link Type} the method is to return
+         * @param name       {@link String} the name of the method
+         */
+        protected TestJMethod(Type returnType, String name) {
+            this(returnType, name, null);
+        }
+
+        /**
+         * CTOR
+         * 
          * @param implementation {@link List} of {@link String} lines of text for the implementation
          */
         protected TestJMethod(List<String> implementation) {
-            super(mockReturnType, "mockMethodName", implementation);
+            this(mockReturnType, "mockMethodName", implementation);
+        }
+
+        /**
+         * CTOR
+         * 
+         * @param returnType     {@link Type} the method is to return
+         * @param name           {@link String} the name of the method
+         * @param implementation {@link List} of {@link String} lines of text for the implementation
+         */
+        protected TestJMethod(Type returnType, String name, List<String> implementation) {
+            super(returnType, name, implementation);
             setVisibility(mockVisibility);
         }
 
@@ -95,6 +125,8 @@ public class JMethodTest extends SharedJMethodTest {
     private Type mockParam3Type;
     @Mock
     private Set<ClassType> mockImports;
+    @Mock
+    private Type mockOtherReturnType;
 
     // Instance to use for testing
     private TestJMethod method;
@@ -290,7 +322,7 @@ public class JMethodTest extends SharedJMethodTest {
         verify(mockParam2).generateSelf(mockImports);
         verify(mockParam3).generateSelf(mockImports);
     }
-    
+
     /**
      * Verify that the signature end if properly generated
      */
@@ -298,6 +330,58 @@ public class JMethodTest extends SharedJMethodTest {
     public void testGenerateSignatureEnd() {
         Assertions.assertEquals(" {", method.generateSignatureEnd(true));
         Assertions.assertEquals(";", method.generateSignatureEnd(false));
+    }
+
+    /**
+     * Verify that equality works as expected
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void testEquals() {
+        method = new TestJMethod("method");
+
+        // Only basic information
+        Assertions.assertFalse(method.equals(null));
+        Assertions.assertFalse(method.equals("abc123"));
+        Assertions.assertFalse(method.equals(new TestJMethod(mockOtherReturnType, "method")));
+        Assertions.assertFalse(method.equals(new TestJMethod("otherMethod")));
+        Assertions.assertTrue(method.equals(new TestJMethod(mockReturnType, "method")));
+
+        // Implementation has no impact
+        Assertions.assertTrue(method.equals( new TestJMethod(mockReturnType, "method", null)));
+        Assertions.assertTrue(method.equals( new TestJMethod(mockReturnType, "method", Collections.emptyList())));
+        Assertions.assertTrue(method.equals( new TestJMethod(mockReturnType, "method", Arrays.asList("a", "b", "c", "d"))));
+        
+        // Single parameter
+        method.addParameter(mockParam1);
+        Assertions.assertFalse(method.equals(build("method", mockParam2)));
+        Assertions.assertFalse(method.equals(build("method", mockParam3)));
+        Assertions.assertFalse(method.equals(build("method", mockParam1, mockParam2)));
+        Assertions.assertFalse(method.equals(build("method", mockParam1, mockParam3)));
+        Assertions.assertFalse(method.equals(build("method", mockParam2, mockParam3)));
+        Assertions.assertFalse(method.equals(build("method", mockParam1, mockParam2, mockParam3)));
+        Assertions.assertTrue(method.equals(build("method", mockParam1)));
+        
+        // Multiple parameters
+        method.addParameter(mockParam2);
+        method.addParameter(mockParam3);
+        Assertions.assertFalse(method.equals(build("method", mockParam1)));
+        Assertions.assertFalse(method.equals(build("method", mockParam2)));
+        Assertions.assertFalse(method.equals(build("method", mockParam3)));
+        Assertions.assertFalse(method.equals(build("method", mockParam1, mockParam2)));
+        Assertions.assertFalse(method.equals(build("method", mockParam1, mockParam3)));
+        Assertions.assertFalse(method.equals(build("method", mockParam2, mockParam3)));
+        Assertions.assertFalse(method.equals(build("method", mockParam1, mockParam3, mockParam2)));
+        Assertions.assertFalse(method.equals(build("method", mockParam3, mockParam2, mockParam1)));
+        Assertions.assertTrue(method.equals(build("method", mockParam1, mockParam2, mockParam3)));
+    }
+    
+    private TestJMethod build(String name, JParameter<?>...paramToApply) {
+        TestJMethod method = new TestJMethod(name);
+        for (JParameter<?> param: paramToApply)
+            method.addParameter(param);
+        
+        return method;
     }
 
     /**
@@ -313,5 +397,5 @@ public class JMethodTest extends SharedJMethodTest {
 
         matcher.match(builder.get());
     }
-    
+
 }

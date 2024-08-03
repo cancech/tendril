@@ -75,4 +75,5 @@ public abstract class JVisibleType<DATA_TYPE extends Type> extends JType<DATA_TY
     public boolean isStatic() {
         return isStatic;
     }
+    
 }

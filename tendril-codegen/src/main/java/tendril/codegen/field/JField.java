@@ -28,9 +28,7 @@ import tendril.codegen.field.value.JValue;
  * 
  * @param <DATA_TYPE> indicating the type of data that is to be stored in the field
  */
-public class JField<DATA_TYPE extends Type> extends JType<DATA_TYPE> {
-    /** The visibility of the field */
-    private final VisibilityType visibility;
+public class JField<DATA_TYPE extends Type> extends JVisibleType<DATA_TYPE> {
     /** The value applied to the field */
     private JValue<DATA_TYPE, ?> value;
     
@@ -55,8 +53,9 @@ public class JField<DATA_TYPE extends Type> extends JType<DATA_TYPE> {
      */
     public JField(VisibilityType visibility, DATA_TYPE type, String name, JValue<DATA_TYPE, ?> value) {
         super(type, name);
-        this.visibility = visibility;
         this.value = value;
+        
+        setVisibility(visibility);
     }
     
     /**
@@ -67,11 +66,7 @@ public class JField<DATA_TYPE extends Type> extends JType<DATA_TYPE> {
         if (!(other instanceof JField))
             return false;
         
-        @SuppressWarnings("unchecked")
-        JField<DATA_TYPE> otherField = (JField<DATA_TYPE>) other;
-        if (visibility != otherField.visibility)
-            return false;
-        
+        JField<?> otherField = (JField<?>) other;
         if (value == null) {
             if (otherField.value != null)
                 return false;

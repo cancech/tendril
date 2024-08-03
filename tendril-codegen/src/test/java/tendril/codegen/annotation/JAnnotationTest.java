@@ -15,6 +15,7 @@
  */
 package tendril.codegen.annotation;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,6 +46,8 @@ public class JAnnotationTest extends AbstractUnitTest {
     // Mocks to use for testing
     @Mock
     private ClassType mockAnnotationClass;
+    @Mock
+    private ClassType mockOtherAnnotationClass;
     @Mock
     private CodeBuilder mockBuilder;
     @Mock
@@ -182,5 +185,108 @@ public class JAnnotationTest extends AbstractUnitTest {
         verify(mockImportSet).add(mockAnnotationClass);
         verify(mockStringValue).generate(mockImportSet);
         verify(mockIntValue).generate(mockImportSet);
+    }
+    
+    /**
+     * Verify that equality is properly determined
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void testEqualsNoAttributes() {
+        when(mockAnnotationClass.getClassName()).thenReturn(TestDefaultAttrAnnotation.class.getSimpleName());
+        when(mockOtherAnnotationClass.getClassName()).thenReturn(TestMarkerAnnotation.class.getSimpleName());
+        
+        JAnnotation annotation = new JAnnotation(mockAnnotationClass);
+        verify(mockAnnotationClass).getClassName();
+
+        JAnnotation differentAnnotation = new JAnnotation(mockOtherAnnotationClass);
+        verify(mockOtherAnnotationClass).getClassName();
+        JAnnotation sameAnnotation = new JAnnotation(mockAnnotationClass);
+        verify(mockAnnotationClass, times(2)).getClassName();
+        
+        // Verify equality
+        Assertions.assertFalse(annotation.equals(null));
+        Assertions.assertFalse(annotation.equals("abc123"));
+        Assertions.assertFalse(annotation.equals(differentAnnotation));
+        Assertions.assertTrue(annotation.equals(sameAnnotation));
+    }
+    
+    /**
+     * Verify that equality is properly determined
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void testEqualsSingleAttribute() {
+        when(mockAnnotationClass.getClassName()).thenReturn(TestDefaultAttrAnnotation.class.getSimpleName());
+        when(mockOtherAnnotationClass.getClassName()).thenReturn(TestMarkerAnnotation.class.getSimpleName());
+        
+        JAnnotation annotation = new JAnnotation(mockAnnotationClass);
+        verify(mockAnnotationClass).getClassName();
+
+        JAnnotation differentAnnotation = new JAnnotation(mockOtherAnnotationClass);
+        verify(mockOtherAnnotationClass).getClassName();
+        JAnnotation sameAnnotationDifferentAttribute = new JAnnotation(mockAnnotationClass);
+        verify(mockAnnotationClass, times(2)).getClassName();
+        JAnnotation sameAnnotationSameAttributeDifferentValue = new JAnnotation(mockAnnotationClass);
+        verify(mockAnnotationClass, times(3)).getClassName();
+        JAnnotation sameAnnotationSameAttributeSametValue = new JAnnotation(mockAnnotationClass);
+        verify(mockAnnotationClass, times(4)).getClassName();
+        
+        
+        // Add a single attribute
+        annotation.addAttribute(mockMethod1, mockIntValue);
+        differentAnnotation.addAttribute(mockMethod1, mockIntValue);
+        sameAnnotationDifferentAttribute.addAttribute(mockMethod2, mockStringValue);
+        sameAnnotationSameAttributeDifferentValue.addAttribute(mockMethod1, mockStringValue);
+        sameAnnotationSameAttributeSametValue.addAttribute(mockMethod1, mockIntValue);
+        
+        // Verify equality
+        Assertions.assertFalse(annotation.equals(null));
+        Assertions.assertFalse(annotation.equals("abc123"));
+        Assertions.assertFalse(annotation.equals(differentAnnotation));
+        Assertions.assertFalse(annotation.equals(sameAnnotationDifferentAttribute));
+        Assertions.assertFalse(annotation.equals(sameAnnotationSameAttributeDifferentValue));
+        Assertions.assertTrue(annotation.equals(sameAnnotationSameAttributeSametValue));
+    }
+    
+    /**
+     * Verify that equality is properly determined
+     */
+    @Test
+    public void testEqualsMultipleAttributes() {
+        when(mockAnnotationClass.getClassName()).thenReturn(TestDefaultAttrAnnotation.class.getSimpleName());
+        
+        JAnnotation annotation = new JAnnotation(mockAnnotationClass);
+        verify(mockAnnotationClass).getClassName();
+
+        JAnnotation sameAnnotationNoAttribute = new JAnnotation(mockAnnotationClass);
+        verify(mockAnnotationClass, times(2)).getClassName();
+        JAnnotation sameAnnotationDifferentFirstNoSecond = new JAnnotation(mockAnnotationClass);
+        verify(mockAnnotationClass, times(3)).getClassName();
+        JAnnotation sameAnnotationSameFirstNoSecond = new JAnnotation(mockAnnotationClass);
+        verify(mockAnnotationClass, times(4)).getClassName();
+        JAnnotation sameAnnotationSameFirstDifferentSecond = new JAnnotation(mockAnnotationClass);
+        verify(mockAnnotationClass, times(5)).getClassName();
+        JAnnotation sameAnnotationSameFirstSameSecond = new JAnnotation(mockAnnotationClass);
+        verify(mockAnnotationClass, times(6)).getClassName();
+        
+        
+        // Add a single attribute
+        annotation.addAttribute(mockMethod1, mockIntValue);
+        annotation.addAttribute(mockMethod2, mockStringValue);
+        sameAnnotationDifferentFirstNoSecond.addAttribute(mockMethod2, mockStringValue);
+        sameAnnotationSameFirstNoSecond.addAttribute(mockMethod1, mockIntValue);
+        sameAnnotationSameFirstDifferentSecond.addAttribute(mockMethod1, mockIntValue);
+        sameAnnotationSameFirstDifferentSecond.addAttribute(mockMethod2, mockIntValue);
+        sameAnnotationSameFirstSameSecond.addAttribute(mockMethod1, mockIntValue);
+        sameAnnotationSameFirstSameSecond.addAttribute(mockMethod2, mockStringValue);
+
+        
+        // Verify equality
+        Assertions.assertFalse(annotation.equals(sameAnnotationNoAttribute));
+        Assertions.assertFalse(annotation.equals(sameAnnotationDifferentFirstNoSecond));
+        Assertions.assertFalse(annotation.equals(sameAnnotationSameFirstNoSecond));
+        Assertions.assertFalse(annotation.equals(sameAnnotationSameFirstDifferentSecond));
+        Assertions.assertTrue(annotation.equals(sameAnnotationSameFirstSameSecond));
     }
 }

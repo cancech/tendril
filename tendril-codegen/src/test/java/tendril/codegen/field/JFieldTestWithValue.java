@@ -68,7 +68,6 @@ public class JFieldTestWithValue extends AbstractUnitTest {
     @Test
     public void testEquals() {
         // Fails
-        Assertions.assertFalse(field.equals(new JField<Type>(VisibilityType.PACKAGE_PRIVATE, mockType, "fieldName", mockValue)));
         Assertions.assertFalse(field.equals(new JField<PrimitiveType>(VisibilityType.PUBLIC, PrimitiveType.BOOLEAN, "fieldName", JValueFactory.create(false))));
         Assertions.assertFalse(field.equals(new JField<Type>(VisibilityType.PUBLIC, mockType, "otherFieldName", mockValue)));
         Assertions.assertFalse(field.equals(new JField<Type>(VisibilityType.PUBLIC, mockType, "fieldName", mockOtherValue)));
@@ -79,6 +78,7 @@ public class JFieldTestWithValue extends AbstractUnitTest {
         // Passes
         Assertions.assertTrue(field.equals(field));
         Assertions.assertTrue(field.equals(new JField<Type>(VisibilityType.PUBLIC, mockType, "fieldName", mockValue)));
+        Assertions.assertTrue(field.equals(new JField<Type>(VisibilityType.PACKAGE_PRIVATE, mockType, "fieldName", mockValue)));
     }
     
     /**

@@ -141,4 +141,16 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends JVisibleType<RET
             return " {";
         return ";";
     }
+    
+    /**
+     * @see tendril.codegen.field.JVisibleType#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof JMethod))
+            return false;
+        
+        JMethod<?> other = (JMethod<?>) obj;
+        return super.equals(obj) && parameters.equals(other.parameters);
+    }
 }

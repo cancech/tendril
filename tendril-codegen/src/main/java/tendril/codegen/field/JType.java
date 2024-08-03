@@ -70,7 +70,6 @@ public abstract class JType<DATA_TYPE extends Type> extends JBase implements Typ
         if (!(other instanceof JType))
             return false;
         
-        JType<?> otherElem = (JType<?>) other;
-        return type.equals(otherElem.getType()) && name.equals(otherElem.getName());
+        return super.equals(other) && type.equals(((JType<?>) other).type);
     }
 }

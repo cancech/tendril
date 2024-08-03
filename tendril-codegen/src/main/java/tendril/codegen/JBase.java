@@ -94,6 +94,17 @@ public abstract class JBase {
     public int hashCode() {
         return name.hashCode();
     }
+    
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof JBase))
+            return false;
+
+        return name.equals(((JBase) obj).name);
+    }
 
     /**
      * Generate the code for the element. Performs the common code generation, relying on {@code generateSelf()} to perform the specific code generation for this specific element.

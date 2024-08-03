@@ -153,4 +153,16 @@ public class JAnnotation extends JBase {
         code += TendrilStringUtil.join(attributes, p -> p.getName() + " = " + values.get(p).generate(classImports));
         return code + ")";
     }
+    
+    /**
+     * @see tendril.codegen.JBase#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof JAnnotation))
+            return false;
+        
+        JAnnotation other = (JAnnotation) obj;
+        return super.equals(obj) && annotationClass.equals(other.annotationClass) && values.equals(other.values);
+    }
 }

@@ -173,4 +173,19 @@ public class JBaseTest extends AbstractUnitTest {
         element.setFinal(false);
         Assertions.assertFalse(element.isFinal());
     }
+    
+    /**
+     * Verify that equality is properly determined
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void testEquals() {
+        Assertions.assertFalse(element.equals(null));
+        Assertions.assertFalse(element.equals("abc123"));
+        Assertions.assertFalse(element.equals(new TestBaseElement("")));
+        Assertions.assertFalse(element.equals(new TestBaseElement(null)));
+        Assertions.assertFalse(element.equals(new TestBaseElement("MyOtherElementName")));
+        Assertions.assertFalse(element.equals(new TestBaseElement("myelementname")));
+        Assertions.assertTrue(element.equals(new TestBaseElement("MyElementName")));
+    }
 }
