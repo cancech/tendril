@@ -30,7 +30,7 @@ public class AbstractMethodBuilder<RETURN_TYPE extends Type> extends MethodBuild
     /**
      * CTOR - for use when creating an arbitrary method
      * 
-     * @param name              {@link String} the name of the method
+     * @param name {@link String} the name of the method
      */
     public AbstractMethodBuilder(String name) {
         this(null, name);
@@ -40,24 +40,24 @@ public class AbstractMethodBuilder<RETURN_TYPE extends Type> extends MethodBuild
      * CTOR - for use when creating methods nested within a class being defined
      * 
      * @param classBuilder {@link ClassBuilder} building the class to which the method belongs
-     * @param name              {@link String} the name of the method
+     * @param name         {@link String} the name of the method
      */
     public AbstractMethodBuilder(ClassBuilder classBuilder, String name) {
         super(classBuilder, name);
     }
 
-	/**
+    /**
      * Method must either have an implementation or or not be private
-	 * 
-	 * @see tendril.codegen.BaseBuilder#validate()
-	 */
-	@Override
-	protected void validate() {
-		if (VisibilityType.PRIVATE == visibility && !hasCode())
-			throw new IllegalArgumentException("An abstract method cannot be private");
+     * 
+     * @see tendril.codegen.BaseBuilder#validate()
+     */
+    @Override
+    protected void validate() {
+        if (VisibilityType.PRIVATE == visibility && !hasCode())
+            throw new IllegalArgumentException("An abstract method cannot be private");
 
         super.validate();
-	}
+    }
 
     /**
      * @see tendril.codegen.BaseBuilder#create()

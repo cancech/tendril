@@ -18,7 +18,6 @@ package tendril.codegen.field;
 import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
-import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
@@ -30,34 +29,36 @@ import tendril.codegen.field.value.JValue;
  */
 public class JField<DATA_TYPE extends Type> extends JVisibleType<DATA_TYPE> {
     /** The value applied to the field */
-    private JValue<DATA_TYPE, ?> value;
-    
+    private JValue<DATA_TYPE, ?> value = null;
+
     /**
      * CTOR with no field applied
      * 
-     * @param visibility {@link VisibilityType} of the field
      * @param type DATA_TYPE indicating what type of data is stored in the field
      * @param name {@link String} of the field
      */
-    public JField(VisibilityType visibility, DATA_TYPE type, String name) {
-        this(visibility, type, name, null);
+    public JField(DATA_TYPE type, String name) {
+        super(type, name);
     }
 
     /**
-     * CTOR with a field applied. If {@code null} is passed as the field value, it will be treated as "not initialized"
+     * Apply the specified value to the field
      * 
-     * @param visibility {@link VisibilityType} of the field
-     * @param type DATA_TYPE indicating what type of data is stored in the field
-     * @param name {@link String} of the field
-     * @param value {@link JValue} representing the value to apply to the field.
+     * @param value {@link JValue}
      */
-    public JField(VisibilityType visibility, DATA_TYPE type, String name, JValue<DATA_TYPE, ?> value) {
-        super(type, name);
+    public void setValue(JValue<DATA_TYPE, ?> value) {
         this.value = value;
-        
-        setVisibility(visibility);
     }
-    
+
+    /**
+     * Get the value that is applied to the field
+     * 
+     * @return {@link JValue}
+     */
+    public JValue<DATA_TYPE, ?> getValue() {
+        return value;
+    }
+
     /**
      * @see tendril.codegen.field.JType#equals(java.lang.Object)
      */
@@ -65,17 +66,17 @@ public class JField<DATA_TYPE extends Type> extends JVisibleType<DATA_TYPE> {
     public boolean equals(Object other) {
         if (!(other instanceof JField))
             return false;
-        
+
         JField<?> otherField = (JField<?>) other;
         if (value == null) {
             if (otherField.value != null)
                 return false;
         } else if (!value.equals(otherField.value))
             return false;
-        
+
         return super.equals(other);
     }
-    
+
     /**
      * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
      */
@@ -90,15 +91,15 @@ public class JField<DATA_TYPE extends Type> extends JVisibleType<DATA_TYPE> {
     @Override
     public String generateSelf(Set<ClassType> classImports) {
         type.registerImport(classImports);
-        
+
         String code = visibility.toString();
         if (!code.isEmpty())
             code += " ";
         code += type.getSimpleName() + " " + name;
-        
+
         if (value == null)
             return code + ";";
-            
+
         return code + " = " + value.generate(classImports) + ";";
     }
 

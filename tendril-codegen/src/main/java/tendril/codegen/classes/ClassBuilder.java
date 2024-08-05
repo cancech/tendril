@@ -24,6 +24,7 @@ import javax.annotation.processing.Generated;
 import tendril.codegen.Utilities;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.method.JMethod;
+import tendril.codegen.field.JField;
 import tendril.codegen.field.VisibileTypeBuilder;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
@@ -38,7 +39,9 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
 
     /** The methods that are to be applied to the class */
     protected final List<JMethod<?>> methods = new ArrayList<>();
-    
+    /** The fields that are to be applied to the class */
+    protected final List<JField<?>> fields = new ArrayList<>();
+
     /**
      * Get the class builder for creating concrete classes
      * 
@@ -48,7 +51,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     public static ClassBuilder forConcreteClass(ClassType type) {
         return new ConcreteClassBuilder(type);
     }
-    
+
     /**
      * Get the class builder for creating abstract classes
      * 
@@ -58,7 +61,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     public static ClassBuilder forAbstractClass(ClassType type) {
         return new AbstractClassBuilder(type);
     }
-    
+
     /**
      * Get the class builder for creating interfaces
      * 
@@ -68,7 +71,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     public static ClassBuilder forInterface(ClassType type) {
         return new InterfaceBuilder(type);
     }
-    
+
     /**
      * Get the class builder for creating annotations
      * 
@@ -95,6 +98,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      */
     @Override
     protected JClass applyDetails(JClass element) {
+        fields.forEach(f -> element.addField(f));
         methods.forEach(m -> element.addMethod(m));
         return super.applyDetails(element);
     }
@@ -125,7 +129,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * 
      * @param returnType {@link Class} of the object that is to be returned
      * @param name       {@link String} the name of the method
-     * @return {@link MethodBuilder} for creating a the method
+     * @return {@link MethodBuilder} for creating the method
      */
     public MethodBuilder<ClassType> buildMethod(Class<?> returnType, String name) {
         return buildMethod(new ClassType(returnType), name);
@@ -136,19 +140,19 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * 
      * @param returnType {@link ClassType} representing the class that is to be returned
      * @param name       {@link String} the name of the method
-     * @return {@link MethodBuilder} for creating a the method
+     * @return {@link MethodBuilder} for creating the method
      */
     public MethodBuilder<ClassType> buildMethod(ClassType returnType, String name) {
         return createAndCustomizeMethodBuilder(returnType, name);
     }
 
     /**
-     * Helper which triggers the creation of the builder and immediately applies the specified return type to it.
+     * Helper which triggers the creation of the {@link MethodBuilder} and immediately applies the specified return type to it.
      * 
      * @param <RETURN_TYPE> extending {@link Type} indicating what the nature of the return of the method is
      * @param returnType    RETURN_TYPE what specifically the method is to return
      * @param name          {@link String} the name of the method
-     * @return
+     * @return {@link MethodBuilder} for creating the method
      */
     private <RETURN_TYPE extends Type> MethodBuilder<RETURN_TYPE> createAndCustomizeMethodBuilder(RETURN_TYPE returnType, String name) {
         MethodBuilder<RETURN_TYPE> builder = createMethodBuilder(name);
@@ -161,7 +165,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * 
      * @param <RETURN_TYPE> extends {@link Type} indicating what type is to be returned by the method
      * @param name          {@link String} the name of the method to build
-     * @return {@link MethodBuilder}
+     * @return {@link MethodBuilder} for creating the method
      */
     protected abstract <RETURN_TYPE extends Type> MethodBuilder<RETURN_TYPE> createMethodBuilder(String name);
 
@@ -172,5 +176,61 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      */
     void add(JMethod<?> method) {
         methods.add(method);
+    }
+
+    /**
+     * Create a field builder through which to add a new primitive field
+     * 
+     * @param type {@link PrimitiveType} representing the primtive type of the field
+     * @param name {@link String} the name of the field
+     * @return {@link FieldBuilder} for creating the field
+     */
+    public FieldBuilder<PrimitiveType> buildField(PrimitiveType type, String name) {
+        return createAndCustomizeFieldBuilder(type, name);
+    }
+
+    /**
+     * Create a field builder through which to add a new class field
+     * 
+     * @param type {@link Class} of the object that is to be contained in the field
+     * @param name {@link String} the name of the field
+     * @return {@link FieldBuilder} for creating the field
+     */
+    public FieldBuilder<ClassType> buildField(Class<?> type, String name) {
+        return buildField(new ClassType(type), name);
+    }
+
+    /**
+     * Create a field builder through which to add a new class field
+     * 
+     * @param type {@link Class} representing the class that is to be contained in the field
+     * @param name {@link String} the name of the field
+     * @return {@link FieldBuilder} for creating the field
+     */
+    public FieldBuilder<ClassType> buildField(ClassType type, String name) {
+        return createAndCustomizeFieldBuilder(type, name);
+    }
+
+    /**
+     * Helper which triggers the creation of the {@link FieldBuilder} and immediately applies the specified type to it.
+     * 
+     * @param <TYPE> extending {@link Type} indicating type of data is stored in the field
+     * @param type   TYPE what specifically the field contains
+     * @param name   {@link String} the name of the field
+     * @return {@link FieldBuilder} which will create the field
+     */
+    private <TYPE extends Type> FieldBuilder<TYPE> createAndCustomizeFieldBuilder(TYPE type, String name) {
+        FieldBuilder<TYPE> builder = new FieldBuilder<>(this, name);
+        builder.setType(type);
+        return builder;
+    }
+
+    /**
+     * To be called by the created {@link MethodBuilder} when it {@code finish}es creating the method.
+     * 
+     * @param method {@link JMethod} that is to be added to the class
+     */
+    void add(JField<?> method) {
+        fields.add(method);
     }
 }

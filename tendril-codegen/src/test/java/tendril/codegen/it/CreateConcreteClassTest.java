@@ -25,7 +25,6 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
-import tendril.codegen.field.JField;
 import tendril.codegen.field.JParameter;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
@@ -87,10 +86,10 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateClassWithFields() {
-        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).build();
-        cls.addField(new JField<>(VisibilityType.PUBLIC, PrimitiveType.BOOLEAN, "booleanField", JValueFactory.create(false)));
-        cls.addField(new JField<>(VisibilityType.PRIVATE, new ClassType(VisibilityType.class), "enumField", JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)));
-        
+        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+                .buildField(PrimitiveType.BOOLEAN, "booleanField").setVisibility(VisibilityType.PUBLIC).setValue(JValueFactory.create(false)).finish()
+                .buildField(VisibilityType.class, "enumField").setVisibility(VisibilityType.PRIVATE).setValue(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)).finish()
+                .build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
@@ -154,9 +153,9 @@ public class CreateConcreteClassTest {
                 .buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
                     .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
                 .addAnnotation(JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", JValueFactory.create("qwerty"), "valInt", JValueFactory.create(789))))
+                .buildField(PrimitiveType.BOOLEAN, "booleanField").setVisibility(VisibilityType.PUBLIC).setValue(JValueFactory.create(false)).finish()
+                .buildField(VisibilityType.class, "enumField").setVisibility(VisibilityType.PRIVATE).setValue(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)).finish()
                 .build();
-        cls.addField(new JField<>(VisibilityType.PUBLIC, PrimitiveType.BOOLEAN, "booleanField", JValueFactory.create(false)));
-        cls.addField(new JField<>(VisibilityType.PRIVATE, new ClassType(VisibilityType.class), "enumField", JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)));
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");

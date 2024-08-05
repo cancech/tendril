@@ -18,45 +18,24 @@ package tendril.codegen.field;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
-import tendril.codegen.CodeBuilder;
 import tendril.codegen.VisibilityType;
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
-import tendril.codegen.field.type.Type;
-import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
-import tendril.test.AbstractUnitTest;
 
 /**
  * Test case for {@link JField} when a value is not applied
  */
-public class JFieldTestWithoutValue extends AbstractUnitTest {
-
-    // Mocks to use for testing
-    @Mock
-    private Type mockType;
-    @Mock
-    private JValue<Type, ?> mockOtherValue;
-    @Mock
-    private CodeBuilder mockBuilder;
-    @Mock
-    private Set<ClassType> mockImports;
-    
-    // Instance with value to test
-    private JField<Type> field;
+public class JFieldTestWithoutValue extends CommonJFieldTest {
 
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {
-        field = new JField<Type>(VisibilityType.PACKAGE_PRIVATE, mockType, "fieldName");
+        field = create(VisibilityType.PACKAGE_PRIVATE, mockType, "fieldName");
     }
 
     /**
@@ -66,25 +45,25 @@ public class JFieldTestWithoutValue extends AbstractUnitTest {
     @Test
     public void testEquals() {
         // Fails
-        Assertions.assertFalse(field.equals(new JField<PrimitiveType>(VisibilityType.PACKAGE_PRIVATE, PrimitiveType.BOOLEAN, "fieldName", JValueFactory.create(false))));
-        Assertions.assertFalse(field.equals(new JField<Type>(VisibilityType.PACKAGE_PRIVATE, mockType, "otherFieldName")));
-        Assertions.assertFalse(field.equals(new JField<Type>(VisibilityType.PACKAGE_PRIVATE, mockType, "fieldName", mockOtherValue)));
+        Assertions.assertFalse(field.equals(create(VisibilityType.PACKAGE_PRIVATE, PrimitiveType.BOOLEAN, "fieldName", JValueFactory.create(false))));
+        Assertions.assertFalse(field.equals(create(VisibilityType.PACKAGE_PRIVATE, mockType, "otherFieldName")));
+        Assertions.assertFalse(field.equals(create(VisibilityType.PACKAGE_PRIVATE, mockType, "fieldName", mockOtherValue)));
         Assertions.assertFalse(field.equals("abc123"));
         Assertions.assertFalse(field.equals(null));
-        
+
         // Passes
         Assertions.assertTrue(field.equals(field));
-        Assertions.assertTrue(field.equals(new JField<Type>(VisibilityType.PACKAGE_PRIVATE, mockType, "fieldName")));
-        Assertions.assertTrue(field.equals(new JField<Type>(VisibilityType.PRIVATE, mockType, "fieldName")));
+        Assertions.assertTrue(field.equals(create(VisibilityType.PACKAGE_PRIVATE, mockType, "fieldName")));
+        Assertions.assertTrue(field.equals(create(VisibilityType.PRIVATE, mockType, "fieldName")));
     }
-    
+
     /**
      * Verify that the appropriate code is generated
      */
     @Test
     public void testGenerateSelf() {
         when(mockType.getSimpleName()).thenReturn("MockType");
-        
+
         field.appendSelf(mockBuilder, mockImports);
         verify(mockType).registerImport(mockImports);
         verify(mockBuilder).append("MockType fieldName;");
