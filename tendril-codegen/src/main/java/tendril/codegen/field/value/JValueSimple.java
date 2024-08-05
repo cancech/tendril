@@ -39,7 +39,7 @@ public class JValueSimple<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<DAT
      * @param dataType DATA_TYPE representing what type of value is stored
      * @param value    T the value to store
      */
-    public JValueSimple(DATA_TYPE dataType, VALUE_TYPE value) {
+    JValueSimple(DATA_TYPE dataType, VALUE_TYPE value) {
         this(dataType, value, "", "");
     }
 
@@ -51,7 +51,7 @@ public class JValueSimple<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<DAT
      * @param prefix   {@link String} prefix to add before the value when generating it as code
      * @param suffix   {@link String} suffix to add after the value when generating it as code
      */
-    public JValueSimple(DATA_TYPE dataType, VALUE_TYPE value, String prefix, String suffix) {
+    JValueSimple(DATA_TYPE dataType, VALUE_TYPE value, String prefix, String suffix) {
         super(dataType, value);
         this.prefix = prefix;
         this.suffix = suffix;

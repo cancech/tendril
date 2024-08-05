@@ -37,7 +37,7 @@ public class JValueArray<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<Arra
      * @param dataType DATA_TYPE representing what it contained within the array
      * @param values {@link List} of {@link JValue}s representing all of the elements to appear in the array
      */
-    protected JValueArray(DATA_TYPE dataType, List<JValue<DATA_TYPE, VALUE_TYPE>> values) {
+    JValueArray(DATA_TYPE dataType, List<JValue<DATA_TYPE, VALUE_TYPE>> values) {
         super(new ArrayType<>(dataType), values);
     }
 
