@@ -215,7 +215,7 @@ public abstract class JAnnotationFactory {
         for (String name : sortedNames) {
             JValue<?, ?> value = values.get(name);
             validateCorrectType(annotationClass, name, value);
-            JMethod<?> method = new InterfaceMethodBuilder<>(null, name).setType(value.getType()).setVisibility(VisibilityType.PUBLIC).build();
+            JMethod<?> method = new InterfaceMethodBuilder<>(name).setType(value.getType()).setVisibility(VisibilityType.PUBLIC).build();
             annotation.addAttribute(method, value);
         }
 

@@ -25,7 +25,7 @@ import tendril.codegen.field.value.JValue;
  * 
  * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
-public class JMethodAnnotation<RETURN_TYPE extends Type> extends JMethodInterface<RETURN_TYPE> {
+class JMethodAnnotation<RETURN_TYPE extends Type> extends JMethodInterface<RETURN_TYPE> {
 
     /** The default value to apply to the annotation attribute */
     private final JValue<RETURN_TYPE, ?> defaultValue;
@@ -37,7 +37,7 @@ public class JMethodAnnotation<RETURN_TYPE extends Type> extends JMethodInterfac
      * @param name         {@link String} the name of the method
      * @param defaultValue {@link JValue} for the attribute (null if no default value is to be applied)
      */
-    public JMethodAnnotation(RETURN_TYPE returnType, String name, JValue<RETURN_TYPE, ?> defaultValue) {
+    JMethodAnnotation(RETURN_TYPE returnType, String name, JValue<RETURN_TYPE, ?> defaultValue) {
         super(returnType, name, null);
         this.defaultValue = defaultValue;
     }

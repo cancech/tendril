@@ -150,9 +150,9 @@ public class ClassBuilderTest extends AbstractUnitTest {
      */
     @Test
     public void testApplyDetailsWithMethods() {
-        builder.addMethod(mockMethod1);
-        builder.addMethod(mockMethod2);
-        builder.addMethod(mockMethod3);
+        builder.add(mockMethod1);
+        builder.add(mockMethod2);
+        builder.add(mockMethod3);
         
         builder.applyDetails(mockClass);
 

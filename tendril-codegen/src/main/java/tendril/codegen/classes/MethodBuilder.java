@@ -21,7 +21,6 @@ import java.util.List;
 import tendril.codegen.Utilities;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JParameter;
-import tendril.codegen.field.VisibileTypeBuilder;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 
@@ -33,15 +32,12 @@ import tendril.codegen.field.value.JValue;
  * 
  * @param <RETURN_TYPE> extends {@link Type} indicating what the method is to return
  */
-public abstract class MethodBuilder<RETURN_TYPE extends Type> extends VisibileTypeBuilder<RETURN_TYPE, JMethod<RETURN_TYPE>, MethodBuilder<RETURN_TYPE>> {
-    /** The class containing the method */
-    private final ClassBuilder classBuilder;
-
+public abstract class MethodBuilder<RETURN_TYPE extends Type> extends NestedClassElementBuilder<RETURN_TYPE, JMethod<RETURN_TYPE>, MethodBuilder<RETURN_TYPE>> {
     /** List of individual lines of code that comprise the method implementation. If null, no implementation is present */
     protected List<String> linesOfCode = null;
     /** List of parameters the method is to take */
     protected final List<JParameter<?>> parameters = new ArrayList<>();
-
+    
     /**
      * CTOR
      * 
@@ -49,8 +45,7 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> extends VisibileTy
      * @param name         {@link String} the name of the method
      */
     protected MethodBuilder(ClassBuilder classBuilder, String name) {
-        super(name);
-        this.classBuilder = classBuilder;
+        super(classBuilder, name);
     }
 
     /**
@@ -101,16 +96,6 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> extends VisibileTy
     }
     
     /**
-     * Finish specifying the details of the method, build it, and apply it to the target class
-     * 
-     * @return {@link ClassBuilder} to which the method is applied
-     */
-    public ClassBuilder finish() {
-        classBuilder.addMethod(build());
-        return classBuilder;
-    }
-    
-    /**
      * @see tendril.codegen.BaseBuilder#validate()
      */
     @Override
@@ -129,6 +114,14 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> extends VisibileTy
             method.addParameter(param);
 
         return method;
+    }
+    
+    /**
+     * @see tendril.codegen.classes.NestedClassElementBuilder#addToClass(tendril.codegen.classes.ClassBuilder, tendril.codegen.field.JVisibleType)
+     */
+    @Override
+    protected void addToClass(ClassBuilder classBuilder, JMethod<RETURN_TYPE> toAdd) {
+        classBuilder.add(toAdd);
     }
 
     /**

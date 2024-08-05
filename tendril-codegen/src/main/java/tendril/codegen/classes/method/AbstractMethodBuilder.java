@@ -28,14 +28,23 @@ import tendril.codegen.field.type.Type;
 public class AbstractMethodBuilder<RETURN_TYPE extends Type> extends MethodBuilder<RETURN_TYPE> {
 
     /**
-     * CTOR
+     * CTOR - for use when creating an arbitrary method
+     * 
+     * @param name              {@link String} the name of the method
+     */
+    public AbstractMethodBuilder(String name) {
+        this(null, name);
+    }
+
+    /**
+     * CTOR - for use when creating methods nested within a class being defined
      * 
      * @param classBuilder {@link ClassBuilder} building the class to which the method belongs
      * @param name              {@link String} the name of the method
      */
-	public AbstractMethodBuilder(ClassBuilder classBuilder, String name) {
-		super(classBuilder, name);
-	}
+    public AbstractMethodBuilder(ClassBuilder classBuilder, String name) {
+        super(classBuilder, name);
+    }
 
 	/**
      * Method must either have an implementation or or not be private

@@ -170,7 +170,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * 
      * @param method {@link JMethod} that is to be added to the class
      */
-    void addMethod(JMethod<?> method) {
+    void add(JMethod<?> method) {
         methods.add(method);
     }
 }

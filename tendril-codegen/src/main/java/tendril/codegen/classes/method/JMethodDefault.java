@@ -25,7 +25,7 @@ import tendril.codegen.field.type.Type;
  * 
  * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
-public class JMethodDefault<RETURN_TYPE extends Type> extends JMethod<RETURN_TYPE> {
+class JMethodDefault<RETURN_TYPE extends Type> extends JMethod<RETURN_TYPE> {
 
     /**
      * CTOR
@@ -34,7 +34,7 @@ public class JMethodDefault<RETURN_TYPE extends Type> extends JMethod<RETURN_TYP
      * @param name           {@link String} the name of the method
      * @param implementation {@link List} of {@link String} lines of code with the implementation of the method
      */
-    public JMethodDefault(RETURN_TYPE returnType, String name, List<String> implementation) {
+    JMethodDefault(RETURN_TYPE returnType, String name, List<String> implementation) {
         super(returnType, name, implementation);
     }
 

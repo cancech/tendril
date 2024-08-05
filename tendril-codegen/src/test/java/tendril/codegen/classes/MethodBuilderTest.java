@@ -47,7 +47,7 @@ public class MethodBuilderTest extends AbstractUnitTest {
     private class TestMethodBuilder extends MethodBuilder<Type> {
         // Counters to verify times abstract methods have been called
         private int timesBuildMethodCalled = 0;
-
+        
         /**
          * CTOR
          */
@@ -171,21 +171,6 @@ public class MethodBuilderTest extends AbstractUnitTest {
      * Verify that the process of building the method works as expected.
      */
     @Test
-    public void testBuildWithoutAnnotation() {
-        try (MockedStatic<Utilities> mockUtil = Mockito.mockStatic(Utilities.class)) {
-            builder.build();
-            mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("MethodName"));
-            verify(mockMethod).setFinal(false);
-            verify(mockMethod).setStatic(false);
-            verify(mockMethod).setVisibility(VisibilityType.PACKAGE_PRIVATE);
-            builder.verifyTimesCalled(1);
-        }
-    }
-
-    /**
-     * Verify that the process of building the method works as expected.
-     */
-    @Test
     public void testFinishWithoutAnnotation() {
         try (MockedStatic<Utilities> mockUtil = Mockito.mockStatic(Utilities.class)) {
             builder.finish();
@@ -193,28 +178,7 @@ public class MethodBuilderTest extends AbstractUnitTest {
             verify(mockMethod).setFinal(false);
             verify(mockMethod).setStatic(false);
             verify(mockMethod).setVisibility(VisibilityType.PACKAGE_PRIVATE);
-            verify(mockClassBuilder).addMethod(mockMethod);
-            builder.verifyTimesCalled(1);
-        }
-    }
-
-    /**
-     * Verify that the process of building the method works as expected.
-     */
-    @Test
-    public void testBuildWithAnnotation() {
-        try (MockedStatic<Utilities> mockUtil = Mockito.mockStatic(Utilities.class)) {
-            builder.addAnnotation(mockAnnotation1);
-            builder.addAnnotation(mockAnnotation2);
-            builder.addAnnotation(mockAnnotation3);
-            builder.build();
-            mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("MethodName"));
-            verify(mockMethod).addAnnotation(mockAnnotation1);
-            verify(mockMethod).addAnnotation(mockAnnotation2);
-            verify(mockMethod).addAnnotation(mockAnnotation3);
-            verify(mockMethod).setFinal(false);
-            verify(mockMethod).setStatic(false);
-            verify(mockMethod).setVisibility(VisibilityType.PACKAGE_PRIVATE);
+            verify(mockClassBuilder).add(mockMethod);
             builder.verifyTimesCalled(1);
         }
     }
@@ -233,7 +197,7 @@ public class MethodBuilderTest extends AbstractUnitTest {
             verify(mockMethod).addAnnotation(mockAnnotation1);
             verify(mockMethod).addAnnotation(mockAnnotation2);
             verify(mockMethod).addAnnotation(mockAnnotation3);
-            verify(mockClassBuilder).addMethod(mockMethod);
+            verify(mockClassBuilder).add(mockMethod);
             verify(mockMethod).setFinal(false);
             verify(mockMethod).setStatic(false);
             verify(mockMethod).setVisibility(VisibilityType.PACKAGE_PRIVATE);

@@ -32,7 +32,16 @@ public class AnnotationMethodBuilder<RETURN_TYPE extends Type> extends Interface
     private JValue<RETURN_TYPE, ?> defaultValue = null;
 
     /**
-     * CTOR
+     * CTOR - for use when creating an arbitrary method
+     * 
+     * @param name         {@link String} the name of the method
+     */
+    public AnnotationMethodBuilder(String name) {
+        this(null, name);
+    }
+
+    /**
+     * CTOR - for use when creating methods nested within a class being defined
      * 
      * @param classBuilder {@link ClassBuilder} building the class to which the method belongs
      * @param name         {@link String} the name of the method
