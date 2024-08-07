@@ -35,9 +35,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import tendril.codegen.annotation.JAnnotation;
+import tendril.codegen.classes.ParameterBuilder;
 import tendril.codegen.classes.method.AnonymousMethod;
 import tendril.codegen.classes.method.JMethod;
-import tendril.codegen.field.JParameter;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValue;
@@ -93,7 +93,7 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
         JMethod<?> method = new AnonymousMethod<>(TypeFactory.create(element.getReturnType()), element.getSimpleName().toString());
         for (int i = 0; i < parameters.size(); i++) {
             VariableElement varElement = parameters.get(i);
-            JParameter<?> paramData = new JParameter<>(TypeFactory.create(parameterTypes.get(i)), varElement.getSimpleName().toString());
+            ParameterBuilder<?, ?> paramBuilder = new ParameterBuilder<>(TypeFactory.create(parameterTypes.get(i)), varElement.getSimpleName().toString());
             for (AnnotationMirror m : varElement.getAnnotationMirrors()) {
                 JAnnotation annonData = new JAnnotation(deriveClassData((TypeElement)m.getAnnotationType().asElement()));
                 for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : m.getElementValues().entrySet()) {
@@ -101,10 +101,10 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
                     JValue<?,?> value = details.getRight().getType().asValue(entry.getValue().getValue());
                     annonData.addAttribute(details.getRight(), value);
                 }
-                paramData.addAnnotation(annonData);
+                paramBuilder.addAnnotation(annonData);
             }
             
-            method.addParameter(paramData);
+            method.addParameter(paramBuilder.build());
         }
 
         return Pair.of(classData, method);

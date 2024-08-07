@@ -114,7 +114,7 @@ public class NestedClassElementBuilderTest extends AbstractUnitTest {
     }
 
     /**
-     * Verify that creating with a {@link ClassBuilder} adds the element to the builder
+     * Verify that creating without a {@link ClassBuilder} does not add the element to the builder
      */
     @Test
     public void testWithoutClassBuilder() {

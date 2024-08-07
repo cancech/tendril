@@ -25,7 +25,6 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
-import tendril.codegen.field.JParameter;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.value.JValueFactory;
@@ -88,15 +87,17 @@ public class CreateAbstractClassTest {
      */
     @Test
     public void testCreateAbstractClassOnlyAbstractMethods() {
-        JParameter<ClassType> stringParam = new JParameter<>(new ClassType(String.class), "param1");
-        stringParam.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
-        stringParam.addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123")));
-        JParameter<PrimitiveType> doubleParam = new JParameter<>(PrimitiveType.DOUBLE, "param2");
 
-        JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).buildMethod(PrimitiveType.FLOAT, "floatMethod")
-                .setVisibility(VisibilityType.PROTECTED).addParameter(new JParameter<>(PrimitiveType.SHORT, "shortParam")).finish().buildMethod(VisibilityType.class, "visibilityMethod")
-                .setVisibility(VisibilityType.PUBLIC).finish().buildMethod(String.class, "stringMethod").setVisibility(VisibilityType.PACKAGE_PRIVATE).addParameter(stringParam)
-                .addParameter(doubleParam).finish().build();
+        JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+                .buildMethod(PrimitiveType.FLOAT, "floatMethod").setVisibility(VisibilityType.PROTECTED)
+                    .buildParameter(PrimitiveType.SHORT, "shortParam").finish().finish()
+                .buildMethod(VisibilityType.class, "visibilityMethod").setVisibility(VisibilityType.PUBLIC).finish()
+                .buildMethod(String.class, "stringMethod").setVisibility(VisibilityType.PACKAGE_PRIVATE)
+                    .buildParameter(new ClassType(String.class), "param1")
+                        .addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class))
+                        .addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123"))).finish()
+                    .buildParameter(PrimitiveType.DOUBLE, "param2").finish()
+                    .finish().build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
@@ -125,7 +126,8 @@ public class CreateAbstractClassTest {
     @Test
     public void testCreateAbstractClassOnlyConcreteMethods() {
         JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
-                .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED).addParameter(new JParameter<>(new ClassType(String.class), "strParam"))
+                .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED)
+                    .buildParameter(new ClassType(String.class), "strParam").finish()
                     .emptyImplementation().finish()
                 .buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
                     .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish().build();
@@ -158,19 +160,22 @@ public class CreateAbstractClassTest {
      */
     @Test
     public void testCreateComplexAbstractClass() {
-        JParameter<ClassType> stringParam = new JParameter<>(new ClassType(String.class), "param1");
-        stringParam.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
-        stringParam.addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123")));
-        JParameter<PrimitiveType> doubleParam = new JParameter<>(PrimitiveType.DOUBLE, "param2");
         
         JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
-                .buildMethod(PrimitiveType.FLOAT, "floatMethod").setVisibility(VisibilityType.PROTECTED).addParameter(new JParameter<>(PrimitiveType.SHORT, "shortParam")).finish()
-                .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED).addParameter(new JParameter<>(new ClassType(String.class), "strParam")).emptyImplementation().finish()
+                .buildMethod(PrimitiveType.FLOAT, "floatMethod").setVisibility(VisibilityType.PROTECTED)
+                    .buildParameter(PrimitiveType.SHORT, "shortParam").finish().finish()
+                .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED)
+                    .buildParameter(new ClassType(String.class), "strParam").finish()
+                    .emptyImplementation().finish()
                 .addAnnotation(JAnnotationFactory.create(Deprecated.class, Map.of("since", JValueFactory.create("yesterday"), "forRemoval", JValueFactory.create(true))))
                 .buildMethod(VisibilityType.class, "visibilityMethod").setVisibility(VisibilityType.PUBLIC).finish()
                 .buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
                     .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
-                .buildMethod(String.class, "stringMethod").setVisibility(VisibilityType.PACKAGE_PRIVATE).addParameter(stringParam).addParameter(doubleParam).finish()
+                .buildMethod(String.class, "stringMethod").setVisibility(VisibilityType.PACKAGE_PRIVATE)
+                    .buildParameter(new ClassType(String.class), "param1")
+                        .addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class))
+                        .addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123"))).finish()
+                    .buildParameter(PrimitiveType.DOUBLE, "param2").finish().finish()
                 .addAnnotation(JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", JValueFactory.create("qwerty"), "valInt", JValueFactory.create(789))))
                 .build();
 

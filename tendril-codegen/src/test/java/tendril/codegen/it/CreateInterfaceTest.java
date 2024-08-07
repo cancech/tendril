@@ -27,7 +27,6 @@ import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JClassInterface;
-import tendril.codegen.field.JParameter;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.value.JValueFactory;
@@ -133,11 +132,11 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createInterfaceWithMethods() {
-        JParameter<ClassType> stringParam = new JParameter<ClassType>(new ClassType(String.class), "stringParam");
-        stringParam.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
-        
         JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE)
-                .buildMethod("voidMethod").setVisibility(VisibilityType.PUBLIC).addParameter(stringParam).finish()
+                .buildMethod("voidMethod").setVisibility(VisibilityType.PUBLIC)
+                    .buildParameter(new ClassType(String.class), "stringParam")
+                        .addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).finish()
+                    .finish()
                 .buildMethod(String.class, "annotatedMethod").addAnnotation(JAnnotationFactory.create(Deprecated.class)).addCode("abc123", "321cba").setVisibility(VisibilityType.PUBLIC).finish()
                 .build();
 
@@ -167,11 +166,10 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createInterfaceWithAnnotationsAndMethods() {
-        JParameter<ClassType> stringParam = new JParameter<ClassType>(new ClassType(String.class), "stringParam");
-        stringParam.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
-        
         JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE)
-                .buildMethod("voidMethod").setVisibility(VisibilityType.PUBLIC).addParameter(stringParam).finish()
+                .buildMethod("voidMethod").setVisibility(VisibilityType.PUBLIC)
+                    .buildParameter(new ClassType(String.class), "stringParam").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).finish()
+                    .finish()
                 .buildMethod(String.class, "annotatedMethod").setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Deprecated.class)).addCode("abc123", "321cba").finish()
                 .addAnnotation(JAnnotationFactory.create(new ClassType("this.that", "Something"), Map.of("val1", JValueFactory.create("string"), "val2", JValueFactory.create(123))))
                 .addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123")))

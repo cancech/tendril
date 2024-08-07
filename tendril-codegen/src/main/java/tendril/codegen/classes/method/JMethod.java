@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
-import tendril.codegen.field.JParameter;
+import tendril.codegen.classes.JParameter;
 import tendril.codegen.field.JType;
 import tendril.codegen.field.JVisibleType;
 import tendril.codegen.field.type.ClassType;

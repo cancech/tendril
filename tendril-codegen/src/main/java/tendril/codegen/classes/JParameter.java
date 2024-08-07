@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.codegen.field;
+package tendril.codegen.classes;
 
 import java.util.List;
 import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.annotation.JAnnotation;
+import tendril.codegen.field.JType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.util.TendrilStringUtil;
 
 /**
- * Representation of parameters (i.e.: type with a name)
+ * Representation of parameters (i.e.: type with a name). Use {@link ParameterBuilder} to create instances.
  * 
  * @param <DATA_TYPE> representing the {@link Type} of the parameter
  */
@@ -37,7 +38,7 @@ public class JParameter<DATA_TYPE extends Type> extends JType<DATA_TYPE> {
      * @param type DATA_TYPE indicating the type of value stored in the parameter
      * @param name {@link String} the name of the parameter
      */
-    public JParameter(DATA_TYPE type, String name) {
+    JParameter(DATA_TYPE type, String name) {
         super(type, name);
     }
     
@@ -73,8 +74,6 @@ public class JParameter<DATA_TYPE extends Type> extends JType<DATA_TYPE> {
         }
             
         return prefix + type.getSimpleName() + " " + name;
-        
-        
     }
 
 }

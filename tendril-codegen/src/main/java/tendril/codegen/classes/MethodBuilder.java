@@ -20,7 +20,6 @@ import java.util.List;
 
 import tendril.codegen.Utilities;
 import tendril.codegen.classes.method.JMethod;
-import tendril.codegen.field.JParameter;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 
@@ -28,6 +27,8 @@ import tendril.codegen.field.value.JValue;
  * Used to build methods, allowing for their wide permutation possibilities to be accounted for in a relatively straightforward manner. The method is by default public and with no implementation.
  * Error checking is performed to ensure that the method is properly defined such that it can be considered valid for the encompassing class.
  * 
+ * Note, if a valid {@link ClassBuilder} is provided, methods can only be created via {@code finish()} and are automatically added to the encompassing class.
+ * Note, if an invalid {@link ClassBuilder} is provided (null), methods can only be created via {@code build()}.
  * Note, no error checking or other validation is performed on the specified code/implementation of the method.
  * 
  * @param <RETURN_TYPE> extends {@link Type} indicating what the method is to return
@@ -47,6 +48,18 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> extends NestedClas
     protected MethodBuilder(ClassBuilder classBuilder, String name) {
         super(classBuilder, name);
     }
+    
+    /**
+     * Create a builder through which to add a new parameter to the method.
+     * 
+     * @param <DATA_TYPE> extends {@link Type} indicating what the nature of the parameter is
+     * @param type DATA_TYPE indicating what the exact type of the parameter it is
+     * @param name {@link String} of the parameter to create
+     * @return {@link ParameterBuilder} to use to create the parameter
+     */
+    public <DATA_TYPE extends Type> ParameterBuilder<DATA_TYPE, RETURN_TYPE> buildParameter(DATA_TYPE type, String name) {
+        return new ParameterBuilder<>(this, type, name);
+    }
 
     /**
      * Add a parameter to the method
@@ -54,7 +67,7 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> extends NestedClas
      * @param parameter {@link JParameter} to add
      * @return {@link MethodBuilder}
      */
-    public MethodBuilder<RETURN_TYPE> addParameter(JParameter<?> parameter) {
+    MethodBuilder<RETURN_TYPE> addParameter(JParameter<?> parameter) {
         parameters.add(parameter);
         return this;
     }

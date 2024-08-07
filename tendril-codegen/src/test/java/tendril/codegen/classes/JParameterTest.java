@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.codegen.field;
+package tendril.codegen.classes;
 
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
