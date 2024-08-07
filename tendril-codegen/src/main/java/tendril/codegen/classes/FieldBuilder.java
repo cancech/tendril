@@ -21,6 +21,8 @@ import tendril.codegen.field.value.JValue;
 
 /**
  * Builder which can be used for the purpose of creating Field nested within Classes
+ * 
+ * @param <DATA_TYPE> extends {@link Type} indicating the type of data stored within the field
  */
 public class FieldBuilder<DATA_TYPE extends Type> extends NestedClassElementBuilder<DATA_TYPE, JField<DATA_TYPE>, FieldBuilder<DATA_TYPE>> {
 
@@ -36,15 +38,21 @@ public class FieldBuilder<DATA_TYPE extends Type> extends NestedClassElementBuil
         this(null, name);
     }
 
-    public FieldBuilder(ClassBuilder classBuilder, String name) {
-        super(classBuilder, name);
-    }
-
     /**
      * CTOR - for use when creating field nested within a class being defined
      * 
      * @param classBuilder {@link ClassBuilder} building the class to which the field belongs
      * @param name         {@link String} the name of the field
+     */
+    public FieldBuilder(ClassBuilder classBuilder, String name) {
+        super(classBuilder, name);
+    }
+
+    /**
+     * Set the default value of the field
+     * 
+     * @param value {@link JValue} containing the default value
+     * @return {@link FieldBuilder}
      */
     public FieldBuilder<DATA_TYPE> setValue(JValue<DATA_TYPE, ?> value) {
         this.value = value;

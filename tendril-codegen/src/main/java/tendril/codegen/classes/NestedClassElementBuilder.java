@@ -20,8 +20,12 @@ import tendril.codegen.field.VisibileTypeBuilder;
 import tendril.codegen.field.type.Type;
 
 /**
- * Builder which adds the created element as a nested element to the provided {@link ClassBuilder}. If a {@link ClassBuilder} is provided, then {@code build()} is disabled as {@ finish()} must be used
- * instead. Vice versa if no {@link ClassBuilder} is provided, {@code finish()} is disabled and {@code build} must be used.
+ * Builder which adds the created element as a nested element to the provided {@link ClassBuilder}. If a {@link ClassBuilder} is provided, then {@code build()} is disabled as {@code finish()} must be
+ * used instead. Vice versa if no {@link ClassBuilder} is provided, {@code finish()} is disabled and {@code build} must be used.
+ * 
+ * @param <DATA_TYPE> extends {@link Type} indicating the type of data that is represented
+ * @param <ELEMENT>   extends {@link JVisibleType} indicating what specific element the builder creates
+ * @param <BUILDER>   extends {@link NestedClassElementBuilder} indicating what type of builder is employed
  */
 public abstract class NestedClassElementBuilder<DATA_TYPE extends Type, ELEMENT extends JVisibleType<DATA_TYPE>, BUILDER extends NestedClassElementBuilder<DATA_TYPE, ELEMENT, BUILDER>>
         extends VisibileTypeBuilder<DATA_TYPE, ELEMENT, BUILDER> {
