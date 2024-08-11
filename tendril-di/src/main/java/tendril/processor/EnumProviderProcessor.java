@@ -16,11 +16,9 @@
 package tendril.processor;
 
 import javax.annotation.processing.Processor;
-import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.TypeElement;
 
 import com.google.auto.service.AutoService;
 
@@ -32,20 +30,11 @@ import tendril.codegen.field.type.ClassType;
 @SupportedAnnotationTypes("tendril.bean.EnumProvider")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class EnumProviderProcessor extends AbstractTendrilProccessor {
+public class EnumProviderProcessor extends AbstractGeneratedAnnotationTendrilProcessor {
     
     @Override
-    protected void findAndProcessElements(TypeElement annotation, RoundEnvironment env) {
-        findAndProcessElements(annotation, env, customAnnon -> {
-            // Custom Annotation
-            System.out.println("customAnnon: " + customAnnon);
-            super.findAndProcessElements((TypeElement)customAnnon, FirstPassCollector.getInitialEnvironment(env), defaultConsumer());
-        });
-    }
-
-    @Override
     protected void processType(ClassType data) {
-        System.out.println("2ND PASS: " + data.getFullyQualifiedName());
+        System.out.println("EnumProviderProcessor Process Class: " + data.getFullyQualifiedName());
     }
     
     @Override
@@ -60,6 +49,6 @@ public class EnumProviderProcessor extends AbstractTendrilProccessor {
             }
             signature += d.getType().getSimpleName() + " " + d.getName() + ", ";
         }
-        System.out.println("2ndPass: " + signature + ")");
+        System.out.println("EnumProviderProcessor Process Method: " + signature + ")");
     }
 }
