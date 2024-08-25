@@ -15,6 +15,8 @@
  */
 package tendril.processor;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +32,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.JavaFileObject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -106,7 +109,50 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * @param type {@link TypeElement} of the Class
      */
     private void prepareAndProcessType(TypeElement type) {
-        processType(deriveClassData(type));
+        validateType(type);
+        writeCode(processType(deriveClassData(type)));
+    }
+
+    /**
+     * Validate that the {@link TypeElement} to which the annotation is applied is appropriate for the annotation. By default no check is performed (all {@link TypeElement}s can be used), override to
+     * perform whichever checks are appropriate. Throw an appropriate exception if validation fails.
+     * 
+     * @param type {@link TypeElement} on which the annotation was applied
+     */
+    protected void validateType(TypeElement type) {
+        // Do nothing by default
+    }
+    
+    /**
+     * Write out the generated class.
+     * 
+     * @param def {@link ClassDefinition} defining the generated class
+     */
+    protected void writeCode(ClassDefinition def) {
+        if (def == null)
+            return;
+
+        try {
+            JavaFileObject builderFile = processingEnv.getFiler().createSourceFile(def.getType().getFullyQualifiedName());
+            try (PrintWriter out = new PrintWriter(builderFile.openWriter())) {
+                out.print(def.getCode());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Check whether the specified {@link TypeElement} is assignable to the indicated {@link Class}. To be assignable, the type indicated in the {@link TypeElement} must extend/implement the
+     * class/interface that the provided Class defines.
+     * 
+     * @param type {@link TypeElement} to check
+     * @param assignableTo {@link Class} that it should extend or implement
+     * @return boolean true if the 
+     */
+    protected boolean isAssignable(TypeElement type, Class<?> assignableTo) {
+        TypeElement target = processingEnv.getElementUtils().getTypeElement(assignableTo.getCanonicalName());
+        return processingEnv.getTypeUtils().isAssignable(type.asType(), target.asType());
     }
 
     /**
@@ -116,7 +162,7 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      */
     private void prepareAndProcessMethod(ExecutableElement element) {
         Pair<ClassType, JMethod<?>> methodDetails = loadMethodDetails(element);
-        processMethod(methodDetails.getLeft(), methodDetails.getRight());
+        writeCode(processMethod(methodDetails.getLeft(), methodDetails.getRight()));
     }
 
     /**
@@ -169,17 +215,17 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * the subclass to provide the necessary concrete implementation.
      * 
      * @param data {@link ClassType} representing the annotated class
+     * @return {@link ClassDefinition} defining the generated type (null if nothing is to be generated)
      */
-    protected void processType(ClassType data) {
-    }
+    protected abstract ClassDefinition processType(ClassType data);
 
     /**
      * Perform the necessary processing of the indicated method, which was found to have been annotated with the required annotation. An empty implementation is provided by default, leaving it up to
      * the subclass to provide the necessary concrete implementation.
      * 
-     * @param classData {@link ClassType} representing class in which the method is located
+     * @param classData  {@link ClassType} representing class in which the method is located
      * @param methodData {@link JMethod} containing the details of the method
+     * @return {@link ClassDefinition} defining the generated type (null if nothing is to be generated)
      */
-    protected void processMethod(ClassType classData, JMethod<?> methodData) {
-    }
+    protected abstract ClassDefinition processMethod(ClassType classData, JMethod<?> methodData);
 }

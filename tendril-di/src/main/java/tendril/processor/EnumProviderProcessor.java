@@ -33,12 +33,13 @@ import tendril.codegen.field.type.ClassType;
 public class EnumProviderProcessor extends AbstractGeneratedAnnotationTendrilProcessor {
     
     @Override
-    protected void processType(ClassType data) {
+    protected ClassDefinition processType(ClassType data) {
         System.out.println("EnumProviderProcessor Process Class: " + data.getFullyQualifiedName());
+        return null;
     }
     
     @Override
-    protected void processMethod(ClassType classData, JMethod<?> methodData) {
+    protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
         String signature = classData.getFullyQualifiedName() + "::" + methodData.getName() + "[" + methodData.getType().getSimpleName() + "](";
         for (JType<?> d: methodData.getParameters()) {
             for (JAnnotation ad: d.getAnnotations()) {
@@ -50,5 +51,6 @@ public class EnumProviderProcessor extends AbstractGeneratedAnnotationTendrilPro
             signature += d.getType().getSimpleName() + " " + d.getName() + ", ";
         }
         System.out.println("EnumProviderProcessor Process Method: " + signature + ")");
+        return null;
     }
 }

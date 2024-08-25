@@ -15,7 +15,6 @@
  */
 package tendril.processor;
 
-import java.io.PrintWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,43 +24,87 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.tools.JavaFileObject;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.TypeElement;
 
 import com.google.auto.service.AutoService;
 
-import tendril.bean.EnumProvider;
+import tendril.bean.qualifier.BeanId;
+import tendril.bean.qualifier.BeanIdEnum;
+import tendril.bean.qualifier.EnumQualifier;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
+import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.value.JValueFactory;
 
-@SupportedAnnotationTypes("tendril.bean.BeanEnum")
+/**
+ * Processor for {@link Enum}s annotated with {@link BeanIdEnum}. This will generated the appropriate Id {@link EnumQualifier} annotation for the enumeration, which can then be employed in the client
+ * code for the purpose of qualifying beans with an enumeration ID.
+ */
+@SupportedAnnotationTypes("tendril.bean.qualifier.BeanIdEnum")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
 public class BeanEnumProcessor extends AbstractTendrilProccessor {
 
+    /**
+     * The annotated {@link TypeElement} must be an {@link Enum} and it must implement the {@link BeanId} interface
+     * 
+     * @see tendril.processor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
+     */
     @Override
-    public void processType(ClassType data) {
-        ClassType providerClass = data.generateFromClassSuffix("Provider");
-        try {
-            JavaFileObject builderFile = processingEnv.getFiler().createSourceFile(providerClass.getFullyQualifiedName());
-            try (PrintWriter out = new PrintWriter(builderFile.openWriter())) {
-                out.print(generateCode(providerClass, data));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    protected void validateType(TypeElement type) {
+        if (type.getKind() != ElementKind.ENUM)
+            throwValidationException(type, "Must be an enum");
+        if (!isAssignable(type, BeanId.class))
+            throwValidationException(type, "Must implement the " + BeanId.class.getName() + " interface");
     }
 
-    private String generateCode(ClassType provider, ClassType sourceEnum) throws ClassNotFoundException {
-        JClass cls = ClassBuilder.forAnnotation(provider).setVisibility(VisibilityType.PUBLIC)
+    /**
+     * Generates an exception based on the {@link TypeElement} being validated and the concrete reason.
+     * 
+     * @param type {@link TypeElement} whose processing is generating the exception
+     * @param reason {@link String} the reason why the exception is being produced
+     */
+    private void throwValidationException(TypeElement type, String reason) {
+        throw new IllegalArgumentException("Unable to use " + type.getQualifiedName() + " - " + reason);
+    }
+
+    /**
+     * Process the annotated class, generating the appropriate {@link EnumQualifier} for the {@link Enum}
+     * 
+     * @see tendril.processor.AbstractTendrilProccessor#processType(tendril.codegen.field.type.ClassType)
+     */
+    @Override
+    public ClassDefinition processType(ClassType data) {
+        ClassType providerClass = data.generateFromClassSuffix("Id");
+        return new ClassDefinition(providerClass, generateCode(providerClass, data));
+    }
+
+    /**
+     * Generate the code for the {@link EnumQualifier} which treats the annotated {@link Enum} as an ID
+     * 
+     * @param qualifier {@link ClassType} representing the qualifier annotation that is to be created
+     * @param sourceEnum {@link ClassType} representing the {@link Enum} that is to be used as the ID
+     * @return {@link String} containing the generated code
+     * @throws ClassNotFoundException if the sourceEnum representing as unknown type
+     */
+    private String generateCode(ClassType qualifier, ClassType sourceEnum) {
+        JClass cls = ClassBuilder.forAnnotation(qualifier).setVisibility(VisibilityType.PUBLIC)
                 .addAnnotation(JAnnotationFactory.create(Retention.class, JValueFactory.create(RetentionPolicy.RUNTIME)))
-                .addAnnotation(JAnnotationFactory.create(Target.class, JValueFactory.createArray(ElementType.METHOD, ElementType.TYPE)))
-                .addAnnotation(JAnnotationFactory.create(EnumProvider.class))
-                .buildMethod(sourceEnum, "value").setVisibility(VisibilityType.PUBLIC).finish()
-                .build();
+                .addAnnotation(JAnnotationFactory.create(Target.class, JValueFactory.createArray(ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER)))
+                .addAnnotation(JAnnotationFactory.create(EnumQualifier.class))
+                .buildMethod(sourceEnum, "value").setVisibility(VisibilityType.PUBLIC).finish().build();
         return cls.generateCode();
+    }
+
+    /**
+     * @see tendril.processor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
+     */
+    @Override
+    protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
+        throw new IllegalArgumentException(BeanId.class.getName() + " cannot be applied to any method [" + methodData.getName() + "]");
     }
 }

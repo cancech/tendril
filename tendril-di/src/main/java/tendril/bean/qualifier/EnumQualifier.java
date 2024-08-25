@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.bean;
+package tendril.bean.qualifier;
 
-public interface Bean {
-	default String getName() {
-		return getClass().getName() + "-" + toString();
-	}
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE })
+public @interface EnumQualifier {
+
 }

@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.bean;
+package tendril.bean.qualifier;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks an {@link Enum} as a source for Bean IDs. The annotation processing will generate the appropriate ID annotation for the annotated {@link Enum} which can then be employed to qualify bean an
+ * mark them as having entries from the annotated {@link Enum} as an ID.
+ * <p>Ex: {@code MyEnum} when annotated will produce a {@code MyEnumId} annotation which will take a {@code MyEnum} entry as a value, and can be used to apply {@code MyEnum} as an ID to beans</p> 
+ */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.PARAMETER})
-public @interface TempEnum {
-    String val1();
-    int val2();
+@Target(ElementType.TYPE)
+public @interface BeanIdEnum {
+
 }
