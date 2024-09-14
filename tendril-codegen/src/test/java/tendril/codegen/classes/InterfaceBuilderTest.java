@@ -15,8 +15,13 @@
  */
 package tendril.codegen.classes;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,7 +40,13 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
     
     // Mocks to use for testing
     @Mock
-    private ClassType mockClassType;
+    private ClassType mockClassType1;
+    @Mock
+    private ClassType mockClassType2;
+    @Mock
+    private ClassType mockClassType3;
+    @Mock
+    private JClass mockClass;
     
     // Instance to test
     private InterfaceBuilder builder;
@@ -45,9 +56,9 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
-        when(mockClassType.getSimpleName()).thenReturn("MockClass");
-        builder = new InterfaceBuilder(mockClassType);
-        verify(mockClassType).getSimpleName();
+        when(mockClassType1.getSimpleName()).thenReturn("MockClass");
+        builder = new InterfaceBuilder(mockClassType1);
+        verify(mockClassType1).getSimpleName();
     }
     
     /**
@@ -77,11 +88,36 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
      */
     @Test
     public void testCreate() {
-        when(mockClassType.getPackageName()).thenReturn("package");
-        when(mockClassType.getClassName()).thenReturn("ClassName");
+        when(mockClassType1.getPackageName()).thenReturn("package");
+        when(mockClassType1.getClassName()).thenReturn("ClassName");
         ClassAssert.assertInstance(JClassInterface.class, builder.create());
-        verify(mockClassType).getClassName();
-        verify(mockClassType).getPackageName();
+        verify(mockClassType1).getClassName();
+        verify(mockClassType1).getPackageName();
     }
 
+    /**
+     * Verify that the interface cannot implement
+     */
+    @Test
+    public void testInterfaceCannotImplement() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.implementsInterface(mockClassType1));
+    }
+    
+    /**
+     * Verify that extending allows for any number of interfaces to be extended
+     */
+    @Test
+    public void testInterfaceExtend() {
+        builder.extendsClass(mockClassType1);
+        builder.extendsClass(mockClassType2);
+        builder.extendsClass(mockClassType3);
+        builder.applyDetails(mockClass);
+        
+        verify(mockClass).setParentClass(null);
+        verify(mockClass).setParentInterfaces(Arrays.asList(mockClassType1, mockClassType2, mockClassType3));
+        verify(mockClass).setVisibility(any());
+        verify(mockClass).setStatic(anyBoolean());
+        verify(mockClass).setFinal(anyBoolean());
+        verify(mockClass, times(1)).addAnnotation(any());
+    }
 }

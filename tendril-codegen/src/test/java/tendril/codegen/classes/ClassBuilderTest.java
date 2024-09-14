@@ -18,6 +18,8 @@ package tendril.codegen.classes;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+
 import javax.annotation.processing.Generated;
 
 import org.junit.jupiter.api.Assertions;
@@ -28,6 +30,7 @@ import org.mockito.Mock;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.classes.method.JMethod;
+import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
@@ -86,6 +89,20 @@ public class ClassBuilderTest extends AbstractUnitTest {
     private JMethod<?> mockMethod2;
     @Mock
     private JMethod<?> mockMethod3;
+    @Mock
+    private JField<?> mockField1;
+    @Mock
+    private JField<?> mockField2;
+    @Mock
+    private JField<?> mockField3;
+    @Mock
+    private ClassType mockParentClass;
+    @Mock
+    private ClassType mockInterface1;
+    @Mock
+    private ClassType mockInterface2;
+    @Mock
+    private ClassType mockInterface3;
     
     // Instance to test
     private TestClassBuilder builder;
@@ -137,12 +154,12 @@ public class ClassBuilderTest extends AbstractUnitTest {
     }
     
     /**
-     * Verify that class details are applied when no methods are added
+     * Verify that class details are applied when original defaults are kept
      */
     @Test
-    public void testApplyDetailsNoMethod() {
+    public void testApplyDetailsDefaultValues() {
         builder.applyDetails(mockClass);
-        verifyCommonDetailsApplied();
+        verifyCommonDetailsApplied(null);
     }
     
     /**
@@ -156,13 +173,88 @@ public class ClassBuilderTest extends AbstractUnitTest {
         
         builder.applyDetails(mockClass);
 
-        verifyCommonDetailsApplied();
+        verifyCommonDetailsApplied(null);
         verify(mockClass).addMethod(mockMethod1);
         verify(mockClass).addMethod(mockMethod2);
         verify(mockClass).addMethod(mockMethod3);
     }
     
-    private void verifyCommonDetailsApplied() {
+    /**
+     * Verify that class details are applied when fields are added
+     */
+    @Test
+    public void testApplyDetailsWithFields() {
+        builder.add(mockField1);
+        builder.add(mockField2);
+        builder.add(mockField3);
+        
+        builder.applyDetails(mockClass);
+
+        verifyCommonDetailsApplied(null);
+        verify(mockClass).addField(mockField1);
+        verify(mockClass).addField(mockField2);
+        verify(mockClass).addField(mockField3);
+    }
+    
+    /**
+     * Verify that class details are applied when a parent class is set
+     */
+    @Test
+    public void testApplyDetailsParentClass() {
+        builder.extendsClass(mockParentClass);
+        builder.applyDetails(mockClass);
+        verifyCommonDetailsApplied(mockParentClass);
+    }
+    
+    /**
+     * Verify that class details are applied when implemented interfaces are added
+     */
+    @Test
+    public void testApplyDetailsInterfaces() {
+        builder.implementsInterface(mockInterface1);
+        builder.implementsInterface(mockInterface2);
+        builder.implementsInterface(mockInterface3);
+        builder.applyDetails(mockClass);
+        verifyCommonDetailsApplied(null, mockInterface1, mockInterface2, mockInterface3);
+    }
+    
+    /**
+     * Verify that everything can be applied at once.
+     */
+    @Test
+    public void testApplyDetailsAllAtOnce() {
+        builder.add(mockMethod1);
+        builder.add(mockMethod2);
+        builder.add(mockMethod3);
+        builder.add(mockField1);
+        builder.add(mockField2);
+        builder.add(mockField3);
+        builder.extendsClass(mockParentClass);
+        builder.implementsInterface(mockInterface1);
+        builder.implementsInterface(mockInterface2);
+        builder.implementsInterface(mockInterface3);
+        
+        builder.applyDetails(mockClass);
+
+        verifyCommonDetailsApplied(mockParentClass, mockInterface1, mockInterface2, mockInterface3);
+        verify(mockClass).addMethod(mockMethod1);
+        verify(mockClass).addMethod(mockMethod2);
+        verify(mockClass).addMethod(mockMethod3);
+        verify(mockClass).addField(mockField1);
+        verify(mockClass).addField(mockField2);
+        verify(mockClass).addField(mockField3);
+    }
+    
+    /**
+     * Perform the verification of common details that are always applied
+     * 
+     * @param expectedParent {@link ClassType} class the class is expected to extend
+     * @param expectedInterfaces {@link ClassType}... interfaces the class is expected to implement
+     */
+    private void verifyCommonDetailsApplied(ClassType expectedParent, ClassType...expectedInterfaces) {
+        verify(mockClass).setParentClass(expectedParent);
+        verify(mockClass).setParentInterfaces(Arrays.asList(expectedInterfaces));
+        
         verify(mockClass).setVisibility(VisibilityType.PACKAGE_PRIVATE);
         verify(mockClass).setFinal(false);
         verify(mockClass).setStatic(false);

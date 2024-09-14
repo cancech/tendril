@@ -18,6 +18,7 @@ package tendril.codegen.classes;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
@@ -66,6 +67,15 @@ public class AnnotationBuilderTest extends AbstractUnitTest {
         ClassAssert.assertInstance(JClassAnnotation.class, builder.create());
         verify(mockClassType).getClassName();
         verify(mockClassType).getPackageName();
+    }
+    
+    /**
+     * Verify that the class hierarchy is properly handled
+     */
+    @Test
+    public void testClassHierarchy() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.extendsClass(mockClassType));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.implementsInterface(mockClassType));
     }
 
 }

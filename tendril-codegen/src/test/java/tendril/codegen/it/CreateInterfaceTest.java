@@ -160,6 +160,25 @@ public class CreateInterfaceTest {
         matcher.eq("}");
         matcher.match(iface.generateCode());
     }
+    
+    /**
+     * Verify that can create an interface which extends another interface
+     */
+    @Test
+    public void createInterfaceExtendingInterface() {
+        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).extendsClass(new ClassType("q.w.e.r.t", "Z")).build();
+
+        MultiLineStringMatcher matcher = new MultiLineStringMatcher();
+        matcher.eq("package q.w.e.r.t;");
+        matcher.eq("");
+        matcher.eq("import " + Generated.class.getName() + ";");
+        matcher.eq("");
+        matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
+        matcher.eq("interface Y extends Z {");
+        matcher.eq("");
+        matcher.eq("}");
+        matcher.match(iface.generateCode());
+    }
 
     /**
      * Verify that an interface with annotations and methods generates properly
@@ -167,6 +186,9 @@ public class CreateInterfaceTest {
     @Test
     public void createInterfaceWithAnnotationsAndMethods() {
         JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE)
+                .extendsClass(new ClassType("q.w.e.r.t", "Z"))
+                .extendsClass(new ClassType("a.b.c.d.e", "F"))
+                .extendsClass(new ClassType("q.a.z", "Wsx"))
                 .buildMethod("voidMethod").setVisibility(VisibilityType.PUBLIC)
                     .buildParameter(new ClassType(String.class), "stringParam").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).finish()
                     .finish()
@@ -178,7 +200,9 @@ public class CreateInterfaceTest {
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package q.w.e.r.t;");
         matcher.eq("");
+        matcher.eq("import a.b.c.d.e.F;");
         matcher.eq("import " + Generated.class.getName() + ";");
+        matcher.eq("import q.a.z.Wsx;");
         matcher.eq("import " + TestDefaultAttrAnnotation.class.getName() + ";");
         matcher.eq("import " + TestMarkerAnnotation.class.getName() + ";");
         matcher.eq("import this.that.Something;");
@@ -186,7 +210,7 @@ public class CreateInterfaceTest {
         matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
         matcher.eq("@Something(val1 = \"string\", val2 = 123)");
         matcher.eq("@TestDefaultAttrAnnotation(\"abc123\")");
-        matcher.eq("interface Y {");
+        matcher.eq("interface Y extends Z, F, Wsx {");
         matcher.eq("");
         matcher.eq("    void voidMethod(@TestMarkerAnnotation String stringParam);");
         matcher.eq("");

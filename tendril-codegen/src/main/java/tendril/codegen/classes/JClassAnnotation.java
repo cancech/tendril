@@ -15,6 +15,8 @@
  */
 package tendril.codegen.classes;
 
+import java.util.List;
+
 import tendril.codegen.field.type.ClassType;
 
 /**
@@ -22,20 +24,38 @@ import tendril.codegen.field.type.ClassType;
  */
 public class JClassAnnotation extends JClassInterface {
 
-	/**
-	 * CTOR
-	 * 
-	 * @param data       {@link ClassType} the information about the class
-	 */
-	protected JClassAnnotation(ClassType data) {
-		super(data);
-	}
+    /**
+     * CTOR
+     * 
+     * @param data {@link ClassType} the information about the class
+     */
+    protected JClassAnnotation(ClassType data) {
+        super(data);
+    }
 
-	/**
-	 * @see tendril.codegen.classes.JClassInterface#classType()
-	 */
-	@Override
-	protected String classType() {
-		return "@" + super.classType();
-	}
+    /**
+     * @see tendril.codegen.classes.JClassInterface#classType()
+     */
+    @Override
+    protected String classType() {
+        return "@" + super.classType();
+    }
+
+    /**
+     * @see tendril.codegen.classes.JClass#setParentClass(tendril.codegen.field.type.ClassType)
+     */
+    @Override
+    public void setParentClass(ClassType parent) {
+        if (parent != null)
+            throw new IllegalArgumentException("Annotations cannot have an explicit parent class");
+    }
+
+    /**
+     * @see tendril.codegen.classes.JClass#setParentClass(tendril.codegen.field.type.ClassType)
+     */
+    @Override
+    public void setParentInterfaces(List<ClassType> ifaces) {
+        if (!ifaces.isEmpty())
+            throw new IllegalArgumentException("Annotations cannot implement any interfaces");
+    }
 }

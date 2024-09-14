@@ -22,20 +22,37 @@ import tendril.codegen.field.type.ClassType;
  */
 public class JClassInterface extends JClass {
 
-	/**
-	 * CTOR
-	 * 
-	 * @param data       {@link ClassType} the information about the class
-	 */
-	protected JClassInterface(ClassType data) {
-		super(data);
-	}
+    /**
+     * CTOR
+     * 
+     * @param data {@link ClassType} the information about the class
+     */
+    protected JClassInterface(ClassType data) {
+        super(data);
+    }
 
-	/**
-	 * @see tendril.codegen.classes.JClass#classType()
-	 */
-	@Override
-	protected String classType() {
-		return "interface";
-	}
+    /**
+     * @see tendril.codegen.classes.JClass#classType()
+     */
+    @Override
+    protected String classType() {
+        return "interface";
+    }
+
+    /**
+     * @see tendril.codegen.classes.JClass#setParentClass(tendril.codegen.field.type.ClassType)
+     */
+    @Override
+    public void setParentClass(ClassType parent) {
+        if (parent != null)
+            throw new IllegalArgumentException("Interfaces cannot have an explicit parent class");
+    }
+
+    /**
+     * @see tendril.codegen.classes.JClass#interfaceExtensionKeyword()
+     */
+    @Override
+    protected String interfaceExtensionKeyword() {
+        return "extends";
+    }
 }

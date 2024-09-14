@@ -59,4 +59,14 @@ public class JClassInterfaceTest extends AbstractUnitTest {
 	public void testClassType() {
 		Assertions.assertEquals("interface", cls.classType());
 	}
+	
+	/**
+	 * Verify that the class hierarchy is properly processed with the interface
+	 */
+	@Test
+	public void testClassHierarchy() {
+	    Assertions.assertThrows(IllegalArgumentException.class, () -> cls.setParentClass(mockClassType));
+	    cls.setParentClass(null);
+	    Assertions.assertEquals("extends", cls.interfaceExtensionKeyword());
+	}
 }

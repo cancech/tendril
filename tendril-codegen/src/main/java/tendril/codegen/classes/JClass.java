@@ -16,6 +16,7 @@
 package tendril.codegen.classes;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +37,10 @@ public abstract class JClass extends JVisibleType<ClassType> {
     private final List<JMethod<?>> methods = new ArrayList<>();
     /** The name of the package in which this class appears */
     private final String pkg;
+    /** The ClassType which indicates the parent of the JClass. Null to indicate no explicit parent */
+    private ClassType extendedClass = null;
+    /** The ClassTypes indicating the interfaces that the JClass implements */
+    private List<ClassType> implementedInterfaces = Collections.emptyList();
 
     /**
      * CTOR
@@ -45,6 +50,24 @@ public abstract class JClass extends JVisibleType<ClassType> {
     protected JClass(ClassType data) {
         super(data, data.getClassName());
         this.pkg = data.getPackageName();
+    }
+
+    /**
+     * Set the (explicit) parent class for this JClass.
+     * 
+     * @param parent {@link ClassType} that this JClass is to extend
+     */
+    public void setParentClass(ClassType parent) {
+        extendedClass = parent;
+    }
+
+    /**
+     * Set the interfaces that this JClass is to implement
+     * 
+     * @param ifaces {@link List} of {@link ClassType}s indicating which interfaces to implement
+     */
+    public void setParentInterfaces(List<ClassType> ifaces) {
+        implementedInterfaces = ifaces;
     }
 
     /**
@@ -116,11 +139,15 @@ public abstract class JClass extends JVisibleType<ClassType> {
      */
     @Override
     public String generateSelf(Set<ClassType> classImports) {
+        if (extendedClass != null)
+            classImports.add(extendedClass);
+        classImports.addAll(implementedInterfaces);
+
         CodeBuilder builder = new CodeBuilder();
         String visStr = visibility.toString();
         if (!visStr.isEmpty())
             visStr += " ";
-        builder.append(visStr + classType() + " " + name + " {");
+        builder.append(visStr + classType() + " " + name + parentHierarchy() + " {");
         builder.blankLine();
         builder.indent();
 
@@ -148,4 +175,59 @@ public abstract class JClass extends JVisibleType<ClassType> {
      * @return {@link String} declaration construct for the class
      */
     protected abstract String classType();
+
+    /**
+     * Generate the code for representing the parent hierarchy of this class.
+     * 
+     * @return {@link String} with the parent hierarchy
+     */
+    protected String parentHierarchy() {
+        String extendHierarchy = generateParentClass();
+        String implementsHierarchy = generateImplementInterfaces();
+
+        String result = extendHierarchy.isEmpty() ? "" : " " + extendHierarchy;
+        if (!implementsHierarchy.isEmpty())
+            result += " " + implementsHierarchy;
+
+        return result;
+    }
+
+    /**
+     * Generate the code for indicating the parent class (extends)
+     * 
+     * @return {@link String} with the appropriate extends code
+     */
+    protected String generateParentClass() {
+        if (extendedClass == null)
+            return "";
+
+        return "extends " + extendedClass.getSimpleName();
+    }
+
+    /**
+     * Generate the code for indicating which interfaces are implemented by this class.
+     * 
+     * @return {@link String} with the appropriate implements code
+     */
+    protected String generateImplementInterfaces() {
+        String code = "";
+
+        for (ClassType iface : implementedInterfaces) {
+            if (code.isEmpty())
+                code = interfaceExtensionKeyword() + " " + iface.getSimpleName();
+            else
+                code += ", " + iface.getSimpleName();
+        }
+
+        return code;
+    }
+
+    /**
+     * Get the appropriate keyword to indicate how the interface fits into the hierarchy. By default "implements", override to change as necessary.
+     * 
+     * @return {@link String} the interface extension keyword
+     */
+    protected String interfaceExtensionKeyword() {
+        return "implements";
+    }
 }

@@ -60,4 +60,19 @@ class InterfaceBuilder extends ClassBuilder {
         return new JClassInterface(type);
     }
 
+    /**
+     * @see tendril.codegen.classes.ClassBuilder#extendsClass(tendril.codegen.field.type.ClassType)
+     */
+    @Override
+    public ClassBuilder extendsClass(ClassType parent) {
+        return super.implementsInterface(parent);
+    }
+    
+    /**
+     * @see tendril.codegen.classes.ClassBuilder#implementsInterface(tendril.codegen.field.type.ClassType)
+     */
+    @Override
+    public ClassBuilder implementsInterface(ClassType iface) {
+        throw new IllegalArgumentException("Interfaces cannot implement anything, they can only extend other interfaces.");
+    }
 }

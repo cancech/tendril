@@ -41,6 +41,10 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     protected final List<JMethod<?>> methods = new ArrayList<>();
     /** The fields that are to be applied to the class */
     protected final List<JField<?>> fields = new ArrayList<>();
+    /** The representation of the explicit parent class */
+    protected ClassType parent = null;
+    /** The representation of the interfaces the class implements */
+    protected List<ClassType> interfaces = new ArrayList<>();
 
     /**
      * Get the class builder for creating concrete classes
@@ -98,9 +102,33 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      */
     @Override
     protected JClass applyDetails(JClass element) {
+        element.setParentClass(parent);
+        element.setParentInterfaces(interfaces);
         fields.forEach(f -> element.addField(f));
         methods.forEach(m -> element.addMethod(m));
         return super.applyDetails(element);
+    }
+
+    /**
+     * Specify the parent class that the defined class is to extend
+     * 
+     * @param parent {@link ClassType} representing the desired parent class
+     * @return {@link ClassBuilder}
+     */
+    public ClassBuilder extendsClass(ClassType parent) {
+        this.parent = parent;
+        return this;
+    }
+
+    /**
+     * Add an interface that the defined class is to implement
+     * 
+     * @param iface {@link ClassType} representing the desired interface
+     * @return {@link ClassBuilder}
+     */
+    public ClassBuilder implementsInterface(ClassType iface) {
+        this.interfaces.add(iface);
+        return this;
     }
 
     /**

@@ -154,6 +154,28 @@ public class CreateAbstractClassTest {
         matcher.eq("}");
         matcher.match(abstractCls.generateCode());
     }
+    
+    /**
+     * Verify that the abstract class can extend and implement other classes/interfaces.
+     */
+    @Test
+    public void testCreateAbstractClassWithParents() {
+        JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+                .extendsClass(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("a.s.d.f", "Qwerty")).build();
+
+        MultiLineStringMatcher matcher = new MultiLineStringMatcher();
+        matcher.eq("package z.x.c.v;");
+        matcher.eq("");
+        matcher.eq("import a.s.d.f.Qwerty;");
+        matcher.eq("import " + Generated.class.getName() + ";");
+        matcher.eq("import q.w.e.r.t.Y;");
+        matcher.eq("");
+        matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
+        matcher.eq("protected abstract class B extends Y implements Y, Qwerty {");
+        matcher.eq("");
+        matcher.eq("}");
+        matcher.match(abstractCls.generateCode());
+    }
 
     /**
      * Verify that a complex class with a little everything can be properly generated
@@ -162,6 +184,7 @@ public class CreateAbstractClassTest {
     public void testCreateComplexAbstractClass() {
         
         JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+                .extendsClass(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("a.s.d.f", "Qwerty"))
                 .buildMethod(PrimitiveType.FLOAT, "floatMethod").setVisibility(VisibilityType.PROTECTED)
                     .buildParameter(PrimitiveType.SHORT, "shortParam").finish().finish()
                 .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED)
@@ -182,7 +205,9 @@ public class CreateAbstractClassTest {
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
         matcher.eq("");
+        matcher.eq("import a.s.d.f.Qwerty;");
         matcher.eq("import " + Generated.class.getName() + ";");
+        matcher.eq("import q.w.e.r.t.Y;");
         matcher.eq("import " + VisibilityType.class.getName() + ";");
         matcher.eq("import " + TestDefaultAttrAnnotation.class.getName() + ";");
         matcher.eq("import " + TestMarkerAnnotation.class.getName() + ";");
@@ -192,7 +217,7 @@ public class CreateAbstractClassTest {
         matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
         matcher.eq("@" + Deprecated.class.getSimpleName() + "(forRemoval = true, since = \"yesterday\")");
         matcher.eq("@" + TestMultiAttrsAnnotation.class.getSimpleName() + "(valInt = 789, valStr = \"qwerty\")");
-        matcher.eq("protected abstract class B {");
+        matcher.eq("protected abstract class B extends Y implements Y, Qwerty {");
         matcher.eq("");
         matcher.eq("    protected abstract float floatMethod(short shortParam);");
         matcher.eq("");

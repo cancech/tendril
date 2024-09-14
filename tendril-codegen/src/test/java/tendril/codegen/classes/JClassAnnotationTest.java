@@ -18,6 +18,8 @@ package tendril.codegen.classes;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -30,30 +32,44 @@ import tendril.test.AbstractUnitTest;
  */
 public class JClassAnnotationTest extends AbstractUnitTest {
 
-	// Mocks to use for testing
-	@Mock
-	private ClassType mockClassType;
+    // Mocks to use for testing
+    @Mock
+    private ClassType mockClassType;
 
-	// Instance to test
-	private JClassAnnotation cls;
+    // Instance to test
+    private JClassAnnotation cls;
 
-	/**
-	 * @see tendril.test.AbstractUnitTest#prepareTest()
-	 */
-	@Override
-	protected void prepareTest() {
-		when(mockClassType.getPackageName()).thenReturn("packageName");
-		when(mockClassType.getClassName()).thenReturn("ClassName");
-		cls = new JClassAnnotation(mockClassType);
-		verify(mockClassType).getPackageName();
-		verify(mockClassType).getClassName();
-	}
+    /**
+     * @see tendril.test.AbstractUnitTest#prepareTest()
+     */
+    @Override
+    protected void prepareTest() {
+        when(mockClassType.getPackageName()).thenReturn("packageName");
+        when(mockClassType.getClassName()).thenReturn("ClassName");
+        cls = new JClassAnnotation(mockClassType);
+        verify(mockClassType).getPackageName();
+        verify(mockClassType).getClassName();
+    }
 
-	/**
-	 * Verify that the class type is properly prepared
-	 */
-	@Test
-	public void testClassType() {
-		Assertions.assertEquals("@interface", cls.classType());
-	}
+    /**
+     * Verify that the class type is properly prepared
+     */
+    @Test
+    public void testClassType() {
+        Assertions.assertEquals("@interface", cls.classType());
+    }
+
+    /**
+     * Verify that attempting to give any parent to an interface triggers an exception
+     */
+    @Test
+    public void testCannotHaveAnyParent() {
+        // "Proper" values are not allowed
+        Assertions.assertThrows(IllegalArgumentException.class, () -> cls.setParentClass(mockClassType));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> cls.setParentInterfaces(Collections.singletonList(mockClassType)));
+        
+        // Empty values are OK
+        cls.setParentClass(null);
+        cls.setParentInterfaces(Collections.emptyList());
+    }
 }

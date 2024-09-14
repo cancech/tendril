@@ -144,11 +144,53 @@ public class CreateConcreteClassTest {
     }
     
     /**
+     * Verify the class generates properly if it has a parent class
+     */
+    @Test
+    public void testCreateClassWithParent() {
+        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).extendsClass(new ClassType("q.w.e.r.t", "Y")).build();
+
+        MultiLineStringMatcher matcher = new MultiLineStringMatcher();
+        matcher.eq("package z.x.c.v;");
+        matcher.eq("");
+        matcher.eq("import " + Generated.class.getName() + ";");
+        matcher.eq("import q.w.e.r.t.Y;");
+        matcher.eq("");
+        matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
+        matcher.eq("protected class B extends Y {");
+        matcher.eq("");
+        matcher.eq("}");
+        matcher.match(cls.generateCode());
+    }
+    
+    /**
+     * Verify the class generates properly if it implements an interface
+     */
+    @Test
+    public void testCreateClassWithInterface() {
+        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).implementsInterface(new ClassType("q.w.e.r.t", "Y")).build();
+
+        MultiLineStringMatcher matcher = new MultiLineStringMatcher();
+        matcher.eq("package z.x.c.v;");
+        matcher.eq("");
+        matcher.eq("import " + Generated.class.getName() + ";");
+        matcher.eq("import q.w.e.r.t.Y;");
+        matcher.eq("");
+        matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
+        matcher.eq("protected class B implements Y {");
+        matcher.eq("");
+        matcher.eq("}");
+        matcher.match(cls.generateCode());
+    }
+    
+    /**
      * Verify that a complex class with a little everything can be properly generated
      */
     @Test
     public void testCreateComplexClass() {
         JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+                .extendsClass(new ClassType("q.w.e.r.t", "Y"))
+                .implementsInterface(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("a.b.c.d", "F"))
                 .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED)
                     .buildParameter(new ClassType(String.class), "strParam").finish().emptyImplementation().finish()
                 .addAnnotation(JAnnotationFactory.create(Deprecated.class, Map.of("since", JValueFactory.create("yesterday"), "forRemoval", JValueFactory.create(true))))
@@ -162,7 +204,9 @@ public class CreateConcreteClassTest {
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
         matcher.eq("");
+        matcher.eq("import a.b.c.d.F;");
         matcher.eq("import " + Generated.class.getName() + ";");
+        matcher.eq("import q.w.e.r.t.Y;");
         matcher.eq("import " + VisibilityType.class.getName() + ";");
         matcher.eq("import " + TestMultiAttrsAnnotation.class.getName() + ";");
         matcher.eq("import " + TestNonDefaultAttrAnnotation.class.getName() + ";");
@@ -170,7 +214,7 @@ public class CreateConcreteClassTest {
         matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
         matcher.eq("@" + Deprecated.class.getSimpleName() + "(forRemoval = true, since = \"yesterday\")");
         matcher.eq("@" + TestMultiAttrsAnnotation.class.getSimpleName() + "(valInt = 789, valStr = \"qwerty\")");
-        matcher.eq("protected class B {");
+        matcher.eq("protected class B extends Y implements Y, F {");
         matcher.eq("");
         matcher.eq("    public boolean booleanField = false;");
         matcher.eq("");
