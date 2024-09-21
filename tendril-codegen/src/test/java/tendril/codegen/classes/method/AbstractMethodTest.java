@@ -17,47 +17,44 @@ package tendril.codegen.classes.method;
 
 import static org.mockito.Mockito.lenient;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.Assertions;
 import org.mockito.Mock;
 
-import tendril.codegen.CodeBuilder;
 import tendril.codegen.VisibilityType;
+import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
-import tendril.test.assertions.matchers.MultiLineStringMatcher;
 
 /**
- * Contains the shared elements which are needed for all {@link JMethod} tests
+ * Shared abstract method with common elements to facilitate the testing of Method(like) representations
  */
-public abstract class SharedJMethodTest extends AbstractUnitTest {
+public class AbstractMethodTest extends AbstractUnitTest {
     
+    protected static final String SIMPLE_MOCK_RETURN_TYPE = "Return_Type";
+
     // Mocks to use for testing
     @Mock
     protected VisibilityType mockVisibility;
     @Mock
     protected Type mockReturnType;
-
-    // For tracking the generated code
-    protected CodeBuilder builder;
-    // Matcher to match the generated code
-    protected MultiLineStringMatcher matcher;
+    @Mock
+    protected Set<ClassType> mockImports;
 
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {
-        builder = new CodeBuilder();
-        matcher = new MultiLineStringMatcher();
-        
-        lenient().when(mockReturnType.getSimpleName()).thenReturn("Return_Type");        
+        lenient().when(mockReturnType.getSimpleName()).thenReturn(SIMPLE_MOCK_RETURN_TYPE);    
     }
 
     /**
      * Initialize the method and ensure that its simple values are correct
      * 
      */
-    protected void verifyMethodInit(String methodName, JMethod<?> method) {
+    protected void verifyMethodInit(String methodName, JAbstractMethodElement<?> method) {
         Assertions.assertEquals(methodName, method.getName());
         Assertions.assertEquals(mockReturnType, method.getType());
     }

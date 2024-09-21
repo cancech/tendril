@@ -15,30 +15,18 @@
  */
 package tendril.codegen.classes.method;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import tendril.codegen.CodeBuilder;
-import tendril.codegen.classes.JParameter;
-import tendril.codegen.field.JType;
-import tendril.codegen.field.JVisibleType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
-import tendril.util.TendrilStringUtil;
 
 /**
  * Representation of a method
  * 
  * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
-public abstract class JMethod<RETURN_TYPE extends Type> extends JVisibleType<RETURN_TYPE> {
-
-    /** List of parameters that the method takes */
-    private final List<JParameter<?>> parameters = new ArrayList<>();
-
-    /** The lines of code that build up the implementation of the method */
-    protected final List<String> implementation;
+public abstract class JMethod<RETURN_TYPE extends Type> extends JAbstractMethodElement<RETURN_TYPE> {
 
     /**
      * CTOR
@@ -48,78 +36,19 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends JVisibleType<RET
      * @param implementation {@link List} of {@link String} lines of code with the implementation of the method
      */
     protected JMethod(RETURN_TYPE returnType, String name, List<String> implementation) {
-        super(returnType, name);
-        this.implementation = implementation;
+        super(returnType, name, implementation);
     }
 
     /**
-     * Add a parameter to the method. Parameters are expected to be added in the order they appear in the method.
-     * 
-     * @param parameter {@link JType} representing the method parameter
-     */
-    public void addParameter(JParameter<?> parameter) {
-        parameters.add(parameter);
-    }
-
-    /**
-     * Get all of the parameters of the method
-     * 
-     * @return {@link List} of {@link JType}s representing the parameters
-     */
-    public List<JParameter<?>> getParameters() {
-        return parameters;
-    }
-
-    /**
-     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
+     * @see tendril.codegen.classes.method.JAbstractMethodElement#generateSignature(java.util.Set, boolean)
      */
     @Override
-    protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
-        builder.appendMultiLine(generateSelf(classImports));
-    }
-
-    /**
-     * @see tendril.codegen.JBase#generateSelf(java.util.Set)
-     */
-    @Override
-    public String generateSelf(Set<ClassType> classImports) {
-        CodeBuilder builder = new CodeBuilder();
-        getType().registerImport(classImports);
-
-        boolean hasImplementation = implementation != null;
-        builder.append(generateSignature(classImports, hasImplementation));
-
-        if (hasImplementation) {
-            builder.indent();
-            for (String s : implementation)
-                builder.append(s);
-            builder.deIndent();
-            builder.append("}");
-        }
-        return builder.get();
-    }
-
-    /**
-     * Generate the full method signature
-     * 
-     * @param hasImplementation boolean true if the method has an implementation provided
-     * @return {@link String}
-     */
-    private String generateSignature(Set<ClassType> classImports, boolean hasImplementation) {
+    protected String generateSignature(Set<ClassType> classImports, boolean hasImplementation) {
         StringBuilder signature = new StringBuilder(generateSignatureStart(hasImplementation));
         signature.append(getType().getSimpleName() + " " + getName());
         signature.append("(" + generateParameters(classImports) + ")");
         signature.append(generateSignatureEnd(hasImplementation));
         return signature.toString();
-    }
-
-    /**
-     * Generate the code for the parameters of the method
-     * 
-     * @return {@link String} containing the details of the parameters
-     */
-    private String generateParameters(Set<ClassType> classImports) {
-        return TendrilStringUtil.join(parameters, param -> param.generateSelf(classImports));
     }
 
     /**
@@ -140,17 +69,5 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends JVisibleType<RET
         if (hasImplementation)
             return " {";
         return ";";
-    }
-    
-    /**
-     * @see tendril.codegen.field.JVisibleType#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof JMethod))
-            return false;
-        
-        JMethod<?> other = (JMethod<?>) obj;
-        return super.equals(obj) && parameters.equals(other.parameters);
     }
 }

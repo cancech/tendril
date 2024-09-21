@@ -29,7 +29,7 @@ import tendril.codegen.field.value.JValue;
 /**
  * Test case for {@link JMethodAnnotation}
  */
-public class JMethodAnnotationTest extends SharedJMethodTest {
+public class JMethodAnnotationTest extends AbstractMethodTest {
     
     // Mocks to use for testing
     @Mock

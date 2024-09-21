@@ -26,7 +26,7 @@ import tendril.codegen.field.type.Type;
 /**
  * Test case for {@link JMethodDefault}
  */
-public class JMethodInterfaceTest extends SharedJMethodTest {
+public class JMethodInterfaceTest extends AbstractMethodTest {
 
     /**
      * Verify that the appropriate method signature start is generated

@@ -26,7 +26,7 @@ import tendril.codegen.field.type.Type;
 /**
  * Test case for {@link JMethodDefault}
  */
-public class JMethodDefaultTest extends SharedJMethodTest {
+public class JMethodDefaultTest extends AbstractMethodTest {
 
     /**
      * @see tendril.codegen.classes.method.SharedJMethodTest#prepareTest()
