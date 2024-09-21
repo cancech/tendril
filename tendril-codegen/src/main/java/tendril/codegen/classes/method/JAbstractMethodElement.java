@@ -29,6 +29,8 @@ import tendril.util.TendrilStringUtil;
 
 /**
  * Abstract representation of method-like elements that can appear in a class (i.e.: methods and constructors).
+ * 
+ * @param <RETURN_TYPE> extends Type indicating what the "method" returns
  */
 public abstract class JAbstractMethodElement<RETURN_TYPE extends Type> extends JVisibleType<RETURN_TYPE> {
 
@@ -37,7 +39,7 @@ public abstract class JAbstractMethodElement<RETURN_TYPE extends Type> extends J
 
     /** The lines of code that build up the implementation of the method */
     private final List<String> implementation;
-    
+
     /**
      * CTOR
      * 
@@ -96,10 +98,11 @@ public abstract class JAbstractMethodElement<RETURN_TYPE extends Type> extends J
         }
         return builder.get();
     }
-    
+
     /**
      * Generate the full method signature
      * 
+     * @param classImports      {@link Set} of {@link ClassType} where the imports for the generate class as collected
      * @param hasImplementation boolean true if the method has an implementation provided
      * @return {@link String}
      */
@@ -108,12 +111,13 @@ public abstract class JAbstractMethodElement<RETURN_TYPE extends Type> extends J
     /**
      * Generate the code for the parameters of the method
      * 
+     * @param classImports {@link Set} of {@link ClassType} where the imports for the generate class as collected
      * @return {@link String} containing the details of the parameters
      */
     protected String generateParameters(Set<ClassType> classImports) {
         return TendrilStringUtil.join(parameters, param -> param.generateSelf(classImports));
     }
-    
+
     /**
      * @see tendril.codegen.field.JVisibleType#equals(java.lang.Object)
      */
@@ -121,7 +125,7 @@ public abstract class JAbstractMethodElement<RETURN_TYPE extends Type> extends J
     public boolean equals(Object obj) {
         if (!(obj instanceof JAbstractMethodElement))
             return false;
-        
+
         JAbstractMethodElement<?> other = (JAbstractMethodElement<?>) obj;
         return super.equals(obj) && parameters.equals(other.parameters);
     }

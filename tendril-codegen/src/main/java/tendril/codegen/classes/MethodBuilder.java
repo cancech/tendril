@@ -15,10 +15,6 @@
  */
 package tendril.codegen.classes;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import tendril.codegen.Utilities;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
@@ -33,11 +29,7 @@ import tendril.codegen.field.value.JValue;
  * 
  * @param <RETURN_TYPE> extends {@link Type} indicating what the method is to return
  */
-public abstract class MethodBuilder<RETURN_TYPE extends Type> extends NestedClassElementBuilder<RETURN_TYPE, JMethod<RETURN_TYPE>, MethodBuilder<RETURN_TYPE>> {
-    /** List of individual lines of code that comprise the method implementation. If null, no implementation is present */
-    protected List<String> linesOfCode = null;
-    /** List of parameters the method is to take */
-    protected final List<JParameter<?>> parameters = new ArrayList<>();
+public abstract class MethodBuilder<RETURN_TYPE extends Type> extends NestedClassMethodElementBuilder<RETURN_TYPE, JMethod<RETURN_TYPE>, MethodBuilder<RETURN_TYPE>> {
     
     /**
      * CTOR
@@ -47,55 +39,6 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> extends NestedClas
      */
     protected MethodBuilder(ClassBuilder classBuilder, String name) {
         super(classBuilder, name);
-    }
-    
-    /**
-     * Create a builder through which to add a new parameter to the method.
-     * 
-     * @param <DATA_TYPE> extends {@link Type} indicating what the nature of the parameter is
-     * @param type DATA_TYPE indicating what the exact type of the parameter it is
-     * @param name {@link String} of the parameter to create
-     * @return {@link ParameterBuilder} to use to create the parameter
-     */
-    public <DATA_TYPE extends Type> ParameterBuilder<DATA_TYPE, RETURN_TYPE> buildParameter(DATA_TYPE type, String name) {
-        return new ParameterBuilder<>(this, type, name);
-    }
-
-    /**
-     * Add a parameter to the method
-     * 
-     * @param parameter {@link JParameter} to add
-     * @return {@link MethodBuilder}
-     */
-    MethodBuilder<RETURN_TYPE> addParameter(JParameter<?> parameter) {
-        parameters.add(parameter);
-        return this;
-    }
-
-    /**
-     * Mark the method as one with an empty (blank) implementation. This is distinct from a method that has no implementation. Any implementation that may be present will be destroyed.
-     * 
-     * @return {@link MethodBuilder}
-     */
-    public MethodBuilder<RETURN_TYPE> emptyImplementation() {
-        linesOfCode = new ArrayList<>();
-        return this;
-    }
-
-    /**
-     * Add lines of code. These lines are appended to the end of the existing stored implementation.
-     * 
-     * @param lines {@link String}... lines to append
-     * @return {@link MethodBuilder}
-     */
-    public MethodBuilder<RETURN_TYPE> addCode(String... lines) {
-        if (linesOfCode == null)
-            linesOfCode = new ArrayList<>();
-
-        for (String s : lines)
-            linesOfCode.add(s);
-
-        return this;
     }
 
     /**
@@ -109,40 +52,10 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> extends NestedClas
     }
     
     /**
-     * @see tendril.codegen.BaseBuilder#validate()
-     */
-    @Override
-    protected void validate() {
-        super.validate();
-        Utilities.throwIfNotValidIdentifier(name);
-    }
-
-    /**
-     * @see tendril.codegen.BaseBuilder#applyDetails(tendril.codegen.JBase)
-     */
-    @Override
-    protected JMethod<RETURN_TYPE> applyDetails(JMethod<RETURN_TYPE> method) {
-        super.applyDetails(method);
-        for (JParameter<?> param : parameters)
-            method.addParameter(param);
-
-        return method;
-    }
-    
-    /**
      * @see tendril.codegen.classes.NestedClassElementBuilder#addToClass(tendril.codegen.classes.ClassBuilder, tendril.codegen.field.JVisibleType)
      */
     @Override
     protected void addToClass(ClassBuilder classBuilder, JMethod<RETURN_TYPE> toAdd) {
         classBuilder.add(toAdd);
-    }
-
-    /**
-     * Check if the class has any code/implementation available.
-     * 
-     * @return true if code/implementation is present
-     */
-    protected boolean hasCode() {
-        return linesOfCode != null;
     }
 }

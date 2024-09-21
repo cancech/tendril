@@ -47,22 +47,22 @@ public abstract class Utilities {
     public static void throwIfNotValidIdentifier(String name) throws IllegalArgumentException{
 		// Check basic name characteristics
 		if (name == null)
-			throw new IllegalArgumentException("Method name cannot be null");
+			throw new IllegalArgumentException("Identifier name cannot be null");
 		
 		// Make sure that it is not an empty name
 		String trimmed = name.trim();
 		if (trimmed.isEmpty())
-			throw new IllegalArgumentException("Method name cannot be empty");
+			throw new IllegalArgumentException("Identifier name cannot be empty");
 		
 		// Ensure that only valid characters are employed
 		char c = trimmed.charAt(0);
 		if (!Character.isJavaIdentifierStart(c))
-			throw new IllegalArgumentException("Method cannot start with " + c);
+			throw new IllegalArgumentException("Identifier cannot start with " + c);
 		for (int i = 1; i < trimmed.length(); i++) {
 			c = trimmed.charAt(i);
 
 			if (!Character.isJavaIdentifierPart(c))
-				throw new IllegalArgumentException("Method cannot contain " + c);
+				throw new IllegalArgumentException("Identifier cannot contain " + c);
 		}
     }
 }

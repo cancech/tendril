@@ -77,5 +77,13 @@ public class AnnotationBuilderTest extends AbstractUnitTest {
         Assertions.assertThrows(IllegalArgumentException.class, () -> builder.extendsClass(mockClassType));
         Assertions.assertThrows(IllegalArgumentException.class, () -> builder.implementsInterface(mockClassType));
     }
+    
+    /**
+     * Verify that the interface cannot create a constructor
+     */
+    @Test
+    public void testCannotCreateConstructor() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildConstructor());
+    }
 
 }

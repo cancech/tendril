@@ -23,6 +23,7 @@ import javax.annotation.processing.Generated;
 
 import tendril.codegen.Utilities;
 import tendril.codegen.annotation.JAnnotationFactory;
+import tendril.codegen.classes.method.JConstructor;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.VisibileTypeBuilder;
@@ -41,6 +42,8 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     protected final List<JMethod<?>> methods = new ArrayList<>();
     /** The fields that are to be applied to the class */
     protected final List<JField<?>> fields = new ArrayList<>();
+    /** The constructors for initializing the class */
+    protected final List<JConstructor> ctors = new ArrayList<>();
     /** The representation of the explicit parent class */
     protected ClassType parent = null;
     /** The representation of the interfaces the class implements */
@@ -105,6 +108,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
         element.setParentClass(parent);
         element.setParentInterfaces(interfaces);
         fields.forEach(f -> element.addField(f));
+        ctors.forEach(c -> element.addConstructor(c));
         methods.forEach(m -> element.addMethod(m));
         return super.applyDetails(element);
     }
@@ -260,5 +264,23 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      */
     void add(JField<?> method) {
         fields.add(method);
+    }
+
+    /**
+     * Create a constructor builder through which constructors can be added to the class
+     * 
+     * @return {@link ConstructorBuilder} for the class
+     */
+    public ConstructorBuilder buildConstructor() {
+        return new ConstructorBuilder(this, type);
+    }
+
+    /**
+     * To be called by the created {@link ConstructorBuilder} when it {@code finish}es creating the constructor.
+     * 
+     * @param ctor {@link JConstructor} that is to be added to the class
+     */
+    void add(JConstructor ctor) {
+        ctors.add(ctor);
     }
 }

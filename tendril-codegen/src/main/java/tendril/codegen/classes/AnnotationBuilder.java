@@ -64,4 +64,12 @@ class AnnotationBuilder extends InterfaceBuilder {
     public ClassBuilder implementsInterface(ClassType iface) {
         throw new IllegalArgumentException("Annotations cannot implement any interfaces");
     }
+    
+    /**
+     * @see tendril.codegen.classes.ClassBuilder#buildConstructor()
+     */
+    @Override
+    public ConstructorBuilder buildConstructor() {
+        throw new IllegalArgumentException("Annotations cannot have a constructor");
+    }
 }

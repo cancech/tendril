@@ -34,6 +34,14 @@ class InterfaceBuilder extends ClassBuilder {
     InterfaceBuilder(ClassType type) {
         super(type);
     }
+    
+    /**
+     * @see tendril.codegen.classes.ClassBuilder#buildConstructor()
+     */
+    @Override
+    public ConstructorBuilder buildConstructor() {
+        throw new IllegalArgumentException("Interfaces cannot have a constructor");
+    }
 
     /**
      * @see tendril.codegen.classes.ClassBuilder#createMethodBuilder(java.lang.String)

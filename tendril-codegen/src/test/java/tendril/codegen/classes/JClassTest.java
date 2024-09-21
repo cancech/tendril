@@ -33,7 +33,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.CodeBuilder;
+import tendril.codegen.JBase;
 import tendril.codegen.annotation.JAnnotationFactory;
+import tendril.codegen.classes.method.JConstructor;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
@@ -108,6 +110,12 @@ public class JClassTest extends AbstractUnitTest {
     private ClassType mockInterface2;
     @Mock
     private ClassType mockInterface3;
+    @Mock
+    private JConstructor mockCtor1;
+    @Mock
+    private JConstructor mockCtor2;
+    @Mock
+    private JConstructor mockCtor3;
 
     // Helper to match the generate code
     private MultiLineStringMatcher strMatcher;
@@ -144,12 +152,16 @@ public class JClassTest extends AbstractUnitTest {
         lenient().when(mockInterface3.getPackageName()).thenReturn("mock.class");
         lenient().when(mockInterface3.getFullyQualifiedName()).thenReturn("mock.class.mockInterface3");
 
-        mockFieldGeneration(mockField1, "mockField1", mockField1Type);
-        mockFieldGeneration(mockField2, "mockField2", mockField2Type);
+        mockElementGeneration(mockField1, "mockField1", mockField1Type);
+        mockElementGeneration(mockField2, "mockField2", mockField2Type);
 
-        mockMethodGeneration(mockVoidMethod, "mockVoidMethod", mockNullPackageClassType, mockSamePackageClassType);
-        mockMethodGeneration(mockPrimitiveMethod, "mockPrimitiveMethod", mockEmptyPackageClassType);
-        mockMethodGeneration(mockClassMethod, "mockClassMethod", mockJavaLangPackageClassType);
+        mockElementGeneration(mockCtor1, "mockCtor1");
+        mockElementGeneration(mockCtor2, "mockCtor2");
+        mockElementGeneration(mockCtor3, "mockCtor3");
+
+        mockElementGeneration(mockVoidMethod, "mockVoidMethod", mockNullPackageClassType, mockSamePackageClassType);
+        mockElementGeneration(mockPrimitiveMethod, "mockPrimitiveMethod", mockEmptyPackageClassType);
+        mockElementGeneration(mockClassMethod, "mockClassMethod", mockJavaLangPackageClassType);
 
         when(mockClassType.getPackageName()).thenReturn("packageName");
         when(mockClassType.getClassName()).thenReturn("ClassName");
@@ -161,36 +173,20 @@ public class JClassTest extends AbstractUnitTest {
     }
 
     /**
-     * Helper to allow for something to be generated for a field when it is produced
+     * Helper to allow for something to be generated for a nested element when it is produced
      * 
-     * @param mockField {@link JField} mock method which is to be stubbed
+     * @param mockElement {@link JBase} mock element which is to be stubbed
      * @param toProduce {@link String} code that it is to produce for inclusion in the class
-     * @param toImport  {@link ClassType} that should be imported by the field
+     * @param toImport   {@link ClassType}... that should be imported
      */
     @SuppressWarnings("unchecked")
-    private void mockFieldGeneration(JField<?> mockField, String toProduce, ClassType toImport) {
-        lenient().doAnswer(inv -> {
-            ((CodeBuilder) inv.getArgument(0)).append(toProduce);
-            ((Set<ClassType>) inv.getArgument(1)).add(toImport);
-            return null;
-        }).when(mockField).generate(any(CodeBuilder.class), anySet());
-    }
-
-    /**
-     * Helper to allow for something to be generated for a method when it is produced
-     * 
-     * @param mockMethod {@link JMethod} mock method which is to be stubbed
-     * @param toProduce  {@link String} code that it is to produce for inclusion in the class
-     * @param toImport   {@link ClassType}... that should be imported by the method
-     */
-    @SuppressWarnings("unchecked")
-    private void mockMethodGeneration(JMethod<?> mockMethod, String toProduce, ClassType... toImport) {
+    private void mockElementGeneration(JBase mockElement, String toProduce, ClassType... toImport) {
         lenient().doAnswer(inv -> {
             ((CodeBuilder) inv.getArgument(0)).append(toProduce);
             for (ClassType ct : toImport)
                 ((Set<ClassType>) inv.getArgument(1)).add(ct);
             return null;
-        }).when(mockMethod).generate(any(CodeBuilder.class), anySet());
+        }).when(mockElement).generate(any(CodeBuilder.class), anySet());
     }
 
     /**
@@ -278,8 +274,6 @@ public class JClassTest extends AbstractUnitTest {
         jclass.addField(mockField1);
         jclass.addField(mockField2);
 
-//        System.out.println(jclass.generateCode());
-
         // Verify that it matches
         assertGeneratedCode();
         verify(mockField1).generate(any(CodeBuilder.class), anySet());
@@ -288,6 +282,33 @@ public class JClassTest extends AbstractUnitTest {
         verify(mockField2Type, atLeastOnce()).getFullyQualifiedName();
         verify(mockField1Type).getPackageName();
         verify(mockField2Type).getPackageName();
+    }
+    
+    /**
+     * Verify that the class code is generated with a constructor
+     */
+    @Test
+    public void testGenerateCodeWithCtor() {
+        // Define what the code is expected to look like
+        startDefinition(Collections.emptyList());
+        strMatcher.eq(("    mockCtor1"));
+        strMatcher.eq((""));
+        strMatcher.eq(("    mockCtor2"));
+        strMatcher.eq((""));
+        strMatcher.eq(("    mockCtor3"));
+        strMatcher.eq((""));
+        endDefinition();
+
+        // Add the additional features
+        jclass.addConstructor(mockCtor1);
+        jclass.addConstructor(mockCtor2);
+        jclass.addConstructor(mockCtor3);
+        
+        // Verify that it matches
+        assertGeneratedCode();
+        verify(mockCtor1).generate(any(CodeBuilder.class), anySet());
+        verify(mockCtor2).generate(any(CodeBuilder.class), anySet());
+        verify(mockCtor3).generate(any(CodeBuilder.class), anySet());
     }
 
     /**
@@ -338,6 +359,12 @@ public class JClassTest extends AbstractUnitTest {
         strMatcher.eq((""));
         strMatcher.eq(("    mockField2"));
         strMatcher.eq((""));
+        strMatcher.eq(("    mockCtor1"));
+        strMatcher.eq((""));
+        strMatcher.eq(("    mockCtor2"));
+        strMatcher.eq((""));
+        strMatcher.eq(("    mockCtor3"));
+        strMatcher.eq((""));
         strMatcher.eq("    mockVoidMethod");
         strMatcher.eq("");
         strMatcher.eq("    mockPrimitiveMethod");
@@ -356,6 +383,9 @@ public class JClassTest extends AbstractUnitTest {
         jclass.addAnnotation(JAnnotationFactory.create(TestPrimitiveAnnotation.class, JValueFactory.create(PrimitiveType.BOOLEAN)));
         jclass.addField(mockField1);
         jclass.addField(mockField2);
+        jclass.addConstructor(mockCtor1);
+        jclass.addConstructor(mockCtor2);
+        jclass.addConstructor(mockCtor3);
 
         // Verify that it matches
         assertGeneratedCode();
@@ -388,6 +418,9 @@ public class JClassTest extends AbstractUnitTest {
         verify(mockInterface3).getSimpleName();
         verify(mockInterface3).getPackageName();
         verify(mockInterface3, atLeastOnce()).getFullyQualifiedName();
+        verify(mockCtor1).generate(any(CodeBuilder.class), anySet());
+        verify(mockCtor2).generate(any(CodeBuilder.class), anySet());
+        verify(mockCtor3).generate(any(CodeBuilder.class), anySet());
     }
 
     /**

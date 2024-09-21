@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,6 +30,7 @@ import org.mockito.Mock;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotation;
+import tendril.codegen.classes.method.JConstructor;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
@@ -36,6 +38,7 @@ import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.VoidType;
 import tendril.test.AbstractUnitTest;
+import tendril.test.assertions.ClassAssert;
 import tendril.test.assertions.CollectionAssert;
 
 /**
@@ -103,6 +106,12 @@ public class ClassBuilderTest extends AbstractUnitTest {
     private ClassType mockInterface2;
     @Mock
     private ClassType mockInterface3;
+    @Mock
+    private JConstructor mockCtor1;
+    @Mock
+    private JConstructor mockCtor2;
+    @Mock
+    private JConstructor mockCtor3;
     
     // Instance to test
     private TestClassBuilder builder;
@@ -115,6 +124,17 @@ public class ClassBuilderTest extends AbstractUnitTest {
         when(mockClassType.getSimpleName()).thenReturn("MockClass");
         builder = new TestClassBuilder();
         verify(mockClassType).getSimpleName();
+    }
+    
+    /**
+     * Verify that can create the appropriate builders via the factory methods
+     */
+    @Test
+    public void testCreateViaFactory() {
+        ClassAssert.assertInstance(ConcreteClassBuilder.class, ClassBuilder.forConcreteClass(mockClassType));
+        ClassAssert.assertInstance(AbstractClassBuilder.class, ClassBuilder.forAbstractClass(mockClassType));
+        ClassAssert.assertInstance(InterfaceBuilder.class, ClassBuilder.forInterface(mockClassType));
+        ClassAssert.assertInstance(AnnotationBuilder.class, ClassBuilder.forAnnotation(mockClassType));
     }
     
     /**
@@ -151,6 +171,15 @@ public class ClassBuilderTest extends AbstractUnitTest {
     public void testCreateClassTypeMethodBuilder() {
         Assertions.assertEquals(mockMethodBuilder, builder.buildMethod(mockMethodClassType, "classMethod"));
         verify(mockMethodBuilder).setType(mockMethodClassType);
+    }
+    
+    /**
+     * Verify that the constructor builder can be properly created
+     */
+    @Test
+    public void testConstructorBuilder() {
+        Assertions.assertNotNull(builder.buildConstructor());
+        verify(mockClassType, times(2)).getSimpleName();
     }
     
     /**
@@ -233,6 +262,9 @@ public class ClassBuilderTest extends AbstractUnitTest {
         builder.implementsInterface(mockInterface1);
         builder.implementsInterface(mockInterface2);
         builder.implementsInterface(mockInterface3);
+        builder.add(mockCtor1);
+        builder.add(mockCtor2);
+        builder.add(mockCtor3);
         
         builder.applyDetails(mockClass);
 
@@ -243,6 +275,9 @@ public class ClassBuilderTest extends AbstractUnitTest {
         verify(mockClass).addField(mockField1);
         verify(mockClass).addField(mockField2);
         verify(mockClass).addField(mockField3);
+        verify(mockClass).addConstructor(mockCtor1);
+        verify(mockClass).addConstructor(mockCtor2);
+        verify(mockClass).addConstructor(mockCtor3);
     }
     
     /**

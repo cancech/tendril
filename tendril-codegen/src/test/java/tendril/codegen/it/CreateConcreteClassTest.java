@@ -182,6 +182,50 @@ public class CreateConcreteClassTest {
         matcher.eq("}");
         matcher.match(cls.generateCode());
     }
+
+    /**
+     * Verify the class generates properly if has constructors
+     */
+    @Test
+    public void testCreateWithConsturctors() {
+        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+                .buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().finish()
+                .buildConstructor().setVisibility(VisibilityType.PROTECTED)
+                    .buildParameter(new ClassType(String.class), "strParam").finish()
+                    .addCode("a", "b", "c", "d").finish()
+                .buildConstructor().setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
+                    .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
+                .build();
+
+        MultiLineStringMatcher matcher = new MultiLineStringMatcher();
+        matcher.eq("package z.x.c.v;");
+        matcher.eq("");
+        matcher.eq("import " + Generated.class.getName() + ";");
+        matcher.eq("import " + TestNonDefaultAttrAnnotation.class.getName() + ";");
+        matcher.eq("");
+        matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
+        matcher.eq("protected class B {");
+        matcher.eq("");
+        matcher.eq("    public B() {");
+        matcher.eq("    }");
+        matcher.eq("");
+        matcher.eq("    protected B(String strParam) {");
+        matcher.eq("        a");
+        matcher.eq("        b");
+        matcher.eq("        c");
+        matcher.eq("        d");
+        matcher.eq("    }");
+        matcher.eq("");
+        matcher.eq("    @TestNonDefaultAttrAnnotation(myString = \"qazwsx\")");
+        matcher.eq("    private B() {");
+        matcher.eq("        abc");
+        matcher.eq("        123");
+        matcher.eq("        qwerty");
+        matcher.eq("    }");
+        matcher.eq("");
+        matcher.eq("}");
+        matcher.match(cls.generateCode());
+    }
     
     /**
      * Verify that a complex class with a little everything can be properly generated
@@ -199,6 +243,12 @@ public class CreateConcreteClassTest {
                 .addAnnotation(JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", JValueFactory.create("qwerty"), "valInt", JValueFactory.create(789))))
                 .buildField(PrimitiveType.BOOLEAN, "booleanField").setVisibility(VisibilityType.PUBLIC).setValue(JValueFactory.create(false)).finish()
                 .buildField(VisibilityType.class, "enumField").setVisibility(VisibilityType.PRIVATE).setValue(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)).finish()
+                .buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().finish()
+                .buildConstructor().setVisibility(VisibilityType.PROTECTED)
+                    .buildParameter(new ClassType(String.class), "strParam").finish()
+                    .addCode("a", "b", "c", "d").finish()
+                .buildConstructor().setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
+                    .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
                 .build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
@@ -219,6 +269,23 @@ public class CreateConcreteClassTest {
         matcher.eq("    public boolean booleanField = false;");
         matcher.eq("");
         matcher.eq("    private VisibilityType enumField = VisibilityType.PACKAGE_PRIVATE;");
+        matcher.eq("");
+        matcher.eq("    public B() {");
+        matcher.eq("    }");
+        matcher.eq("");
+        matcher.eq("    protected B(String strParam) {");
+        matcher.eq("        a");
+        matcher.eq("        b");
+        matcher.eq("        c");
+        matcher.eq("        d");
+        matcher.eq("    }");
+        matcher.eq("");
+        matcher.eq("    @TestNonDefaultAttrAnnotation(myString = \"qazwsx\")");
+        matcher.eq("    private B() {");
+        matcher.eq("        abc");
+        matcher.eq("        123");
+        matcher.eq("        qwerty");
+        matcher.eq("    }");
         matcher.eq("");
         matcher.eq("    protected char charMethod(String strParam) {");
         matcher.eq("    }");

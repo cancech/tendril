@@ -15,6 +15,7 @@
  */
 package tendril.codegen.field;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -61,12 +62,85 @@ public class JFieldTestWithoutValue extends CommonJFieldTest {
      * Verify that the appropriate code is generated
      */
     @Test
-    public void testGenerateSelf() {
+    public void testGenerateSelfAllDefaults() {
         when(mockType.getSimpleName()).thenReturn("MockType");
 
         field.appendSelf(mockBuilder, mockImports);
         verify(mockType).registerImport(mockImports);
         verify(mockBuilder).append("MockType fieldName;");
         verify(mockType).getSimpleName();
+    }
+
+    /**
+     * Verify that the appropriate code is generated
+     */
+    @Test
+    public void testGenerateSelfAllUpdateVisibility() {
+        when(mockType.getSimpleName()).thenReturn("MockType");
+
+        int timesRepeated = 0;
+        for (VisibilityType visType: VisibilityType.values()) {
+            timesRepeated++;
+            
+            field.setVisibility(visType);
+            field.appendSelf(mockBuilder, mockImports);
+            verify(mockType, times(timesRepeated)).registerImport(mockImports);
+            verify(mockType, times(timesRepeated)).getSimpleName();
+
+            if (visType == VisibilityType.PACKAGE_PRIVATE)
+                verify(mockBuilder).append("MockType fieldName;");
+            else
+                verify(mockBuilder).append(visType.toString() + " MockType fieldName;");
+        }
+    }
+    
+    /**
+     * Verify that the static flag is properly applied
+     */
+    @Test
+    public void testGenerateSelfStaticUpdate() {
+        when(mockType.getSimpleName()).thenReturn("MockType");
+
+        field.appendSelf(mockBuilder, mockImports);
+        verify(mockType).registerImport(mockImports);
+        verify(mockBuilder).append("MockType fieldName;");
+        verify(mockType).getSimpleName();
+        
+        field.setStatic(true);
+        field.appendSelf(mockBuilder, mockImports);
+        verify(mockType, times(2)).registerImport(mockImports);
+        verify(mockBuilder).append("static MockType fieldName;");
+        verify(mockType, times(2)).getSimpleName();
+        
+        field.setStatic(false);
+        field.appendSelf(mockBuilder, mockImports);
+        verify(mockType, times(3)).registerImport(mockImports);
+        verify(mockBuilder, times(2)).append("MockType fieldName;");
+        verify(mockType, times(3)).getSimpleName();
+    }
+    
+    /**
+     * Verify that the final flag is properly applied
+     */
+    @Test
+    public void testGenerateSelfFinalUpdate() {
+        when(mockType.getSimpleName()).thenReturn("MockType");
+
+        field.appendSelf(mockBuilder, mockImports);
+        verify(mockType).registerImport(mockImports);
+        verify(mockBuilder).append("MockType fieldName;");
+        verify(mockType).getSimpleName();
+        
+        field.setFinal(true);
+        field.appendSelf(mockBuilder, mockImports);
+        verify(mockType, times(2)).registerImport(mockImports);
+        verify(mockBuilder).append("final MockType fieldName;");
+        verify(mockType, times(2)).getSimpleName();
+        
+        field.setFinal(false);
+        field.appendSelf(mockBuilder, mockImports);
+        verify(mockType, times(3)).registerImport(mockImports);
+        verify(mockBuilder, times(2)).append("MockType fieldName;");
+        verify(mockType, times(3)).getSimpleName();
     }
 }

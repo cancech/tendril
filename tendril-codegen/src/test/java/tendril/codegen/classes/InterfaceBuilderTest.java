@@ -120,4 +120,12 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
         verify(mockClass).setFinal(anyBoolean());
         verify(mockClass, times(1)).addAnnotation(any());
     }
+    
+    /**
+     * Verify that the interface cannot create a constructor
+     */
+    @Test
+    public void testCannotCreateConstructor() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildConstructor());
+    }
 }

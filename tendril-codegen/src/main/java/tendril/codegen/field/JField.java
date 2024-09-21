@@ -95,6 +95,10 @@ public class JField<DATA_TYPE extends Type> extends JVisibleType<DATA_TYPE> {
         String code = visibility.toString();
         if (!code.isEmpty())
             code += " ";
+        if (isStatic())
+            code += "static ";
+        if (isFinal())
+            code += "final ";
         code += type.getSimpleName() + " " + name;
 
         if (value == null)
