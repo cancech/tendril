@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 
 import tendril.bean.qualifier.BeanId;
 import tendril.bean.qualifier.EnumQualifier;
+import tendril.context.ApplicationContext;
 
 public class AppMain {
 	
@@ -27,6 +28,9 @@ public class AppMain {
 				}
 			}
 		}
+        
+        ApplicationContext ctx = new ApplicationContext();
+        ctx.start();
 	}
 	
 }
