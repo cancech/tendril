@@ -1,6 +1,10 @@
 rootProject.name = 'tendril'
 
+// Reusable/shared libraries
 include 'tendril-util'
 include 'tendril-codegen'
 include 'tendril-di'
 include 'tendril-test'
+
+// Tools/utilities for internal use only
+include 'tendril-test-app'
