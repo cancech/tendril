@@ -21,6 +21,8 @@ import java.util.Set;
 
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.generics.GenericFactory;
+import tendril.codegen.generics.GenericType;
 
 /**
  * The base of any element that is to be part of the generated code.
@@ -32,6 +34,7 @@ public abstract class JBase {
     private final List<JAnnotation> annotations = new ArrayList<>();
     /** Flag for whether the element is final */
     private boolean isFinal = false;
+    private GenericType generic = GenericFactory.createNoGeneric(); 
 
     /**
      * CTOR
