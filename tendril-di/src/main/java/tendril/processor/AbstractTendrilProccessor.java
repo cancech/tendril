@@ -57,13 +57,27 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
-        if (env.errorRaised() || env.processingOver())
+        if (env.errorRaised()) {
+            errorRaised();
             return false;
+        }    
+        if (env.processingOver()) {
+            processingOver();
+            return false;
+        }
 
         annotations.forEach(annotation -> {
             findAndProcessElements(annotation, env);
         });
         return false;
+    }
+    
+    protected void errorRaised() {
+        
+    }
+    
+    protected void processingOver() {
+        
     }
 
     /**
