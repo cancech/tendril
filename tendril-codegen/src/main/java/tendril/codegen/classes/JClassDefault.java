@@ -32,11 +32,11 @@ public class JClassDefault extends JClass {
 	}
 
 	/**
-	 * @see tendril.codegen.classes.JClass#classType()
+	 * @see tendril.codegen.classes.JClass#getClassKeyword()
 	 */
 	@Override
-	protected String classType() {
-		return "class";
+	protected String getClassKeyword() {
+		return "class ";
 	}
 
 }

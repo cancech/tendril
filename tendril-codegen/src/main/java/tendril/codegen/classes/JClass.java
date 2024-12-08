@@ -169,7 +169,7 @@ public abstract class JClass extends JVisibleType<ClassType> {
 
         // 
         CodeBuilder builder = new CodeBuilder();
-        builder.append(visibility.getKeyword() + getFinalKeyword() + classType() + " " + name + parentHierarchy() + " {");
+        builder.append(visibility.getKeyword() + getFinalKeyword() + getClassKeyword() + name + parentHierarchy() + " {");
         builder.blankLine();
         builder.indent();
 
@@ -203,7 +203,7 @@ public abstract class JClass extends JVisibleType<ClassType> {
      * 
      * @return {@link String} declaration construct for the class
      */
-    protected abstract String classType();
+    protected abstract String getClassKeyword();
 
     /**
      * Generate the code for representing the parent hierarchy of this class.

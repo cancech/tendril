@@ -34,11 +34,11 @@ public class JClassAnnotation extends JClassInterface {
     }
 
     /**
-     * @see tendril.codegen.classes.JClassInterface#classType()
+     * @see tendril.codegen.classes.JClassInterface#getClassKeyword()
      */
     @Override
-    protected String classType() {
-        return "@" + super.classType();
+    protected String getClassKeyword() {
+        return "@" + super.getClassKeyword();
     }
 
     /**

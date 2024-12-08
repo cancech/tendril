@@ -32,11 +32,11 @@ public class JClassInterface extends JClass {
     }
 
     /**
-     * @see tendril.codegen.classes.JClass#classType()
+     * @see tendril.codegen.classes.JClass#getClassKeyword()
      */
     @Override
-    protected String classType() {
-        return "interface";
+    protected String getClassKeyword() {
+        return "interface ";
     }
 
     /**

@@ -54,6 +54,6 @@ public class JClassDefaultTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testClassType() {
-		Assertions.assertEquals("class", cls.classType());
+		Assertions.assertEquals("class ", cls.getClassKeyword());
 	}
 }

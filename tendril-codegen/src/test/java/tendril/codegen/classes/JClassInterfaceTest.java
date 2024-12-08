@@ -57,7 +57,7 @@ public class JClassInterfaceTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testClassType() {
-		Assertions.assertEquals("interface", cls.classType());
+		Assertions.assertEquals("interface ", cls.getClassKeyword());
 	}
 	
 	/**

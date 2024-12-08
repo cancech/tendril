@@ -66,11 +66,11 @@ public class JClassTest extends AbstractUnitTest {
         }
 
         /**
-         * @see tendril.codegen.classes.JClass#classType()
+         * @see tendril.codegen.classes.JClass#getClassKeyword()
          */
         @Override
-        protected String classType() {
-            return "ClassType";
+        protected String getClassKeyword() {
+            return "ClassType ";
         }
 
     }
