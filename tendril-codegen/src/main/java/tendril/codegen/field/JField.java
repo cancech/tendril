@@ -92,13 +92,7 @@ public class JField<DATA_TYPE extends Type> extends JVisibleType<DATA_TYPE> {
     public String generateSelf(Set<ClassType> classImports) {
         type.registerImport(classImports);
 
-        String code = visibility.toString();
-        if (!code.isEmpty())
-            code += " ";
-        if (isStatic())
-            code += "static ";
-        if (isFinal())
-            code += "final ";
+        String code = visibility.getKeyword() + getStaticKeyword() + getFinalKeyword();
         code += type.getSimpleName() + " " + name;
 
         if (value == null)

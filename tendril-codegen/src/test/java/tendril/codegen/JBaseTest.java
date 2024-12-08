@@ -168,10 +168,15 @@ public class JBaseTest extends AbstractUnitTest {
     @Test
     public void testFinal() {
         Assertions.assertFalse(element.isFinal());
+        Assertions.assertEquals("", element.getFinalKeyword());
+        
         element.setFinal(true);
         Assertions.assertTrue(element.isFinal());
+        Assertions.assertEquals("final ", element.getFinalKeyword());
+        
         element.setFinal(false);
         Assertions.assertFalse(element.isFinal());
+        Assertions.assertEquals("", element.getFinalKeyword());
     }
     
     /**

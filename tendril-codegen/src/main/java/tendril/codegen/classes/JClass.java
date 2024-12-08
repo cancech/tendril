@@ -55,6 +55,17 @@ public abstract class JClass extends JVisibleType<ClassType> {
         super(data, data.getClassName());
         this.pkg = data.getPackageName();
     }
+    
+    /**
+     * @see tendril.codegen.field.JVisibleType#setStatic(boolean)
+     */
+    @Override
+    public void setStatic(boolean isStatic) {
+        if (isStatic)
+            throw new IllegalArgumentException("Classes cannot be static.");
+            
+        super.setStatic(isStatic);
+    }
 
     /**
      * Set the (explicit) parent class for this JClass.
@@ -158,10 +169,7 @@ public abstract class JClass extends JVisibleType<ClassType> {
 
         // 
         CodeBuilder builder = new CodeBuilder();
-        String visStr = visibility.toString();
-        if (!visStr.isEmpty())
-            visStr += " ";
-        builder.append(visStr + classType() + " " + name + parentHierarchy() + " {");
+        builder.append(visibility.getKeyword() + getFinalKeyword() + classType() + " " + name + parentHierarchy() + " {");
         builder.blankLine();
         builder.indent();
 
@@ -191,7 +199,7 @@ public abstract class JClass extends JVisibleType<ClassType> {
     }
 
     /**
-     * Produce the {@link String} name/representation for this class
+     * Produce the {@link String} representing the type of class that is being defined class
      * 
      * @return {@link String} declaration construct for the class
      */

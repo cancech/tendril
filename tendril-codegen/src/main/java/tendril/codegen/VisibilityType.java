@@ -41,10 +41,14 @@ public enum VisibilityType {
     }
 
     /**
-     * Converts the "visibility" to code
+     * Converts the "visibility" to the appropriate keyword
+     * 
+     * @return {@link String} the code/keyword that is to be employed for the visibility
      */
-    @Override
-    public String toString() {
-        return code;
+    public String getKeyword() {
+        if (code.isEmpty())
+            return code;
+        
+        return code + " ";
     }
 }

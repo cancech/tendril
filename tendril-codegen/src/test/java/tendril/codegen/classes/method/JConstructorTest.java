@@ -84,11 +84,7 @@ public class JConstructorTest extends AbstractUnitTest {
     public void testGenerateSignatureWithCode() {
         for (VisibilityType type: VisibilityType.values()) {
             ctor.setVisibility(type);
-            
-            String expected = "";
-            if (type != VisibilityType.PACKAGE_PRIVATE)
-                expected = type.toString() + " ";
-            Assertions.assertEquals(expected + "MockClass(PARAMETERS) {", ctor.generateSignature(mockImports, true));
+            Assertions.assertEquals(type.getKeyword() + "MockClass(PARAMETERS) {", ctor.generateSignature(mockImports, true));
         }
     }
     
@@ -98,5 +94,31 @@ public class JConstructorTest extends AbstractUnitTest {
     @Test
     public void testCtorWithoutCode() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> ctor.generateSignature(mockImports, false));
+    }
+    
+    /**
+     * Verify that the static is properly handled
+     */
+    @Test
+    public void testStatic() {
+        Assertions.assertFalse(ctor.isStatic());
+        
+        Assertions.assertThrows(IllegalArgumentException.class, () -> ctor.setStatic(true));
+        Assertions.assertFalse(ctor.isStatic());
+        ctor.setStatic(false);
+        Assertions.assertFalse(ctor.isStatic());
+    }
+    
+    /**
+     * Verify that the final is properly handled
+     */
+    @Test
+    public void testFinal() {
+        Assertions.assertFalse(ctor.isFinal());
+        
+        Assertions.assertThrows(IllegalArgumentException.class, () -> ctor.setFinal(true));
+        Assertions.assertFalse(ctor.isFinal());
+        ctor.setFinal(false);
+        Assertions.assertFalse(ctor.isFinal());
     }
 }

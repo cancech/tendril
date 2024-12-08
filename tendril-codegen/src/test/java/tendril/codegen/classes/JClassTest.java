@@ -171,6 +171,20 @@ public class JClassTest extends AbstractUnitTest {
 
         Assertions.assertEquals("ClassName", jclass.getName());
     }
+    
+    /**
+     * Verify that static is properly handled.
+     */
+    @Test
+    public void testSetStatic() {
+        Assertions.assertFalse(jclass.isStatic());
+        
+        Assertions.assertThrows(IllegalArgumentException.class, () -> jclass.setStatic(true));
+        Assertions.assertFalse(jclass.isStatic());
+        
+        jclass.setStatic(false);
+        Assertions.assertFalse(jclass.isStatic());
+    }
 
     /**
      * Helper to allow for something to be generated for a nested element when it is produced
@@ -195,8 +209,24 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateEmptyClassCode() {
         // Define what the code is expected to look like
-        startDefinition();
+        startDefinition(false);
         endDefinition();
+
+        // Verify that it matches
+        assertGeneratedCode();
+    }
+
+    /**
+     * Verify that the base class code is generated
+     */
+    @Test
+    public void testGenerateEmptyFinalClassCode() {
+        // Define what the code is expected to look like
+        startDefinition(true);
+        endDefinition();
+
+        // Add the additional features
+        jclass.setFinal(true);
 
         // Verify that it matches
         assertGeneratedCode();
@@ -208,7 +238,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithParent() {
         // Define what the code is expected to look like
-        startDefinition(Collections.emptyList(), Arrays.asList("mock.class.mockParentClass"), "extends mockParentClass");
+        startDefinition(Collections.emptyList(), false, Arrays.asList("mock.class.mockParentClass"), "extends mockParentClass");
         endDefinition();
 
         // Add the additional features
@@ -227,10 +257,11 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithInteface() {
         // Define what the code is expected to look like
-        startDefinition(Collections.emptyList(), Arrays.asList("mock.class.mockInterface1"), "implements mockInterface1");
+        startDefinition(Collections.emptyList(), true, Arrays.asList("mock.class.mockInterface1"), "implements mockInterface1");
         endDefinition();
 
         // Add the additional features
+        jclass.setFinal(true);
         jclass.setParentInterfaces(Collections.singletonList(mockInterface1));
 
         // Verify that it matches
@@ -246,7 +277,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithAnnotations() {
         // Define what the code is expected to look like
-        startDefinition(Arrays.asList("@TestMarkerAnnotation", "@TestPrimitiveAnnotation(PrimitiveType.BOOLEAN)"), TestMarkerAnnotation.class, TestPrimitiveAnnotation.class, PrimitiveType.class);
+        startDefinition(Arrays.asList("@TestMarkerAnnotation", "@TestPrimitiveAnnotation(PrimitiveType.BOOLEAN)"), false, TestMarkerAnnotation.class, TestPrimitiveAnnotation.class, PrimitiveType.class);
         endDefinition();
 
         // Add the additional features
@@ -263,7 +294,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithField() {
         // Define what the code is expected to look like
-        startDefinition(Collections.emptyList(), Arrays.asList("mockField1Type", "mockField2Type"));
+        startDefinition(Collections.emptyList(), true, Arrays.asList("mockField1Type", "mockField2Type"));
         strMatcher.eq("    mockField1");
         strMatcher.eq("");
         strMatcher.eq("    mockField2");
@@ -271,6 +302,7 @@ public class JClassTest extends AbstractUnitTest {
         endDefinition();
 
         // Add the additional features
+        jclass.setFinal(true);
         jclass.addField(mockField1);
         jclass.addField(mockField2);
 
@@ -290,7 +322,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithCtor() {
         // Define what the code is expected to look like
-        startDefinition(Collections.emptyList());
+        startDefinition(false);
         strMatcher.eq(("    mockCtor1"));
         strMatcher.eq((""));
         strMatcher.eq(("    mockCtor2"));
@@ -317,7 +349,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithMethod() {
         // Define what the code is expected to look like
-        startDefinition(Collections.emptyList());
+        startDefinition(true);
         strMatcher.eq(("    mockVoidMethod"));
         strMatcher.eq((""));
         strMatcher.eq(("    mockPrimitiveMethod"));
@@ -327,6 +359,7 @@ public class JClassTest extends AbstractUnitTest {
         endDefinition();
 
         // Add the additional features
+        jclass.setFinal(true);
         jclass.addMethod(mockVoidMethod);
         jclass.addMethod(mockPrimitiveMethod);
         jclass.addMethod(mockClassMethod);
@@ -352,7 +385,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateComplexCode() {
         // Define what the code is expected to look like
-        startDefinition(Arrays.asList("@TestMarkerAnnotation", "@TestPrimitiveAnnotation(PrimitiveType.BOOLEAN)"),
+        startDefinition(Arrays.asList("@TestMarkerAnnotation", "@TestPrimitiveAnnotation(PrimitiveType.BOOLEAN)"), false,
                 Arrays.asList("mockField1Type", "mockField2Type", "mock.class.mockParentClass", "mock.class.mockInterface1", "mock.class.mockInterface2", "mock.class.mockInterface3"),
                 "extends mockParentClass implements mockInterface1, mockInterface2, mockInterface3", TestMarkerAnnotation.class, TestPrimitiveAnnotation.class, PrimitiveType.class);
         strMatcher.eq(("    mockField1"));
@@ -433,48 +466,52 @@ public class JClassTest extends AbstractUnitTest {
     /**
      * Prepare the expected matchers for the start of the class.
      * 
+     * @param isFinal         boolean true if the class is to be defined as final
      * @param expectedImports {@link Class} representing what is expected to be imported
      */
-    private void startDefinition(Class<?>... expectedImports) {
-        startDefinition(Collections.emptyList(), expectedImports);
+    private void startDefinition(boolean isFinal, Class<?>... expectedImports) {
+        startDefinition(Collections.emptyList(), isFinal, expectedImports);
     }
 
     /**
      * Prepare the expected matchers for the start of the class.
      * 
      * @param annotations     {@link List} of {@link String}s representing additional annotations that should be present
+     * @param isFinal         boolean true if the class is to be defined as final
      * @param expectedImports {@link Class} representing what is expected to be imported
      */
-    private void startDefinition(List<String> annotations, Class<?>... expectedImports) {
-        startDefinition(annotations, Collections.emptyList(), expectedImports);
+    private void startDefinition(List<String> annotations, boolean isFinal, Class<?>... expectedImports) {
+        startDefinition(annotations, isFinal, Collections.emptyList(), expectedImports);
     }
 
     /**
      * Prepare the expected matchers for the start of the class.
      * 
      * @param annotations           {@link List} of {@link String}s representing additional annotations that should be present
+     * @param isFinal               boolean true if the class is to be defined as final
      * @param expectedCustomImports {@link List} of {@link String}s indicating what custom (not class derived) imports to use
      * @param expectedImports       {@link Class} representing what is expected to be imported
      */
-    private void startDefinition(List<String> annotations, List<String> expectedCustomImports, Class<?>... expectedImports) {
-        startDefinition(annotations, expectedCustomImports, "", expectedImports);
+    private void startDefinition(List<String> annotations, boolean isFinal, List<String> expectedCustomImports, Class<?>... expectedImports) {
+        startDefinition(annotations, isFinal, expectedCustomImports, "", expectedImports);
     }
 
     /**
      * Prepare the expected matchers for the start of the class.
      * 
      * @param annotations           {@link List} of {@link String}s representing additional annotations that should be present
+     * @param isFinal           boolean true if the class is to be defined as final
      * @param expectedCustomImports {@link List} of {@link String}s indicating what custom (not class derived) imports to use
      * @param expectedHierarchy     {@link String} indicating the defined class hierarchy (i.e.: extends/implements)
      * @param expectedImports       {@link Class} representing what is expected to be imported
      */
-    private void startDefinition(List<String> annotations, List<String> expectedCustomImports, String expectedHierarchy, Class<?>... expectedImports) {
+    private void startDefinition(List<String> annotations, boolean isFinal, List<String> expectedCustomImports, String expectedHierarchy, Class<?>... expectedImports) {
         List<String> imports = new ArrayList<>(expectedCustomImports);
         for (Class<?> c : expectedImports) {
             imports.add(c.getName());
         }
 
-        startDefinition(annotations, imports, expectedHierarchy);
+        startDefinition(annotations, imports, isFinal, expectedHierarchy);
     }
 
     /**
@@ -482,9 +519,10 @@ public class JClassTest extends AbstractUnitTest {
      * 
      * @param annotations       {@link List} of {@link String}s representing additional annotations that should be present
      * @param expectedImports   {@link List} of {@link String}s representing what is expected to be imported
+     * @param isFinal           boolean true if the class is to be defined as final
      * @param expectedHierarchy {@link String} indicating the defined class hierarchy (i.e.: extends/implements)
      */
-    private void startDefinition(List<String> annotations, List<String> expectedImports, String expectedHierarchy) {
+    private void startDefinition(List<String> annotations, List<String> expectedImports, boolean isFinal, String expectedHierarchy) {
         strMatcher = new MultiLineStringMatcher();
 
         // Prepare the package information
@@ -506,7 +544,9 @@ public class JClassTest extends AbstractUnitTest {
         expectedHierarchy = expectedHierarchy.trim();
         if (!expectedHierarchy.isEmpty())
             expectedHierarchy += " ";
-        strMatcher.eq(("ClassType ClassName " + expectedHierarchy + "{"));
+        
+        String finalKeyword = isFinal ? "final " : "";
+        strMatcher.eq((finalKeyword + "ClassType ClassName " + expectedHierarchy + "{"));
         strMatcher.eq((""));
     }
 

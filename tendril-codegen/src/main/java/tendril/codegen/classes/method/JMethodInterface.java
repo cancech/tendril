@@ -21,7 +21,7 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.Type;
 
 /**
- * Representation of a method that appears in an interface
+ * Representation of a method that appears in an interface. By default these methods will be public
  * 
  * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
@@ -36,6 +36,33 @@ class JMethodInterface<RETURN_TYPE extends Type> extends JMethod<RETURN_TYPE> {
      */
     JMethodInterface(RETURN_TYPE returnType, String name, List<String> implementation) {
         super(returnType, name, implementation);
+        setVisibility(VisibilityType.PUBLIC);
+    }
+    
+    /**
+     * @see tendril.codegen.field.JVisibleType#setVisibility(tendril.codegen.VisibilityType)
+     * 
+     * Override to prevent anything other than public or private
+     */
+    @Override
+    public void setVisibility(VisibilityType visibility) {
+        if(visibility != VisibilityType.PUBLIC && visibility != VisibilityType.PRIVATE)
+            throw new IllegalArgumentException("Interface methods can only be public or private");
+        
+        super.setVisibility(visibility);
+    }
+    
+    /**
+     * @see tendril.codegen.JBase#setFinal(boolean)
+     * 
+     * Override to prevent making the method final
+     */
+    @Override
+    public void setFinal(boolean isFinal) {
+        if (isFinal)
+            throw new IllegalArgumentException("Interface methods cannot be final");
+        
+        super.setFinal(isFinal);
     }
 
     /**
@@ -43,10 +70,20 @@ class JMethodInterface<RETURN_TYPE extends Type> extends JMethod<RETURN_TYPE> {
      */
     @Override
     protected String generateSignatureStart(boolean hasImplementation) {
-        if (VisibilityType.PUBLIC == visibility)
-            return hasImplementation ? "default " : "";
+        if (isStatic() && !hasImplementation)
+            throw new IllegalArgumentException("Static interface methods must have an implementation");
+        
+        if (VisibilityType.PUBLIC == visibility) {
+            if (hasImplementation)
+                return isStatic() ? getStaticKeyword() : "default ";
 
-        return visibility.toString() + " ";
+            return "";
+        }
+        
+        if (!hasImplementation)
+            throw new IllegalArgumentException("Private interface methods must have an implementation");
+        
+        return visibility.getKeyword() + getStaticKeyword();
     }
 
 }

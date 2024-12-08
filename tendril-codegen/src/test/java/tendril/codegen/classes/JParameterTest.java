@@ -76,6 +76,18 @@ public class JParameterTest extends AbstractUnitTest {
     }
     
     /**
+     * Verify that the appropriate code is generated for the parameter when no annotations are present
+     */
+    @Test
+    public void testGenerateSelfFinalNoAnnotations() {
+        param.setFinal(true);
+        param.generate(mockBuilder, mockImports);
+        verify(mockType).registerImport(mockImports);
+        verify(mockType).getSimpleName();
+        verify(mockBuilder).append("final MockType parameterName");
+    }
+    
+    /**
      * Verify that the appropriate code is generated for the parameter when a single annotation is applied
      */
     @Test

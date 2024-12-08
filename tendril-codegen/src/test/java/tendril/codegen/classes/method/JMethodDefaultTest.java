@@ -15,6 +15,9 @@
  */
 package tendril.codegen.classes.method;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import java.util.Collections;
 
 import org.junit.jupiter.api.Assertions;
@@ -40,25 +43,47 @@ public class JMethodDefaultTest extends AbstractMethodTest {
      * Verify that the appropriate method signature start is generated
      */
     @Test
-    public void testSignatureStart() {
+    public void testSignatureStartNoImplementation() {
         JMethodDefault<Type> method = new JMethodDefault<>(mockReturnType, "defaultMethod", Collections.emptyList());
         method.setVisibility(mockVisibility);
         verifyMethodInit("defaultMethod", method);
-
         Assertions.assertEquals("mockVisibility abstract ", method.generateSignatureStart(false));
-        Assertions.assertEquals("mockVisibility ", method.generateSignatureStart(true));
+        verify(mockVisibility).getKeyword();
+        
+        method.setFinal(true);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> method.generateSignatureStart(false));
+        verify(mockVisibility, times(2)).getKeyword();
+        
+        method.setFinal(false);
+        method.setStatic(true);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> method.generateSignatureStart(false));
+        verify(mockVisibility, times(3)).getKeyword();
+        
+        method.setStatic(false);
+        method.setVisibility(VisibilityType.PACKAGE_PRIVATE);
+        Assertions.assertEquals("abstract ", method.generateSignatureStart(false));
     }
     
     /**
      * Verify that the package private special case works as expected
      */
     @Test
-    public void testPackagePrivateSignatureStart() {
+    public void testSignatureStartWithImplementation() {
         JMethodDefault<Type> method = new JMethodDefault<>(mockReturnType, "defaultMethod", Collections.emptyList());
-        method.setVisibility(VisibilityType.PACKAGE_PRIVATE);
+        method.setVisibility(mockVisibility);
         verifyMethodInit("defaultMethod", method);
-
-        Assertions.assertEquals("abstract ", method.generateSignatureStart(false));
-        Assertions.assertEquals("", method.generateSignatureStart(true));
+        Assertions.assertEquals("mockVisibility ", method.generateSignatureStart(true));
+        verify(mockVisibility).getKeyword();
+        
+        method.setFinal(true);
+        Assertions.assertEquals("mockVisibility final ", method.generateSignatureStart(true));
+        verify(mockVisibility, times(2)).getKeyword();
+        
+        method.setStatic(true);
+        Assertions.assertEquals("mockVisibility static final ", method.generateSignatureStart(true));
+        verify(mockVisibility, times(3)).getKeyword();
+        
+        method.setVisibility(VisibilityType.PACKAGE_PRIVATE);
+        Assertions.assertEquals("static final ", method.generateSignatureStart(true));
     }
 }

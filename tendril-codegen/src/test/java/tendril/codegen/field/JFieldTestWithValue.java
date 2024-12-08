@@ -43,6 +43,7 @@ public class JFieldTestWithValue extends CommonJFieldTest {
     @Override
     protected void prepareTest() {
         field = create(VisibilityType.PUBLIC, mockType, "fieldName", mockValue);
+        Assertions.assertEquals(mockValue, field.getValue());
     }
 
     /**
@@ -69,13 +70,32 @@ public class JFieldTestWithValue extends CommonJFieldTest {
      * Verify that the appropriate code is generated
      */
     @Test
-    public void testGenerateSelf() {
+    public void testGenerateSelf_PublicNotStaticNotFinal() {
         when(mockType.getSimpleName()).thenReturn("MockType");
         when(mockValue.generate(mockImports)).thenReturn("value");
         
         field.appendSelf(mockBuilder, mockImports);
         verify(mockType).registerImport(mockImports);
         verify(mockBuilder).append("public MockType fieldName = value;");
+        verify(mockType).getSimpleName();
+        verify(mockValue).generate(mockImports);
+    }
+    
+    /**
+     * Verify that the appropriate code is generated
+     */
+    @Test
+    public void testGenerateSelf_PrivateStaticFinal() {
+        field = create(VisibilityType.PRIVATE, mockType, "fieldName", mockValue);
+        field.setStatic(true);
+        field.setFinal(true);
+        
+        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockValue.generate(mockImports)).thenReturn("value");
+        
+        field.appendSelf(mockBuilder, mockImports);
+        verify(mockType).registerImport(mockImports);
+        verify(mockBuilder).append("private static final MockType fieldName = value;");
         verify(mockType).getSimpleName();
         verify(mockValue).generate(mockImports);
     }

@@ -28,10 +28,10 @@ public class VisibilityTypeTest {
 	 */
 	@Test
 	public void testItems() {
-		Assertions.assertEquals("public", VisibilityType.PUBLIC.toString());
-		Assertions.assertEquals("private", VisibilityType.PRIVATE.toString());
-		Assertions.assertEquals("", VisibilityType.PACKAGE_PRIVATE.toString());
-		Assertions.assertEquals("protected", VisibilityType.PROTECTED.toString());
+		Assertions.assertEquals("public " , VisibilityType.PUBLIC.getKeyword());
+		Assertions.assertEquals("private ", VisibilityType.PRIVATE.getKeyword());
+		Assertions.assertEquals("", VisibilityType.PACKAGE_PRIVATE.getKeyword());
+		Assertions.assertEquals("protected ", VisibilityType.PROTECTED.getKeyword());
 	}
 
 }

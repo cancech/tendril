@@ -76,4 +76,16 @@ public abstract class JVisibleType<DATA_TYPE extends Type> extends JType<DATA_TY
         return isStatic;
     }
     
+    /**
+     * Get the keyword to use in the code.
+     * 
+     * @return {@link String} they keyword (or nothing if static is not applied).
+     */
+    public String getStaticKeyword() {
+        if (!isStatic)
+            return "";
+        
+        return "static ";
+    }
+    
 }

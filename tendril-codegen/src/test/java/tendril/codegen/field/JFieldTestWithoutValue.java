@@ -37,6 +37,7 @@ public class JFieldTestWithoutValue extends CommonJFieldTest {
     @Override
     protected void prepareTest() {
         field = create(VisibilityType.PACKAGE_PRIVATE, mockType, "fieldName");
+        Assertions.assertNull(field.getValue());
     }
 
     /**
@@ -86,11 +87,7 @@ public class JFieldTestWithoutValue extends CommonJFieldTest {
             field.appendSelf(mockBuilder, mockImports);
             verify(mockType, times(timesRepeated)).registerImport(mockImports);
             verify(mockType, times(timesRepeated)).getSimpleName();
-
-            if (visType == VisibilityType.PACKAGE_PRIVATE)
-                verify(mockBuilder).append("MockType fieldName;");
-            else
-                verify(mockBuilder).append(visType.toString() + " MockType fieldName;");
+            verify(mockBuilder).append(visType.getKeyword() + "MockType fieldName;");
         }
     }
     
