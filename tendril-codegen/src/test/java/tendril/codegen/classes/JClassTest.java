@@ -43,6 +43,7 @@ import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.VoidType;
 import tendril.codegen.field.value.JValueFactory;
+import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.matchers.MultiLineStringMatcher;
 import tendril.test.helper.annotation.TestMarkerAnnotation;
@@ -103,19 +104,33 @@ public class JClassTest extends AbstractUnitTest {
     @Mock
     private ClassType mockField2Type;
     @Mock
-    private ClassType mockParentClass;
+    private JClass mockParentClass;
     @Mock
-    private ClassType mockInterface1;
+    private ClassType mockParentClassType;
     @Mock
-    private ClassType mockInterface2;
+    private JClass mockInterface1;
     @Mock
-    private ClassType mockInterface3;
+    private ClassType mockInterface1ClassType;
+    @Mock
+    private JClass mockInterface2;
+    @Mock
+    private ClassType mockInterface2ClassType;
+    @Mock
+    private JClass mockInterface3;
+    @Mock
+    private ClassType mockInterface3ClassType;
     @Mock
     private JConstructor mockCtor1;
     @Mock
     private JConstructor mockCtor2;
     @Mock
     private JConstructor mockCtor3;
+    @Mock
+    private GenericType mockGeneric1;
+    @Mock
+    private GenericType mockGeneric2;
+    @Mock
+    private GenericType mockGeneric3;
 
     // Helper to match the generate code
     private MultiLineStringMatcher strMatcher;
@@ -139,18 +154,44 @@ public class JClassTest extends AbstractUnitTest {
         lenient().when(mockField1Type.getFullyQualifiedName()).thenReturn("mockField1Type");
         lenient().when(mockField2Type.getPackageName()).thenReturn("mockField2TypePackage");
         lenient().when(mockField2Type.getFullyQualifiedName()).thenReturn("mockField2Type");
-        lenient().when(mockParentClass.getSimpleName()).thenReturn("mockParentClass");
-        lenient().when(mockParentClass.getPackageName()).thenReturn("mock.class");
-        lenient().when(mockParentClass.getFullyQualifiedName()).thenReturn("mock.class.mockParentClass");
-        lenient().when(mockInterface1.getSimpleName()).thenReturn("mockInterface1");
-        lenient().when(mockInterface1.getPackageName()).thenReturn("mock.class");
-        lenient().when(mockInterface1.getFullyQualifiedName()).thenReturn("mock.class.mockInterface1");
-        lenient().when(mockInterface2.getSimpleName()).thenReturn("mockInterface2");
-        lenient().when(mockInterface2.getPackageName()).thenReturn("mock.class");
-        lenient().when(mockInterface2.getFullyQualifiedName()).thenReturn("mock.class.mockInterface2");
-        lenient().when(mockInterface3.getSimpleName()).thenReturn("mockInterface3");
-        lenient().when(mockInterface3.getPackageName()).thenReturn("mock.class");
-        lenient().when(mockInterface3.getFullyQualifiedName()).thenReturn("mock.class.mockInterface3");
+        lenient().when(mockParentClass.getType()).thenReturn(mockParentClassType);
+        lenient().when(mockParentClass.getName()).thenReturn("mockParentClass");
+        lenient().when(mockParentClass.getGenericsApplicationKeyword(true)).thenReturn(" ");
+        lenient().when(mockParentClass.getGenericsApplicationKeyword(false)).thenReturn("");
+        lenient().when(mockParentClass.getGenericsDefinitionKeyword(true)).thenReturn(" ");
+        lenient().when(mockParentClass.getGenericsDefinitionKeyword(false)).thenReturn("");
+        lenient().when(mockParentClassType.getPackageName()).thenReturn("mock.class");
+        lenient().when(mockParentClassType.getFullyQualifiedName()).thenReturn("mock.class.mockParentClass");
+        lenient().when(mockInterface1.getType()).thenReturn(mockInterface1ClassType);
+        lenient().when(mockInterface1.getName()).thenReturn("mockInterface1");
+        lenient().when(mockInterface1.getGenericsApplicationKeyword(true)).thenReturn(" ");
+        lenient().when(mockInterface1.getGenericsApplicationKeyword(false)).thenReturn("");
+        lenient().when(mockInterface1.getGenericsDefinitionKeyword(true)).thenReturn(" ");
+        lenient().when(mockInterface1.getGenericsDefinitionKeyword(false)).thenReturn("");
+        lenient().when(mockInterface1ClassType.getPackageName()).thenReturn("mock.class");
+        lenient().when(mockInterface1ClassType.getFullyQualifiedName()).thenReturn("mock.class.mockInterface1");
+        lenient().when(mockInterface2.getType()).thenReturn(mockInterface2ClassType);
+        lenient().when(mockInterface2.getName()).thenReturn("mockInterface2");
+        lenient().when(mockInterface2.getGenericsApplicationKeyword(true)).thenReturn(" ");
+        lenient().when(mockInterface2.getGenericsApplicationKeyword(false)).thenReturn("");
+        lenient().when(mockInterface2.getGenericsDefinitionKeyword(true)).thenReturn(" ");
+        lenient().when(mockInterface2.getGenericsDefinitionKeyword(false)).thenReturn("");
+        lenient().when(mockInterface2ClassType.getPackageName()).thenReturn("mock.class");
+        lenient().when(mockInterface2ClassType.getFullyQualifiedName()).thenReturn("mock.class.mockInterface2");
+        lenient().when(mockInterface3.getType()).thenReturn(mockInterface3ClassType);
+        lenient().when(mockInterface3.getName()).thenReturn("mockInterface3");
+        lenient().when(mockInterface3.getGenericsApplicationKeyword(true)).thenReturn(" ");
+        lenient().when(mockInterface3.getGenericsApplicationKeyword(false)).thenReturn("");
+        lenient().when(mockInterface3.getGenericsDefinitionKeyword(true)).thenReturn(" ");
+        lenient().when(mockInterface3.getGenericsDefinitionKeyword(false)).thenReturn("");
+        lenient().when(mockInterface3ClassType.getPackageName()).thenReturn("mock.class");
+        lenient().when(mockInterface3ClassType.getFullyQualifiedName()).thenReturn("mock.class.mockInterface3");
+        lenient().when(mockGeneric1.generateDefinition()).thenReturn("GEN_1_DEF");
+        lenient().when(mockGeneric1.generateApplication()).thenReturn("GEN_1_APP");
+        lenient().when(mockGeneric2.generateDefinition()).thenReturn("GEN_2_DEF");
+        lenient().when(mockGeneric2.generateApplication()).thenReturn("GEN_2_APP");
+        lenient().when(mockGeneric3.generateDefinition()).thenReturn("GEN_3_DEF");
+        lenient().when(mockGeneric3.generateApplication()).thenReturn("GEN_3_APP");
 
         mockElementGeneration(mockField1, "mockField1", mockField1Type);
         mockElementGeneration(mockField2, "mockField2", mockField2Type);
@@ -209,7 +250,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateEmptyClassCode() {
         // Define what the code is expected to look like
-        startDefinition(false);
+        startDefinition(false, "");
         endDefinition();
 
         // Verify that it matches
@@ -222,7 +263,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateEmptyFinalClassCode() {
         // Define what the code is expected to look like
-        startDefinition(true);
+        startDefinition(true, "");
         endDefinition();
 
         // Add the additional features
@@ -238,7 +279,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithParent() {
         // Define what the code is expected to look like
-        startDefinition(Collections.emptyList(), false, Arrays.asList("mock.class.mockParentClass"), "extends mockParentClass");
+        startDefinition(Collections.emptyList(), false, "", Arrays.asList("mock.class.mockParentClass"), "extends mockParentClass");
         endDefinition();
 
         // Add the additional features
@@ -246,9 +287,11 @@ public class JClassTest extends AbstractUnitTest {
 
         // Verify that it matches
         assertGeneratedCode();
-        verify(mockParentClass).getSimpleName();
-        verify(mockParentClass).getPackageName();
-        verify(mockParentClass).getFullyQualifiedName();
+        verify(mockParentClass).getType();
+        verify(mockParentClass).getName();
+        verify(mockParentClass).getGenericsApplicationKeyword(true);
+        verify(mockParentClassType).getPackageName();
+        verify(mockParentClassType).getFullyQualifiedName();
     }
 
     /**
@@ -257,7 +300,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithInteface() {
         // Define what the code is expected to look like
-        startDefinition(Collections.emptyList(), true, Arrays.asList("mock.class.mockInterface1"), "implements mockInterface1");
+        startDefinition(Collections.emptyList(), true, "", Arrays.asList("mock.class.mockInterface1"), "implements mockInterface1");
         endDefinition();
 
         // Add the additional features
@@ -266,9 +309,11 @@ public class JClassTest extends AbstractUnitTest {
 
         // Verify that it matches
         assertGeneratedCode();
-        verify(mockInterface1).getSimpleName();
-        verify(mockInterface1).getPackageName();
-        verify(mockInterface1).getFullyQualifiedName();
+        verify(mockInterface1).getType();
+        verify(mockInterface1).getName();
+        verify(mockInterface1).getGenericsApplicationKeyword(false);
+        verify(mockInterface1ClassType).getPackageName();
+        verify(mockInterface1ClassType).getFullyQualifiedName();
     }
 
     /**
@@ -277,7 +322,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithAnnotations() {
         // Define what the code is expected to look like
-        startDefinition(Arrays.asList("@TestMarkerAnnotation", "@TestPrimitiveAnnotation(PrimitiveType.BOOLEAN)"), false, TestMarkerAnnotation.class, TestPrimitiveAnnotation.class, PrimitiveType.class);
+        startDefinition(Arrays.asList("@TestMarkerAnnotation", "@TestPrimitiveAnnotation(PrimitiveType.BOOLEAN)"), false, "", TestMarkerAnnotation.class, TestPrimitiveAnnotation.class, PrimitiveType.class);
         endDefinition();
 
         // Add the additional features
@@ -294,7 +339,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithField() {
         // Define what the code is expected to look like
-        startDefinition(Collections.emptyList(), true, Arrays.asList("mockField1Type", "mockField2Type"));
+        startDefinition(Collections.emptyList(), true, "", Arrays.asList("mockField1Type", "mockField2Type"));
         strMatcher.eq("    mockField1");
         strMatcher.eq("");
         strMatcher.eq("    mockField2");
@@ -322,7 +367,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithCtor() {
         // Define what the code is expected to look like
-        startDefinition(false);
+        startDefinition(false, "");
         strMatcher.eq(("    mockCtor1"));
         strMatcher.eq((""));
         strMatcher.eq(("    mockCtor2"));
@@ -349,7 +394,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithMethod() {
         // Define what the code is expected to look like
-        startDefinition(true);
+        startDefinition(true, "");
         strMatcher.eq(("    mockVoidMethod"));
         strMatcher.eq((""));
         strMatcher.eq(("    mockPrimitiveMethod"));
@@ -380,14 +425,117 @@ public class JClassTest extends AbstractUnitTest {
     }
 
     /**
+     * Verify that the class can have generics
+     */
+    @Test
+    public void testGenerateCodeWithSingleGeneric() {
+        // Define what the code is expected to look like
+        startDefinition(false, "<GEN_1_DEF>");
+        endDefinition();
+
+        // Add the additional features
+        jclass.addGeneric(mockGeneric1);
+
+        // Verify that it matches
+        assertGeneratedCode();
+        verify(mockGeneric1).generateDefinition();
+        verify(mockGeneric1).registerImport(anySet());
+    }
+
+    /**
+     * Verify that the class can have generics
+     */
+    @Test
+    public void testGenerateCodeWithMultipleGeneric() {
+        // Define what the code is expected to look like
+        startDefinition(false, "<GEN_1_DEF, GEN_2_DEF, GEN_3_DEF>");
+        endDefinition();
+
+        // Add the additional features
+        jclass.addGeneric(mockGeneric1);
+        jclass.addGeneric(mockGeneric2);
+        jclass.addGeneric(mockGeneric3);
+
+        // Verify that it matches
+        assertGeneratedCode();
+        verify(mockGeneric1).generateDefinition();
+        verify(mockGeneric2).generateDefinition();
+        verify(mockGeneric3).generateDefinition();
+        verify(mockGeneric1).registerImport(anySet());
+        verify(mockGeneric2).registerImport(anySet());
+        verify(mockGeneric3).registerImport(anySet());
+    }
+
+    /**
+     * Verify that the class can have generics
+     */
+    @Test
+    public void testGenerateCodeWithParentGeneric() {
+        when(mockParentClass.getGenericsApplicationKeyword(true)).thenReturn("<PARENT_GEN> ");
+        
+        // Define what the code is expected to look like
+        startDefinition(Collections.emptyList(), Collections.singletonList("mock.class.mockParentClass"), false, "", "extends mockParentClass<PARENT_GEN>");
+        endDefinition();
+
+        // Add the additional features
+        jclass.setParentClass(mockParentClass);
+
+        // Verify that it matches
+        assertGeneratedCode();
+        verify(mockParentClass).getType();
+        verify(mockParentClass).getName();
+        verify(mockParentClassType).getPackageName();
+        verify(mockParentClassType).getFullyQualifiedName();
+        verify(mockParentClass).getGenericsApplicationKeyword(true);
+    }
+
+    /**
+     * Verify that the class can have generics
+     */
+    @Test
+    public void testGenerateCodeWithIntertfaceGeneric() {
+        when(mockInterface1.getGenericsApplicationKeyword(false)).thenReturn("<IFACE_1_GEN>");
+        when(mockInterface3.getGenericsApplicationKeyword(false)).thenReturn("<IFACE_3_GEN>");
+        
+        // Define what the code is expected to look like
+        startDefinition(Collections.emptyList(), Arrays.asList("mock.class.mockInterface1", "mock.class.mockInterface2", "mock.class.mockInterface3"), 
+                false, "", "implements mockInterface1<IFACE_1_GEN>, mockInterface2, mockInterface3<IFACE_3_GEN>");
+        endDefinition();
+
+        // Add the additional features
+        jclass.setParentInterfaces(Arrays.asList(mockInterface1, mockInterface2, mockInterface3));
+
+        // Verify that it matches
+        assertGeneratedCode();
+        verify(mockInterface1).getType();
+        verify(mockInterface1).getName();
+        verify(mockInterface1ClassType).getPackageName();
+        verify(mockInterface1ClassType, atLeastOnce()).getFullyQualifiedName();
+        verify(mockInterface1).getGenericsApplicationKeyword(false);
+        verify(mockInterface2).getType();
+        verify(mockInterface2).getName();
+        verify(mockInterface2ClassType).getPackageName();
+        verify(mockInterface2ClassType, atLeastOnce()).getFullyQualifiedName();
+        verify(mockInterface2).getGenericsApplicationKeyword(false);
+        verify(mockInterface3).getType();
+        verify(mockInterface3).getName();
+        verify(mockInterface3ClassType).getPackageName();
+        verify(mockInterface3ClassType, atLeastOnce()).getFullyQualifiedName();
+        verify(mockInterface3).getGenericsApplicationKeyword(false);
+    }
+
+    /**
      * Verify that the class can have custom annotations, methods, and fields
      */
     @Test
     public void testGenerateComplexCode() {
+        when(mockParentClass.getGenericsApplicationKeyword(true)).thenReturn("<PARENT_GEN> ");
+        when(mockInterface2.getGenericsApplicationKeyword(false)).thenReturn("<IFACE_2_GEN>");
+        
         // Define what the code is expected to look like
-        startDefinition(Arrays.asList("@TestMarkerAnnotation", "@TestPrimitiveAnnotation(PrimitiveType.BOOLEAN)"), false,
+        startDefinition(Arrays.asList("@TestMarkerAnnotation", "@TestPrimitiveAnnotation(PrimitiveType.BOOLEAN)"), false, "<GEN_1_DEF, GEN_2_DEF, GEN_3_DEF>",
                 Arrays.asList("mockField1Type", "mockField2Type", "mock.class.mockParentClass", "mock.class.mockInterface1", "mock.class.mockInterface2", "mock.class.mockInterface3"),
-                "extends mockParentClass implements mockInterface1, mockInterface2, mockInterface3", TestMarkerAnnotation.class, TestPrimitiveAnnotation.class, PrimitiveType.class);
+                "extends mockParentClass<PARENT_GEN> implements mockInterface1, mockInterface2<IFACE_2_GEN>, mockInterface3", TestMarkerAnnotation.class, TestPrimitiveAnnotation.class, PrimitiveType.class);
         strMatcher.eq(("    mockField1"));
         strMatcher.eq((""));
         strMatcher.eq(("    mockField2"));
@@ -419,6 +567,9 @@ public class JClassTest extends AbstractUnitTest {
         jclass.addConstructor(mockCtor1);
         jclass.addConstructor(mockCtor2);
         jclass.addConstructor(mockCtor3);
+        jclass.addGeneric(mockGeneric1);
+        jclass.addGeneric(mockGeneric2);
+        jclass.addGeneric(mockGeneric3);
 
         // Verify that it matches
         assertGeneratedCode();
@@ -439,21 +590,35 @@ public class JClassTest extends AbstractUnitTest {
         verify(mockField2Type, atLeastOnce()).getFullyQualifiedName();
         verify(mockField1Type).getPackageName();
         verify(mockField2Type).getPackageName();
-        verify(mockParentClass).getSimpleName();
-        verify(mockParentClass).getPackageName();
-        verify(mockParentClass, atLeastOnce()).getFullyQualifiedName();
-        verify(mockInterface1).getSimpleName();
-        verify(mockInterface1).getPackageName();
-        verify(mockInterface1, atLeastOnce()).getFullyQualifiedName();
-        verify(mockInterface2).getSimpleName();
-        verify(mockInterface2).getPackageName();
-        verify(mockInterface2, atLeastOnce()).getFullyQualifiedName();
-        verify(mockInterface3).getSimpleName();
-        verify(mockInterface3).getPackageName();
-        verify(mockInterface3, atLeastOnce()).getFullyQualifiedName();
+        verify(mockParentClass).getType();
+        verify(mockParentClass).getName();
+        verify(mockParentClass).getGenericsApplicationKeyword(true);
+        verify(mockParentClassType).getPackageName();
+        verify(mockParentClassType, atLeastOnce()).getFullyQualifiedName();
+        verify(mockInterface1).getType();
+        verify(mockInterface1).getName();
+        verify(mockInterface1).getGenericsApplicationKeyword(false);
+        verify(mockInterface1ClassType).getPackageName();
+        verify(mockInterface1ClassType, atLeastOnce()).getFullyQualifiedName();
+        verify(mockInterface2).getType();
+        verify(mockInterface2).getName();
+        verify(mockInterface2).getGenericsApplicationKeyword(false);
+        verify(mockInterface2ClassType).getPackageName();
+        verify(mockInterface2ClassType, atLeastOnce()).getFullyQualifiedName();
+        verify(mockInterface3).getType();
+        verify(mockInterface3).getName();
+        verify(mockInterface3).getGenericsApplicationKeyword(false);
+        verify(mockInterface3ClassType).getPackageName();
+        verify(mockInterface3ClassType, atLeastOnce()).getFullyQualifiedName();
         verify(mockCtor1).generate(any(CodeBuilder.class), anySet());
         verify(mockCtor2).generate(any(CodeBuilder.class), anySet());
         verify(mockCtor3).generate(any(CodeBuilder.class), anySet());
+        verify(mockGeneric1).generateDefinition();
+        verify(mockGeneric2).generateDefinition();
+        verify(mockGeneric3).generateDefinition();
+        verify(mockGeneric1).registerImport(anySet());
+        verify(mockGeneric2).registerImport(anySet());
+        verify(mockGeneric3).registerImport(anySet());
     }
 
     /**
@@ -467,10 +632,11 @@ public class JClassTest extends AbstractUnitTest {
      * Prepare the expected matchers for the start of the class.
      * 
      * @param isFinal         boolean true if the class is to be defined as final
+     * @param expectedGenerics      {@link String} indicating the generics to be applied to the class
      * @param expectedImports {@link Class} representing what is expected to be imported
      */
-    private void startDefinition(boolean isFinal, Class<?>... expectedImports) {
-        startDefinition(Collections.emptyList(), isFinal, expectedImports);
+    private void startDefinition(boolean isFinal, String expectedGenerics, Class<?>... expectedImports) {
+        startDefinition(Collections.emptyList(), isFinal, expectedGenerics, expectedImports);
     }
 
     /**
@@ -478,10 +644,11 @@ public class JClassTest extends AbstractUnitTest {
      * 
      * @param annotations     {@link List} of {@link String}s representing additional annotations that should be present
      * @param isFinal         boolean true if the class is to be defined as final
+     * @param expectedGenerics      {@link String} indicating the generics to be applied to the class
      * @param expectedImports {@link Class} representing what is expected to be imported
      */
-    private void startDefinition(List<String> annotations, boolean isFinal, Class<?>... expectedImports) {
-        startDefinition(annotations, isFinal, Collections.emptyList(), expectedImports);
+    private void startDefinition(List<String> annotations, boolean isFinal, String expectedGenerics, Class<?>... expectedImports) {
+        startDefinition(annotations, isFinal, expectedGenerics, Collections.emptyList(), expectedImports);
     }
 
     /**
@@ -489,29 +656,31 @@ public class JClassTest extends AbstractUnitTest {
      * 
      * @param annotations           {@link List} of {@link String}s representing additional annotations that should be present
      * @param isFinal               boolean true if the class is to be defined as final
+     * @param expectedGenerics      {@link String} indicating the generics to be applied to the class
      * @param expectedCustomImports {@link List} of {@link String}s indicating what custom (not class derived) imports to use
      * @param expectedImports       {@link Class} representing what is expected to be imported
      */
-    private void startDefinition(List<String> annotations, boolean isFinal, List<String> expectedCustomImports, Class<?>... expectedImports) {
-        startDefinition(annotations, isFinal, expectedCustomImports, "", expectedImports);
+    private void startDefinition(List<String> annotations, boolean isFinal, String expectedGenerics, List<String> expectedCustomImports, Class<?>... expectedImports) {
+        startDefinition(annotations, isFinal, expectedGenerics, expectedCustomImports, "", expectedImports);
     }
 
     /**
      * Prepare the expected matchers for the start of the class.
      * 
      * @param annotations           {@link List} of {@link String}s representing additional annotations that should be present
-     * @param isFinal           boolean true if the class is to be defined as final
+     * @param isFinal               boolean true if the class is to be defined as final
+     * @param expectedGenerics      {@link String} indicating the generics to be applied to the class
      * @param expectedCustomImports {@link List} of {@link String}s indicating what custom (not class derived) imports to use
      * @param expectedHierarchy     {@link String} indicating the defined class hierarchy (i.e.: extends/implements)
      * @param expectedImports       {@link Class} representing what is expected to be imported
      */
-    private void startDefinition(List<String> annotations, boolean isFinal, List<String> expectedCustomImports, String expectedHierarchy, Class<?>... expectedImports) {
+    private void startDefinition(List<String> annotations, boolean isFinal, String expectedGenerics, List<String> expectedCustomImports, String expectedHierarchy, Class<?>... expectedImports) {
         List<String> imports = new ArrayList<>(expectedCustomImports);
         for (Class<?> c : expectedImports) {
             imports.add(c.getName());
         }
 
-        startDefinition(annotations, imports, isFinal, expectedHierarchy);
+        startDefinition(annotations, imports, isFinal, expectedGenerics, expectedHierarchy);
     }
 
     /**
@@ -520,9 +689,10 @@ public class JClassTest extends AbstractUnitTest {
      * @param annotations       {@link List} of {@link String}s representing additional annotations that should be present
      * @param expectedImports   {@link List} of {@link String}s representing what is expected to be imported
      * @param isFinal           boolean true if the class is to be defined as final
+     * @param expectedGenerics  {@link String} indicating the generics to be applied to the class
      * @param expectedHierarchy {@link String} indicating the defined class hierarchy (i.e.: extends/implements)
      */
-    private void startDefinition(List<String> annotations, List<String> expectedImports, boolean isFinal, String expectedHierarchy) {
+    private void startDefinition(List<String> annotations, List<String> expectedImports, boolean isFinal, String expectedGenerics, String expectedHierarchy) {
         strMatcher = new MultiLineStringMatcher();
 
         // Prepare the package information
@@ -546,7 +716,7 @@ public class JClassTest extends AbstractUnitTest {
             expectedHierarchy += " ";
         
         String finalKeyword = isFinal ? "final " : "";
-        strMatcher.eq((finalKeyword + "ClassType ClassName " + expectedHierarchy + "{"));
+        strMatcher.eq((finalKeyword + "ClassType ClassName" + expectedGenerics + " " + expectedHierarchy + "{"));
         strMatcher.eq((""));
     }
 

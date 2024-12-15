@@ -45,9 +45,9 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     /** The constructors for initializing the class */
     protected final List<JConstructor> ctors = new ArrayList<>();
     /** The representation of the explicit parent class */
-    protected ClassType parent = null;
+    protected JClass parent = null;
     /** The representation of the interfaces the class implements */
-    protected List<ClassType> interfaces = new ArrayList<>();
+    protected List<JClass> interfaces = new ArrayList<>();
 
     /**
      * Get the class builder for creating concrete classes
@@ -116,10 +116,10 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     /**
      * Specify the parent class that the defined class is to extend
      * 
-     * @param parent {@link ClassType} representing the desired parent class
+     * @param parent {@link JClass} representing the desired parent class
      * @return {@link ClassBuilder}
      */
-    public ClassBuilder extendsClass(ClassType parent) {
+    public ClassBuilder extendsClass(JClass parent) {
         this.parent = parent;
         return this;
     }
@@ -127,10 +127,10 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     /**
      * Add an interface that the defined class is to implement
      * 
-     * @param iface {@link ClassType} representing the desired interface
+     * @param iface {@link JClass} representing the desired interface
      * @return {@link ClassBuilder}
      */
-    public ClassBuilder implementsInterface(ClassType iface) {
+    public ClassBuilder implementsInterface(JClass iface) {
         this.interfaces.add(iface);
         return this;
     }

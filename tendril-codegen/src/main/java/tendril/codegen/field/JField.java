@@ -93,7 +93,7 @@ public class JField<DATA_TYPE extends Type> extends JVisibleType<DATA_TYPE> {
         type.registerImport(classImports);
 
         String code = visibility.getKeyword() + getStaticKeyword() + getFinalKeyword();
-        code += type.getSimpleName() + " " + name;
+        code += type.getSimpleName() + getGenericsApplicationKeyword(true) + name;
 
         if (value == null)
             return code + ";";

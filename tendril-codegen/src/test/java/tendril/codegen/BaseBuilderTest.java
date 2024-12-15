@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.annotation.JAnnotation;
+import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -77,6 +78,12 @@ public class BaseBuilderTest extends AbstractUnitTest {
     private JAnnotation mockAnnotation2;
     @Mock
     private JAnnotation mockAnnotation3;
+    @Mock
+    private GenericType mockGeneric1;
+    @Mock
+    private GenericType mockGeneric2;
+    @Mock
+    private GenericType mockGeneric3;
 
     // Instance to use for testing
     private TestBaseBuilder builder;
@@ -103,17 +110,23 @@ public class BaseBuilderTest extends AbstractUnitTest {
      * Verify that the proper values are applied
      */
     @Test
-    public void testFinalWithAnnotations() {
+    public void testFinalWithAnnotationsWithGenerics() {
         builder.setFinal(true);
         builder.addAnnotation(mockAnnotation1);
         builder.addAnnotation(mockAnnotation2);
         builder.addAnnotation(mockAnnotation3);
+        builder.addGeneric(mockGeneric1);
+        builder.addGeneric(mockGeneric2);
+        builder.addGeneric(mockGeneric3);
         
         Assertions.assertEquals(mockElement, builder.build());
         verify(mockElement).setFinal(true);
         verify(mockElement).addAnnotation(mockAnnotation1);
         verify(mockElement).addAnnotation(mockAnnotation2);
         verify(mockElement).addAnnotation(mockAnnotation3);
+        verify(mockElement).addGeneric(mockGeneric1);
+        verify(mockElement).addGeneric(mockGeneric2);
+        verify(mockElement).addGeneric(mockGeneric3);
         builder.verifyInteractions(1, 1);
     }
     
@@ -121,13 +134,15 @@ public class BaseBuilderTest extends AbstractUnitTest {
      * Verify that the proper values are applied
      */
     @Test
-    public void testNotFinalSingleAnnotation() {
+    public void testNotFinalSingleAnnotationSingleGeneric() {
         builder.setFinal(true);
         builder.addAnnotation(mockAnnotation2);
+        builder.addGeneric(mockGeneric1);
         
         Assertions.assertEquals(mockElement, builder.build());
         verify(mockElement).setFinal(true);
         verify(mockElement).addAnnotation(mockAnnotation2);
+        verify(mockElement).addGeneric(mockGeneric1);
         builder.verifyInteractions(1, 1);
     }
 

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tendril.codegen.annotation.JAnnotation;
+import tendril.codegen.generics.GenericType;
 
 /**
  * Builder which is responsible to collecting and applying the basic characteristics to elements
@@ -32,6 +33,8 @@ public abstract class BaseBuilder<ELEMENT extends JBase, BUILDER extends BaseBui
     protected final String name;
     /** List of annotations that are applied to the element */
     protected final List<JAnnotation> annotations = new ArrayList<>();
+    /** List of generics that are applied to the element */
+    protected final List<GenericType> generics = new ArrayList<>();
     /** Flag for whether the element is final */
     protected boolean isFinal = false;
 
@@ -77,6 +80,17 @@ public abstract class BaseBuilder<ELEMENT extends JBase, BUILDER extends BaseBui
     }
 
     /**
+     * Add a generic to the element
+     * 
+     * @param generic {@link GenericType} to apply
+     * @return BUILDER
+     */
+    public BUILDER addGeneric(GenericType generic) {
+        generics.add(generic);
+        return get();
+    }
+
+    /**
      * Build the element, applying the specified details. The specified details are validated to ensure that it is a valid combination for the element being constructed.
      * 
      * @return ELEMENT created and customized per what was specified
@@ -107,6 +121,7 @@ public abstract class BaseBuilder<ELEMENT extends JBase, BUILDER extends BaseBui
     protected ELEMENT applyDetails(ELEMENT element) {
         element.setFinal(isFinal);
         annotations.forEach(a -> element.addAnnotation(a));
+        generics.forEach(g -> element.addGeneric(g));
         return element;
     }
 

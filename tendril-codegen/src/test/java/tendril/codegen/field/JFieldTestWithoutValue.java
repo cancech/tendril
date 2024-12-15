@@ -140,4 +140,58 @@ public class JFieldTestWithoutValue extends CommonJFieldTest {
         verify(mockBuilder, times(2)).append("MockType fieldName;");
         verify(mockType, times(3)).getSimpleName();
     }
+    
+    /**
+     * Verify that the field can have generics.
+     */
+    @Test
+    public void testSingleGeneric() {
+        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockGeneric1.generateApplication()).thenReturn("GEN1");
+        field.addGeneric(mockGeneric1);
+        
+        field.appendSelf(mockBuilder, mockImports);
+        verify(mockType).registerImport(mockImports);
+        verify(mockType).getSimpleName();
+        verify(mockGeneric1).generateApplication();
+        verify(mockBuilder).append("MockType<GEN1> fieldName;");
+    }
+    
+    /**
+     * Verify that the field can have generics.
+     */
+    @Test
+    public void testMultipleGenerics() {
+        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockGeneric1.generateApplication()).thenReturn("GEN1");
+        when(mockGeneric2.generateApplication()).thenReturn("GEN2");
+        when(mockGeneric3.generateApplication()).thenReturn("GEN3");
+        field.addGeneric(mockGeneric1);
+        field.addGeneric(mockGeneric2);
+        field.addGeneric(mockGeneric3);
+        
+        field.appendSelf(mockBuilder, mockImports);
+        verify(mockType).registerImport(mockImports);
+        verify(mockType).getSimpleName();
+        verify(mockGeneric1).generateApplication();
+        verify(mockGeneric2).generateApplication();
+        verify(mockGeneric3).generateApplication();
+        verify(mockBuilder).append("MockType<GEN1, GEN2, GEN3> fieldName;");
+    }
+    
+    /**
+     * Verify that the field can be of type generic
+     */
+    @Test
+    public void testGenerateSelf_GenericType() {
+        field = create(VisibilityType.PROTECTED, mockGeneric1, "fieldName");
+        field.setStatic(true);
+        
+        when(mockGeneric1.getSimpleName()).thenReturn("GEN1");
+        
+        field.appendSelf(mockBuilder, mockImports);
+        verify(mockGeneric1).registerImport(mockImports);
+        verify(mockBuilder).append("protected static GEN1 fieldName;");
+        verify(mockGeneric1).getSimpleName();
+    }
 }

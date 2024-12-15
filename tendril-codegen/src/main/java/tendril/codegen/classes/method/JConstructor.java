@@ -70,6 +70,6 @@ public class JConstructor extends JAbstractMethodElement<ClassType> {
         if (!hasImplementation)
             throw new IllegalArgumentException("Constructor must have a valid implementation");
         
-        return visibility.getKeyword() + getName() + "(" + generateParameters(classImports) + ") {";
+        return visibility.getKeyword() + getGenericsDefinitionKeyword(false) + getName() + "(" + generateParameters(classImports) + ") {";
     }
 }

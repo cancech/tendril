@@ -24,6 +24,7 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
+import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -40,6 +41,12 @@ public abstract class CommonJFieldTest extends AbstractUnitTest {
     protected CodeBuilder mockBuilder;
     @Mock
     protected Set<ClassType> mockImports;
+    @Mock
+    protected GenericType mockGeneric1;
+    @Mock
+    protected GenericType mockGeneric2;
+    @Mock
+    protected GenericType mockGeneric3;
 
     // Instance with value to test
     protected JField<Type> field;

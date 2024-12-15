@@ -73,7 +73,7 @@ public class JParameter<DATA_TYPE extends Type> extends JType<DATA_TYPE> {
             prefix += " ";
         }
 
-        return prefix + getFinalKeyword() + type.getSimpleName() + " " + name;
+        return prefix + getFinalKeyword() + type.getSimpleName() + getGenericsApplicationKeyword(true) + name;
     }
 
 }

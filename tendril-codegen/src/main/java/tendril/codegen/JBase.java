@@ -21,8 +21,8 @@ import java.util.Set;
 
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.generics.GenericFactory;
 import tendril.codegen.generics.GenericType;
+import tendril.util.TendrilStringUtil;
 
 /**
  * The base of any element that is to be part of the generated code.
@@ -34,7 +34,8 @@ public abstract class JBase {
     private final List<JAnnotation> annotations = new ArrayList<>();
     /** Flag for whether the element is final */
     private boolean isFinal = false;
-    private GenericType generic = GenericFactory.createNoGeneric(); 
+    /** List of the generic types are employed with the element */
+    private List<GenericType> generics = new ArrayList<>(); 
 
     /**
      * CTOR
@@ -101,6 +102,53 @@ public abstract class JBase {
     public List<JAnnotation> getAnnotations() {
         return annotations;
     }
+    
+    /**
+     * Add a generic to the item
+     * 
+     * @param generic {@link GenericType} to add
+     */
+    public void addGeneric(GenericType generic) {
+        generics.add(generic);
+    }
+    
+    /**
+     * Get all applied generics
+     * 
+     * @return {@link List} of {@link GenericType} that have been applied to the item
+     */
+    public List<GenericType> getGenerics() {
+        return generics;
+    }
+    
+    /**
+     * Get the keyword (code) for the applied generics when used to define the element.
+     * 
+     * @param blankSpace boolean true if a space is to be returned when empty (always included if text available)
+     * 
+     * @return {@link String} containing the generics definition
+     */
+    public String getGenericsDefinitionKeyword(boolean blankSpace) {
+        if (generics.isEmpty())
+            return blankSpace ? " " : "";
+        
+        return "<" + TendrilStringUtil.join(generics, g -> g.generateDefinition()) + "> ";
+    }
+    
+    /**
+     * Get the keyword (code) for the applied generics when used applied the element.
+     * 
+     * @param appendSpace boolean true if a space is to be appended after the keyword is generated
+     * 
+     * @return {@link String} containing the generics application
+     */
+    public String getGenericsApplicationKeyword(boolean appendSpace) {
+        String end = appendSpace ? " " : "";
+        if (generics.isEmpty())
+            return end;
+        
+        return "<" + TendrilStringUtil.join(generics, g -> g.generateApplication()) + ">" + end;
+    }
 
     /**
      * @see java.lang.Object#hashCode()
@@ -130,6 +178,8 @@ public abstract class JBase {
     public void generate(CodeBuilder builder, Set<ClassType> classImports) {
         for (JAnnotation annon : annotations)
             annon.generate(builder, classImports);
+        for (GenericType gen: generics)
+            gen.registerImport(classImports);
         appendSelf(builder, classImports);
     }
 

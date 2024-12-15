@@ -99,4 +99,64 @@ public class JFieldTestWithValue extends CommonJFieldTest {
         verify(mockType).getSimpleName();
         verify(mockValue).generate(mockImports);
     }
+    
+    /**
+     * Verify that the field can have generics.
+     */
+    @Test
+    public void testSingleGeneric() {
+        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockGeneric1.generateApplication()).thenReturn("GEN1");
+        when(mockValue.generate(mockImports)).thenReturn("value");
+        
+        field.addGeneric(mockGeneric1);
+        
+        field.appendSelf(mockBuilder, mockImports);
+        verify(mockType).registerImport(mockImports);
+        verify(mockType).getSimpleName();
+        verify(mockGeneric1).generateApplication();
+        verify(mockBuilder).append("public MockType<GEN1> fieldName = value;");
+    }
+    
+    /**
+     * Verify that the field can have generics.
+     */
+    @Test
+    public void testMultipleGenerics() {
+        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockGeneric1.generateApplication()).thenReturn("GEN1");
+        when(mockGeneric2.generateApplication()).thenReturn("GEN2");
+        when(mockGeneric3.generateApplication()).thenReturn("GEN3");
+        when(mockValue.generate(mockImports)).thenReturn("value");
+        
+        field.addGeneric(mockGeneric1);
+        field.addGeneric(mockGeneric2);
+        field.addGeneric(mockGeneric3);
+        
+        field.appendSelf(mockBuilder, mockImports);
+        verify(mockType).registerImport(mockImports);
+        verify(mockType).getSimpleName();
+        verify(mockGeneric1).generateApplication();
+        verify(mockGeneric2).generateApplication();
+        verify(mockGeneric3).generateApplication();
+        verify(mockBuilder).append("public MockType<GEN1, GEN2, GEN3> fieldName = value;");
+    }
+    
+    /**
+     * Verify that the field can be of type generic
+     */
+    @Test
+    public void testGenerateSelf_GenericType() {
+        field = create(VisibilityType.PACKAGE_PRIVATE, mockGeneric1, "fieldName", mockValue);
+        field.setFinal(true);
+        
+        when(mockGeneric1.getSimpleName()).thenReturn("GEN1");
+        when(mockValue.generate(mockImports)).thenReturn("value");
+        
+        field.appendSelf(mockBuilder, mockImports);
+        verify(mockGeneric1).registerImport(mockImports);
+        verify(mockBuilder).append("final GEN1 fieldName = value;");
+        verify(mockGeneric1).getSimpleName();
+        verify(mockValue).generate(mockImports);
+    }
 }

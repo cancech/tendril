@@ -28,6 +28,7 @@ import tendril.codegen.CodeBuilder;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -48,6 +49,12 @@ public class JParameterTest extends AbstractUnitTest {
     private JAnnotation mockAnnotation2;
     @Mock
     private JAnnotation mockAnnotation3;
+    @Mock
+    private GenericType mockGeneric1;
+    @Mock
+    private GenericType mockGeneric2;
+    @Mock
+    private GenericType mockGeneric3;
     
     // Instance to test
     private JParameter<Type> param;
@@ -57,7 +64,7 @@ public class JParameterTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        lenient().when(mockType.getSimpleName()).thenReturn("MockType");
         lenient().when(mockAnnotation1.generateSelf(mockImports)).thenReturn("@MockAnnotation1");
         lenient().when(mockAnnotation2.generateSelf(mockImports)).thenReturn("@MockAnnotation2");
         lenient().when(mockAnnotation3.generateSelf(mockImports)).thenReturn("@MockAnnotation3");
@@ -115,5 +122,55 @@ public class JParameterTest extends AbstractUnitTest {
         verify(mockAnnotation2).generateSelf(mockImports);
         verify(mockAnnotation3).generateSelf(mockImports);
         verify(mockBuilder).append("@MockAnnotation1 @MockAnnotation2 @MockAnnotation3 MockType parameterName");
+    }
+    
+    /**
+     * Verify that the appropriate code is generated for the parameter when a single generic is applied
+     */
+    @Test
+    public void testGenerateSelfSingleGeneric() {
+        when(mockGeneric1.generateApplication()).thenReturn("GEN1");
+        param.addGeneric(mockGeneric1);
+        
+        param.generate(mockBuilder, mockImports);
+        verify(mockType).registerImport(mockImports);
+        verify(mockType).getSimpleName();
+        verify(mockGeneric1).generateApplication();
+        verify(mockBuilder).append("MockType<GEN1> parameterName");
+    }
+    
+    /**
+     * Verify that the appropriate code is generated for the parameter when multiple generics are applied
+     */
+    @Test
+    public void testGenerateSelfMultipleGeneric() {
+        when(mockGeneric1.generateApplication()).thenReturn("GEN1");
+        when(mockGeneric2.generateApplication()).thenReturn("GEN2");
+        when(mockGeneric3.generateApplication()).thenReturn("GEN3");
+        param.addGeneric(mockGeneric1);
+        param.addGeneric(mockGeneric2);
+        param.addGeneric(mockGeneric3);
+        
+        param.generate(mockBuilder, mockImports);
+        verify(mockType).registerImport(mockImports);
+        verify(mockType).getSimpleName();
+        verify(mockGeneric1).generateApplication();
+        verify(mockGeneric2).generateApplication();
+        verify(mockGeneric3).generateApplication();
+        verify(mockBuilder).append("MockType<GEN1, GEN2, GEN3> parameterName");
+    }
+    
+    /**
+     * Verify that the parameter can be itself a generic type
+     */
+    @Test
+    public void testGenericParameter() {
+        when(mockGeneric1.getSimpleName()).thenReturn("GenericType");
+        JParameter<GenericType> genParam = new JParameter<GenericType>(mockGeneric1, "genericParam");
+
+        genParam.generate(mockBuilder, mockImports);
+        verify(mockGeneric1).registerImport(mockImports);
+        verify(mockGeneric1).getSimpleName();
+        verify(mockBuilder).append("GenericType genericParam");
     }
 }

@@ -148,7 +148,8 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateClassWithParent() {
-        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).extendsClass(new ClassType("q.w.e.r.t", "Y")).build();
+        JClass parentCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
+        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).extendsClass(parentCls).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
@@ -168,7 +169,8 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateClassWithInterface() {
-        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).implementsInterface(new ClassType("q.w.e.r.t", "Y")).build();
+        JClass ifaceCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
+        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).implementsInterface(ifaceCls).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
@@ -232,9 +234,12 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateComplexClass() {
+        JClass parentCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
+        JClass ifaceYCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
+        JClass ifaceFCls = ClassBuilder.forConcreteClass(new ClassType("a.b.c.d", "F")).build();
         JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
-                .extendsClass(new ClassType("q.w.e.r.t", "Y"))
-                .implementsInterface(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("a.b.c.d", "F"))
+                .extendsClass(parentCls)
+                .implementsInterface(ifaceYCls).implementsInterface(ifaceFCls)
                 .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED)
                     .buildParameter(new ClassType(String.class), "strParam").finish().emptyImplementation().finish()
                 .addAnnotation(JAnnotationFactory.create(Deprecated.class, Map.of("since", JValueFactory.create("yesterday"), "forRemoval", JValueFactory.create(true))))

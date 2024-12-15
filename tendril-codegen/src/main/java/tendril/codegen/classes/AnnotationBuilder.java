@@ -53,7 +53,7 @@ class AnnotationBuilder extends InterfaceBuilder {
      * @see tendril.codegen.classes.ClassBuilder#extendsClass(tendril.codegen.field.type.ClassType)
      */
     @Override
-    public ClassBuilder extendsClass(ClassType parent) {
+    public ClassBuilder extendsClass(JClass parent) {
         throw new IllegalArgumentException("Annotations cannot have an explicit parent class");
     }
     
@@ -61,7 +61,7 @@ class AnnotationBuilder extends InterfaceBuilder {
      * @see tendril.codegen.classes.ClassBuilder#implementsInterface(tendril.codegen.field.type.ClassType)
      */
     @Override
-    public ClassBuilder implementsInterface(ClassType iface) {
+    public ClassBuilder implementsInterface(JClass iface) {
         throw new IllegalArgumentException("Annotations cannot implement any interfaces");
     }
     

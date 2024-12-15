@@ -42,9 +42,11 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
     @Mock
     private ClassType mockClassType1;
     @Mock
-    private ClassType mockClassType2;
+    private JClass mockJClass1;
     @Mock
-    private ClassType mockClassType3;
+    private JClass mockJClass2;
+    @Mock
+    private JClass mockJClass3;
     @Mock
     private JClass mockClass;
     
@@ -100,7 +102,7 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
      */
     @Test
     public void testInterfaceCannotImplement() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.implementsInterface(mockClassType1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.implementsInterface(mockJClass1));
     }
     
     /**
@@ -108,13 +110,13 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
      */
     @Test
     public void testInterfaceExtend() {
-        builder.extendsClass(mockClassType1);
-        builder.extendsClass(mockClassType2);
-        builder.extendsClass(mockClassType3);
+        builder.extendsClass(mockJClass1);
+        builder.extendsClass(mockJClass2);
+        builder.extendsClass(mockJClass3);
         builder.applyDetails(mockClass);
         
         verify(mockClass).setParentClass(null);
-        verify(mockClass).setParentInterfaces(Arrays.asList(mockClassType1, mockClassType2, mockClassType3));
+        verify(mockClass).setParentInterfaces(Arrays.asList(mockJClass1, mockJClass2, mockJClass3));
         verify(mockClass).setVisibility(any());
         verify(mockClass).setStatic(anyBoolean());
         verify(mockClass).setFinal(anyBoolean());

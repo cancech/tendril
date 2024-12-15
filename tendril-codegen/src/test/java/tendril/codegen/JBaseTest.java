@@ -16,6 +16,7 @@
 package tendril.codegen;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,6 +28,7 @@ import org.mockito.Mock;
 
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -94,6 +96,12 @@ public class JBaseTest extends AbstractUnitTest {
     private JAnnotation mockAnnotation2;
     @Mock
     private JAnnotation mockAnnotation3;
+    @Mock
+    private GenericType mockGeneric1;
+    @Mock
+    private GenericType mockGeneric2;
+    @Mock
+    private GenericType mockGeneric3;
 
     // Instance to use for testing
     private TestBaseElement element;
@@ -192,5 +200,67 @@ public class JBaseTest extends AbstractUnitTest {
         Assertions.assertFalse(element.equals(new TestBaseElement("MyOtherElementName")));
         Assertions.assertFalse(element.equals(new TestBaseElement("myelementname")));
         Assertions.assertTrue(element.equals(new TestBaseElement("MyElementName")));
+    }
+    
+    /**
+     * Verify that no generic need be added to the element
+     */
+    @Test
+    public void testNoGeneric() {
+        Assertions.assertIterableEquals(Collections.emptyList(),  element.getGenerics());
+        Assertions.assertEquals(" ", element.getGenericsApplicationKeyword(true));
+        Assertions.assertEquals("", element.getGenericsApplicationKeyword(false));
+        Assertions.assertEquals(" ", element.getGenericsDefinitionKeyword(true));
+        Assertions.assertEquals("", element.getGenericsDefinitionKeyword(false));
+    }
+    
+    /**
+     * Verify that a single generic can be added to the element
+     */
+    @Test
+    public void testSingleGeneric() {
+        when(mockGeneric1.generateApplication()).thenReturn("GEN_1_APP");
+        when(mockGeneric1.generateDefinition()).thenReturn("GEN_1_DEF");
+        element.addGeneric(mockGeneric1);
+        
+        Assertions.assertIterableEquals(Collections.singleton(mockGeneric1),  element.getGenerics());
+        Assertions.assertEquals("<GEN_1_APP> ", element.getGenericsApplicationKeyword(true));
+        Assertions.assertEquals("<GEN_1_APP>", element.getGenericsApplicationKeyword(false));
+        Assertions.assertEquals("<GEN_1_DEF> ", element.getGenericsDefinitionKeyword(true));
+        Assertions.assertEquals("<GEN_1_DEF> ", element.getGenericsDefinitionKeyword(false));
+        
+        // Generating will register the generics
+        element.generate(mockCodeBuilder, mockImports);
+        verify(mockGeneric1).registerImport(mockImports);
+        element.verifyTimesCalled(1, 0);
+    }
+    
+    /**
+     * Verify that multiple generics can be added to the element
+     */
+    @Test
+    public void testMultipleGenerics() {
+        when(mockGeneric1.generateApplication()).thenReturn("GEN_1_APP");
+        when(mockGeneric2.generateApplication()).thenReturn("GEN_2_APP");
+        when(mockGeneric3.generateApplication()).thenReturn("GEN_3_APP");
+        when(mockGeneric1.generateDefinition()).thenReturn("GEN_1_DEF");
+        when(mockGeneric2.generateDefinition()).thenReturn("GEN_2_DEF");
+        when(mockGeneric3.generateDefinition()).thenReturn("GEN_3_DEF");
+        element.addGeneric(mockGeneric1);
+        element.addGeneric(mockGeneric2);
+        element.addGeneric(mockGeneric3);
+        
+        Assertions.assertIterableEquals(Arrays.asList(mockGeneric1, mockGeneric2, mockGeneric3),  element.getGenerics());
+        Assertions.assertEquals("<GEN_1_APP, GEN_2_APP, GEN_3_APP> ", element.getGenericsApplicationKeyword(true));
+        Assertions.assertEquals("<GEN_1_APP, GEN_2_APP, GEN_3_APP>", element.getGenericsApplicationKeyword(false));
+        Assertions.assertEquals("<GEN_1_DEF, GEN_2_DEF, GEN_3_DEF> ", element.getGenericsDefinitionKeyword(true));
+        Assertions.assertEquals("<GEN_1_DEF, GEN_2_DEF, GEN_3_DEF> ", element.getGenericsDefinitionKeyword(false));
+        
+        // Generating will register the generics
+        element.generate(mockCodeBuilder, mockImports);
+        verify(mockGeneric1).registerImport(mockImports);
+        verify(mockGeneric2).registerImport(mockImports);
+        verify(mockGeneric3).registerImport(mockImports);
+        element.verifyTimesCalled(1, 0);
     }
 }

@@ -16,15 +16,18 @@
 package tendril.codegen.classes.method;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.generics.GenericType;
 
 /**
  * Test case for {@link JMethod}
@@ -75,6 +78,12 @@ public class JMethodTest extends AbstractMethodTest {
     }
     
     // Mocks to use for testing
+    @Mock
+    private GenericType mockGeneric1;
+    @Mock
+    private GenericType mockGeneric2;
+    @Mock
+    private GenericType mockGeneric3;
     
     // Instance to test
     private TestJMethod method;
@@ -118,4 +127,37 @@ public class JMethodTest extends AbstractMethodTest {
         method.verifyCalled(1, true);
     }
 
+    /**
+     * Verify that the method can be defined with generics
+     */
+    @Test
+    public void testGenerateSignatureWithSingleGeneric() {
+        when(mockGeneric1.generateDefinition()).thenReturn("GEN1");
+        method.addGeneric(mockGeneric1);
+        
+        Assertions.assertEquals(GENERATED_START + "<GEN1> " + SIMPLE_MOCK_RETURN_TYPE + " method_name(" + GENERATED_PARAMS + ") {", method.generateSignature(mockImports, true));
+        verify(mockGeneric1).generateDefinition();
+        verify(mockReturnType).getSimpleName();
+        method.verifyCalled(1, true);
+    }
+
+    /**
+     * Verify that the method can be defined with generics
+     */
+    @Test
+    public void testGenerateSignatureWithMultipleGenerics() {
+        when(mockGeneric1.generateDefinition()).thenReturn("GEN1");
+        when(mockGeneric2.generateDefinition()).thenReturn("GEN2");
+        when(mockGeneric3.generateDefinition()).thenReturn("GEN3");
+        method.addGeneric(mockGeneric1);
+        method.addGeneric(mockGeneric2);
+        method.addGeneric(mockGeneric3);
+        
+        Assertions.assertEquals(GENERATED_START + "<GEN1, GEN2, GEN3> " + SIMPLE_MOCK_RETURN_TYPE + " method_name(" + GENERATED_PARAMS + ") {", method.generateSignature(mockImports, true));
+        verify(mockGeneric1).generateDefinition();
+        verify(mockGeneric2).generateDefinition();
+        verify(mockGeneric3).generateDefinition();
+        verify(mockReturnType).getSimpleName();
+        method.verifyCalled(1, true);
+    }
 }

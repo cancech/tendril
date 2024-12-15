@@ -15,14 +15,22 @@
  */
 package tendril.codegen.generics;
 
+import tendril.codegen.field.type.ClassType;
+
 /**
  * 
  */
 public class GenericFactory {
     
-    private static final NoGenericType NO_GENERIC_INSTANCE = new NoGenericType();
-
-    public static GenericType createNoGeneric() {
-        return NO_GENERIC_INSTANCE;
+    public static GenericType createFixedWildcard() {
+        return new GenericType();
+    }
+    
+    public static GenericType createFixed(String name) {
+        return new GenericType(name);
+    }
+    
+    public static GenericType createFixed(ClassType type) {
+        return new GenericType(type);
     }
 }

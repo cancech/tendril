@@ -41,10 +41,10 @@ public abstract class JClass extends JVisibleType<ClassType> {
     private final List<JMethod<?>> methods = new ArrayList<>();
     /** The name of the package in which this class appears */
     private final String pkg;
-    /** The ClassType which indicates the parent of the JClass. Null to indicate no explicit parent */
-    private ClassType extendedClass = null;
-    /** The ClassTypes indicating the interfaces that the JClass implements */
-    private List<ClassType> implementedInterfaces = Collections.emptyList();
+    /** The parent of the JClass. Null to indicate no explicit parent */
+    private JClass extendedClass = null;
+    /** The interfaces that the JClass implements */
+    private List<JClass> implementedInterfaces = Collections.emptyList();
 
     /**
      * CTOR
@@ -70,18 +70,18 @@ public abstract class JClass extends JVisibleType<ClassType> {
     /**
      * Set the (explicit) parent class for this JClass.
      * 
-     * @param parent {@link ClassType} that this JClass is to extend
+     * @param parent {@link JClass} that this JClass is to extend
      */
-    public void setParentClass(ClassType parent) {
+    public void setParentClass(JClass parent) {
         extendedClass = parent;
     }
 
     /**
      * Set the interfaces that this JClass is to implement
      * 
-     * @param ifaces {@link List} of {@link ClassType}s indicating which interfaces to implement
+     * @param ifaces {@link List} of {@link JClass}s indicating which interfaces to implement
      */
-    public void setParentInterfaces(List<ClassType> ifaces) {
+    public void setParentInterfaces(List<JClass> ifaces) {
         implementedInterfaces = ifaces;
     }
 
@@ -164,12 +164,12 @@ public abstract class JClass extends JVisibleType<ClassType> {
     @Override
     public String generateSelf(Set<ClassType> classImports) {
         if (extendedClass != null)
-            classImports.add(extendedClass);
-        classImports.addAll(implementedInterfaces);
+            classImports.add(extendedClass.getType());
+        implementedInterfaces.forEach(i -> classImports.add(i.getType()));
 
         // 
         CodeBuilder builder = new CodeBuilder();
-        builder.append(visibility.getKeyword() + getFinalKeyword() + getClassKeyword() + name + parentHierarchy() + " {");
+        builder.append(visibility.getKeyword() + getFinalKeyword() + getClassKeyword() + name + getGenericsDefinitionKeyword(true) + parentHierarchy() + "{");
         builder.blankLine();
         builder.indent();
 
@@ -211,12 +211,11 @@ public abstract class JClass extends JVisibleType<ClassType> {
      * @return {@link String} with the parent hierarchy
      */
     protected String parentHierarchy() {
-        String extendHierarchy = generateParentClass();
+        String result = generateParentClass();
+        
         String implementsHierarchy = generateImplementInterfaces();
-
-        String result = extendHierarchy.isEmpty() ? "" : " " + extendHierarchy;
         if (!implementsHierarchy.isEmpty())
-            result += " " + implementsHierarchy;
+            result += implementsHierarchy + " ";
 
         return result;
     }
@@ -230,7 +229,7 @@ public abstract class JClass extends JVisibleType<ClassType> {
         if (extendedClass == null)
             return "";
 
-        return "extends " + extendedClass.getSimpleName();
+        return "extends " + extendedClass.getName() + extendedClass.getGenericsApplicationKeyword(true);
     }
 
     /**
@@ -241,11 +240,13 @@ public abstract class JClass extends JVisibleType<ClassType> {
     protected String generateImplementInterfaces() {
         String code = "";
 
-        for (ClassType iface : implementedInterfaces) {
+        for (JClass iface : implementedInterfaces) {
             if (code.isEmpty())
-                code = interfaceExtensionKeyword() + " " + iface.getSimpleName();
+                code = interfaceExtensionKeyword();
             else
-                code += ", " + iface.getSimpleName();
+                code += ", ";
+            
+            code +=  iface.getName() + iface.getGenericsApplicationKeyword(false);
         }
 
         return code;
@@ -257,6 +258,6 @@ public abstract class JClass extends JVisibleType<ClassType> {
      * @return {@link String} the interface extension keyword
      */
     protected String interfaceExtensionKeyword() {
-        return "implements";
+        return "implements ";
     }
 }

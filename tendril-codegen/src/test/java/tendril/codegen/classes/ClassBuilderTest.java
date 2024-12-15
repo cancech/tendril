@@ -99,13 +99,13 @@ public class ClassBuilderTest extends AbstractUnitTest {
     @Mock
     private JField<?> mockField3;
     @Mock
-    private ClassType mockParentClass;
+    private JClass mockParentClass;
     @Mock
-    private ClassType mockInterface1;
+    private JClass mockInterface1;
     @Mock
-    private ClassType mockInterface2;
+    private JClass mockInterface2;
     @Mock
-    private ClassType mockInterface3;
+    private JClass mockInterface3;
     @Mock
     private JConstructor mockCtor1;
     @Mock
@@ -286,7 +286,7 @@ public class ClassBuilderTest extends AbstractUnitTest {
      * @param expectedParent {@link ClassType} class the class is expected to extend
      * @param expectedInterfaces {@link ClassType}... interfaces the class is expected to implement
      */
-    private void verifyCommonDetailsApplied(ClassType expectedParent, ClassType...expectedInterfaces) {
+    private void verifyCommonDetailsApplied(JClass expectedParent, JClass...expectedInterfaces) {
         verify(mockClass).setParentClass(expectedParent);
         verify(mockClass).setParentInterfaces(Arrays.asList(expectedInterfaces));
         

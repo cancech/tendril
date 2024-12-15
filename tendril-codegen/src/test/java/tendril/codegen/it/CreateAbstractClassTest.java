@@ -191,8 +191,11 @@ public class CreateAbstractClassTest {
      */
     @Test
     public void testCreateAbstractClassWithParents() {
+        JClass parentCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
+        JClass ifaceYCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
+        JClass ifaceQwertyCls = ClassBuilder.forConcreteClass(new ClassType("a.s.d.f", "Qwerty")).build();
         JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
-                .extendsClass(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("a.s.d.f", "Qwerty")).build();
+                .extendsClass(parentCls).implementsInterface(ifaceYCls).implementsInterface(ifaceQwertyCls).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
@@ -256,9 +259,12 @@ public class CreateAbstractClassTest {
      */
     @Test
     public void testCreateComplexAbstractClass() {
+        JClass parentCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
+        JClass ifaceYCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
+        JClass ifaceQwertyCls = ClassBuilder.forConcreteClass(new ClassType("a.s.d.f", "Qwerty")).build();
         
         JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
-                .extendsClass(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("a.s.d.f", "Qwerty"))
+                .extendsClass(parentCls).implementsInterface(ifaceYCls).implementsInterface(ifaceQwertyCls)
                 .buildMethod(PrimitiveType.FLOAT, "floatMethod").setVisibility(VisibilityType.PROTECTED)
                     .buildParameter(PrimitiveType.SHORT, "shortParam").finish().finish()
                 .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED)

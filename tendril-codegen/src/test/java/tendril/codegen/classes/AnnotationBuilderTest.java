@@ -35,6 +35,8 @@ public class AnnotationBuilderTest extends AbstractUnitTest {
     // Mocks to use for testing
     @Mock
     private ClassType mockClassType;
+    @Mock
+    private JClass mockJClass;
 
     // Instance to test
     private AnnotationBuilder builder;
@@ -74,8 +76,8 @@ public class AnnotationBuilderTest extends AbstractUnitTest {
      */
     @Test
     public void testClassHierarchy() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.extendsClass(mockClassType));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.implementsInterface(mockClassType));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.extendsClass(mockJClass));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.implementsInterface(mockJClass));
     }
     
     /**

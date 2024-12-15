@@ -166,7 +166,8 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createInterfaceExtendingInterface() {
-        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).extendsClass(new ClassType("q.w.e.r.t", "Z")).build();
+        JClass parentCls = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Z")).build();
+        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).extendsClass(parentCls).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package q.w.e.r.t;");
@@ -185,10 +186,13 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createInterfaceWithAnnotationsAndMethods() {
+        JClass ifaceZCls = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Z")).build();
+        JClass ifaceFCls = ClassBuilder.forInterface(new ClassType("a.b.c.d.e", "F")).build();
+        JClass ifaceWsxCls = ClassBuilder.forInterface(new ClassType("q.a.z", "Wsx")).build();
         JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE)
-                .extendsClass(new ClassType("q.w.e.r.t", "Z"))
-                .extendsClass(new ClassType("a.b.c.d.e", "F"))
-                .extendsClass(new ClassType("q.a.z", "Wsx"))
+                .extendsClass(ifaceZCls)
+                .extendsClass(ifaceFCls)
+                .extendsClass(ifaceWsxCls)
                 .buildMethod("voidMethod").setVisibility(VisibilityType.PUBLIC)
                     .buildParameter(new ClassType(String.class), "stringParam").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).finish()
                     .finish()
