@@ -19,31 +19,17 @@ import java.util.Set;
 
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
-import tendril.codegen.field.value.JValue;
-import tendril.codegen.field.value.JValueFactory;
 
 /**
  * {@link Type} representing a generic type that can be applied to a class.
  */
-public class GenericType implements Type {
+public abstract class GenericType implements Type {
 
     /** The name of the generic (as in how it is referred to internally) */
     private final String name;
-    /** Boolean true if the generic is a wild-card (i.e.: not a explicitly defined type) */
-    private boolean isWildcard = false;
-    /** The type of class that the generic explicitly resolves to (i.e: the exact class applied to an elsewhere defined generic */
-    private ClassType classType = null;
 
     /**
-     * CTOR - a "no name" generic which can resolve to anything (i.e.: <?>).
-     */
-    GenericType() {
-        this("?");
-        isWildcard = true;
-    }
-
-    /**
-     * CTOR - a generic with an explicit name but which does not have an explicit type (i.e.: <T>)
+     * CTOR
      * 
      * @param name {@link String} the name to apply to the generic
      */
@@ -51,25 +37,6 @@ public class GenericType implements Type {
         this.name = name;
     }
 
-    /**
-     * CTOR - a generic which explicitly resolves to the specifies class (i.e.: <MyClass>)
-     * 
-     * @param type {@link ClassType} of the class to resolve to
-     */
-    GenericType(ClassType type) {
-        this(type.getSimpleName());
-        this.classType = type;
-    }
-    
-    /**
-     * Check whether the generic is (contains) a wild-card
-     * 
-     * @return boolean true if it is
-     */
-    protected boolean isWildcard() {
-        return isWildcard;
-    }
-    
     /**
      * Generate the code which is to be used for this generic when it is used to define a class or method. For example:
      * <ul>
@@ -86,8 +53,6 @@ public class GenericType implements Type {
      * @return {@link String} the code for the generic when used to define a class or method
      */
     public String generateDefinition() {
-        if (isWildcard || classType != null)
-            throw new IllegalArgumentException("A wildcard generic cannot be used in a definition");
         return getSimpleName();
     }
 
@@ -113,8 +78,7 @@ public class GenericType implements Type {
      */
     @Override
     public void registerImport(Set<ClassType> classImports) {
-        if (classType != null)
-            classImports.add(classType);
+        // Intentionally left blank, few will actually need this
     }
 
     /**
@@ -131,38 +95,5 @@ public class GenericType implements Type {
     @Override
     public String getSimpleName() {
         return name;
-    }
-
-    /**
-     * @see tendril.codegen.field.type.Type#isTypeOf(java.lang.Object)
-     */
-    @Override
-    public boolean isTypeOf(Object value) {
-        if (classType == null)
-            return true;
-
-        return classType.isTypeOf(value);
-    }
-
-    /**
-     * @see tendril.codegen.field.type.Type#isAssignableFrom(tendril.codegen.field.type.Type)
-     */
-    @Override
-    public boolean isAssignableFrom(Type other) {
-        if (classType == null)
-            return true;
-
-        return classType.isAssignableFrom(other);
-    }
-
-    /**
-     * @see tendril.codegen.field.type.Type#asValue(java.lang.Object)
-     */
-    @Override
-    public JValue<?, ?> asValue(Object value) {
-        if (!isTypeOf(value))
-            throw new IllegalArgumentException("Invalid object provided: require " + name + " but received " + value.getClass().getName());
-
-        return JValueFactory.create(value);
     }
 }

@@ -17,26 +17,67 @@ package tendril.codegen.generics;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.Set;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
-import tendril.codegen.field.value.JValueFactory;
+import tendril.codegen.field.value.JValue;
 import tendril.test.AbstractUnitTest;
 
 /**
  * Test case for {@link GenericType}
  */
 public class GenericTypeTest extends AbstractUnitTest {
+    
+    /**
+     * Concrete implementation of {@link GenericType} to use for testing
+     */
+    private class TestGenericType extends GenericType {
+
+        /**
+         * CTOR
+         *
+         * @param name {@link String} the name to apply to the type
+         * @param type boolean the isTypeOf value to return
+         * @param assignable boolean the isAssignableFrom value to return
+         * @param value JValue<?,?> the asValue value to return
+         */
+        TestGenericType(String name) {
+            super(name);
+        }
+
+        /**
+         * @see tendril.codegen.field.type.Type#isTypeOf(java.lang.Object)
+         */
+        @Override
+        public boolean isTypeOf(Object value) {
+            throw new NotImplementedException("This is not part of the test, and hence not implemented");
+        }
+
+        /**
+         * @see tendril.codegen.field.type.Type#isAssignableFrom(tendril.codegen.field.type.Type)
+         */
+        @Override
+        public boolean isAssignableFrom(Type other) {
+            throw new NotImplementedException("This is not part of the test, and hence not implemented");
+        }
+
+        /**
+         * @see tendril.codegen.field.type.Type#asValue(java.lang.Object)
+         */
+        @Override
+        public JValue<?, ?> asValue(Object value) {
+            throw new NotImplementedException("This is not part of the test, and hence not implemented");
+        }
+        
+    }
     
     // Mocks to use for testing
     @Mock
@@ -46,142 +87,59 @@ public class GenericTypeTest extends AbstractUnitTest {
     @Mock
     private Object mockObject;
     @Mock
+    private JValue<?,?> mockValue;
+    @Mock
     private Type mockType;
+    
+    // The instance to test
+    private GenericType gen;
 
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {
-        // Not required
+        gen = new TestGenericType("TestGenericName");
+    }
+    
+    /**
+     * Verify that the appropriate name is provided
+     */
+    @Test
+    public void testName() {
+        Assertions.assertEquals("TestGenericName", gen.getSimpleName());
+    }
+    
+    /**
+     * Verify that the generic is not considered void
+     */
+    @Test
+    public void testVoid() {
+        Assertions.assertFalse(gen.isVoid());
     }
 
     /**
-     * Verify that a wild-card generic works as expected
+     * Verify that the appropriate definition is generated.
      */
     @Test
-    public void testWildcardGeneric() {
-        GenericType gen = new GenericType();
-        Assertions.assertTrue(gen.isWildcard());
-        verifyAllChecked();
-        
-        // Verify the core details
-        Assertions.assertFalse(gen.isVoid());
-        Assertions.assertEquals("?", gen.getSimpleName());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> gen.generateDefinition());
-        Assertions.assertEquals("?", gen.generateApplication());
-        
-        // Verify import registration
+    public void testGenerateDefinition() {
+        Assertions.assertEquals("TestGenericName", gen.generateDefinition());
+    }
+    
+    /**
+     * Verify that the appropriate application is generated
+     */
+    @Test
+    public void testGenerateApplication() {
+        Assertions.assertEquals("TestGenericName", gen.generateApplication());
+    }
+    
+    /**
+     * Verify that registering imports does nothing.
+     */
+    @Test
+    public void testRegisterImport() {
         gen.registerImport(mockImports);
         verify(mockImports, never()).add(any());
-        verifyAllChecked();
-        
-        // Verify assignability
-        Assertions.assertTrue(gen.isTypeOf(mockObject));
-        Assertions.assertTrue(gen.isAssignableFrom(mockType));
-        verifyAllChecked();
-        
-        // Verify value conversion
-        Assertions.assertEquals(JValueFactory.create(true), gen.asValue(true));
-        Assertions.assertEquals(JValueFactory.create("abc123"), gen.asValue("abc123"));
-        Assertions.assertEquals(JValueFactory.create(123), gen.asValue(123));
-        Assertions.assertEquals(JValueFactory.create(PrimitiveType.BYTE), gen.asValue(PrimitiveType.BYTE));
-        verifyAllChecked();
-    }
-
-    /**
-     * Verify that a wild-card generic works as expected
-     */
-    @Test
-    public void testNamedGeneric() {
-        GenericType gen = new GenericType("T");
-        Assertions.assertFalse(gen.isWildcard());
-        verifyAllChecked();
-        
-        // Verify the core details
-        Assertions.assertFalse(gen.isVoid());
-        Assertions.assertEquals("T", gen.getSimpleName());
-        Assertions.assertEquals("T", gen.generateDefinition());
-        Assertions.assertEquals("T", gen.generateApplication());
-        
-        // Verify import registration
-        gen.registerImport(mockImports);
-        verify(mockImports, never()).add(any());
-        verifyAllChecked();
-        
-        // Verify assignability
-        Assertions.assertTrue(gen.isTypeOf(mockObject));
-        Assertions.assertTrue(gen.isAssignableFrom(mockType));
-        verifyAllChecked();
-        
-        // Verify value conversion
-        Assertions.assertEquals(JValueFactory.create(true), gen.asValue(true));
-        Assertions.assertEquals(JValueFactory.create("abc123"), gen.asValue("abc123"));
-        Assertions.assertEquals(JValueFactory.create(123), gen.asValue(123));
-        Assertions.assertEquals(JValueFactory.create(PrimitiveType.BYTE), gen.asValue(PrimitiveType.BYTE));
-        verifyAllChecked();
-    }
-
-    /**
-     * Verify that a wild-card generic works as expected
-     */
-    @Test
-    public void testConcreteClassGeneric() {
-        when(mockClassType.getSimpleName()).thenReturn("GenericTypeName");
-        GenericType gen = new GenericType(mockClassType);
-        Assertions.assertFalse(gen.isWildcard());
-        verify(mockClassType).getSimpleName();
-        verifyAllChecked();
-        
-        // Verify the core details
-        Assertions.assertFalse(gen.isVoid());
-        Assertions.assertEquals("GenericTypeName", gen.getSimpleName());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> gen.generateDefinition());
-        Assertions.assertEquals("GenericTypeName", gen.generateApplication());
-        
-        // Verify import registration
-        gen.registerImport(mockImports);
-        verify(mockImports).add(mockClassType);
-        verifyAllChecked();
-        
-        // Verify assignability
-        when(mockClassType.isTypeOf(mockObject)).thenReturn(false);
-        Assertions.assertFalse(gen.isTypeOf(mockObject));
-        verify(mockClassType).isTypeOf(mockObject);
-        when(mockClassType.isTypeOf(mockObject)).thenReturn(true);
-        Assertions.assertTrue(gen.isTypeOf(mockObject));
-        verify(mockClassType, times(2)).isTypeOf(mockObject);
-
-        when(mockClassType.isAssignableFrom(mockType)).thenReturn(false);
-        Assertions.assertFalse(gen.isAssignableFrom(mockType));
-        verify(mockClassType).isAssignableFrom(mockType);
-        when(mockClassType.isAssignableFrom(mockType)).thenReturn(true);
-        Assertions.assertTrue(gen.isAssignableFrom(mockType));
-        verify(mockClassType, times(2)).isAssignableFrom(mockType);
-        verifyAllChecked();
-        
-        // Verify value conversion
-        when(mockClassType.isTypeOf(any())).thenReturn(false);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> gen.asValue(true));
-        verify(mockClassType, times(3)).isTypeOf(any());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> gen.asValue("abc123"));
-        verify(mockClassType, times(4)).isTypeOf(any());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> gen.asValue(123));
-        verify(mockClassType, times(5)).isTypeOf(any());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> gen.asValue(PrimitiveType.BYTE));
-        verify(mockClassType, times(6)).isTypeOf(any());
-        verifyAllChecked();
-        
-
-        when(mockClassType.isTypeOf(any())).thenReturn(true);
-        Assertions.assertEquals(JValueFactory.create(true), gen.asValue(true));
-        verify(mockClassType, times(7)).isTypeOf(any());
-        Assertions.assertEquals(JValueFactory.create("abc123"), gen.asValue("abc123"));
-        verify(mockClassType, times(8)).isTypeOf(any());
-        Assertions.assertEquals(JValueFactory.create(123), gen.asValue(123));
-        verify(mockClassType, times(9)).isTypeOf(any());
-        Assertions.assertEquals(JValueFactory.create(PrimitiveType.BYTE), gen.asValue(PrimitiveType.BYTE));
-        verify(mockClassType, times(10)).isTypeOf(any());
-        verifyAllChecked();
     }
 }

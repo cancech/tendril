@@ -15,22 +15,48 @@
  */
 package tendril.codegen.generics;
 
+import tendril.codegen.Utilities;
 import tendril.codegen.field.type.ClassType;
 
 /**
- * 
+ * Factory for the creation of {@link GenericType}s
  */
 public class GenericFactory {
     
-    public static GenericType createFixedWildcard() {
-        return new GenericType();
+    /**
+     * Creates a generic type that resolves to a name, the most "traditional" generic type (i.e.: <T>). Note that
+     * the name must be considered to be valid by Java standards.
+     * 
+     * @param name {@link String} the name to apply to the generic type
+     * 
+     * @return {@link GenericType}
+     */
+    public static GenericType create(String name) {
+        Utilities.throwIfNotValidIdentifier(name);
+        return new SimpleGeneric(name);
     }
     
-    public static GenericType createFixed(String name) {
-        return new GenericType(name);
+    /**
+     * Creates a generic that resolves to a specific class (i.e.: <MyClass>). Note that this can only be used when
+     * applying the generic to an elsewhere defined element (i.e.: for variables, parameters, or parent class/interfaces).
+     * 
+     * Note that this {@link GenericType} cannot have nested generic of its own (i.e.: <MyClass> but not <MyClass<T>>)
+     * 
+     * @param type {@link ClassType} to apply to the generic
+     * 
+     * @return {@link GenericType}
+     */
+    public static GenericType create(ClassType type) {
+        return new SimpleExplicitGeneric(type);
     }
     
-    public static GenericType createFixed(ClassType type) {
-        return new GenericType(type);
+    /**
+     * Creates a generic that resolves to a wildcard (i.e.: <?>). Note that this can only be used when
+     * applying the generic to an elsewhere defined element (i.e.: for variables, parameters, or parent class/interfaces).
+     * 
+     * @return {@link GenericType}
+     */
+    public static GenericType createWildcard() {
+        return new SimpleWildcardGeneric();
     }
 }
