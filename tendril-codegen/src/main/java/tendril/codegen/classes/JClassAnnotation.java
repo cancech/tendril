@@ -42,7 +42,7 @@ public class JClassAnnotation extends JClassInterface {
     }
 
     /**
-     * @see tendril.codegen.classes.JClass#setParentClass(tendril.codegen.field.type.ClassType)
+     * @see tendril.codegen.classes.JClassInterface#setParentClass(tendril.codegen.classes.JClass)
      */
     @Override
     public void setParentClass(JClass parent) {
@@ -51,7 +51,7 @@ public class JClassAnnotation extends JClassInterface {
     }
 
     /**
-     * @see tendril.codegen.classes.JClass#setParentClass(tendril.codegen.field.type.ClassType)
+     * @see tendril.codegen.classes.JClass#setParentInterfaces(java.util.List)
      */
     @Override
     public void setParentInterfaces(List<JClass> ifaces) {

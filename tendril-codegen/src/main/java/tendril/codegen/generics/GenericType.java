@@ -40,14 +40,14 @@ public abstract class GenericType implements Type {
     /**
      * Generate the code which is to be used for this generic when it is used to define a class or method. For example:
      * <ul>
-     *      <li>public class MyClass<DEFINITION></li>
-     *      <li>public <DEFINITION> void myMethod()</li>
+     *      <li>public class MyClass&lt;DEFINITION&gt;</li>
+     *      <li>public &lt;DEFINITION&gt; void myMethod()</li>
      * </ul>
      * 
      * In order for the generic to be usable to define the generic of a class, it <b>cannot</b>:
      * <ul>
-     *      <li>be a wild-card (public class MyClass<?> and public <?> void myMethod() are not valid)</li>
-     *      <li>resolve to an explicit class (public class MyClass<MyOtherClass> and public <MyOtherClass> void myMethod() are not valid)</li>
+     *      <li>be a wild-card (public class MyClass&lt;?&gt; and public &lt;?&gt; void myMethod() are not valid)</li>
+     *      <li>resolve to an explicit class (public class MyClass&lt;MyOtherClass&gt; and public &lt;MyOtherClass&gt; void myMethod() are not valid)</li>
      * </ul>
      * 
      * @return {@link String} the code for the generic when used to define a class or method
@@ -59,13 +59,13 @@ public abstract class GenericType implements Type {
     /**
      * Generate the code which is to be used for this generic when it is used to apply it to a variable. For example:
      * <ul>
-     *      <li>public class MyClass extends MyOtherClass<APPLICATION></li>
-     *      <li>private MyOtherClass<APPLICATION> field</li>
-     *      <li>public void myMethod(MyOtherClass<APPLICATION> param)</li>
+     *      <li>public class MyClass extends MyOtherClass&lt;APPLICATION&gt;</li>
+     *      <li>private MyOtherClass&lt;APPLICATION&gt; field</li>
+     *      <li>public void myMethod(MyOtherClass&lt;APPLICATION&gt; param)</li>
      * </ul>
      * 
-     * When applying the generic to variable, it can be either a wild-card (?), an elsewhere defined generic (i.e.: <T>) or an explicit
-     * class (i.e.: <MyClass>).
+     * When applying the generic to variable, it can be either a wild-card (?), an elsewhere defined generic (i.e.: &lt;T&gt;) or an explicit
+     * class (i.e.: &lt;MyClass&gt;).
      * 
      * @return {@link String} the code for the generic when used to apply it to a variable
      */

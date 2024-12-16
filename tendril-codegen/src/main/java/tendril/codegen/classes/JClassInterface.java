@@ -40,7 +40,7 @@ public class JClassInterface extends JClass {
     }
 
     /**
-     * @see tendril.codegen.classes.JClass#setParentClass(tendril.codegen.field.type.ClassType)
+     * @see tendril.codegen.classes.JClass#setParentClass(tendril.codegen.classes.JClass)
      */
     @Override
     public void setParentClass(JClass parent) {

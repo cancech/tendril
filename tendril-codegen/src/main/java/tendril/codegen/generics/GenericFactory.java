@@ -23,9 +23,15 @@ import tendril.codegen.field.type.ClassType;
  * Factory for the creation of {@link GenericType}s
  */
 public class GenericFactory {
+
+    /**
+     * Hidden CTOR
+     */
+    private GenericFactory() {
+    }
     
     /**
-     * Creates a generic type that resolves to a name, the most "traditional" generic type (i.e.: <T>). Note that
+     * Creates a generic type that resolves to a name, the most "traditional" generic type (i.e.: &lt;T&gt;). Note that
      * the name must be considered to be valid by Java standards.
      * 
      * @param name {@link String} the name to apply to the generic type
@@ -38,11 +44,11 @@ public class GenericFactory {
     }
     
     /**
-     * Creates a generic that resolves to a specific class (i.e.: <MyClass>). Note that this can only be used when
+     * Creates a generic that resolves to a specific class (i.e.: &lt;MyClass&gt;). Note that this can only be used when
      * applying the generic to an elsewhere defined element (i.e.: for variables, parameters, or parent class/interfaces).
-     * 
-     * Note that this {@link GenericType} <b>cannot</b> have nested generic of its own (i.e.: <MyClass> but not <MyClass<T>>)
-     * 
+     * <p>
+     * Note that this {@link GenericType} <b>cannot</b> have nested generic of its own (i.e.: &lt;MyClass&gt; but not &lt;MyClass&lt;T&gt;&gt;)
+     * </p>
      * @param type {@link ClassType} to apply to the generic
      * 
      * @return {@link GenericType}
@@ -52,11 +58,11 @@ public class GenericFactory {
     }
     
     /**
-     * Creates a generic that resolves to a specific class (i.e.: <MyClass>). Note that this can only be used when
+     * Creates a generic that resolves to a specific class (i.e.: &lt;MyClass&gt;). Note that this can only be used when
      * applying the generic to an elsewhere defined element (i.e.: for variables, parameters, or parent class/interfaces).
-     * 
-     * Note that this {@link GenericType} <b>can</b> have nested generic of its own (i.e.: <MyClass> but not <MyClass<T>>)
-     * 
+     * <p>
+     * Note that this {@link GenericType} <b>can</b> have nested generic of its own (i.e.: &lt;MyClass&gt; but not &lt;MyClass&lt;T&gt;&gt;)
+     * </p>
      * @param type {@link JClass} to apply to the generic
      * 
      * @return {@link GenericType}
@@ -66,7 +72,7 @@ public class GenericFactory {
     }
     
     /**
-     * Creates a generic that resolves to a wildcard (i.e.: <?>). Note that this can only be used when
+     * Creates a generic that resolves to a wildcard (i.e.: &lt;?&gt;). Note that this can only be used when
      * applying the generic to an elsewhere defined element (i.e.: for variables, parameters, or parent class/interfaces).
      * 
      * @return {@link GenericType}
