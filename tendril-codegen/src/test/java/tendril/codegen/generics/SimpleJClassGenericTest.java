@@ -33,9 +33,9 @@ import tendril.codegen.field.value.JValueFactory;
 import tendril.test.AbstractUnitTest;
 
 /**
- * Test case for {@link SimpleWildcardGeneric}
+ * Test case for {@link SimpleClassTypeGeneric}
  */
-class SimpleExplicitGenericTest extends AbstractUnitTest {
+class SimpleJClassGenericTest extends AbstractUnitTest {
 
     // Mocks to use for testing
     @Mock
@@ -50,7 +50,7 @@ class SimpleExplicitGenericTest extends AbstractUnitTest {
     private Set<ClassType> mockImports;
     
     // Instance to test
-    private SimpleExplicitGeneric gen;
+    private SimpleClassTypeGeneric gen;
     
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
@@ -58,7 +58,7 @@ class SimpleExplicitGenericTest extends AbstractUnitTest {
     @Override
     protected void prepareTest() {
         when(mockClassType.getSimpleName()).thenReturn("GenericTypeName");
-        gen = new SimpleExplicitGeneric(mockClassType);
+        gen = new SimpleClassTypeGeneric(mockClassType);
         verify(mockClassType).getSimpleName();
     }
     

@@ -229,7 +229,7 @@ public abstract class JClass extends JVisibleType<ClassType> {
         if (extendedClass == null)
             return "";
 
-        return "extends " + extendedClass.getName() + extendedClass.getGenericsApplicationKeyword(true);
+        return "extends " + extendedClass.getAppliedCode(true);
     }
 
     /**
@@ -246,10 +246,22 @@ public abstract class JClass extends JVisibleType<ClassType> {
             else
                 code += ", ";
             
-            code +=  iface.getName() + iface.getGenericsApplicationKeyword(false);
+            code +=  iface.getAppliedCode(false);
         }
 
         return code;
+    }
+    
+    /**
+     * Get the code that is to be used when the class is "applied" (i.e.: when it is used in a variable or in
+     * the class definition hierarchy).
+     * 
+     * @param appendSpace boolean true if a space is to be applied to the end of the generated code.
+     * 
+     * @return {@link String} the code for applying the class
+     */
+    public String getAppliedCode(boolean appendSpace) {
+        return getName() + getGenericsApplicationKeyword(appendSpace);
     }
 
     /**

@@ -26,7 +26,7 @@ import tendril.codegen.field.value.JValueFactory;
 import tendril.test.AbstractUnitTest;
 
 /**
- * Test case for {@link SimpleWildcardGeneric}
+ * Test case for {@link SimpleGeneric}
  */
 class SimpleGenericTest extends AbstractUnitTest {
 

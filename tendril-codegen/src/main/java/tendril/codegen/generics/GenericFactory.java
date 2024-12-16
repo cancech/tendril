@@ -16,6 +16,7 @@
 package tendril.codegen.generics;
 
 import tendril.codegen.Utilities;
+import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
 
 /**
@@ -40,14 +41,28 @@ public class GenericFactory {
      * Creates a generic that resolves to a specific class (i.e.: <MyClass>). Note that this can only be used when
      * applying the generic to an elsewhere defined element (i.e.: for variables, parameters, or parent class/interfaces).
      * 
-     * Note that this {@link GenericType} cannot have nested generic of its own (i.e.: <MyClass> but not <MyClass<T>>)
+     * Note that this {@link GenericType} <b>cannot</b> have nested generic of its own (i.e.: <MyClass> but not <MyClass<T>>)
      * 
      * @param type {@link ClassType} to apply to the generic
      * 
      * @return {@link GenericType}
      */
     public static GenericType create(ClassType type) {
-        return new SimpleExplicitGeneric(type);
+        return new SimpleClassTypeGeneric(type);
+    }
+    
+    /**
+     * Creates a generic that resolves to a specific class (i.e.: <MyClass>). Note that this can only be used when
+     * applying the generic to an elsewhere defined element (i.e.: for variables, parameters, or parent class/interfaces).
+     * 
+     * Note that this {@link GenericType} <b>can</b> have nested generic of its own (i.e.: <MyClass> but not <MyClass<T>>)
+     * 
+     * @param type {@link JClass} to apply to the generic
+     * 
+     * @return {@link GenericType}
+     */
+    public static GenericType create(JClass type) {
+        return new SimpleJClassGeneric(type);
     }
     
     /**

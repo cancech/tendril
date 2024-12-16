@@ -25,12 +25,17 @@ import tendril.codegen.field.value.JValueFactory;
 /**
  * {@link GenericType} representing a generic that is given an explicit Class for a type (i.e.: <MyClass>)
  */
-class SimpleExplicitGeneric extends GenericType {
+class SimpleClassTypeGeneric extends GenericType {
 
     /** The type of class that the generic explicitly resolves to (i.e: the exact class applied to an elsewhere defined generic */
     private final ClassType classType;
 
-    SimpleExplicitGeneric(ClassType type) {
+    /**
+     * CTOR
+     * 
+     * @param type {@link ClassType} that the generic resolves to
+     */
+    SimpleClassTypeGeneric(ClassType type) {
         super(type.getSimpleName());
         this.classType = type;
     }

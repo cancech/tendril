@@ -19,6 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -156,32 +157,32 @@ public class JClassTest extends AbstractUnitTest {
         lenient().when(mockField2Type.getFullyQualifiedName()).thenReturn("mockField2Type");
         lenient().when(mockParentClass.getType()).thenReturn(mockParentClassType);
         lenient().when(mockParentClass.getName()).thenReturn("mockParentClass");
-        lenient().when(mockParentClass.getGenericsApplicationKeyword(true)).thenReturn(" ");
-        lenient().when(mockParentClass.getGenericsApplicationKeyword(false)).thenReturn("");
+        lenient().when(mockParentClass.getAppliedCode(true)).thenReturn("mockParentClass ");
+        lenient().when(mockParentClass.getAppliedCode(false)).thenReturn("mockParentClass");
         lenient().when(mockParentClass.getGenericsDefinitionKeyword(true)).thenReturn(" ");
         lenient().when(mockParentClass.getGenericsDefinitionKeyword(false)).thenReturn("");
         lenient().when(mockParentClassType.getPackageName()).thenReturn("mock.class");
         lenient().when(mockParentClassType.getFullyQualifiedName()).thenReturn("mock.class.mockParentClass");
         lenient().when(mockInterface1.getType()).thenReturn(mockInterface1ClassType);
         lenient().when(mockInterface1.getName()).thenReturn("mockInterface1");
-        lenient().when(mockInterface1.getGenericsApplicationKeyword(true)).thenReturn(" ");
-        lenient().when(mockInterface1.getGenericsApplicationKeyword(false)).thenReturn("");
+        lenient().when(mockInterface1.getAppliedCode(true)).thenReturn("mockInterface1 ");
+        lenient().when(mockInterface1.getAppliedCode(false)).thenReturn("mockInterface1");
         lenient().when(mockInterface1.getGenericsDefinitionKeyword(true)).thenReturn(" ");
         lenient().when(mockInterface1.getGenericsDefinitionKeyword(false)).thenReturn("");
         lenient().when(mockInterface1ClassType.getPackageName()).thenReturn("mock.class");
         lenient().when(mockInterface1ClassType.getFullyQualifiedName()).thenReturn("mock.class.mockInterface1");
         lenient().when(mockInterface2.getType()).thenReturn(mockInterface2ClassType);
         lenient().when(mockInterface2.getName()).thenReturn("mockInterface2");
-        lenient().when(mockInterface2.getGenericsApplicationKeyword(true)).thenReturn(" ");
-        lenient().when(mockInterface2.getGenericsApplicationKeyword(false)).thenReturn("");
+        lenient().when(mockInterface2.getAppliedCode(true)).thenReturn("mockInterface2 ");
+        lenient().when(mockInterface2.getAppliedCode(false)).thenReturn("mockInterface2");
         lenient().when(mockInterface2.getGenericsDefinitionKeyword(true)).thenReturn(" ");
         lenient().when(mockInterface2.getGenericsDefinitionKeyword(false)).thenReturn("");
         lenient().when(mockInterface2ClassType.getPackageName()).thenReturn("mock.class");
         lenient().when(mockInterface2ClassType.getFullyQualifiedName()).thenReturn("mock.class.mockInterface2");
         lenient().when(mockInterface3.getType()).thenReturn(mockInterface3ClassType);
         lenient().when(mockInterface3.getName()).thenReturn("mockInterface3");
-        lenient().when(mockInterface3.getGenericsApplicationKeyword(true)).thenReturn(" ");
-        lenient().when(mockInterface3.getGenericsApplicationKeyword(false)).thenReturn("");
+        lenient().when(mockInterface3.getAppliedCode(true)).thenReturn("mockInterface3 ");
+        lenient().when(mockInterface3.getAppliedCode(false)).thenReturn("mockInterface3");
         lenient().when(mockInterface3.getGenericsDefinitionKeyword(true)).thenReturn(" ");
         lenient().when(mockInterface3.getGenericsDefinitionKeyword(false)).thenReturn("");
         lenient().when(mockInterface3ClassType.getPackageName()).thenReturn("mock.class");
@@ -211,6 +212,43 @@ public class JClassTest extends AbstractUnitTest {
         verify(mockClassType).getClassName();
 
         Assertions.assertEquals("ClassName", jclass.getName());
+    }
+    
+    /**
+     * Verify that the applied code is properly generated
+     */
+    @Test
+    public void testAppliedCode() {
+        // With no generics applied
+        Assertions.assertEquals("ClassName ", jclass.getAppliedCode(true));
+        Assertions.assertEquals("ClassName", jclass.getAppliedCode(false));
+        
+        // With one generic applied
+        jclass.addGeneric(mockGeneric1);
+        Assertions.assertEquals("ClassName<GEN_1_APP> ", jclass.getAppliedCode(true));
+        verify(mockGeneric1).generateApplication();
+        Assertions.assertEquals("ClassName<GEN_1_APP>", jclass.getAppliedCode(false));
+        verify(mockGeneric1, times(2)).generateApplication();
+        
+        // With two generics applied
+        jclass.addGeneric(mockGeneric2);
+        Assertions.assertEquals("ClassName<GEN_1_APP, GEN_2_APP> ", jclass.getAppliedCode(true));
+        verify(mockGeneric1, times(3)).generateApplication();
+        verify(mockGeneric2).generateApplication();
+        Assertions.assertEquals("ClassName<GEN_1_APP, GEN_2_APP>", jclass.getAppliedCode(false));
+        verify(mockGeneric1, times(4)).generateApplication();
+        verify(mockGeneric2, times(2)).generateApplication();
+        
+        // With three generics applied
+        jclass.addGeneric(mockGeneric3);
+        Assertions.assertEquals("ClassName<GEN_1_APP, GEN_2_APP, GEN_3_APP> ", jclass.getAppliedCode(true));
+        verify(mockGeneric1, times(5)).generateApplication();
+        verify(mockGeneric2, times(3)).generateApplication();
+        verify(mockGeneric3).generateApplication();
+        Assertions.assertEquals("ClassName<GEN_1_APP, GEN_2_APP, GEN_3_APP>", jclass.getAppliedCode(false));
+        verify(mockGeneric1, times(6)).generateApplication();
+        verify(mockGeneric2, times(4)).generateApplication();
+        verify(mockGeneric3, times(2)).generateApplication();
     }
     
     /**
@@ -288,8 +326,7 @@ public class JClassTest extends AbstractUnitTest {
         // Verify that it matches
         assertGeneratedCode();
         verify(mockParentClass).getType();
-        verify(mockParentClass).getName();
-        verify(mockParentClass).getGenericsApplicationKeyword(true);
+        verify(mockParentClass).getAppliedCode(true);
         verify(mockParentClassType).getPackageName();
         verify(mockParentClassType).getFullyQualifiedName();
     }
@@ -310,8 +347,7 @@ public class JClassTest extends AbstractUnitTest {
         // Verify that it matches
         assertGeneratedCode();
         verify(mockInterface1).getType();
-        verify(mockInterface1).getName();
-        verify(mockInterface1).getGenericsApplicationKeyword(false);
+        verify(mockInterface1).getAppliedCode(false);
         verify(mockInterface1ClassType).getPackageName();
         verify(mockInterface1ClassType).getFullyQualifiedName();
     }
@@ -471,7 +507,7 @@ public class JClassTest extends AbstractUnitTest {
      */
     @Test
     public void testGenerateCodeWithParentGeneric() {
-        when(mockParentClass.getGenericsApplicationKeyword(true)).thenReturn("<PARENT_GEN> ");
+        when(mockParentClass.getAppliedCode(true)).thenReturn("mockParentClass<PARENT_GEN> ");
         
         // Define what the code is expected to look like
         startDefinition(Collections.emptyList(), Collections.singletonList("mock.class.mockParentClass"), false, "", "extends mockParentClass<PARENT_GEN>");
@@ -483,10 +519,9 @@ public class JClassTest extends AbstractUnitTest {
         // Verify that it matches
         assertGeneratedCode();
         verify(mockParentClass).getType();
-        verify(mockParentClass).getName();
         verify(mockParentClassType).getPackageName();
         verify(mockParentClassType).getFullyQualifiedName();
-        verify(mockParentClass).getGenericsApplicationKeyword(true);
+        verify(mockParentClass).getAppliedCode(true);
     }
 
     /**
@@ -494,8 +529,8 @@ public class JClassTest extends AbstractUnitTest {
      */
     @Test
     public void testGenerateCodeWithIntertfaceGeneric() {
-        when(mockInterface1.getGenericsApplicationKeyword(false)).thenReturn("<IFACE_1_GEN>");
-        when(mockInterface3.getGenericsApplicationKeyword(false)).thenReturn("<IFACE_3_GEN>");
+        when(mockInterface1.getAppliedCode(false)).thenReturn("mockInterface1<IFACE_1_GEN>");
+        when(mockInterface3.getAppliedCode(false)).thenReturn("mockInterface3<IFACE_3_GEN>");
         
         // Define what the code is expected to look like
         startDefinition(Collections.emptyList(), Arrays.asList("mock.class.mockInterface1", "mock.class.mockInterface2", "mock.class.mockInterface3"), 
@@ -508,20 +543,17 @@ public class JClassTest extends AbstractUnitTest {
         // Verify that it matches
         assertGeneratedCode();
         verify(mockInterface1).getType();
-        verify(mockInterface1).getName();
         verify(mockInterface1ClassType).getPackageName();
         verify(mockInterface1ClassType, atLeastOnce()).getFullyQualifiedName();
-        verify(mockInterface1).getGenericsApplicationKeyword(false);
+        verify(mockInterface1).getAppliedCode(false);
         verify(mockInterface2).getType();
-        verify(mockInterface2).getName();
         verify(mockInterface2ClassType).getPackageName();
         verify(mockInterface2ClassType, atLeastOnce()).getFullyQualifiedName();
-        verify(mockInterface2).getGenericsApplicationKeyword(false);
+        verify(mockInterface2).getAppliedCode(false);
         verify(mockInterface3).getType();
-        verify(mockInterface3).getName();
         verify(mockInterface3ClassType).getPackageName();
         verify(mockInterface3ClassType, atLeastOnce()).getFullyQualifiedName();
-        verify(mockInterface3).getGenericsApplicationKeyword(false);
+        verify(mockInterface3).getAppliedCode(false);
     }
 
     /**
@@ -529,8 +561,8 @@ public class JClassTest extends AbstractUnitTest {
      */
     @Test
     public void testGenerateComplexCode() {
-        when(mockParentClass.getGenericsApplicationKeyword(true)).thenReturn("<PARENT_GEN> ");
-        when(mockInterface2.getGenericsApplicationKeyword(false)).thenReturn("<IFACE_2_GEN>");
+        when(mockParentClass.getAppliedCode(true)).thenReturn("mockParentClass<PARENT_GEN> ");
+        when(mockInterface2.getAppliedCode(false)).thenReturn("mockInterface2<IFACE_2_GEN>");
         
         // Define what the code is expected to look like
         startDefinition(Arrays.asList("@TestMarkerAnnotation", "@TestPrimitiveAnnotation(PrimitiveType.BOOLEAN)"), false, "<GEN_1_DEF, GEN_2_DEF, GEN_3_DEF>",
@@ -591,23 +623,19 @@ public class JClassTest extends AbstractUnitTest {
         verify(mockField1Type).getPackageName();
         verify(mockField2Type).getPackageName();
         verify(mockParentClass).getType();
-        verify(mockParentClass).getName();
-        verify(mockParentClass).getGenericsApplicationKeyword(true);
+        verify(mockParentClass).getAppliedCode(true);
         verify(mockParentClassType).getPackageName();
         verify(mockParentClassType, atLeastOnce()).getFullyQualifiedName();
         verify(mockInterface1).getType();
-        verify(mockInterface1).getName();
-        verify(mockInterface1).getGenericsApplicationKeyword(false);
+        verify(mockInterface1).getAppliedCode(false);
         verify(mockInterface1ClassType).getPackageName();
         verify(mockInterface1ClassType, atLeastOnce()).getFullyQualifiedName();
         verify(mockInterface2).getType();
-        verify(mockInterface2).getName();
-        verify(mockInterface2).getGenericsApplicationKeyword(false);
+        verify(mockInterface2).getAppliedCode(false);
         verify(mockInterface2ClassType).getPackageName();
         verify(mockInterface2ClassType, atLeastOnce()).getFullyQualifiedName();
         verify(mockInterface3).getType();
-        verify(mockInterface3).getName();
-        verify(mockInterface3).getGenericsApplicationKeyword(false);
+        verify(mockInterface3).getAppliedCode(false);
         verify(mockInterface3ClassType).getPackageName();
         verify(mockInterface3ClassType, atLeastOnce()).getFullyQualifiedName();
         verify(mockCtor1).generate(any(CodeBuilder.class), anySet());
