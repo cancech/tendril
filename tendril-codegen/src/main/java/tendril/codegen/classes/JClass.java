@@ -28,11 +28,13 @@ import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.JVisibleType;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.Importable;
+import tendril.codegen.generics.GenericType;
 
 /**
  * Representation of a class, the core construct of any generated code
  */
-public abstract class JClass extends JVisibleType<ClassType> {
+public abstract class JClass extends JVisibleType<ClassType> implements Importable {
     /** The fields that appear in this class */
     private final List<JField<?>> fields = new ArrayList<>();
     /** The CTORs that are available for creating instances of the class */
@@ -120,6 +122,7 @@ public abstract class JClass extends JVisibleType<ClassType> {
     public String generateCode() {
         // Generate the class body
         Set<ClassType> imports = new HashSet<>();
+        
         CodeBuilder body = new CodeBuilder();
         generate(body, imports);
 
@@ -149,6 +152,19 @@ public abstract class JClass extends JVisibleType<ClassType> {
             builder.append("import " + toImport.getFullyQualifiedName() + ";");
         }
     }
+    
+    /**
+     * @see tendril.codegen.field.type.Importable#registerImport(java.util.Set)
+     */
+    @Override
+    public void registerImport(Set<ClassType> classImports) {
+        classImports.add(type);
+        if (extendedClass != null)
+            extendedClass.registerImport(classImports);
+        implementedInterfaces.forEach(i -> i.registerImport(classImports));
+        for(GenericType gen: getGenerics())
+            gen.registerImport(classImports);
+    }
 
     /**
      * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
@@ -163,11 +179,8 @@ public abstract class JClass extends JVisibleType<ClassType> {
      */
     @Override
     public String generateSelf(Set<ClassType> classImports) {
-        if (extendedClass != null)
-            classImports.add(extendedClass.getType());
-        implementedInterfaces.forEach(i -> classImports.add(i.getType()));
-
-        // 
+        registerImport(classImports);
+        
         CodeBuilder builder = new CodeBuilder();
         builder.append(visibility.getKeyword() + getFinalKeyword() + getClassKeyword() + name + getGenericsDefinitionKeyword(true) + parentHierarchy() + "{");
         builder.blankLine();

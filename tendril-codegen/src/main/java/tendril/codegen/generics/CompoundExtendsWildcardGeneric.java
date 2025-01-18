@@ -20,14 +20,16 @@ import java.util.List;
 import tendril.codegen.field.type.ClassType;
 
 /**
- * 
+ * Representation of a generic where a "no-name" generic extends from one (or more) parent classes/interfaces.
  */
-class ExtendsClassTypeWildcardGeneric extends CompoundClassTypeExtendsGeneric {
+class CompoundExtendsWildcardGeneric extends CompoundExtendsGeneric {
 
     /**
-     * @param name
+     * CTOR
+     * 
+     * @param parents {@link List} of {@link ClassType}s from which the generic extends
      */
-    ExtendsClassTypeWildcardGeneric(List<ClassType> parents) {
+    CompoundExtendsWildcardGeneric(List<ClassType> parents) {
         super(SimpleWildcardGeneric.WILD_CARD, parents);
     }
     
@@ -46,5 +48,4 @@ class ExtendsClassTypeWildcardGeneric extends CompoundClassTypeExtendsGeneric {
     public String generateApplication() {
         return super.generateDefinition();
     }
-
 }

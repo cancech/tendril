@@ -24,6 +24,7 @@ import org.mockito.Mock;
 
 import tendril.codegen.classes.method.AnnotationMethodBuilder;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.ClassAssert;
 
@@ -37,6 +38,8 @@ public class AnnotationBuilderTest extends AbstractUnitTest {
     private ClassType mockClassType;
     @Mock
     private JClass mockJClass;
+    @Mock
+    private GenericType mockGeneric;
 
     // Instance to test
     private AnnotationBuilder builder;
@@ -86,6 +89,14 @@ public class AnnotationBuilderTest extends AbstractUnitTest {
     @Test
     public void testCannotCreateConstructor() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildConstructor());
+    }
+    
+    /**
+     * Verify that the interface cannot be generic
+     */
+    @Test
+    public void testCannotAddGeneric() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.addGeneric(mockGeneric));
     }
 
 }

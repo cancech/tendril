@@ -15,6 +15,7 @@
  */
 package tendril.codegen.it;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.Generated;
@@ -30,6 +31,8 @@ import tendril.codegen.classes.JClassInterface;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.value.JValueFactory;
+import tendril.codegen.generics.GenericFactory;
+import tendril.codegen.generics.GenericType;
 import tendril.test.assertions.ClassAssert;
 import tendril.test.assertions.matchers.MultiLineStringMatcher;
 import tendril.test.helper.annotation.TestDefaultAttrAnnotation;
@@ -179,6 +182,48 @@ public class CreateInterfaceTest {
         matcher.eq("");
         matcher.eq("}");
         matcher.match(iface.generateCode());
+    }
+    
+    /**
+     * Verify that the class can contain a generic type
+     */
+    @Test
+    public void testCreateSimpleGeneric() {
+        GenericType genericT = GenericFactory.create("T");
+        GenericType genericU = GenericFactory.createExtends("U", new ClassType("a", "B"));
+        GenericType superType = GenericFactory.createSuper(new ClassType("z.x.c", "V"));
+        ClassType listClass = new ClassType(List.class);
+        listClass.addGeneric(superType);
+        JClass abstractCls = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).addGeneric(genericT)
+                .buildMethod("abc123").setVisibility(VisibilityType.PUBLIC).addGeneric(genericU).buildParameter(genericT, "t").finish().buildParameter(genericU, "u").finish()
+                    .buildParameter(listClass, "list").finish().addCode("a", "b", "c").finish()
+                .buildField(genericT, "tField").finish()
+                .buildField(listClass, "listField").finish()
+                .build();
+        
+        MultiLineStringMatcher matcher = new MultiLineStringMatcher();
+        matcher.eq("package q.w.e.r.t;");
+        matcher.eq("");
+        matcher.eq("import a.B;");
+        matcher.eq("import " + List.class.getName() + ";");
+        matcher.eq("import " + Generated.class.getName() + ";");
+        matcher.eq("import z.x.c.V;");
+        matcher.eq("");
+        matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
+        matcher.eq("interface Y<T> {");
+        matcher.eq("");
+        matcher.eq("    T tField;");
+        matcher.eq("");
+        matcher.eq("    List<? super V> listField;");
+        matcher.eq("");
+        matcher.eq("    default <U extends B> void abc123(T t, U u, List<? super V> list) {");
+        matcher.eq("        a");
+        matcher.eq("        b");
+        matcher.eq("        c");
+        matcher.eq("    }");
+        matcher.eq("");
+        matcher.eq("}");
+        matcher.match(abstractCls.generateCode());
     }
 
     /**

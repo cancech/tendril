@@ -15,6 +15,7 @@
  */
 package tendril.codegen.it;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.Generated;
@@ -28,6 +29,8 @@ import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.value.JValueFactory;
+import tendril.codegen.generics.GenericFactory;
+import tendril.codegen.generics.GenericType;
 import tendril.test.assertions.matchers.MultiLineStringMatcher;
 import tendril.test.helper.annotation.TestMultiAttrsAnnotation;
 import tendril.test.helper.annotation.TestNonDefaultAttrAnnotation;
@@ -230,10 +233,55 @@ public class CreateConcreteClassTest {
     }
     
     /**
+     * Verify that the class can contain a generic type
+     */
+    @Test
+    public void testCreateSimpleGeneric() {
+        GenericType genericT = GenericFactory.create("T");
+        GenericType genericU = GenericFactory.createExtends("U", new ClassType("a", "B"));
+        GenericType superType = GenericFactory.createSuper(new ClassType("z.x.c", "V"));
+        ClassType listClass = new ClassType(List.class);
+        listClass.addGeneric(superType);
+        JClass abstractCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PROTECTED).addGeneric(genericT)
+                .buildMethod("abc123").addGeneric(genericU).buildParameter(genericT, "t").finish().buildParameter(genericU, "u").finish()
+                    .buildParameter(listClass, "list").finish().addCode().finish()
+                .buildField(genericT, "tField").finish()
+                .buildField(listClass, "listField").finish()
+                .build();
+        
+        MultiLineStringMatcher matcher = new MultiLineStringMatcher();
+        matcher.eq("package q.w.e.r.t;");
+        matcher.eq("");
+        matcher.eq("import a.B;");
+        matcher.eq("import " + List.class.getName() + ";");
+        matcher.eq("import " + Generated.class.getName() + ";");
+        matcher.eq("import z.x.c.V;");
+        matcher.eq("");
+        matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
+        matcher.eq("protected class Y<T> {");
+        matcher.eq("");
+        matcher.eq("    T tField;");
+        matcher.eq("");
+        matcher.eq("    List<? super V> listField;");
+        matcher.eq("");
+        matcher.eq("    <U extends B> void abc123(T t, U u, List<? super V> list) {");
+        matcher.eq("    }");
+        matcher.eq("");
+        matcher.eq("}");
+        matcher.match(abstractCls.generateCode());
+    }
+    
+    /**
      * Verify that a complex class with a little everything can be properly generated
      */
     @Test
     public void testCreateComplexClass() {
+        GenericType genericT = GenericFactory.create("T");
+        GenericType genericU = GenericFactory.createExtends("U", new ClassType("a", "B"));
+        GenericType superType = GenericFactory.createSuper(new ClassType("z.x.c", "V"));
+        ClassType listClass = new ClassType(List.class);
+        listClass.addGeneric(superType);
+        
         JClass parentCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
         JClass ifaceYCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
         JClass ifaceFCls = ClassBuilder.forConcreteClass(new ClassType("a.b.c.d", "F")).build();
@@ -249,22 +297,30 @@ public class CreateConcreteClassTest {
                 .buildField(PrimitiveType.BOOLEAN, "booleanField").setVisibility(VisibilityType.PUBLIC).setValue(JValueFactory.create(false)).finish()
                 .buildField(VisibilityType.class, "enumField").setVisibility(VisibilityType.PRIVATE).setValue(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)).finish()
                 .buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().finish()
-                .buildConstructor().setVisibility(VisibilityType.PROTECTED)
+                .buildConstructor().addGeneric(genericU).setVisibility(VisibilityType.PROTECTED)
                     .buildParameter(new ClassType(String.class), "strParam").finish()
+                    .buildParameter(genericU, "u").finish()
                     .addCode("a", "b", "c", "d").finish()
                 .buildConstructor().setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
                     .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
+                .buildMethod("abc123").addGeneric(genericT).addGeneric(genericU).buildParameter(genericT, "t").finish().buildParameter(genericU, "u").finish()
+                    .buildParameter(listClass, "list").finish().addCode().finish()
+                .buildField(genericT, "tField").finish()
+                .buildField(listClass, "listField").finish()
                 .build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
         matcher.eq("");
+        matcher.eq("import a.B;");
         matcher.eq("import a.b.c.d.F;");
+        matcher.eq("import " + List.class.getName() + ";");
         matcher.eq("import " + Generated.class.getName() + ";");
         matcher.eq("import q.w.e.r.t.Y;");
         matcher.eq("import " + VisibilityType.class.getName() + ";");
         matcher.eq("import " + TestMultiAttrsAnnotation.class.getName() + ";");
         matcher.eq("import " + TestNonDefaultAttrAnnotation.class.getName() + ";");
+        matcher.eq("import z.x.c.V;");
         matcher.eq("");
         matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
         matcher.eq("@" + Deprecated.class.getSimpleName() + "(forRemoval = true, since = \"yesterday\")");
@@ -275,10 +331,14 @@ public class CreateConcreteClassTest {
         matcher.eq("");
         matcher.eq("    private VisibilityType enumField = VisibilityType.PACKAGE_PRIVATE;");
         matcher.eq("");
+        matcher.eq("    T tField;");
+        matcher.eq("");
+        matcher.eq("    List<? super V> listField;");
+        matcher.eq("");
         matcher.eq("    public B() {");
         matcher.eq("    }");
         matcher.eq("");
-        matcher.eq("    protected B(String strParam) {");
+        matcher.eq("    protected <U extends B> B(String strParam, U u) {");
         matcher.eq("        a");
         matcher.eq("        b");
         matcher.eq("        c");
@@ -300,6 +360,9 @@ public class CreateConcreteClassTest {
         matcher.eq("        abc");
         matcher.eq("        123");
         matcher.eq("        qwerty");
+        matcher.eq("    }");
+        matcher.eq("");
+        matcher.eq("    <T, U extends B> void abc123(T t, U u, List<? super V> list) {");
         matcher.eq("    }");
         matcher.eq("");
         matcher.eq("}");

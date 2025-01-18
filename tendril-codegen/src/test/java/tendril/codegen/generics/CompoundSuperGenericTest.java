@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Jaroslav Bosak
+ * Copyright 2025 Jaroslav Bosak
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,59 +22,52 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
 
 /**
- * Test case for {@link SimpleJClassGeneric}
+ * Test case for {@link CompoundSuperGeneric}
  */
-class SimpleClassTypeGenericTest extends AbstractUnitTest {
-
+public class CompoundSuperGenericTest extends AbstractUnitTest {
+    
     // Mocks to use for testing
     @Mock
-    private JClass mockClass;
-    @Mock
-    private ClassType mockClassType;
+    private ClassType mockParent;
     
     // Instance to test
-    private SimpleJClassGeneric gen;
-    
+    private CompoundSuperGeneric gen;
+
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {
-        when(mockClass.getType()).thenReturn(mockClassType);
-        when(mockClassType.getSimpleName()).thenReturn("GenericJClassName");
-        gen = new SimpleJClassGeneric(mockClass);
-        verify(mockClass).getType();
-        verify(mockClassType).getSimpleName();
+        gen = new CompoundSuperGeneric(mockParent);
     }
     
     /**
-     * Verify that the appropriate name is provided
+     * Verify that the correct keyword is produced.
      */
     @Test
-    public void testName() {
-        Assertions.assertEquals("GenericJClassName", gen.getSimpleName());
+    public void testKeyword() {
+        Assertions.assertEquals("super ", gen.getKeyword());
     }
 
     /**
-     * Verify that the appropriate definition is generated.
+     * Verify that a definition cannot be produced.
      */
     @Test
     public void testGenerateDefinition() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> gen.generateDefinition());
     }
-    
+
     /**
-     * Verify that the appropriate application is generated
+     * Verify that an application can be produced
      */
     @Test
     public void testGenerateApplication() {
-        when(mockClass.getAppliedCode(false)).thenReturn("APPLIED_JCLASS_CODE");
-        Assertions.assertEquals("APPLIED_JCLASS_CODE", gen.generateApplication());
-        verify(mockClass).getAppliedCode(false);
+        when(mockParent.getSimpleName()).thenReturn("mockParent");
+        Assertions.assertEquals("? super mockParent", gen.generateApplication());
+        verify(mockParent).getSimpleName();
     }
 }

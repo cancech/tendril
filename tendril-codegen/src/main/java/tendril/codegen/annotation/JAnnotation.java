@@ -27,6 +27,7 @@ import tendril.codegen.classes.JClassAnnotation;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.value.JValue;
+import tendril.codegen.generics.GenericType;
 import tendril.util.TendrilStringUtil;
 
 /**
@@ -72,6 +73,16 @@ public class JAnnotation extends JBase {
     public void addAttribute(JMethod<?> attribute, JValue<?, ?> value) {
         attributes.add(attribute);
         values.put(attribute, value);
+    }
+    
+    /**
+     * @see tendril.codegen.JBase#addGeneric(tendril.codegen.generics.GenericType)
+     * 
+     * @throws IllegalArgumentException - annotations cannot be generic
+     */
+    @Override
+    public void addGeneric(GenericType generic) {
+        throw new IllegalArgumentException("Annotations cannot be generic");
     }
 
     /**

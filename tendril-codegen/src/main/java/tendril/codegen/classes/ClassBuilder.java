@@ -32,6 +32,7 @@ import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.VoidType;
 import tendril.codegen.field.value.JValueFactory;
+import tendril.codegen.generics.GenericType;
 
 /**
  * The common logic/capability to power builders which create class definitions of different types.
@@ -240,6 +241,17 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * @return {@link FieldBuilder} for creating the field
      */
     public FieldBuilder<ClassType> buildField(ClassType type, String name) {
+        return createAndCustomizeFieldBuilder(type, name);
+    }
+    
+    /**
+     * Create a field builder through which to add a new class field
+     * 
+     * @param type {@link GenericType} representing the generic type of the field
+     * @param name {@link String} the name of the field
+     * @return {@link FieldBuilder} for creating the field
+     */
+    public FieldBuilder<GenericType> buildField(GenericType type, String name) {
         return createAndCustomizeFieldBuilder(type, name);
     }
 

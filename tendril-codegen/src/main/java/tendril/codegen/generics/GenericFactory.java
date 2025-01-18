@@ -15,6 +15,8 @@
  */
 package tendril.codegen.generics;
 
+import java.util.Arrays;
+
 import tendril.codegen.Utilities;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
@@ -54,7 +56,7 @@ public class GenericFactory {
      * @return {@link GenericType}
      */
     public static GenericType create(ClassType type) {
-        return new SimpleClassTypeGeneric(type);
+        return new SimpleExplicitGeneric(type);
     }
     
     /**
@@ -68,7 +70,7 @@ public class GenericFactory {
      * @return {@link GenericType}
      */
     public static GenericType create(JClass type) {
-        return new SimpleJClassGeneric(type);
+        return new SimpleExplicitGeneric(type.getType());
     }
     
     /**
@@ -79,5 +81,94 @@ public class GenericFactory {
      */
     public static GenericType createWildcard() {
         return new SimpleWildcardGeneric();
+    }
+    
+    /**
+     * Creates a generic that resolves to a name and which extends one (or more) parent classes/interfaces
+     * 
+     * @param name {@link String} the name of the generic type
+     * @param extended {@link ClassType}... listing of the types that the generic extends (must be at least one)
+     * 
+     * @return {@link GenericType}
+     */
+    public static GenericType createExtends(String name, ClassType...extended) {
+        Utilities.throwIfNotValidIdentifier(name);
+        if (extended.length == 0)
+            throw new IllegalArgumentException("Generic must extend at least one class");
+        
+        return new CompoundExtendsGeneric(name, Arrays.asList(extended));
+    }
+    
+    /**
+     * Creates a generic that resolves to a name and which extends one (or more) parent classes/interfaces
+     * 
+     * @param name {@link String} the name of the generic type
+     * @param extended {@link JClass}... listing of the types that the generic extends (must be at least one)
+     * 
+     * @return {@link GenericType}
+     */
+    public static GenericType createExtends(String name, JClass...extended) {
+        return createExtends(name, asType(extended));
+    }
+    
+    /**
+     * Helper which converts a JClass array to ClassType array.
+     * 
+     * @param classes {@link JClass}[]
+     * @return {@link ClassType}[]
+     */
+    private static ClassType[] asType(JClass[] classes) {
+        ClassType[] types = new ClassType[classes.length];
+        for (int i = 0; i < classes.length; i++)
+            types[i] = classes[i].getType();
+        
+        return types;
+    }
+    
+    /**
+     * Creates a generic that is defined as a "super" of another class/interface
+     * 
+     * @param supered {@link ClassType} this generic references as its "super"
+     * 
+     * @return {@link GenericType}
+     */
+    public static GenericType createSuper(ClassType supered) {
+        return new CompoundSuperGeneric(supered);
+    }
+    
+    /**
+     * Creates a generic that is defined as a "super" of another class/interface
+     * 
+     * @param supered {@link JClass} this generic references as its "super"
+     * 
+     * @return {@link GenericType}
+     */
+    public static GenericType createSuper(JClass supered) {
+        return createSuper(supered.getType());
+    }
+    
+    /**
+     * Creates a wildcard generic that extends one (or more) parent classes/interfaces
+     * 
+     * @param extended {@link ClassType}... listing of the types that the generic extends (must be at least one)
+     * 
+     * @return {@link GenericType}
+     */
+    public static GenericType createWildcardExtends(ClassType...extended) {
+        if (extended.length == 0)
+            throw new IllegalArgumentException("Generic must extend at least one class");
+        
+        return new CompoundExtendsWildcardGeneric(Arrays.asList(extended));
+    }
+    
+    /**
+     * Creates a wildcard generic that extends one (or more) parent classes/interfaces
+     * 
+     * @param extended {@link JClass}... listing of the types that the generic extends (must be at least one)
+     * 
+     * @return {@link GenericType}
+     */
+    public static GenericType createWildcardExtends(JClass...extended) {
+        return createWildcardExtends(asType(extended));
     }
 }

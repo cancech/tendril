@@ -207,6 +207,7 @@ public class JClassTest extends AbstractUnitTest {
 
         when(mockClassType.getPackageName()).thenReturn("packageName");
         when(mockClassType.getClassName()).thenReturn("ClassName");
+        lenient().when(mockClassType.getFullyQualifiedName()).thenReturn("packagename.className");
         jclass = new TestJClass();
         verify(mockClassType).getPackageName();
         verify(mockClassType).getClassName();
@@ -317,7 +318,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithParent() {
         // Define what the code is expected to look like
-        startDefinition(Collections.emptyList(), false, "", Arrays.asList("mock.class.mockParentClass"), "extends mockParentClass");
+        startDefinition(Collections.emptyList(), false, "", Collections.emptyList(), "extends mockParentClass");
         endDefinition();
 
         // Add the additional features
@@ -325,10 +326,8 @@ public class JClassTest extends AbstractUnitTest {
 
         // Verify that it matches
         assertGeneratedCode();
-        verify(mockParentClass).getType();
+        verify(mockParentClass).registerImport(anySet());
         verify(mockParentClass).getAppliedCode(true);
-        verify(mockParentClassType).getPackageName();
-        verify(mockParentClassType).getFullyQualifiedName();
     }
 
     /**
@@ -337,7 +336,7 @@ public class JClassTest extends AbstractUnitTest {
     @Test
     public void testGenerateCodeWithInteface() {
         // Define what the code is expected to look like
-        startDefinition(Collections.emptyList(), true, "", Arrays.asList("mock.class.mockInterface1"), "implements mockInterface1");
+        startDefinition(Collections.emptyList(), true, "", Collections.emptyList(), "implements mockInterface1");
         endDefinition();
 
         // Add the additional features
@@ -346,10 +345,8 @@ public class JClassTest extends AbstractUnitTest {
 
         // Verify that it matches
         assertGeneratedCode();
-        verify(mockInterface1).getType();
+        verify(mockInterface1).registerImport(anySet());
         verify(mockInterface1).getAppliedCode(false);
-        verify(mockInterface1ClassType).getPackageName();
-        verify(mockInterface1ClassType).getFullyQualifiedName();
     }
 
     /**
@@ -367,6 +364,7 @@ public class JClassTest extends AbstractUnitTest {
 
         // Verify that it matches
         assertGeneratedCode();
+        verify(mockClassType, atLeastOnce()).getFullyQualifiedName();
     }
 
     /**
@@ -387,10 +385,11 @@ public class JClassTest extends AbstractUnitTest {
         jclass.addField(mockField1);
         jclass.addField(mockField2);
 
-        // Verify that it matches
+        // Verify that it matches  [mockClassType, mockField1Type, mockField2Type]
         assertGeneratedCode();
         verify(mockField1).generate(any(CodeBuilder.class), anySet());
         verify(mockField2).generate(any(CodeBuilder.class), anySet());
+        verify(mockClassType, atLeastOnce()).getFullyQualifiedName();
         verify(mockField1Type, atLeastOnce()).getFullyQualifiedName();
         verify(mockField2Type, atLeastOnce()).getFullyQualifiedName();
         verify(mockField1Type).getPackageName();
@@ -450,6 +449,7 @@ public class JClassTest extends AbstractUnitTest {
         verify(mockVoidMethod).generate(any(CodeBuilder.class), anySet());
         verify(mockPrimitiveMethod).generate(any(CodeBuilder.class), anySet());
         verify(mockClassMethod).generate(any(CodeBuilder.class), anySet());
+        verify(mockClassType, atLeastOnce()).getFullyQualifiedName();
         verify(mockNullPackageClassType, atLeastOnce()).getFullyQualifiedName();
         verify(mockEmptyPackageClassType, atLeastOnce()).getFullyQualifiedName();
         verify(mockJavaLangPackageClassType, atLeastOnce()).getFullyQualifiedName();
@@ -510,17 +510,17 @@ public class JClassTest extends AbstractUnitTest {
         when(mockParentClass.getAppliedCode(true)).thenReturn("mockParentClass<PARENT_GEN> ");
         
         // Define what the code is expected to look like
-        startDefinition(Collections.emptyList(), Collections.singletonList("mock.class.mockParentClass"), false, "", "extends mockParentClass<PARENT_GEN>");
+        startDefinition(Collections.emptyList(), Collections.emptyList(), false, "", "extends mockParentClass<PARENT_GEN>");
         endDefinition();
 
         // Add the additional features
         jclass.setParentClass(mockParentClass);
 
+        //System.out.println(jclass.generateCode());
+        
         // Verify that it matches
         assertGeneratedCode();
-        verify(mockParentClass).getType();
-        verify(mockParentClassType).getPackageName();
-        verify(mockParentClassType).getFullyQualifiedName();
+        verify(mockParentClass).registerImport(anySet());
         verify(mockParentClass).getAppliedCode(true);
     }
 
@@ -533,7 +533,7 @@ public class JClassTest extends AbstractUnitTest {
         when(mockInterface3.getAppliedCode(false)).thenReturn("mockInterface3<IFACE_3_GEN>");
         
         // Define what the code is expected to look like
-        startDefinition(Collections.emptyList(), Arrays.asList("mock.class.mockInterface1", "mock.class.mockInterface2", "mock.class.mockInterface3"), 
+        startDefinition(Collections.emptyList(), Collections.emptyList(), 
                 false, "", "implements mockInterface1<IFACE_1_GEN>, mockInterface2, mockInterface3<IFACE_3_GEN>");
         endDefinition();
 
@@ -542,17 +542,11 @@ public class JClassTest extends AbstractUnitTest {
 
         // Verify that it matches
         assertGeneratedCode();
-        verify(mockInterface1).getType();
-        verify(mockInterface1ClassType).getPackageName();
-        verify(mockInterface1ClassType, atLeastOnce()).getFullyQualifiedName();
+        verify(mockInterface1).registerImport(anySet());
         verify(mockInterface1).getAppliedCode(false);
-        verify(mockInterface2).getType();
-        verify(mockInterface2ClassType).getPackageName();
-        verify(mockInterface2ClassType, atLeastOnce()).getFullyQualifiedName();
+        verify(mockInterface2).registerImport(anySet());
         verify(mockInterface2).getAppliedCode(false);
-        verify(mockInterface3).getType();
-        verify(mockInterface3ClassType).getPackageName();
-        verify(mockInterface3ClassType, atLeastOnce()).getFullyQualifiedName();
+        verify(mockInterface3).registerImport(anySet());
         verify(mockInterface3).getAppliedCode(false);
     }
 
@@ -566,7 +560,7 @@ public class JClassTest extends AbstractUnitTest {
         
         // Define what the code is expected to look like
         startDefinition(Arrays.asList("@TestMarkerAnnotation", "@TestPrimitiveAnnotation(PrimitiveType.BOOLEAN)"), false, "<GEN_1_DEF, GEN_2_DEF, GEN_3_DEF>",
-                Arrays.asList("mockField1Type", "mockField2Type", "mock.class.mockParentClass", "mock.class.mockInterface1", "mock.class.mockInterface2", "mock.class.mockInterface3"),
+                Arrays.asList("mockField1Type", "mockField2Type"),
                 "extends mockParentClass<PARENT_GEN> implements mockInterface1, mockInterface2<IFACE_2_GEN>, mockInterface3", TestMarkerAnnotation.class, TestPrimitiveAnnotation.class, PrimitiveType.class);
         strMatcher.eq(("    mockField1"));
         strMatcher.eq((""));
@@ -622,22 +616,14 @@ public class JClassTest extends AbstractUnitTest {
         verify(mockField2Type, atLeastOnce()).getFullyQualifiedName();
         verify(mockField1Type).getPackageName();
         verify(mockField2Type).getPackageName();
-        verify(mockParentClass).getType();
+        verify(mockParentClass).registerImport(anySet());
         verify(mockParentClass).getAppliedCode(true);
-        verify(mockParentClassType).getPackageName();
-        verify(mockParentClassType, atLeastOnce()).getFullyQualifiedName();
-        verify(mockInterface1).getType();
+        verify(mockInterface1).registerImport(anySet());
         verify(mockInterface1).getAppliedCode(false);
-        verify(mockInterface1ClassType).getPackageName();
-        verify(mockInterface1ClassType, atLeastOnce()).getFullyQualifiedName();
-        verify(mockInterface2).getType();
+        verify(mockInterface2).registerImport(anySet());
         verify(mockInterface2).getAppliedCode(false);
-        verify(mockInterface2ClassType).getPackageName();
-        verify(mockInterface2ClassType, atLeastOnce()).getFullyQualifiedName();
-        verify(mockInterface3).getType();
+        verify(mockInterface3).registerImport(anySet());
         verify(mockInterface3).getAppliedCode(false);
-        verify(mockInterface3ClassType).getPackageName();
-        verify(mockInterface3ClassType, atLeastOnce()).getFullyQualifiedName();
         verify(mockCtor1).generate(any(CodeBuilder.class), anySet());
         verify(mockCtor2).generate(any(CodeBuilder.class), anySet());
         verify(mockCtor3).generate(any(CodeBuilder.class), anySet());
@@ -647,6 +633,7 @@ public class JClassTest extends AbstractUnitTest {
         verify(mockGeneric1).registerImport(anySet());
         verify(mockGeneric2).registerImport(anySet());
         verify(mockGeneric3).registerImport(anySet());
+        verify(mockClassType, atLeastOnce()).getFullyQualifiedName();
     }
 
     /**

@@ -15,31 +15,31 @@
  */
 package tendril.codegen.generics;
 
-import tendril.codegen.classes.JClass;
+import java.util.List;
+
+import tendril.codegen.field.type.ClassType;
 
 /**
- * {@link GenericType} representing a generic that is given an explicit Class for a type (i.e.: <MyClass>)
+ * Representation of a generic which is built up by extends one (or more) parent classes/interfaces.
  */
-class SimpleJClassGeneric extends SimpleClassTypeGeneric {
-
-    /** The class that is applied to the generic */
-    private final JClass klass;
+class CompoundExtendsGeneric extends CompoundGeneric {
 
     /**
      * CTOR
      * 
-     * @param klass {@link JClass} applied to the generic
+     * @param name {@link String} the name to apply to the generic
+     * @param parents {@link List} of {@link ClassType} which represent the parents to be extended
      */
-    SimpleJClassGeneric(JClass klass) {
-        super(klass.getType());
-        this.klass = klass;
+    CompoundExtendsGeneric(String name, List<ClassType> parents) {
+        super(name, parents);
     }
 
     /**
-     * @see tendril.codegen.generics.GenericType#generateApplication()
+     * @see tendril.codegen.generics.CompoundGeneric#getKeyword()
      */
     @Override
-    public String generateApplication() {
-        return klass.getAppliedCode(false);
+    protected String getKeyword() {
+        return "extends ";
     }
+
 }

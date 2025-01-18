@@ -15,21 +15,22 @@
  */
 package tendril.codegen.generics;
 
-import java.util.List;
+import java.util.Collections;
 
 import tendril.codegen.field.type.ClassType;
 
 /**
- * 
+ * Representation of a generic which employs the super keyword
  */
-public abstract class CompoundClassTypeSuperGeneric extends CompoundClassTypeGeneric {
+class CompoundSuperGeneric extends CompoundGeneric {
 
     /**
-     * @param name
-     * @param parents
+     * CTOR
+     * 
+     * @param parent {@link ClassType} that is the parent (i.e.: "super") class
      */
-    CompoundClassTypeSuperGeneric(String name, List<ClassType> parents) {
-        super(name, parents);
+    CompoundSuperGeneric(ClassType parent) {
+        super(SimpleWildcardGeneric.WILD_CARD, Collections.singletonList(parent));
     }
 
     /**
@@ -47,5 +48,12 @@ public abstract class CompoundClassTypeSuperGeneric extends CompoundClassTypeGen
     public String generateDefinition() {
         throw new IllegalArgumentException("Generic definition cannot use super");
     }
-
+    
+    /**
+     * @see tendril.codegen.generics.GenericType#generateApplication()
+     */
+    @Override
+    public String generateApplication() {
+        return super.generateDefinition();
+    }
 }

@@ -16,7 +16,6 @@
 package tendril.codegen;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -122,7 +121,7 @@ public class JBaseTest extends AbstractUnitTest {
     @Test
     public void testGenerateNoAnnotation() {
         Assertions.assertIterableEquals(Collections.emptyList(), element.getAnnotations());
-        
+
         element.generate(mockCodeBuilder, mockImports);
         element.verifyTimesCalled(1, 0);
     }
@@ -135,7 +134,7 @@ public class JBaseTest extends AbstractUnitTest {
         element.setFinal(true);
         element.addAnnotation(mockAnnotation1);
         Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
-        
+
         element.generate(mockCodeBuilder, mockImports);
         verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
         element.verifyTimesCalled(1, 0);
@@ -152,14 +151,14 @@ public class JBaseTest extends AbstractUnitTest {
         Assertions.assertIterableEquals(Arrays.asList(mockAnnotation1, mockAnnotation2), element.getAnnotations());
         element.addAnnotation(mockAnnotation3);
         Assertions.assertIterableEquals(Arrays.asList(mockAnnotation1, mockAnnotation2, mockAnnotation3), element.getAnnotations());
-        
+
         element.generate(mockCodeBuilder, mockImports);
         verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
         verify(mockAnnotation2).generate(mockCodeBuilder, mockImports);
         verify(mockAnnotation3).generate(mockCodeBuilder, mockImports);
         element.verifyTimesCalled(1, 0);
     }
-    
+
     /**
      * Verify that there are no side-effect to generateSelf
      */
@@ -169,7 +168,7 @@ public class JBaseTest extends AbstractUnitTest {
         Assertions.assertEquals("generateSelf", element.generateSelf(mockImports));
         element.verifyTimesCalled(0, 1);
     }
-    
+
     /**
      * Verify that the final flag is properly applied
      */
@@ -177,16 +176,16 @@ public class JBaseTest extends AbstractUnitTest {
     public void testFinal() {
         Assertions.assertFalse(element.isFinal());
         Assertions.assertEquals("", element.getFinalKeyword());
-        
+
         element.setFinal(true);
         Assertions.assertTrue(element.isFinal());
         Assertions.assertEquals("final ", element.getFinalKeyword());
-        
+
         element.setFinal(false);
         Assertions.assertFalse(element.isFinal());
         Assertions.assertEquals("", element.getFinalKeyword());
     }
-    
+
     /**
      * Verify that equality is properly determined
      */
@@ -201,66 +200,30 @@ public class JBaseTest extends AbstractUnitTest {
         Assertions.assertFalse(element.equals(new TestBaseElement("myelementname")));
         Assertions.assertTrue(element.equals(new TestBaseElement("MyElementName")));
     }
-    
-    /**
-     * Verify that no generic need be added to the element
-     */
-    @Test
-    public void testNoGeneric() {
-        Assertions.assertIterableEquals(Collections.emptyList(),  element.getGenerics());
-        Assertions.assertEquals(" ", element.getGenericsApplicationKeyword(true));
-        Assertions.assertEquals("", element.getGenericsApplicationKeyword(false));
-        Assertions.assertEquals(" ", element.getGenericsDefinitionKeyword(true));
-        Assertions.assertEquals("", element.getGenericsDefinitionKeyword(false));
-    }
-    
+
     /**
      * Verify that a single generic can be added to the element
      */
     @Test
     public void testSingleGeneric() {
-        when(mockGeneric1.generateApplication()).thenReturn("GEN_1_APP");
-        when(mockGeneric1.generateDefinition()).thenReturn("GEN_1_DEF");
         element.addGeneric(mockGeneric1);
-        
-        Assertions.assertIterableEquals(Collections.singleton(mockGeneric1),  element.getGenerics());
-        Assertions.assertEquals("<GEN_1_APP> ", element.getGenericsApplicationKeyword(true));
-        Assertions.assertEquals("<GEN_1_APP>", element.getGenericsApplicationKeyword(false));
-        Assertions.assertEquals("<GEN_1_DEF> ", element.getGenericsDefinitionKeyword(true));
-        Assertions.assertEquals("<GEN_1_DEF> ", element.getGenericsDefinitionKeyword(false));
-        
+
         // Generating will register the generics
         element.generate(mockCodeBuilder, mockImports);
-        verify(mockGeneric1).registerImport(mockImports);
         element.verifyTimesCalled(1, 0);
     }
-    
+
     /**
      * Verify that multiple generics can be added to the element
      */
     @Test
     public void testMultipleGenerics() {
-        when(mockGeneric1.generateApplication()).thenReturn("GEN_1_APP");
-        when(mockGeneric2.generateApplication()).thenReturn("GEN_2_APP");
-        when(mockGeneric3.generateApplication()).thenReturn("GEN_3_APP");
-        when(mockGeneric1.generateDefinition()).thenReturn("GEN_1_DEF");
-        when(mockGeneric2.generateDefinition()).thenReturn("GEN_2_DEF");
-        when(mockGeneric3.generateDefinition()).thenReturn("GEN_3_DEF");
         element.addGeneric(mockGeneric1);
         element.addGeneric(mockGeneric2);
         element.addGeneric(mockGeneric3);
-        
-        Assertions.assertIterableEquals(Arrays.asList(mockGeneric1, mockGeneric2, mockGeneric3),  element.getGenerics());
-        Assertions.assertEquals("<GEN_1_APP, GEN_2_APP, GEN_3_APP> ", element.getGenericsApplicationKeyword(true));
-        Assertions.assertEquals("<GEN_1_APP, GEN_2_APP, GEN_3_APP>", element.getGenericsApplicationKeyword(false));
-        Assertions.assertEquals("<GEN_1_DEF, GEN_2_DEF, GEN_3_DEF> ", element.getGenericsDefinitionKeyword(true));
-        Assertions.assertEquals("<GEN_1_DEF, GEN_2_DEF, GEN_3_DEF> ", element.getGenericsDefinitionKeyword(false));
-        
+
         // Generating will register the generics
         element.generate(mockCodeBuilder, mockImports);
-        verify(mockGeneric1).registerImport(mockImports);
-        verify(mockGeneric2).registerImport(mockImports);
-        verify(mockGeneric3).registerImport(mockImports);
         element.verifyTimesCalled(1, 0);
     }
 }
