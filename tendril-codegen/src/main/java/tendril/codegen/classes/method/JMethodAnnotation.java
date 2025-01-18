@@ -41,6 +41,19 @@ class JMethodAnnotation<RETURN_TYPE extends Type> extends JMethodInterface<RETUR
         super(returnType, name, null);
         this.defaultValue = defaultValue;
     }
+    
+    /**
+     * @see tendril.codegen.classes.method.JMethodInterface#setFinal(boolean)
+     * 
+     * Override to prevent static methods
+     */
+    @Override
+    public void setStatic(boolean isStatic) {
+        if (isStatic)
+            throw new IllegalArgumentException("Interface methods cannot be static");
+        
+        super.setStatic(isStatic);
+    }
 
     /**
      * @see tendril.codegen.classes.method.JMethod#generateSignatureEnd(boolean)

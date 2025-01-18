@@ -32,6 +32,7 @@ import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
+import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.CollectionAssert;
 import tendril.test.helper.annotation.TestDefaultAttrAnnotation;
@@ -60,6 +61,8 @@ public class JAnnotationTest extends AbstractUnitTest {
     private JMethod<Type> mockMethod2;
     @Mock
     private JValue<Type, Integer> mockIntValue;
+    @Mock
+    private GenericType mockGeneric;
 
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
@@ -67,6 +70,17 @@ public class JAnnotationTest extends AbstractUnitTest {
     @Override
     protected void prepareTest() {
         // Nothing to do
+    }
+    
+    /**
+     * Verify that an annotation cannot be generic
+     */
+    @Test
+    public void testGeneric() {
+        JAnnotation annotation = new JAnnotation(mockAnnotationClass);
+        verify(mockAnnotationClass).getClassName();
+        
+        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.addGeneric(mockGeneric));
     }
 
     /**

@@ -18,6 +18,7 @@ package tendril.codegen.classes;
 import tendril.codegen.classes.method.AnnotationMethodBuilder;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.generics.GenericType;
 
 /**
  * Builder for the creation/definition of annotation classes
@@ -51,25 +52,41 @@ class AnnotationBuilder extends InterfaceBuilder {
     
     /**
      * @see tendril.codegen.classes.ClassBuilder#extendsClass(tendril.codegen.field.type.ClassType)
+     * 
+     * @throws IllegalArgumentException - annotations cannot have an explicit parent class
      */
     @Override
-    public ClassBuilder extendsClass(ClassType parent) {
+    public ClassBuilder extendsClass(JClass parent) {
         throw new IllegalArgumentException("Annotations cannot have an explicit parent class");
     }
     
     /**
      * @see tendril.codegen.classes.ClassBuilder#implementsInterface(tendril.codegen.field.type.ClassType)
+     * 
+     * @throws IllegalArgumentException - annotations cannot implement any interfaces
      */
     @Override
-    public ClassBuilder implementsInterface(ClassType iface) {
+    public ClassBuilder implementsInterface(JClass iface) {
         throw new IllegalArgumentException("Annotations cannot implement any interfaces");
     }
     
     /**
      * @see tendril.codegen.classes.ClassBuilder#buildConstructor()
+     * 
+     * @throws IllegalArgumentException - annotations cannot have a constructor
      */
     @Override
     public ConstructorBuilder buildConstructor() {
         throw new IllegalArgumentException("Annotations cannot have a constructor");
+    }
+    
+    /**
+     * @see tendril.codegen.BaseBuilder#addGeneric(tendril.codegen.generics.GenericType)
+     * 
+     * @throws IllegalArgumentException - annotations cannot be generic
+     */
+    @Override
+    public ClassBuilder addGeneric(GenericType generic) {
+        throw new IllegalArgumentException("Annotations cannot be generic");
     }
 }

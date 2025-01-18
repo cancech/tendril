@@ -32,18 +32,18 @@ public class JClassInterface extends JClass {
     }
 
     /**
-     * @see tendril.codegen.classes.JClass#classType()
+     * @see tendril.codegen.classes.JClass#getClassKeyword()
      */
     @Override
-    protected String classType() {
-        return "interface";
+    protected String getClassKeyword() {
+        return "interface ";
     }
 
     /**
-     * @see tendril.codegen.classes.JClass#setParentClass(tendril.codegen.field.type.ClassType)
+     * @see tendril.codegen.classes.JClass#setParentClass(tendril.codegen.classes.JClass)
      */
     @Override
-    public void setParentClass(ClassType parent) {
+    public void setParentClass(JClass parent) {
         if (parent != null)
             throw new IllegalArgumentException("Interfaces cannot have an explicit parent class");
     }
@@ -53,6 +53,6 @@ public class JClassInterface extends JClass {
      */
     @Override
     protected String interfaceExtensionKeyword() {
-        return "extends";
+        return "extends ";
     }
 }

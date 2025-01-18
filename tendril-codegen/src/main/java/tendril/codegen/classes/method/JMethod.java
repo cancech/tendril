@@ -45,7 +45,7 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends JAbstractMethodE
     @Override
     protected String generateSignature(Set<ClassType> classImports, boolean hasImplementation) {
         StringBuilder signature = new StringBuilder(generateSignatureStart(hasImplementation));
-        signature.append(getType().getSimpleName() + " " + getName());
+        signature.append(getGenericsDefinitionKeyword(false) + getType().getSimpleName() + " " + getName());
         signature.append("(" + generateParameters(classImports) + ")");
         signature.append(generateSignatureEnd(hasImplementation));
         return signature.toString();

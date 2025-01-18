@@ -27,6 +27,7 @@ import org.mockito.Mock;
 
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -94,6 +95,12 @@ public class JBaseTest extends AbstractUnitTest {
     private JAnnotation mockAnnotation2;
     @Mock
     private JAnnotation mockAnnotation3;
+    @Mock
+    private GenericType mockGeneric1;
+    @Mock
+    private GenericType mockGeneric2;
+    @Mock
+    private GenericType mockGeneric3;
 
     // Instance to use for testing
     private TestBaseElement element;
@@ -114,7 +121,7 @@ public class JBaseTest extends AbstractUnitTest {
     @Test
     public void testGenerateNoAnnotation() {
         Assertions.assertIterableEquals(Collections.emptyList(), element.getAnnotations());
-        
+
         element.generate(mockCodeBuilder, mockImports);
         element.verifyTimesCalled(1, 0);
     }
@@ -127,7 +134,7 @@ public class JBaseTest extends AbstractUnitTest {
         element.setFinal(true);
         element.addAnnotation(mockAnnotation1);
         Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
-        
+
         element.generate(mockCodeBuilder, mockImports);
         verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
         element.verifyTimesCalled(1, 0);
@@ -144,14 +151,14 @@ public class JBaseTest extends AbstractUnitTest {
         Assertions.assertIterableEquals(Arrays.asList(mockAnnotation1, mockAnnotation2), element.getAnnotations());
         element.addAnnotation(mockAnnotation3);
         Assertions.assertIterableEquals(Arrays.asList(mockAnnotation1, mockAnnotation2, mockAnnotation3), element.getAnnotations());
-        
+
         element.generate(mockCodeBuilder, mockImports);
         verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
         verify(mockAnnotation2).generate(mockCodeBuilder, mockImports);
         verify(mockAnnotation3).generate(mockCodeBuilder, mockImports);
         element.verifyTimesCalled(1, 0);
     }
-    
+
     /**
      * Verify that there are no side-effect to generateSelf
      */
@@ -161,19 +168,24 @@ public class JBaseTest extends AbstractUnitTest {
         Assertions.assertEquals("generateSelf", element.generateSelf(mockImports));
         element.verifyTimesCalled(0, 1);
     }
-    
+
     /**
      * Verify that the final flag is properly applied
      */
     @Test
     public void testFinal() {
         Assertions.assertFalse(element.isFinal());
+        Assertions.assertEquals("", element.getFinalKeyword());
+
         element.setFinal(true);
         Assertions.assertTrue(element.isFinal());
+        Assertions.assertEquals("final ", element.getFinalKeyword());
+
         element.setFinal(false);
         Assertions.assertFalse(element.isFinal());
+        Assertions.assertEquals("", element.getFinalKeyword());
     }
-    
+
     /**
      * Verify that equality is properly determined
      */
@@ -187,5 +199,31 @@ public class JBaseTest extends AbstractUnitTest {
         Assertions.assertFalse(element.equals(new TestBaseElement("MyOtherElementName")));
         Assertions.assertFalse(element.equals(new TestBaseElement("myelementname")));
         Assertions.assertTrue(element.equals(new TestBaseElement("MyElementName")));
+    }
+
+    /**
+     * Verify that a single generic can be added to the element
+     */
+    @Test
+    public void testSingleGeneric() {
+        element.addGeneric(mockGeneric1);
+
+        // Generating will register the generics
+        element.generate(mockCodeBuilder, mockImports);
+        element.verifyTimesCalled(1, 0);
+    }
+
+    /**
+     * Verify that multiple generics can be added to the element
+     */
+    @Test
+    public void testMultipleGenerics() {
+        element.addGeneric(mockGeneric1);
+        element.addGeneric(mockGeneric2);
+        element.addGeneric(mockGeneric3);
+
+        // Generating will register the generics
+        element.generate(mockCodeBuilder, mockImports);
+        element.verifyTimesCalled(1, 0);
     }
 }

@@ -18,7 +18,6 @@ package tendril.codegen.classes.method;
 import java.util.List;
 import java.util.Set;
 
-import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.ClassType;
 
 /**
@@ -35,6 +34,32 @@ public class JConstructor extends JAbstractMethodElement<ClassType> {
     public JConstructor(ClassType enclosingClass, List<String> implementation) {
         super(enclosingClass, enclosingClass.getSimpleName(), implementation);
     }
+    
+    /**
+     * @see tendril.codegen.field.JVisibleType#setStatic(boolean)
+     * 
+     * Override to ensure that a static constructor is not defined.
+     */
+    @Override
+    public void setStatic(boolean isStatic) {
+        if (isStatic)
+            throw new IllegalArgumentException("CTOR cannot be static");
+        
+        super.setStatic(isStatic);
+    }
+    
+    /**
+     * @see tendril.codegen.field.JVisibleType#setStatic(boolean)
+     * 
+     * Override to ensure that a final constructor is not defined.
+     */
+    @Override
+    public void setFinal(boolean isFinal) {
+        if (isFinal)
+            throw new IllegalArgumentException("CTOR cannot be final");
+        
+        super.setStatic(isFinal);
+    }
 
     /**
      * @see tendril.codegen.classes.method.JAbstractMethodElement#generateSignature(java.util.Set, boolean)
@@ -45,8 +70,6 @@ public class JConstructor extends JAbstractMethodElement<ClassType> {
         if (!hasImplementation)
             throw new IllegalArgumentException("Constructor must have a valid implementation");
         
-        StringBuilder signature = new StringBuilder(VisibilityType.PACKAGE_PRIVATE == visibility ? "" : visibility.toString() + " ");
-        signature.append(getName() + "(" + generateParameters(classImports) + ") {");
-        return signature.toString();
+        return visibility.getKeyword() + getGenericsDefinitionKeyword(false) + getName() + "(" + generateParameters(classImports) + ") {";
     }
 }

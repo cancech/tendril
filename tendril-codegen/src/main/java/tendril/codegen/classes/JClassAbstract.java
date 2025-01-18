@@ -32,10 +32,10 @@ public class JClassAbstract extends JClassDefault {
 	}
 
 	/**
-	 * @see tendril.codegen.classes.JClassDefault#classType()
+	 * @see tendril.codegen.classes.JClassDefault#getClassKeyword()
 	 */
 	@Override
-	protected String classType() {
-		return "abstract " + super.classType();
+	protected String getClassKeyword() {
+		return "abstract " + super.getClassKeyword();
 	}
 }

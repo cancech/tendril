@@ -35,6 +35,8 @@ public class JClassInterfaceTest extends AbstractUnitTest {
 	@Mock
 	private ClassType mockClassType;
 	@Mock
+	private JClass mockJClass;
+	@Mock
 	private Type mockReturnType;
 
 	// Instance to test
@@ -57,7 +59,7 @@ public class JClassInterfaceTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testClassType() {
-		Assertions.assertEquals("interface", cls.classType());
+		Assertions.assertEquals("interface ", cls.getClassKeyword());
 	}
 	
 	/**
@@ -65,8 +67,8 @@ public class JClassInterfaceTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testClassHierarchy() {
-	    Assertions.assertThrows(IllegalArgumentException.class, () -> cls.setParentClass(mockClassType));
+	    Assertions.assertThrows(IllegalArgumentException.class, () -> cls.setParentClass(mockJClass));
 	    cls.setParentClass(null);
-	    Assertions.assertEquals("extends", cls.interfaceExtensionKeyword());
+	    Assertions.assertEquals("extends ", cls.interfaceExtensionKeyword());
 	}
 }

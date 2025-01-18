@@ -47,6 +47,7 @@ public class AbstractMethodTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
+        lenient().when(mockVisibility.getKeyword()).thenReturn("mockVisibility ");
         lenient().when(mockReturnType.getSimpleName()).thenReturn(SIMPLE_MOCK_RETURN_TYPE);    
     }
 

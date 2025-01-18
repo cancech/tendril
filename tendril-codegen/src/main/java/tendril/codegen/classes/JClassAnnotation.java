@@ -34,27 +34,27 @@ public class JClassAnnotation extends JClassInterface {
     }
 
     /**
-     * @see tendril.codegen.classes.JClassInterface#classType()
+     * @see tendril.codegen.classes.JClassInterface#getClassKeyword()
      */
     @Override
-    protected String classType() {
-        return "@" + super.classType();
+    protected String getClassKeyword() {
+        return "@" + super.getClassKeyword();
     }
 
     /**
-     * @see tendril.codegen.classes.JClass#setParentClass(tendril.codegen.field.type.ClassType)
+     * @see tendril.codegen.classes.JClassInterface#setParentClass(tendril.codegen.classes.JClass)
      */
     @Override
-    public void setParentClass(ClassType parent) {
+    public void setParentClass(JClass parent) {
         if (parent != null)
             throw new IllegalArgumentException("Annotations cannot have an explicit parent class");
     }
 
     /**
-     * @see tendril.codegen.classes.JClass#setParentClass(tendril.codegen.field.type.ClassType)
+     * @see tendril.codegen.classes.JClass#setParentInterfaces(java.util.List)
      */
     @Override
-    public void setParentInterfaces(List<ClassType> ifaces) {
+    public void setParentInterfaces(List<JClass> ifaces) {
         if (!ifaces.isEmpty())
             throw new IllegalArgumentException("Annotations cannot implement any interfaces");
     }

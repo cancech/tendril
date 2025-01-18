@@ -29,28 +29,65 @@ import tendril.codegen.field.type.Type;
 public class JMethodInterfaceTest extends AbstractMethodTest {
 
     /**
-     * Verify that the appropriate method signature start is generated
+     * Verify that final is properly accounted for.
      */
     @Test
-    public void testSignatureStartNotPublic() {
-        JMethodInterface<Type> method = new JMethodInterface<>(mockReturnType, "interfaceMethod", Collections.emptyList());
-        method.setVisibility(mockVisibility);
-        verifyMethodInit("interfaceMethod", method);
+    public void testVisibility() {
+        JMethodInterface<Type> method = new JMethodInterface<>(mockReturnType, "publicInterfaceMethod", Collections.emptyList());
+        Assertions.assertEquals(VisibilityType.PUBLIC, method.getVisibility());
 
-        Assertions.assertEquals("mockVisibility ", method.generateSignatureStart(false));
-        Assertions.assertEquals("mockVisibility ", method.generateSignatureStart(true));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> method.setVisibility(VisibilityType.PACKAGE_PRIVATE));
+        Assertions.assertEquals(VisibilityType.PUBLIC, method.getVisibility());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> method.setVisibility(VisibilityType.PROTECTED));
+        Assertions.assertEquals(VisibilityType.PUBLIC, method.getVisibility());
+        
+        method.setVisibility(VisibilityType.PRIVATE);
+        Assertions.assertEquals(VisibilityType.PRIVATE, method.getVisibility());
     }
 
+    /**
+     * Verify that final is properly accounted for.
+     */
+    @Test
+    public void testFinal() {
+        JMethodInterface<Type> method = new JMethodInterface<>(mockReturnType, "publicInterfaceMethod", Collections.emptyList());
+        Assertions.assertFalse(method.isFinal());
+        
+        Assertions.assertThrows(IllegalArgumentException.class, () -> method.setFinal(true));
+        Assertions.assertFalse(method.isFinal());
+        
+        method.setFinal(false);
+        Assertions.assertFalse(method.isFinal());
+    }
+    
     /**
      * Verify that the appropriate method signature start is generated
      */
     @Test
     public void testSignatureStartPublic() {
         JMethodInterface<Type> method = new JMethodInterface<>(mockReturnType, "publicInterfaceMethod", Collections.emptyList());
-        method.setVisibility(VisibilityType.PUBLIC);
         verifyMethodInit("publicInterfaceMethod", method);
-
         Assertions.assertEquals("", method.generateSignatureStart(false));
         Assertions.assertEquals("default ", method.generateSignatureStart(true));
+        
+        method.setStatic(true);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> method.generateSignatureStart(false));
+        Assertions.assertEquals("static ", method.generateSignatureStart(true));
+    }
+    
+    /**
+     * Verify that the appropriate method signature start is generated
+     */
+    @Test
+    public void testSignatureStartPrivate() {
+        JMethodInterface<Type> method = new JMethodInterface<>(mockReturnType, "publicInterfaceMethod", Collections.emptyList());
+        method.setVisibility(VisibilityType.PRIVATE);
+        verifyMethodInit("publicInterfaceMethod", method);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> method.generateSignatureStart(false));
+        Assertions.assertEquals("private ", method.generateSignatureStart(true));
+        
+        method.setStatic(true);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> method.generateSignatureStart(false));
+        Assertions.assertEquals("private static ", method.generateSignatureStart(true));
     }
 }

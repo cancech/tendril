@@ -35,6 +35,8 @@ public class JClassAnnotationTest extends AbstractUnitTest {
     // Mocks to use for testing
     @Mock
     private ClassType mockClassType;
+    @Mock
+    private JClass mockJClass;
 
     // Instance to test
     private JClassAnnotation cls;
@@ -56,7 +58,7 @@ public class JClassAnnotationTest extends AbstractUnitTest {
      */
     @Test
     public void testClassType() {
-        Assertions.assertEquals("@interface", cls.classType());
+        Assertions.assertEquals("@interface ", cls.getClassKeyword());
     }
 
     /**
@@ -65,8 +67,8 @@ public class JClassAnnotationTest extends AbstractUnitTest {
     @Test
     public void testCannotHaveAnyParent() {
         // "Proper" values are not allowed
-        Assertions.assertThrows(IllegalArgumentException.class, () -> cls.setParentClass(mockClassType));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> cls.setParentInterfaces(Collections.singletonList(mockClassType)));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> cls.setParentClass(mockJClass));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> cls.setParentInterfaces(Collections.singletonList(mockJClass)));
         
         // Empty values are OK
         cls.setParentClass(null);

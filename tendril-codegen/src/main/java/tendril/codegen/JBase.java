@@ -25,7 +25,7 @@ import tendril.codegen.field.type.ClassType;
 /**
  * The base of any element that is to be part of the generated code.
  */
-public abstract class JBase {
+public abstract class JBase extends JGeneric {
     /** The name of the element */
     protected final String name;
     /** List of annotations that are applied to the element */
@@ -58,6 +58,18 @@ public abstract class JBase {
      */
     public boolean isFinal() {
         return isFinal;
+    }
+    
+    /**
+     * Gets the appropriate keyword to include for the current final flag.
+     * 
+     * @return {@link String} they keyword (or empty if final is not applied)
+     */
+    public String getFinalKeyword() {
+        if (!isFinal)
+            return "";
+        
+        return "final ";
     }
 
     /**

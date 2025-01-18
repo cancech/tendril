@@ -15,6 +15,7 @@
  */
 package tendril.codegen.it;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.Generated;
@@ -28,6 +29,8 @@ import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.value.JValueFactory;
+import tendril.codegen.generics.GenericFactory;
+import tendril.codegen.generics.GenericType;
 import tendril.test.assertions.matchers.MultiLineStringMatcher;
 import tendril.test.helper.annotation.TestDefaultAttrAnnotation;
 import tendril.test.helper.annotation.TestMarkerAnnotation;
@@ -39,10 +42,6 @@ import tendril.test.helper.annotation.TestNonDefaultAttrAnnotation;
  */
 public class CreateAbstractClassTest {
     
-    CreateAbstractClassTest() {
-        
-    }
-
     /**
      * Verify that the empty abstract class generates properly
      */
@@ -191,8 +190,11 @@ public class CreateAbstractClassTest {
      */
     @Test
     public void testCreateAbstractClassWithParents() {
+        JClass parentCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
+        JClass ifaceYCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
+        JClass ifaceQwertyCls = ClassBuilder.forConcreteClass(new ClassType("a.s.d.f", "Qwerty")).build();
         JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
-                .extendsClass(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("a.s.d.f", "Qwerty")).build();
+                .extendsClass(parentCls).implementsInterface(ifaceYCls).implementsInterface(ifaceQwertyCls).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
@@ -250,15 +252,63 @@ public class CreateAbstractClassTest {
         matcher.eq("}");
         matcher.match(abstractCls.generateCode());
     }
+    
+    /**
+     * Verify that the class can contain a generic type
+     */
+    @Test
+    public void testCreateSimpleGeneric() {
+        GenericType genericT = GenericFactory.create("T");
+        GenericType genericU = GenericFactory.createExtends("U", new ClassType("a", "B"));
+        GenericType superType = GenericFactory.createSuper(new ClassType("z.x.c", "V"));
+        ClassType listClass = new ClassType(List.class);
+        listClass.addGeneric(superType);
+        JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PROTECTED).addGeneric(genericT)
+                .buildMethod("abc123").addGeneric(genericU).buildParameter(genericT, "t").finish().buildParameter(genericU, "u").finish()
+                    .buildParameter(listClass, "list").finish().finish()
+                .buildField(genericT, "tField").finish()
+                .buildField(listClass, "listField").finish()
+                .build();
+        
+        MultiLineStringMatcher matcher = new MultiLineStringMatcher();
+        matcher.eq("package q.w.e.r.t;");
+        matcher.eq("");
+        matcher.eq("import a.B;");
+        matcher.eq("import " + List.class.getName() + ";");
+        matcher.eq("import " + Generated.class.getName() + ";");
+        matcher.eq("import z.x.c.V;");
+        matcher.eq("");
+        matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
+        matcher.eq("protected abstract class Y<T> {");
+        matcher.eq("");
+        matcher.eq("    T tField;");
+        matcher.eq("");
+        matcher.eq("    List<? super V> listField;");
+        matcher.eq("");
+        matcher.eq("    abstract <U extends B> void abc123(T t, U u, List<? super V> list);");
+        matcher.eq("");
+        matcher.eq("}");
+        matcher.match(abstractCls.generateCode());
+    }
 
     /**
      * Verify that a complex class with a little everything can be properly generated
      */
     @Test
     public void testCreateComplexAbstractClass() {
+        GenericType generic1 = GenericFactory.create("T");
+        GenericType generic2 = GenericFactory.createExtends("U", new ClassType("a.b.c", "D"));
+        GenericType generic3 = GenericFactory.create(new ClassType("a.s.d", "F"));
+        ClassType listClass = new ClassType(List.class);
+        listClass.addGeneric(GenericFactory.createSuper(new ClassType("z.x.c", "V")));
+        
+        JClass parentCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).addGeneric(generic1).build();
+        JClass ifaceYCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).addGeneric(generic2).build();
+        JClass ifaceQwertyCls = ClassBuilder.forConcreteClass(new ClassType("a.s.d.f", "Qwerty")).addGeneric(generic3).build();
         
         JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
-                .extendsClass(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("q.w.e.r.t", "Y")).implementsInterface(new ClassType("a.s.d.f", "Qwerty"))
+                .addGeneric(generic1).addGeneric(generic2)
+                .extendsClass(parentCls).implementsInterface(ifaceYCls).implementsInterface(ifaceQwertyCls)
                 .buildMethod(PrimitiveType.FLOAT, "floatMethod").setVisibility(VisibilityType.PROTECTED)
                     .buildParameter(PrimitiveType.SHORT, "shortParam").finish().finish()
                 .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED)
@@ -282,12 +332,19 @@ public class CreateAbstractClassTest {
                     .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
                 .buildField(new ClassType("q.a.z", "Wsx"), "field1").setVisibility(VisibilityType.PACKAGE_PRIVATE).finish()
                 .buildField(PrimitiveType.BOOLEAN, "field2").setVisibility(VisibilityType.PUBLIC).setStatic(true).setFinal(true).setValue(JValueFactory.create(false)).finish()
+                .buildField(generic1, "tField").finish()
+                .buildField(listClass, "listField").finish()
+                .buildMethod("abc123").addGeneric(generic2).buildParameter(generic1, "t").finish().buildParameter(generic2, "u").finish()
+                    .buildParameter(listClass, "list").finish().finish()
                 .build();
-
+        
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
         matcher.eq("");
+        matcher.eq("import a.b.c.D;");
+        matcher.eq("import a.s.d.F;");
         matcher.eq("import a.s.d.f.Qwerty;");
+        matcher.eq("import " + List.class.getName() + ";");
         matcher.eq("import " + Generated.class.getName() + ";");
         matcher.eq("import q.a.z.Wsx;");
         matcher.eq("import q.w.e.r.t.Y;");
@@ -296,15 +353,20 @@ public class CreateAbstractClassTest {
         matcher.eq("import " + TestMarkerAnnotation.class.getName() + ";");
         matcher.eq("import " + TestMultiAttrsAnnotation.class.getName() + ";");
         matcher.eq("import " + TestNonDefaultAttrAnnotation.class.getName() + ";");
+        matcher.eq("import z.x.c.V;");
         matcher.eq("");
         matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
         matcher.eq("@" + Deprecated.class.getSimpleName() + "(forRemoval = true, since = \"yesterday\")");
         matcher.eq("@" + TestMultiAttrsAnnotation.class.getSimpleName() + "(valInt = 789, valStr = \"qwerty\")");
-        matcher.eq("protected abstract class B extends Y implements Y, Qwerty {");
+        matcher.eq("protected abstract class B<T, U extends D> extends Y<T> implements Y<U>, Qwerty<F> {");
         matcher.eq("");
         matcher.eq("    Wsx field1;");
         matcher.eq("");
         matcher.eq("    public static final boolean field2 = false;");
+        matcher.eq("");
+        matcher.eq("    T tField;");
+        matcher.eq("");
+        matcher.eq("    List<? super V> listField;");
         matcher.eq("");
         matcher.eq("    public B() {");
         matcher.eq("    }");
@@ -338,6 +400,8 @@ public class CreateAbstractClassTest {
         matcher.eq("    }");
         matcher.eq("");
         matcher.eq("    abstract String stringMethod(@TestMarkerAnnotation @TestDefaultAttrAnnotation(\"abc123\") String param1, double param2);");
+        matcher.eq("");
+        matcher.eq("    abstract <U extends D> void abc123(T t, U u, List<? super V> list);");
         matcher.eq("");
         matcher.eq("}");
         matcher.match(abstractCls.generateCode());

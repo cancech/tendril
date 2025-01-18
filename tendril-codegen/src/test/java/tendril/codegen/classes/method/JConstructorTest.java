@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes.method;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +28,7 @@ import org.mockito.Mock;
 
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -63,6 +65,12 @@ public class JConstructorTest extends AbstractUnitTest {
     private List<String> mockCode;
     @Mock
     private Set<ClassType> mockImports;
+    @Mock
+    private GenericType mockGeneric1;
+    @Mock
+    private GenericType mockGeneric2;
+    @Mock
+    private GenericType mockGeneric3;
     
     // Instance to test
     private JConstructor ctor;
@@ -84,11 +92,43 @@ public class JConstructorTest extends AbstractUnitTest {
     public void testGenerateSignatureWithCode() {
         for (VisibilityType type: VisibilityType.values()) {
             ctor.setVisibility(type);
-            
-            String expected = "";
-            if (type != VisibilityType.PACKAGE_PRIVATE)
-                expected = type.toString() + " ";
-            Assertions.assertEquals(expected + "MockClass(PARAMETERS) {", ctor.generateSignature(mockImports, true));
+            Assertions.assertEquals(type.getKeyword() + "MockClass(PARAMETERS) {", ctor.generateSignature(mockImports, true));
+        }
+    }
+
+    /**
+     * Verify that the correct code is generated 
+     */
+    @Test
+    public void testSingleGenericGenerateSignatureWithCode() {
+        when(mockGeneric1.generateDefinition()).thenReturn("GEN1");
+        ctor.addGeneric(mockGeneric1);
+        
+        for (VisibilityType type: VisibilityType.values()) {
+            ctor.setVisibility(type);
+            Assertions.assertEquals(type.getKeyword() + "<GEN1> MockClass(PARAMETERS) {", ctor.generateSignature(mockImports, true));
+            verify(mockGeneric1, times(type.ordinal() + 1)).generateDefinition();
+        }
+    }
+
+    /**
+     * Verify that the correct code is generated 
+     */
+    @Test
+    public void testMultipleGenericsGenerateSignatureWithCode() {
+        when(mockGeneric1.generateDefinition()).thenReturn("GEN1");
+        when(mockGeneric2.generateDefinition()).thenReturn("GEN2");
+        when(mockGeneric3.generateDefinition()).thenReturn("GEN3");
+        ctor.addGeneric(mockGeneric1);
+        ctor.addGeneric(mockGeneric2);
+        ctor.addGeneric(mockGeneric3);
+        
+        for (VisibilityType type: VisibilityType.values()) {
+            ctor.setVisibility(type);
+            Assertions.assertEquals(type.getKeyword() + "<GEN1, GEN2, GEN3> MockClass(PARAMETERS) {", ctor.generateSignature(mockImports, true));
+            verify(mockGeneric1, times(type.ordinal() + 1)).generateDefinition();
+            verify(mockGeneric2, times(type.ordinal() + 1)).generateDefinition();
+            verify(mockGeneric3, times(type.ordinal() + 1)).generateDefinition();
         }
     }
     
@@ -98,5 +138,31 @@ public class JConstructorTest extends AbstractUnitTest {
     @Test
     public void testCtorWithoutCode() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> ctor.generateSignature(mockImports, false));
+    }
+    
+    /**
+     * Verify that the static is properly handled
+     */
+    @Test
+    public void testStatic() {
+        Assertions.assertFalse(ctor.isStatic());
+        
+        Assertions.assertThrows(IllegalArgumentException.class, () -> ctor.setStatic(true));
+        Assertions.assertFalse(ctor.isStatic());
+        ctor.setStatic(false);
+        Assertions.assertFalse(ctor.isStatic());
+    }
+    
+    /**
+     * Verify that the final is properly handled
+     */
+    @Test
+    public void testFinal() {
+        Assertions.assertFalse(ctor.isFinal());
+        
+        Assertions.assertThrows(IllegalArgumentException.class, () -> ctor.setFinal(true));
+        Assertions.assertFalse(ctor.isFinal());
+        ctor.setFinal(false);
+        Assertions.assertFalse(ctor.isFinal());
     }
 }

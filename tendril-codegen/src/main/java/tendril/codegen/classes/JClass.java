@@ -28,11 +28,13 @@ import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.JVisibleType;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.Importable;
+import tendril.codegen.generics.GenericType;
 
 /**
  * Representation of a class, the core construct of any generated code
  */
-public abstract class JClass extends JVisibleType<ClassType> {
+public abstract class JClass extends JVisibleType<ClassType> implements Importable {
     /** The fields that appear in this class */
     private final List<JField<?>> fields = new ArrayList<>();
     /** The CTORs that are available for creating instances of the class */
@@ -41,10 +43,10 @@ public abstract class JClass extends JVisibleType<ClassType> {
     private final List<JMethod<?>> methods = new ArrayList<>();
     /** The name of the package in which this class appears */
     private final String pkg;
-    /** The ClassType which indicates the parent of the JClass. Null to indicate no explicit parent */
-    private ClassType extendedClass = null;
-    /** The ClassTypes indicating the interfaces that the JClass implements */
-    private List<ClassType> implementedInterfaces = Collections.emptyList();
+    /** The parent of the JClass. Null to indicate no explicit parent */
+    private JClass extendedClass = null;
+    /** The interfaces that the JClass implements */
+    private List<JClass> implementedInterfaces = Collections.emptyList();
 
     /**
      * CTOR
@@ -55,22 +57,33 @@ public abstract class JClass extends JVisibleType<ClassType> {
         super(data, data.getClassName());
         this.pkg = data.getPackageName();
     }
+    
+    /**
+     * @see tendril.codegen.field.JVisibleType#setStatic(boolean)
+     */
+    @Override
+    public void setStatic(boolean isStatic) {
+        if (isStatic)
+            throw new IllegalArgumentException("Classes cannot be static.");
+            
+        super.setStatic(isStatic);
+    }
 
     /**
      * Set the (explicit) parent class for this JClass.
      * 
-     * @param parent {@link ClassType} that this JClass is to extend
+     * @param parent {@link JClass} that this JClass is to extend
      */
-    public void setParentClass(ClassType parent) {
+    public void setParentClass(JClass parent) {
         extendedClass = parent;
     }
 
     /**
      * Set the interfaces that this JClass is to implement
      * 
-     * @param ifaces {@link List} of {@link ClassType}s indicating which interfaces to implement
+     * @param ifaces {@link List} of {@link JClass}s indicating which interfaces to implement
      */
-    public void setParentInterfaces(List<ClassType> ifaces) {
+    public void setParentInterfaces(List<JClass> ifaces) {
         implementedInterfaces = ifaces;
     }
 
@@ -109,6 +122,7 @@ public abstract class JClass extends JVisibleType<ClassType> {
     public String generateCode() {
         // Generate the class body
         Set<ClassType> imports = new HashSet<>();
+        
         CodeBuilder body = new CodeBuilder();
         generate(body, imports);
 
@@ -138,6 +152,19 @@ public abstract class JClass extends JVisibleType<ClassType> {
             builder.append("import " + toImport.getFullyQualifiedName() + ";");
         }
     }
+    
+    /**
+     * @see tendril.codegen.field.type.Importable#registerImport(java.util.Set)
+     */
+    @Override
+    public void registerImport(Set<ClassType> classImports) {
+        classImports.add(type);
+        if (extendedClass != null)
+            extendedClass.registerImport(classImports);
+        implementedInterfaces.forEach(i -> i.registerImport(classImports));
+        for(GenericType gen: getGenerics())
+            gen.registerImport(classImports);
+    }
 
     /**
      * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
@@ -152,16 +179,10 @@ public abstract class JClass extends JVisibleType<ClassType> {
      */
     @Override
     public String generateSelf(Set<ClassType> classImports) {
-        if (extendedClass != null)
-            classImports.add(extendedClass);
-        classImports.addAll(implementedInterfaces);
-
-        // 
+        registerImport(classImports);
+        
         CodeBuilder builder = new CodeBuilder();
-        String visStr = visibility.toString();
-        if (!visStr.isEmpty())
-            visStr += " ";
-        builder.append(visStr + classType() + " " + name + parentHierarchy() + " {");
+        builder.append(visibility.getKeyword() + getFinalKeyword() + getClassKeyword() + name + getGenericsDefinitionKeyword(true) + parentHierarchy() + "{");
         builder.blankLine();
         builder.indent();
 
@@ -191,11 +212,11 @@ public abstract class JClass extends JVisibleType<ClassType> {
     }
 
     /**
-     * Produce the {@link String} name/representation for this class
+     * Produce the {@link String} representing the type of class that is being defined class
      * 
      * @return {@link String} declaration construct for the class
      */
-    protected abstract String classType();
+    protected abstract String getClassKeyword();
 
     /**
      * Generate the code for representing the parent hierarchy of this class.
@@ -203,12 +224,11 @@ public abstract class JClass extends JVisibleType<ClassType> {
      * @return {@link String} with the parent hierarchy
      */
     protected String parentHierarchy() {
-        String extendHierarchy = generateParentClass();
+        String result = generateParentClass();
+        
         String implementsHierarchy = generateImplementInterfaces();
-
-        String result = extendHierarchy.isEmpty() ? "" : " " + extendHierarchy;
         if (!implementsHierarchy.isEmpty())
-            result += " " + implementsHierarchy;
+            result += implementsHierarchy + " ";
 
         return result;
     }
@@ -222,7 +242,7 @@ public abstract class JClass extends JVisibleType<ClassType> {
         if (extendedClass == null)
             return "";
 
-        return "extends " + extendedClass.getSimpleName();
+        return "extends " + extendedClass.getAppliedCode(true);
     }
 
     /**
@@ -233,14 +253,28 @@ public abstract class JClass extends JVisibleType<ClassType> {
     protected String generateImplementInterfaces() {
         String code = "";
 
-        for (ClassType iface : implementedInterfaces) {
+        for (JClass iface : implementedInterfaces) {
             if (code.isEmpty())
-                code = interfaceExtensionKeyword() + " " + iface.getSimpleName();
+                code = interfaceExtensionKeyword();
             else
-                code += ", " + iface.getSimpleName();
+                code += ", ";
+            
+            code +=  iface.getAppliedCode(false);
         }
 
         return code;
+    }
+    
+    /**
+     * Get the code that is to be used when the class is "applied" (i.e.: when it is used in a variable or in
+     * the class definition hierarchy).
+     * 
+     * @param appendSpace boolean true if a space is to be applied to the end of the generated code.
+     * 
+     * @return {@link String} the code for applying the class
+     */
+    public String getAppliedCode(boolean appendSpace) {
+        return getName() + getGenericsApplicationKeyword(appendSpace);
     }
 
     /**
@@ -249,6 +283,6 @@ public abstract class JClass extends JVisibleType<ClassType> {
      * @return {@link String} the interface extension keyword
      */
     protected String interfaceExtensionKeyword() {
-        return "implements";
+        return "implements ";
     }
 }

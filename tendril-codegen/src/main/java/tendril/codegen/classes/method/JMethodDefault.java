@@ -17,7 +17,6 @@ package tendril.codegen.classes.method;
 
 import java.util.List;
 
-import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.Type;
 
 /**
@@ -43,10 +42,14 @@ class JMethodDefault<RETURN_TYPE extends Type> extends JMethod<RETURN_TYPE> {
      */
     @Override
     protected String generateSignatureStart(boolean hasImplementation) {
-        String start = VisibilityType.PACKAGE_PRIVATE == visibility ? "" : visibility.toString() + " ";
-        if (!hasImplementation)
+        String start = visibility.getKeyword();
+        if (!hasImplementation) {
+            if (isStatic())
+                throw new IllegalArgumentException("Abstract method cannot be static");
+            if (isFinal())
+                throw new IllegalArgumentException("Abstract method cannot be final");
             return start + "abstract ";
-        return start;
+        }
+        return start + getStaticKeyword() + getFinalKeyword();
     }
-
 }

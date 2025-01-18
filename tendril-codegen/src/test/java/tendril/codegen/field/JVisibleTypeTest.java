@@ -97,9 +97,14 @@ public class JVisibleTypeTest extends AbstractUnitTest {
     @Test
     public void testStatic() {
         Assertions.assertFalse(element.isStatic());
+        Assertions.assertEquals("", element.getStaticKeyword());
+        
         element.setStatic(true);
         Assertions.assertTrue(element.isStatic());
+        Assertions.assertEquals("static ", element.getStaticKeyword());
+        
         element.setStatic(false);
         Assertions.assertFalse(element.isStatic());
+        Assertions.assertEquals("", element.getStaticKeyword());
     }
 }

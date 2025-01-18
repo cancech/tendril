@@ -55,5 +55,19 @@ public class JMethodAnnotationTest extends AbstractMethodTest {
         Assertions.assertEquals(" default mockValue;", method.generateSignatureEnd(false));
         verify(mockDefaultValue).generate(anySet());
     }
+    
+    /**
+     * Verify static flag
+     */
+    @Test
+    public void testStatic() {
+        JMethodAnnotation<Type> method = new JMethodAnnotation<Type>(mockReturnType, "attribute", mockDefaultValue);
+        Assertions.assertFalse(method.isStatic());
+        
+        Assertions.assertThrows(IllegalArgumentException.class, () -> method.setStatic(true));
+        Assertions.assertFalse(method.isStatic());
+        method.setStatic(false);
+        Assertions.assertFalse(method.isStatic());
+    }
 
 }

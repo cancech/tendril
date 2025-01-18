@@ -54,6 +54,6 @@ public class JClassAbstractTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testClassType() {
-		Assertions.assertEquals("abstract class", cls.classType());
+		Assertions.assertEquals("abstract class ", cls.getClassKeyword());
 	}
 }

@@ -17,14 +17,26 @@ package tendril.codegen.field.type;
 
 import java.util.Set;
 
-import tendril.codegen.classes.ImportElement;
+import tendril.codegen.JGeneric;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
 
 /**
  * Represents a class or other declared element. Incorporates all of the necessary details for the element, including the ability to "generate" new elements that derive from it.
  */
-public class ClassType extends ImportElement implements Type {
+public class ClassType extends JGeneric implements Type {
+    
+    /*
+     * TODO - finish this
+     * 
+     * - ClassType getSimpleName() includes the generics definition
+     * - breaks JClassTest
+     */
+    
+    /** The name of the package where the importable item lives */
+    private final String packageName;
+    /** The name of the importable element (class or equivalent) */
+    private final String className;
 
     /**
      * CTOR
@@ -32,7 +44,7 @@ public class ClassType extends ImportElement implements Type {
      * @param klass {@link Class} the specific class definition which is being described
      */
     public ClassType(Class<?> klass) {
-        super(klass);
+        this(klass.getPackageName(), klass.getSimpleName());
     }
 
     /**
@@ -41,7 +53,12 @@ public class ClassType extends ImportElement implements Type {
      * @param fullyQualifiedName {@link String} the fully qualified name of the defined class
      */
     public ClassType(String fullyQualifiedName) {
-        super(fullyQualifiedName);
+        int lastDot = fullyQualifiedName.lastIndexOf('.');
+        if (lastDot <= 0)
+            throw new IllegalArgumentException("Invalid fully qualified class \"" + fullyQualifiedName + "\". Hint: default package is not supported");
+
+        this.packageName = fullyQualifiedName.substring(0, lastDot);
+        this.className = fullyQualifiedName.substring(lastDot + 1);
     }
 
     /**
@@ -51,7 +68,38 @@ public class ClassType extends ImportElement implements Type {
      * @param className   {@link String} the name of the class itself
      */
     public ClassType(String packageName, String className) {
-        super(packageName, className);
+        if (packageName == null || packageName.isBlank())
+            throw new IllegalArgumentException("Invalid package \"" + packageName + "\" - valid (non default) package is required");
+
+        this.packageName = packageName;
+        this.className = className;
+    }
+    
+    /**
+     * Get the name of the package
+     * 
+     * @return {@link String} name
+     */
+    public String getPackageName() {
+        return packageName;
+    }
+
+    /**
+     * Get the name of the class (or equivalent)
+     * 
+     * @return {@link String} name
+     */
+    public String getClassName() {
+        return className;
+    }
+
+    /**
+     * Get the fully qualified name of the class (or equivalent)
+     * 
+     * @return {@link String} fully qualified name
+     */
+    public String getFullyQualifiedName() {
+        return packageName + "." + className;
     }
 
     /**
@@ -67,10 +115,21 @@ public class ClassType extends ImportElement implements Type {
     /**
      * @see tendril.codegen.field.type.Type#isAssignableFrom(tendril.codegen.field.type.Type)
      */
-    @SuppressWarnings("unlikely-arg-type")
     @Override
     public boolean isAssignableFrom(Type other) {
-        return super.equals(other);
+        return equals(other);
+    }
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ClassType))
+            return false;
+
+        ClassType other = (ClassType) obj;
+        return this.packageName.equals(other.packageName) && this.className.equals(other.className);
     }
 
     /**
@@ -87,6 +146,7 @@ public class ClassType extends ImportElement implements Type {
     @Override
     public void registerImport(Set<ClassType> classImports) {
         classImports.add(this);
+        registerGenerics(classImports);
     }
 
     /**
@@ -102,7 +162,7 @@ public class ClassType extends ImportElement implements Type {
      */
     @Override
     public String getSimpleName() {
-        return getClassName();
+        return getClassName() + getGenericsApplicationKeyword(false);
     }
 
     /**
@@ -114,5 +174,31 @@ public class ClassType extends ImportElement implements Type {
             throw new IllegalArgumentException("Invalid object provided: require " + getFullyQualifiedName() + " but received " + value.getClass().getName());
         
         return JValueFactory.create(value);
+    }
+    
+    /**
+     * Get the {@link Class} for the defined element.
+     * 
+     * @return {@link Class}
+     * @throws ClassNotFoundException if no {@link Class} exists
+     */
+    public Class<?> getDefinedClass() throws ClassNotFoundException {
+        return Class.forName(getFullyQualifiedName());
+    }
+
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return packageName.hashCode() + className.hashCode();
+    }
+
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return getFullyQualifiedName();
     }
 }

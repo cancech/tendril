@@ -41,7 +41,7 @@ public class JParameter<DATA_TYPE extends Type> extends JType<DATA_TYPE> {
     JParameter(DATA_TYPE type, String name) {
         super(type, name);
     }
-    
+
     /**
      * @see tendril.codegen.JBase#generate(tendril.codegen.CodeBuilder, java.util.Set)
      */
@@ -58,22 +58,22 @@ public class JParameter<DATA_TYPE extends Type> extends JType<DATA_TYPE> {
     protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
         builder.append(generateSelf(classImports));
     }
-    
+
     /**
      * @see tendril.codegen.JBase#generateSelf(java.util.Set)
      */
     @Override
     public String generateSelf(Set<ClassType> classImports) {
         type.registerImport(classImports);
-        
+
         List<JAnnotation> appliedAnnotations = getAnnotations();
         String prefix = "";
         if (!appliedAnnotations.isEmpty()) {
             prefix = TendrilStringUtil.join(appliedAnnotations, " ", anno -> anno.generateSelf(classImports));
             prefix += " ";
         }
-            
-        return prefix + type.getSimpleName() + " " + name;
+
+        return prefix + getFinalKeyword() + type.getSimpleName() + getGenericsApplicationKeyword(true) + name;
     }
 
 }
