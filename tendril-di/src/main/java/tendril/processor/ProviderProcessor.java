@@ -52,7 +52,7 @@ public class ProviderProcessor extends AbstractTendrilProccessor {
     }
 
     private String generateCode(ClassType provider, ClassType bean) {
-        JClass parent = ClassBuilder.forConcreteClass(new ClassType(Recipe.class)).addGeneric(GenericFactory.create(bean)).build();
+        JClass parent = ClassBuilder.forConcreteClass(Recipe.class).addGeneric(GenericFactory.create(bean)).build();
         
         JClass cls = ClassBuilder.forConcreteClass(provider).setVisibility(VisibilityType.PUBLIC).extendsClass(parent)
                 .addAnnotation(JAnnotationFactory.create(Registry.class))
