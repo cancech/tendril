@@ -33,6 +33,7 @@ import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.generics.GenericFactory;
 
 @SupportedAnnotationTypes("tendril.bean.Provider")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
@@ -51,7 +52,9 @@ public class ProviderProcessor extends AbstractTendrilProccessor {
     }
 
     private String generateCode(ClassType provider, ClassType bean) {
-        JClass cls = ClassBuilder.forConcreteClass(provider).setVisibility(VisibilityType.PUBLIC).extendsClass(new ClassType(Recipe.class))
+        JClass parent = ClassBuilder.forConcreteClass(new ClassType(Recipe.class)).addGeneric(GenericFactory.create(bean)).build();
+        
+        JClass cls = ClassBuilder.forConcreteClass(provider).setVisibility(VisibilityType.PUBLIC).extendsClass(parent)
                 .addAnnotation(JAnnotationFactory.create(Registry.class))
                 .buildConstructor().setVisibility(VisibilityType.PUBLIC).addCode("super(" + bean.getSimpleName() + ".class);").finish()
                 .build();
