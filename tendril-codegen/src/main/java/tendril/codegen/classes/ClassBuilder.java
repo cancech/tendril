@@ -139,6 +139,10 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
         super(type.getSimpleName());
         setType(type);
         addAnnotation(JAnnotationFactory.create(Generated.class, Map.of("value", JValueFactory.create("tendril"), "date", JValueFactory.create(Utilities.iso8061TimeStamp()))));
+        
+        // Add any generics that may have been applied to the type
+        for (GenericType g: type.getGenerics())
+            addGeneric(g);
     }
 
     /**

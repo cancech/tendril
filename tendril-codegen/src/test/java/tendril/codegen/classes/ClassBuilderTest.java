@@ -20,6 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import javax.annotation.processing.Generated;
 
@@ -122,8 +123,10 @@ public class ClassBuilderTest extends AbstractUnitTest {
     @Override
     protected void prepareTest() {
         when(mockClassType.getSimpleName()).thenReturn("MockClass");
+        when(mockClassType.getGenerics()).thenReturn(Collections.emptyList());
         builder = new TestClassBuilder();
         verify(mockClassType).getSimpleName();
+        verify(mockClassType).getGenerics();
     }
     
     /**

@@ -18,6 +18,8 @@ package tendril.codegen.classes;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
@@ -44,8 +46,10 @@ public class AbstractClassBuilderTest extends AbstractUnitTest {
     @Override
     protected void prepareTest() {
         when(mockClassType.getSimpleName()).thenReturn("MockClass");
+        when(mockClassType.getGenerics()).thenReturn(Collections.emptyList());
         builder = new AbstractClassBuilder(mockClassType);
         verify(mockClassType).getSimpleName();
+        verify(mockClassType).getGenerics();
     }
 
     /**
