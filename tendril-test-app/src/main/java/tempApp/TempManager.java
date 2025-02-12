@@ -13,9 +13,9 @@ public class TempManager {
 		this.cls = cls;
 	}
 	
-	@Provider
-	@MyTypeId(MyType.VAL2)
-	public String doSomething(@TempEnum(val1="abc", val2=123) String value, @Named("OtherCls") TempClass otheCls, int abc) {
-		return cls.getValue();
-	}
+//	@Provider
+//	@MyTypeId(MyType.VAL2)
+//	public String doSomething(@TempEnum(val1="abc", val2=123) String value, @Named("OtherCls") TempClass otheCls, int abc) {
+//		return cls.getValue();
+//	}
 }

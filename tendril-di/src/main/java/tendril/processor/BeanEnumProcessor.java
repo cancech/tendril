@@ -50,6 +50,12 @@ import tendril.codegen.field.value.JValueFactory;
 public class BeanEnumProcessor extends AbstractTendrilProccessor {
 
     /**
+     * CTOR
+     */
+    public BeanEnumProcessor() {
+    }
+
+    /**
      * The annotated {@link TypeElement} must be an {@link Enum} and it must implement the {@link BeanId} interface
      * 
      * @see tendril.processor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
@@ -58,7 +64,7 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
     protected void validateType(TypeElement type) {
         if (type.getKind() != ElementKind.ENUM)
             throwValidationException(type, "Must be an enum");
-        if (!isAssignable(type, BeanId.class))
+        if (!isTypeOf(type, BeanId.class))
             throwValidationException(type, "Must implement the " + BeanId.class.getName() + " interface");
     }
 

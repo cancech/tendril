@@ -490,14 +490,14 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
         when(mockTypeElement.asType()).thenReturn(mockTypeMirror);
 
         when(mockTypeUtils.isAssignable(mockTypeMirror, mockParam1TypeMirror)).thenReturn(false);
-        Assertions.assertFalse(processor.isAssignable(mockTypeElement, getClass()));
+        Assertions.assertFalse(processor.isTypeOf(mockTypeElement, getClass()));
         verify(mockProcessingEnv).getElementUtils();
         verify(mockElementUtils).getTypeElement(anyString());
         verify(mockProcessingEnv).getTypeUtils();
         verify(mockTypeUtils).isAssignable(mockTypeMirror, mockParam1TypeMirror);
 
         when(mockTypeUtils.isAssignable(mockTypeMirror, mockParam1TypeMirror)).thenReturn(true);
-        Assertions.assertTrue(processor.isAssignable(mockTypeElement, getClass()));
+        Assertions.assertTrue(processor.isTypeOf(mockTypeElement, getClass()));
         verify(mockProcessingEnv, times(2)).getElementUtils();
         verify(mockElementUtils, times(2)).getTypeElement(anyString());
         verify(mockProcessingEnv, times(2)).getTypeUtils();

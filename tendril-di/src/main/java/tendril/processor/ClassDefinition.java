@@ -42,7 +42,7 @@ public class ClassDefinition {
      * 
      * @return {@link ClassType}
      */
-    ClassType getType() {
+    public ClassType getType() {
         return type;
     }
     

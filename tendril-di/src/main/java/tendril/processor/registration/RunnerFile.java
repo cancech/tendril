@@ -22,46 +22,42 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
 
-import tendril.context.ApplicationContext;
 import tendril.context.Engine;
 
 /**
- * Class for loading and processing the tendril registry file on {@link ApplicationContext} start
+ * Helper file for finding and processing the runner metadata file, containing the recipe which is to create the application runner
  */
-public class RegistryFile {
-
-    /** The path where to find the registry file */
-    public static String PATH = "META-INF/tendril/registry";
+public class RunnerFile {
+    /** Where the file is to be located */
+    public static String PATH = "META-INF/tendril/runner";
 
     /**
-     * Reads the registry file and returns a list of all recipes that have been registered
+     * Load the file and return its contents
      * 
-     * @return {@link Set} of {@link String}s containing the registered recipes
-     * @throws IOException if there is an issue opening the file
+     * @return {@link String} the contents of the file
+     * @throws IOException if there are issues reading the file
      */
-    public static Set<String> read() throws IOException {
-        Set<String> registers = new HashSet<>();
-
+    public static String read() throws IOException {
+        String runner = null;
+        
         Enumeration<URL> resEnum = Engine.class.getClassLoader().getResources(PATH);
         for (URL url : Collections.list(resEnum)) {
             try (InputStream ios = url.openStream(); InputStreamReader iosReader = new InputStreamReader(ios); BufferedReader reader = new BufferedReader(iosReader)) {
                 for (String line = ""; line != null; line = reader.readLine()) {
                     line = line.trim();
                     if (!line.isEmpty())
-                        registers.add(line);
+                        runner = line;
                 }
             }
         }
 
-        return registers;
+        return runner;
     }
 
     /**
      * CTOR - should only ever be used as a static class
      */
-    private RegistryFile() {
+    private RunnerFile() {
     }
 }

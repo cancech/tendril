@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Jaroslav Bosak
+ * Copyright 2025 Jaroslav Bosak
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.bean.recipe;
+package tendril.test.bean;
 
 /**
- * 
+ * Bean to use for testing that contains multiple constructors
  */
-public abstract class Recipe<BEAN_TYPE> {
+public class MultipleCtorBean {
 
-    private final Class<BEAN_TYPE> beanClass;
-    
-    protected Recipe(Class<BEAN_TYPE> beanClass) {
-        this.beanClass = beanClass;
+    public MultipleCtorBean() {
+        
     }
     
-    public BEAN_TYPE get() {
-        return null;
+    public MultipleCtorBean(String param) {
+        
     }
 }

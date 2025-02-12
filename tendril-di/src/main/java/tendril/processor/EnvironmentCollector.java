@@ -42,6 +42,12 @@ public class EnvironmentCollector extends AbstractProcessor {
     private static List<RoundEnvironment> environments = new ArrayList<>();
 
     /**
+     * CTOR
+     */
+    public EnvironmentCollector() {
+    }
+    
+    /**
      * Get a listing of all environments that have been encountered thus far. The current environment is provided and added into the returned list, in case the collector has not been yet triggered for
      * the current round. There is no guarantee the order in which the various processors are executed, thus the environment for the current round may or may not have already been incorporated.
      * 

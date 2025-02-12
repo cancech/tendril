@@ -15,8 +15,17 @@
  */
 package tendril.processor;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,12 +36,15 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -42,6 +54,7 @@ import tendril.codegen.classes.ParameterBuilder;
 import tendril.codegen.classes.method.AnonymousMethod;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValue;
 
@@ -52,44 +65,66 @@ import tendril.codegen.field.value.JValue;
  */
 public abstract class AbstractTendrilProccessor extends AbstractProcessor {
 
+    /** The environment for the current round of annotation processing */
+    protected RoundEnvironment roundEnv = null;
+    /** The TypeElement that is currently being processed (i.e.: on which the annotation was discovered */
+    private TypeElement currentTypeElement = null;
+
+    /**
+     * CTOR
+     */
+    public AbstractTendrilProccessor() {
+    }
+
     /**
      * @see javax.annotation.processing.AbstractProcessor#process(java.util.Set, javax.annotation.processing.RoundEnvironment)
      */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
+        roundEnv = env;
+
         if (env.errorRaised()) {
             errorRaised();
             return false;
-        }    
+        }
         if (env.processingOver()) {
             processingOver();
             return false;
         }
 
         annotations.forEach(annotation -> {
-            findAndProcessElements(annotation, env);
+            findAndProcessElements(annotation);
         });
         return false;
     }
-    
+
+    /**
+     * Called when an error was raised in the {@link RoundEnvironment}
+     */
     protected void errorRaised() {
-        
-    }
-    
-    protected void processingOver() {
-        
+
     }
 
     /**
-     * Creates the consumer which triggers the processing of an element based on what type of element it is.
+     * Called when the environment for the round is no longer performing any processing
+     */
+    protected void processingOver() {
+
+    }
+
+    /**
+     * Creates the consumer which triggers the processing of an element based on what type of element it is. This will either call prepareAndProcessType() or prepareAndProcessMethod() depending on
+     * whether the annotation was placed on a {@link TypeElement} (i.e. class or field) or a method.
      * 
      * @return {@link Consumer} of {@link Element}s
      */
     protected Consumer<? super Element> defaultConsumer() {
         return element -> {
-            if (element instanceof TypeElement)
-                prepareAndProcessType((TypeElement) element);
-            else if (element instanceof ExecutableElement)
+            if (element instanceof TypeElement) {
+                currentTypeElement = (TypeElement) element;
+                prepareAndProcessType();
+                currentTypeElement = null;
+            } else if (element instanceof ExecutableElement)
                 prepareAndProcessMethod((ExecutableElement) element);
             else
                 System.err.println("Unknown element type: " + element);
@@ -100,31 +135,27 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * Finds and processing found elements through the {@code defaultConsumer()}.
      * 
      * @param annotation {@link TypeElement} representing the annotation that is being processed
-     * @param env        {@link RoundEnvironment} containing the code base to process within
      */
-    protected void findAndProcessElements(TypeElement annotation, RoundEnvironment env) {
-        findAndProcessElements(annotation, env, defaultConsumer());
+    protected void findAndProcessElements(TypeElement annotation) {
+        findAndProcessElements(annotation, defaultConsumer());
     }
 
     /**
      * Finds and processing found elements through the provider consumer
      * 
      * @param annotation {@link TypeElement} representing the annotation that is being processed
-     * @param env        {@link RoundEnvironment} containing the code base to process within
      * @param consume    {@link Consumer} which is to process the discovered {@link Element}s
      */
-    protected void findAndProcessElements(TypeElement annotation, RoundEnvironment env, Consumer<? super Element> consume) {
-        env.getElementsAnnotatedWith(annotation).forEach(consume);
+    protected void findAndProcessElements(TypeElement annotation, Consumer<? super Element> consume) {
+        roundEnv.getElementsAnnotatedWith(annotation).forEach(consume);
     }
 
     /**
      * Prepare the {@link TypeElement} as a Class and trigger its processing
-     * 
-     * @param type {@link TypeElement} of the Class
      */
-    private void prepareAndProcessType(TypeElement type) {
-        validateType(type);
-        writeCode(processType(deriveClassData(type)));
+    private void prepareAndProcessType() {
+        validateType(currentTypeElement);
+        writeCode(processType(deriveClassData(currentTypeElement)));
     }
 
     /**
@@ -136,7 +167,44 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
     protected void validateType(TypeElement type) {
         // Do nothing by default
     }
-    
+
+    /**
+     * Perform a check to verify whether or not the indicated {@link TypeElement} implements or extends the indicated desired type.
+     * 
+     * @param toCheck     {@link TypeElement} that is to be checked
+     * @param desiredType {@link Class} that is to be in the type hierarchy
+     * @return boolean true if the desired type is extended or implemented by the {@link TypeElement}
+     */
+    protected boolean isTypeOf(TypeElement toCheck, Class<?> desiredType) {
+        TypeMirror desired = processingEnv.getElementUtils().getTypeElement(desiredType.getName()).asType();
+        return processingEnv.getTypeUtils().isAssignable(toCheck.asType(), desired);
+    }
+
+    /**
+     * Get the elements contained within the current TypeElement, which are annotated with the specified annotation
+     * 
+     * @param annotation {@link Class} of the {@link Annotation} to look for
+     * 
+     * @return {@link Map} of the {@link ElementKind} (type of element) to the {@link List} of {@link Element}s that were found
+     */
+    protected Map<ElementKind, List<Element>> getEnclosedElements(Class<? extends Annotation> annotation) {
+        if (currentTypeElement == null)
+            return new HashMap<>();
+
+        Map<ElementKind, List<Element>> annotatedElements = new HashMap<>();
+        for (Element e : currentTypeElement.getEnclosedElements()) {
+            if (e.getAnnotation(annotation) != null) {
+                ElementKind kind = e.getKind();
+                if (!annotatedElements.containsKey(kind))
+                    annotatedElements.put(kind, new ArrayList<>());
+
+                annotatedElements.get(e.getKind()).add(e);
+            }
+        }
+
+        return annotatedElements;
+    }
+
     /**
      * Write out the generated class.
      * 
@@ -154,19 +222,6 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Check whether the specified {@link TypeElement} is assignable to the indicated {@link Class}. To be assignable, the type indicated in the {@link TypeElement} must extend/implement the
-     * class/interface that the provided Class defines.
-     * 
-     * @param type {@link TypeElement} to check
-     * @param assignableTo {@link Class} that it should extend or implement
-     * @return boolean true if the 
-     */
-    protected boolean isAssignable(TypeElement type, Class<?> assignableTo) {
-        TypeElement target = processingEnv.getElementUtils().getTypeElement(assignableTo.getCanonicalName());
-        return processingEnv.getTypeUtils().isAssignable(type.asType(), target.asType());
     }
 
     /**
@@ -218,10 +273,54 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * @param type {@link TypeElement} of the class
      * @return {@link ClassType} with the class details
      */
-    private ClassType deriveClassData(TypeElement type) {
+    protected ClassType deriveClassData(TypeElement type) {
         String typeName = type.getSimpleName().toString();
         String packageName = StringUtils.removeEnd(StringUtils.removeEnd(type.getQualifiedName().toString(), typeName), ".");
         return new ClassType(packageName, typeName);
+    }
+
+    /**
+     * Get the {@link Type} for the {@link VariableElement}
+     * 
+     * @param element {@link VariableElement}
+     * @return {@link Type}
+     */
+    protected Type variableType(VariableElement element) {
+        TypeElement type = (TypeElement) processingEnv.getTypeUtils().asElement(element.asType());
+        return deriveClassData(type);
+    }
+
+    /**
+     * Create a resource file at the indicated path (relative within the directory where resources are generated) containing a single line of content
+     * 
+     * @param resourcePath {@link String} relative path within the resources where the file is to be created
+     * @param contents     {@link String} the text that the file is to contain
+     */
+    protected void writeResourceFile(String resourcePath, String contents) {
+        writeResourceFile(resourcePath, Collections.singletonList(contents));
+    }
+
+    /**
+     * Create a resource file at the indicated path (relative within the directory where resources are generated) containing an arbitrary number of lines of content
+     * 
+     * @param resourcePath {@link String} relative path within the resources where the file is to be created
+     * @param contents     {@link List} of {@link String}s containing the lines that the generated file is to contain
+     */
+    protected void writeResourceFile(String resourcePath, List<String> contents) {
+        try {
+            FileObject fileObject = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", resourcePath);
+            try (OutputStream out = fileObject.openOutputStream()) {
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, UTF_8));
+                for (String line : contents) {
+                    writer.write(line);
+                    writer.newLine();
+                }
+                writer.flush();
+            }
+        } catch (IOException e) {
+            System.err.println("Unable to create file " + resourcePath);
+        }
+
     }
 
     /**
