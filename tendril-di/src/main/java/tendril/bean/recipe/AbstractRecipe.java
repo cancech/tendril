@@ -35,7 +35,7 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
     private final Class<BEAN_TYPE> beanClass;
     
     /** List of the dependencies that the bean must receive */
-    private final List<ConsumeDependency<BEAN_TYPE, ?>> consumers = new ArrayList<>();
+    private final List<InjectDependency<BEAN_TYPE, ?>> consumers = new ArrayList<>();
     
     /**
      * CTOR
@@ -64,7 +64,7 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
      * @param appl {@link Applicator} providing the appropriate mechanism for applying the dependency to the bean under construction
      */
     protected <DEPENDENCY_TYPE> void registerDependency(Descriptor<DEPENDENCY_TYPE> desc, Applicator<BEAN_TYPE, DEPENDENCY_TYPE> appl) {
-        consumers.add(new ConsumeDependency<>(desc, appl));
+        consumers.add(new InjectDependency<>(desc, appl));
     }
     
     /**
@@ -94,7 +94,7 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
         // Apply all dependencies
         try {
             BEAN_TYPE bean = (BEAN_TYPE) ctors[0].newInstance();
-            consumers.forEach(c -> c.consume(bean, engine));
+            consumers.forEach(c -> c.inject(bean, engine));
             return bean;
         } catch (Exception e) {
             throw new RuntimeException("Cannot create instance", e);

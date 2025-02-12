@@ -21,14 +21,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation which is used to mark a class or method as a bean provider. When applied to a class it is used wholesale as the source of a bean (populating the constructor as necessary to create the
- * instance), whereas when applied to a method, the encompassing class is first initialized and the result returned from the method added as a bean. The encompassing class will not be provided as a
- * bean, unless it is itself appropriately annotated as such. In this manner a bean can be the source of beans, or merely created and its nested beans extracted before discarding the encompassing 
- * class.
- * <p>Note that a Provider method must return something, and can be considered analogous to a factory method.</p>
+ * Annotation which is used to mark a method or field into which a bean is to be injected as a bean consumer, provided that the encompassing class is a bean {@link Bean} in its own right. As 
+ * part of the initialization of the bean these will be automatically populated with the required bean(s), such that fields will be guaranteed to have the appropriate value (bean) applied, and 
+ * methods will be called with the appropriate parameters (beans).
+ *  
+ * <p>Note that an injected (consumer) method is expected to be void as any return will be "lost", and can be considered analogous to a method annotated with PostConstruct.</p>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface Provider {
+@Target({ ElementType.METHOD, ElementType.FIELD })
+public @interface Inject {
 
 }

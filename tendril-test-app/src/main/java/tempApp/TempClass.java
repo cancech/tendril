@@ -1,8 +1,8 @@
 package tempApp;
 
-import tendril.bean.Provider;
+import tendril.bean.Bean;
 
-@Provider
+@Bean
 @MyTypeId(MyType.VAL1)
 public class TempClass {
 

@@ -27,7 +27,7 @@ import tendril.test.bean.HiddenCtorBean;
 import tendril.test.bean.SingleCtorBean;
 
 /**
- * Test case for {@link ConsumeDependency}
+ * Test case for {@link InjectDependency}
  */
 public class ConsumeDependencyTest extends AbstractUnitTest {
     
@@ -44,14 +44,14 @@ public class ConsumeDependencyTest extends AbstractUnitTest {
     private HiddenCtorBean mockDependency;
 
     // Instance to test
-    private ConsumeDependency<SingleCtorBean, HiddenCtorBean> dep;
+    private InjectDependency<SingleCtorBean, HiddenCtorBean> dep;
     
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {
-        dep = new ConsumeDependency<>(mockDescriptor, mockApplicator);
+        dep = new InjectDependency<>(mockDescriptor, mockApplicator);
     }
     
     /**
@@ -61,7 +61,7 @@ public class ConsumeDependencyTest extends AbstractUnitTest {
     public void testConsume() {
         when(mockEngine.getBean(mockDescriptor)).thenReturn(mockDependency);
         
-        dep.consume(mockBean, mockEngine);
+        dep.inject(mockBean, mockEngine);
         
         verify(mockEngine).getBean(mockDescriptor);
         verify(mockApplicator).apply(mockBean, mockDependency);

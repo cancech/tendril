@@ -35,8 +35,8 @@ import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.AbstractTendrilProccessor;
 import tendril.annotationprocessor.ClassDefinition;
-import tendril.bean.Consumer;
-import tendril.bean.Provider;
+import tendril.bean.Inject;
+import tendril.bean.Bean;
 import tendril.bean.recipe.Applicator;
 import tendril.bean.recipe.Descriptor;
 import tendril.bean.recipe.Registry;
@@ -53,12 +53,12 @@ import tendril.codegen.generics.GenericFactory;
 import tendril.context.Engine;
 
 /**
- * Processor for the {@link Provider} annotation, which will generate the appropriate Recipe for the specified Provider
+ * Processor for the {@link Bean} annotation, which will generate the appropriate Recipe for the specified Provider
  */
-@SupportedAnnotationTypes("tendril.bean.Provider")
+@SupportedAnnotationTypes("tendril.bean.Bean")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class ProviderProcessor extends AbstractTendrilProccessor {
+public class BeanProcessor extends AbstractTendrilProccessor {
     
     /** Flag for whether the generated recipe is to be annotated with @{@link Registry} */
     private final boolean annotateRegistry;
@@ -66,7 +66,7 @@ public class ProviderProcessor extends AbstractTendrilProccessor {
     /**
      * CTOR - will be annotated as a {@link Registry}
      */
-    public ProviderProcessor() {
+    public BeanProcessor() {
         this(true);
     }
     
@@ -75,7 +75,7 @@ public class ProviderProcessor extends AbstractTendrilProccessor {
      * 
      * @param annotateRegistry boolean true if it is to be annotated with @{@link Registry}
      */
-    protected ProviderProcessor(boolean annotateRegistry) {
+    protected BeanProcessor(boolean annotateRegistry) {
         this.annotateRegistry = annotateRegistry;
     }
 
@@ -100,7 +100,7 @@ public class ProviderProcessor extends AbstractTendrilProccessor {
         
         List<String> ctorCode = new ArrayList<>();
         ctorCode.add("super(engine, " + bean.getSimpleName() + ".class);");
-        Map<ElementKind, List<Element>> consumers = getEnclosedElements(Consumer.class);
+        Map<ElementKind, List<Element>> consumers = getEnclosedElements(Inject.class);
         generateFieldConsumers(externalImports, bean, ctorCode, consumers.get(ElementKind.FIELD));
         
         JClass parent = ClassBuilder.forConcreteClass(SingletonRecipe.class).addGeneric(GenericFactory.create(bean)).build();

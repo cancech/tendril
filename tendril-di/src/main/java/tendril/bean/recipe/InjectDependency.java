@@ -20,34 +20,34 @@ import tendril.context.Engine;
 /**
  * Helper which performs the steps necessary to retrieve the desired dependency instance from the {@link Engine} and apply it to the created consumer.
  * 
- * @param <CONSUMER_TYPE> The type which is to consumer the bean dependency
- * @param <DEPENDENCY_TYPE> The type of dependency that is the bean that is to be consumed
+ * @param <BEAN_TYPE> The type into which the dependency is to be injected
+ * @param <DEPENDENCY_TYPE> The type of dependency that the bean is to be injected with
  */
-public class ConsumeDependency<CONSUMER_TYPE, DEPENDENCY_TYPE> {
+public class InjectDependency<BEAN_TYPE, DEPENDENCY_TYPE> {
     
     /** Contains the description of the dependency which is to be consumed */
     private final Descriptor<DEPENDENCY_TYPE> descriptor;
     /** Contains the appropriate mechanism for applying the dependency to the consumer */
-    private final Applicator<CONSUMER_TYPE, DEPENDENCY_TYPE> applicator;
+    private final Applicator<BEAN_TYPE, DEPENDENCY_TYPE> applicator;
 
     /**
      * CTOR
      * 
-     * @param descriptor {@link Descriptor} describing what type of bean is to be applied/consumed
+     * @param descriptor {@link Descriptor} describing what type of bean is to be injected/consumed
      * @param applicator {@link Applicator} containing the mechanism for how to apply the bean to the consumer
      */
-    public ConsumeDependency(Descriptor<DEPENDENCY_TYPE> descriptor, Applicator<CONSUMER_TYPE, DEPENDENCY_TYPE> applicator) {
+    public InjectDependency(Descriptor<DEPENDENCY_TYPE> descriptor, Applicator<BEAN_TYPE, DEPENDENCY_TYPE> applicator) {
         this.descriptor = descriptor;
         this.applicator = applicator;
     }
     
     /**
-     * Consumes the dependency by retrieving it from the engine and applying to the destination consumer.
+     * Inject the dependency by retrieving it from the engine and applying to the destination consumer.
      * 
      * @param consumer CONSUMER_TYPE which is the destination consumer of the bean
      * @param engine {@link Engine} where the bean is to be retrieved from
      */
-    public void consume(CONSUMER_TYPE consumer, Engine engine) {
+    public void inject(BEAN_TYPE consumer, Engine engine) {
         applicator.apply(consumer, engine.getBean(descriptor));
     }
 }

@@ -15,7 +15,7 @@
  */
 package tempApp;
 
-import tendril.bean.Consumer;
+import tendril.bean.Inject;
 import tendril.context.launch.Runner;
 import tendril.context.launch.TendrilRunner;
 
@@ -25,7 +25,7 @@ import tendril.context.launch.TendrilRunner;
 @Runner
 public class Main implements TendrilRunner {
     
-    @Consumer
+    @Inject
     @MyTypeId(MyType.VAL1)
     TempClass tmpClass;
 

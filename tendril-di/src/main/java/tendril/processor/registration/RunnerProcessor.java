@@ -28,7 +28,7 @@ import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.context.launch.Runner;
 import tendril.context.launch.TendrilRunner;
-import tendril.processor.ProviderProcessor;
+import tendril.processor.BeanProcessor;
 
 /**
  * Annotation processor for the {@link Runner} annotation
@@ -36,7 +36,7 @@ import tendril.processor.ProviderProcessor;
 @SupportedAnnotationTypes("tendril.context.launch.Runner")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class RunnerProcessor extends ProviderProcessor {
+public class RunnerProcessor extends BeanProcessor {
 
     /** The class that is the recipe for the runner */
     private String mainRunner = null;
@@ -58,7 +58,7 @@ public class RunnerProcessor extends ProviderProcessor {
     }
 
     /**
-     * @see tendril.processor.ProviderProcessor#processType(tendril.codegen.field.type.ClassType)
+     * @see tendril.processor.BeanProcessor#processType(tendril.codegen.field.type.ClassType)
      */
     @Override
     protected ClassDefinition processType(ClassType data) {
@@ -71,7 +71,7 @@ public class RunnerProcessor extends ProviderProcessor {
     }
 
     /**
-     * @see tendril.processor.ProviderProcessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
+     * @see tendril.processor.BeanProcessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
      */
     @Override
     protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {

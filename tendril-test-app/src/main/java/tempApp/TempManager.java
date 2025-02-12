@@ -1,6 +1,6 @@
 package tempApp;
 
-import tendril.bean.Provider;
+import tendril.bean.Bean;
 import tendril.bean.qualifier.Named;
 
 public class TempManager {
