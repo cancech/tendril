@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.processor;
+package tendril.annotationprocessor;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -92,7 +92,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
         }
 
         /**
-         * @see tendril.processor.AbstractTendrilProccessor#processType(tendril.codegen.field.type.ClassType)
+         * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType(tendril.codegen.field.type.ClassType)
          */
         protected ClassDefinition processType(ClassType data) {
             timesTypeCalled++;
@@ -112,7 +112,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
         }
 
         /**
-         * @see tendril.processor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
+         * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
          */
         protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
             timesMethodCalled++;

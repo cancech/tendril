@@ -23,11 +23,11 @@ import javax.lang.model.element.TypeElement;
 
 import com.google.auto.service.AutoService;
 
+import tendril.annotationprocessor.ClassDefinition;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.context.launch.Runner;
 import tendril.context.launch.TendrilRunner;
-import tendril.processor.ClassDefinition;
 import tendril.processor.ProviderProcessor;
 
 /**
@@ -49,7 +49,7 @@ public class RunnerProcessor extends ProviderProcessor {
     }
     
     /**
-     * @see tendril.processor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
      */
     @Override
     protected void validateType(TypeElement type) {
@@ -79,7 +79,7 @@ public class RunnerProcessor extends ProviderProcessor {
     }
 
     /**
-     * @see tendril.processor.AbstractTendrilProccessor#processingOver()
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processingOver()
      */
     @Override
     protected void processingOver() {

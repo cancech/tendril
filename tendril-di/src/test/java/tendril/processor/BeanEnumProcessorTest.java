@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.annotationprocessor.ClassDefinition;
 import tendril.bean.qualifier.BeanId;
 import tendril.bean.qualifier.EnumQualifier;
 import tendril.codegen.classes.method.JMethod;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.processor;
+package tendril.annotationprocessor;
 
 import javax.lang.model.element.TypeElement;
 
@@ -30,7 +30,7 @@ public abstract class AbstractGeneratedAnnotationTendrilProcessor extends Abstra
     }
 
     /**
-     * @see tendril.processor.AbstractTendrilProccessor#findAndProcessElements(javax.lang.model.element.TypeElement)
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#findAndProcessElements(javax.lang.model.element.TypeElement)
      */
     @Override
     protected void findAndProcessElements(TypeElement annotation) {

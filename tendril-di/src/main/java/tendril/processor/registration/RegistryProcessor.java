@@ -25,11 +25,11 @@ import javax.lang.model.SourceVersion;
 
 import com.google.auto.service.AutoService;
 
+import tendril.annotationprocessor.AbstractTendrilProccessor;
+import tendril.annotationprocessor.ClassDefinition;
 import tendril.bean.recipe.Registry;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
-import tendril.processor.AbstractTendrilProccessor;
-import tendril.processor.ClassDefinition;
 
 /**
  * Annotation processor for recipes which are annotated with @{@link Registry} and are to be added to the recipe registry
@@ -48,7 +48,7 @@ public class RegistryProcessor extends AbstractTendrilProccessor {
     }
 
     /**
-     * @see tendril.processor.AbstractTendrilProccessor#processType(tendril.codegen.field.type.ClassType)
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType(tendril.codegen.field.type.ClassType)
      */
     @Override
     protected ClassDefinition processType(ClassType data) {
@@ -57,7 +57,7 @@ public class RegistryProcessor extends AbstractTendrilProccessor {
     }
 
     /**
-     * @see tendril.processor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
      */
     @Override
     protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
@@ -66,7 +66,7 @@ public class RegistryProcessor extends AbstractTendrilProccessor {
     }
 
     /**
-     * @see tendril.processor.AbstractTendrilProccessor#errorRaised()
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#errorRaised()
      */
     @Override
     protected void errorRaised() {
@@ -74,7 +74,7 @@ public class RegistryProcessor extends AbstractTendrilProccessor {
     }
 
     /**
-     * @see tendril.processor.AbstractTendrilProccessor#processingOver()
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processingOver()
      */
     @Override
     protected void processingOver() {
