@@ -16,6 +16,7 @@
 package tendril.test.recipe;
 
 import tendril.bean.recipe.AbstractRecipe;
+import tendril.bean.recipe.Descriptor;
 import tendril.context.Engine;
 
 /**
@@ -33,6 +34,14 @@ public class IntTestRecipe extends AbstractRecipe<Integer> {
      */
     public IntTestRecipe(Engine engine) {
         super(engine, Integer.class);
+    }
+
+    /**
+     * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.recipe.Descriptor)
+     */
+    @Override
+    protected void setupDescriptor(Descriptor<Integer> descriptor) {
+        
     }
 
     /**

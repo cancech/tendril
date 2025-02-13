@@ -41,13 +41,28 @@ public class AbstractRecipeTest extends AbstractUnitTest {
      */
     private class TestRecipe<BEAN_TYPE> extends AbstractRecipe<BEAN_TYPE> {
 
+        private boolean isDescriptorSetup;
+        
         protected TestRecipe(Class<BEAN_TYPE> beanClass) {
             super(mockEngine, beanClass);
+        }
+
+        /**
+         * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.recipe.Descriptor)
+         */
+        @Override
+        protected void setupDescriptor(Descriptor<BEAN_TYPE> descriptor) {
+            Assertions.assertFalse(isDescriptorSetup);
+            isDescriptorSetup = true;
         }
 
         @Override
         public BEAN_TYPE get() {
             throw new NotImplementedException("Not required for testing");
+        }
+        
+        public void assertDescriptorSetup() {
+            Assertions.assertTrue(isDescriptorSetup);
         }
         
     }
@@ -69,7 +84,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     private Applicator<SingleCtorBean, Double> mockDoubleApplicator;
     
     // Instance to test
-    private AbstractRecipe<SingleCtorBean> recipe;
+    private TestRecipe<SingleCtorBean> recipe;
 
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
@@ -77,7 +92,8 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     @Override
     protected void prepareTest() {
         recipe = new TestRecipe<>(SingleCtorBean.class);
-        Assertions.assertEquals(SingleCtorBean.class, recipe.getBeanClass());
+        recipe.assertDescriptorSetup();
+        Assertions.assertEquals(SingleCtorBean.class, recipe.getDescription().getBeanClass());
     }
     
     /**

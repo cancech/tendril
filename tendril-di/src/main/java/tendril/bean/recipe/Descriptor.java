@@ -68,5 +68,38 @@ public class Descriptor<BEAN_TYPE> {
     public String getName() {
         return name;
     }
+    
+    /**
+     * For the purpose of equality, the defined class need not be 100% equal, so long as the other class is assignable from this one.
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Descriptor))
+            return false;
 
+        Descriptor<?> other = (Descriptor<?>) obj;
+        
+        return other.beanClass.isAssignableFrom(beanClass) && other.name.equals(name);
+    }
+
+    /**
+     * Perform a matching to check whether this description matches the other. This is not the same as equals (where all values are expected to be identical), but rather
+     * a comparison where all of the features described in the other must match this. There may be other features described in this which are not present in the other, but
+     * not vice-versa. Note that for the purpose of the matching a "blank" name is deemed "unset", ergo a blank name from the other will match a concrete name on this.
+     * 
+     * @param other {@link Descriptor} to perform the matching against
+     * 
+     * @return boolean true if the 
+     */
+    public boolean matches(Descriptor<?> other) {
+        if (!other.beanClass.isAssignableFrom(beanClass))
+            return false;
+        
+        if (!other.name.isBlank() && !other.name.equals(name))
+            return false;
+        
+        return true;
+    }
 }

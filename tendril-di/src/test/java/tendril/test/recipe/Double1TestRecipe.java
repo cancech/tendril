@@ -16,13 +16,16 @@
 package tendril.test.recipe;
 
 import tendril.bean.recipe.AbstractRecipe;
+import tendril.bean.recipe.Descriptor;
 import tendril.context.Engine;
 
 /**
  * Recipe to use for testing where a {@link Double} 3.21 is produced.
  */
-public class DoubleTestRecipe extends AbstractRecipe<Double> {
-    
+public class Double1TestRecipe extends AbstractRecipe<Double> {
+
+    /** The name under which the double 1 bean is provided */
+    public static final String NAME = "dbl1";
     /** The value that the recipe produces */
     public static final double VALUE = 3.21;
 
@@ -31,8 +34,16 @@ public class DoubleTestRecipe extends AbstractRecipe<Double> {
      * 
      * @param engine {@link Engine} in which the recipe is to be registered
      */
-    public DoubleTestRecipe(Engine engine) {
+    public Double1TestRecipe(Engine engine) {
         super(engine, Double.class);
+    }
+
+    /**
+     * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.recipe.Descriptor)
+     */
+    @Override
+    protected void setupDescriptor(Descriptor<Double> descriptor) {
+        descriptor.setName(NAME);
     }
 
     /**

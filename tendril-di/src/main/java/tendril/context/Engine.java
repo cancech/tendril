@@ -18,7 +18,9 @@ package tendril.context;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.Descriptor;
@@ -31,8 +33,8 @@ import tendril.processor.registration.RegistryFile;
  */
 public class Engine {
 
-    /** List of all known recipes */
-    private final List<AbstractRecipe<?>> recipes = new ArrayList<>();
+    /** Mapping of all descriptions to the recipe they create */
+    private final Map<Descriptor<?>, AbstractRecipe<?>> recipes = new HashMap<>();
 
     /**
      * CTOR
@@ -48,7 +50,8 @@ public class Engine {
         try {
             for (String recipe: RegistryFile.read()) {
                 try {
-                    recipes.add((AbstractRecipe<?>) Class.forName(recipe).getDeclaredConstructor(Engine.class).newInstance(this));
+                    AbstractRecipe<?> recipeClass = (AbstractRecipe<?>) Class.forName(recipe).getDeclaredConstructor(Engine.class).newInstance(this);
+                    recipes.put(recipeClass.getDescription(), recipeClass);
                     System.out.println("Loading: " + recipe);
                 } catch (ClassCastException e) {
                     System.err.println(recipe + " is not a proper recipe (does not extend " + AbstractRecipe.class.getName() + ")");
@@ -84,7 +87,7 @@ public class Engine {
      * @throws IllegalArgumentException if there is an issue retrieving the desired bean
      */
     public <BEAN_TYPE> BEAN_TYPE getBean(Descriptor<BEAN_TYPE> descriptor) {
-        List<AbstractRecipe<BEAN_TYPE>> matchingRecipes = getRecipesForClass(descriptor.getBeanClass());
+        List<AbstractRecipe<BEAN_TYPE>> matchingRecipes = findRecipes(descriptor);
         
         if (matchingRecipes.isEmpty())
             throw new IllegalArgumentException("No matching bean found");
@@ -103,12 +106,12 @@ public class Engine {
      * @return
      */
     @SuppressWarnings("unchecked")
-    private <BEAN_TYPE> List<AbstractRecipe<BEAN_TYPE>> getRecipesForClass(Class<BEAN_TYPE> beanClass) {
+    private <BEAN_TYPE> List<AbstractRecipe<BEAN_TYPE>> findRecipes(Descriptor<BEAN_TYPE> descriptor) {
         List<AbstractRecipe<BEAN_TYPE>> foundRecipes = new ArrayList<>();
-        for (AbstractRecipe<?> r: recipes) {
-            if (beanClass.isAssignableFrom(r.getBeanClass()))
+        recipes.forEach((d, r) -> {
+            if (d.matches(descriptor))
                 foundRecipes.add((AbstractRecipe<BEAN_TYPE>) r);
-        }
+        });
         
         return foundRecipes;
     }

@@ -15,37 +15,27 @@
  */
 package tendril.context;
 
-import static org.mockito.Mockito.when;
-
 import java.util.Arrays;
 import java.util.HashSet;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import tendril.bean.recipe.Descriptor;
 import tendril.processor.registration.RegistryFile;
 import tendril.test.AbstractUnitTest;
-import tendril.test.recipe.DoubleTestRecipe;
+import tendril.test.recipe.Double1TestRecipe;
+import tendril.test.recipe.Double2TestRecipe;
 import tendril.test.recipe.IntTestRecipe;
 import tendril.test.recipe.StringTestRecipe;
 
 /**
  * Test case for the {@link Engine}
  */
-public class EngineTest extends AbstractUnitTest {
+public class EngineIT extends AbstractUnitTest {
     
-    // Mocks to use for testing
-    @Mock
-    private Descriptor<Double> mockDoubleDescriptor;
-    @Mock
-    private Descriptor<Integer> mockIntDescriptor;
-    @Mock
-    private Descriptor<String> mockStringDescriptor;
-
     // Instance to test
     private Engine engine;
 
@@ -63,12 +53,12 @@ public class EngineTest extends AbstractUnitTest {
     @Test
     public void testInit() {
         try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
-            registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(DoubleTestRecipe.class.getName(), IntTestRecipe.class.getName(), 
-                    StringTestRecipe.class.getName())));
+            registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), Double2TestRecipe.class.getName(),
+                    IntTestRecipe.class.getName(), StringTestRecipe.class.getName())));
             engine.init();
         }
         
-        Assertions.assertEquals(3, engine.getBeanCount());
+        Assertions.assertEquals(4, engine.getBeanCount());
     }
     
     /**
@@ -76,15 +66,13 @@ public class EngineTest extends AbstractUnitTest {
      */
     @Test
     public void testGetBean() {
-        when(mockDoubleDescriptor.getBeanClass()).thenReturn(Double.class);
-        when(mockIntDescriptor.getBeanClass()).thenReturn(Integer.class);
-        when(mockStringDescriptor.getBeanClass()).thenReturn(String.class);
-        
         testInit();
 
-        Assertions.assertEquals(DoubleTestRecipe.VALUE, engine.getBean(mockDoubleDescriptor));
-        Assertions.assertEquals(IntTestRecipe.VALUE, engine.getBean(mockIntDescriptor));
-        Assertions.assertEquals(StringTestRecipe.VALUE, engine.getBean(mockStringDescriptor));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> engine.getBean(new Descriptor<>(Double.class)));
+        Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
+        Assertions.assertEquals(Double2TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double2TestRecipe.NAME)));
+        Assertions.assertEquals(IntTestRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class)));
+        Assertions.assertEquals(StringTestRecipe.VALUE, engine.getBean(new Descriptor<>(String.class)));
     }
 
 }

@@ -33,6 +33,8 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
     private final Engine engine;
     /** The {@link Class} indicating the type of bean the recipe creates */
     private final Class<BEAN_TYPE> beanClass;
+    /** The description of this bean */
+    private final Descriptor<BEAN_TYPE> descriptor;
     
     /** List of the dependencies that the bean must receive */
     private final List<InjectDependency<BEAN_TYPE, ?>> consumers = new ArrayList<>();
@@ -46,6 +48,25 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
     protected AbstractRecipe(Engine engine, Class<BEAN_TYPE> beanClass) {
         this.engine = engine;
         this.beanClass = beanClass;
+        this.descriptor = new Descriptor<>(beanClass);
+        
+        setupDescriptor(descriptor);
+    }
+    
+    /**
+     * To be overloaded by the concrete recipe to provide the appropriate description of the bean that the recipe is to create.
+     * 
+     * @param descriptor {@link Descriptor} where the description is to be provided
+     */
+    protected abstract void setupDescriptor(Descriptor<BEAN_TYPE> descriptor);
+    
+    /**
+     * Get the description of the bean the recipe is to create.
+     * 
+     * @return {@link Descriptor} for the bean
+     */
+    public Descriptor<BEAN_TYPE> getDescription() {
+        return descriptor;
     }
     
     /**
@@ -99,14 +120,5 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
         } catch (Exception e) {
             throw new RuntimeException("Cannot create instance", e);
         }
-    }
-    
-    /**
-     * Get the {@link Class} of the bean that the recipe is creating
-     * 
-     * @return {@link Class}
-     */
-    public Class<BEAN_TYPE> getBeanClass() {
-        return beanClass;
     }
 }

@@ -16,6 +16,7 @@
 package tempApp;
 
 import tendril.bean.Inject;
+import tendril.bean.qualifier.Named;
 import tendril.context.launch.Runner;
 import tendril.context.launch.TendrilRunner;
 
@@ -26,8 +27,9 @@ import tendril.context.launch.TendrilRunner;
 public class Main implements TendrilRunner {
     
     @Inject
+    @Named("TempName")
     @MyTypeId(MyType.VAL1)
-    TempClass tmpClass;
+    Object tmpClass;
 
     @Override
     public void run() {

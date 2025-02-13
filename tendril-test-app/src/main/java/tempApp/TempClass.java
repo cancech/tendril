@@ -1,8 +1,10 @@
 package tempApp;
 
 import tendril.bean.Bean;
+import tendril.bean.qualifier.Named;
 
 @Bean
+@Named("TempName")
 @MyTypeId(MyType.VAL1)
 public class TempClass {
 

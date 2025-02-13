@@ -36,6 +36,7 @@ import com.google.auto.service.AutoService;
 import tendril.annotationprocessor.AbstractTendrilProccessor;
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.bean.Inject;
+import tendril.bean.qualifier.Named;
 import tendril.bean.Bean;
 import tendril.bean.recipe.Applicator;
 import tendril.bean.recipe.Descriptor;
@@ -98,16 +99,26 @@ public class BeanProcessor extends AbstractTendrilProccessor {
     private String generateCode(ClassType recipe, ClassType bean) {
         Set<ClassType> externalImports = new HashSet<>();
         
+        // The parent class
+        JClass parent = ClassBuilder.forConcreteClass(SingletonRecipe.class).addGeneric(GenericFactory.create(bean)).build();
+        
+        // CTOR contents
         List<String> ctorCode = new ArrayList<>();
         ctorCode.add("super(engine, " + bean.getSimpleName() + ".class);");
         Map<ElementKind, List<Element>> consumers = getEnclosedElements(Inject.class);
         generateFieldConsumers(externalImports, bean, ctorCode, consumers.get(ElementKind.FIELD));
         
-        JClass parent = ClassBuilder.forConcreteClass(SingletonRecipe.class).addGeneric(GenericFactory.create(bean)).build();
+        // Bean descriptor
+        ClassType descriptorClass = new ClassType(Descriptor.class);
+        descriptorClass.addGeneric(GenericFactory.create(bean));
+        
         ClassBuilder clsBuilder = ClassBuilder.forConcreteClass(recipe).setVisibility(VisibilityType.PUBLIC).extendsClass(parent)
                 .buildConstructor().setVisibility(VisibilityType.PUBLIC)
                     .buildParameter(new ClassType(Engine.class), "engine").finish()
-                    .addCode(ctorCode.toArray(new String[ctorCode.size()])).finish();
+                    .addCode(ctorCode.toArray(new String[ctorCode.size()])).finish()
+                .buildMethod("setupDescriptor").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PUBLIC)
+                    .buildParameter(descriptorClass, "descriptor").finish()
+                    .addCode(getBeanDescriptorContents("descriptor")).finish();
         if (annotateRegistry)
             clsBuilder.addAnnotation(JAnnotationFactory.create(Registry.class));
         JClass cls = clsBuilder.build();
@@ -137,7 +148,7 @@ public class BeanProcessor extends AbstractTendrilProccessor {
             externalImports.add(new ClassType(Applicator.class));
             externalImports.add(new ClassType(Descriptor.class));
             
-            ctorLines.add("registerDependency(new " + Descriptor.class.getSimpleName() + "<>(" + varType.getSimpleName() + ".class), new " +
+            ctorLines.add("registerDependency(" + getDependencyDescriptor(e, varType.getSimpleName()) + ", new " +
                     Applicator.class.getSimpleName() + "<" + bean.getSimpleName() + ", " + varType.getSimpleName() + ">() {");
             ctorLines.add("    @Override");
             ctorLines.add("    public void apply(" + bean.getSimpleName() + " consumer, " + varType.getSimpleName() + " bean) {");
@@ -145,6 +156,73 @@ public class BeanProcessor extends AbstractTendrilProccessor {
             ctorLines.add("    }");
             ctorLines.add("});");
         }
+    }
+    
+    /**
+     * Get the code for the descriptor that is to be applied to a dependency of the bean defined by this recipe
+     * 
+     * @param e {@link Element} which defines the dependency
+     * @param depClassName {@link String} the class name of the dependency (i.e.: single name)
+     * @return {@link String} containing the code defining the dependency
+     */
+    private String getDependencyDescriptor(Element e, String depClassName) {
+        String desc = "new " + Descriptor.class.getSimpleName() + "<>(" + depClassName + ".class)";
+        desc += appendInline(getDescriptorName(getElementAnnotations(e, Named.class)));
+        return desc;
+    }
+    
+    /**
+     * Helper which converts the text to append to the appropriate in-line code 
+     * 
+     * @param toAppend {@link String} which is to be appended
+     * @return {@link String} that is to be appended
+     */
+    private String appendInline(String toAppend) {
+        // Nothing needs to be done with it is blank
+        if (toAppend.isBlank())
+            return "";
+
+        // Otherwise move the text to the next line with the appropriate indentation spacing
+        return "\n            " + toAppend;
+    }
+    
+    /**
+     * Get the code through which the name is applied to the Descriptor
+     * 
+     * @param names {@link List} of {@link Named} annotation that have been applied to the element
+     * @return {@link String} containing the code with the appropriate descriptor update
+     */
+    private String getDescriptorName(List<Named> names) {
+        if (names.isEmpty())
+            return "";
+        if (names.size() > 1)
+            throw new IllegalArgumentException("Bean cannot have more than one name");
+        
+        return ".setName(\"" + names.get(0).value() + "\")";
+    }
+    
+    /**
+     * Get the code which applies the defined description of the bean to the descriptor under the specified variable name
+     * 
+     * @param varName {@link String} the variable name of the descriptor which is to be populated
+     * @return {@link String}[] containing all of the lines of code which apply the defined bean description
+     */
+    private String[] getBeanDescriptorContents(String varName) {
+        return new String[] {createDescriptorContentsLine(varName, getDescriptorName(getElementAnnotations(Named.class)))};
+    }
+    
+    /**
+     * Create the line of code which applies the customization to the descriptor
+     * 
+     * @param varName {@link String} the name of the variable of the descriptor to which the details are applied
+     * @param toAppend {@link String} the code which is to be applied to the descriptor
+     * @return {@link String} the final line of code
+     */
+    private String createDescriptorContentsLine(String varName, String toAppend) {
+        if (toAppend.isBlank())
+            return "";
+        
+        return varName + toAppend + ";";
     }
 
     /**

@@ -40,7 +40,11 @@ public class SingletonRecipeTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
-        recipe = new SingletonRecipe<>(mockEngine, SingleCtorBean.class) {};
+        recipe = new SingletonRecipe<>(mockEngine, SingleCtorBean.class) {
+
+            @Override
+            protected void setupDescriptor(Descriptor<SingleCtorBean> descriptor) {
+            }};
     }
 
     /**

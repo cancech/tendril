@@ -20,35 +20,37 @@ import tendril.bean.recipe.Descriptor;
 import tendril.context.Engine;
 
 /**
- * Recipe to use for testing where a "StringBean" string is produced.
+ * Recipe to use for testing where a {@link Double} 4.56 is produced.
  */
-public class StringTestRecipe extends AbstractRecipe<String> {
-
-    /** The value that the recipe produces */
-    public static final String VALUE = "StringBean";
+public class Double2TestRecipe extends AbstractRecipe<Double> {
     
+    /** The name under which the double 2 bean is provided */
+    public static final String NAME = "dbl2";
+    /** The value that the recipe produces */
+    public static final double VALUE = 4.56;
+
     /**
      * CTOR
      * 
      * @param engine {@link Engine} in which the recipe is to be registered
      */
-    public StringTestRecipe(Engine engine) {
-        super(engine, String.class);
+    public Double2TestRecipe(Engine engine) {
+        super(engine, Double.class);
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.recipe.Descriptor)
      */
     @Override
-    protected void setupDescriptor(Descriptor<String> descriptor) {
-        
+    protected void setupDescriptor(Descriptor<Double> descriptor) {
+        descriptor.setName(NAME);
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#get()
      */
     @Override
-    public String get() {
+    public Double get() {
         return VALUE;
     }
 

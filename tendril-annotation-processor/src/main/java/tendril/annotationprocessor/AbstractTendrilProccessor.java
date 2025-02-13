@@ -24,6 +24,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -178,6 +179,32 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
     protected boolean isTypeOf(TypeElement toCheck, Class<?> desiredType) {
         TypeMirror desired = processingEnv.getElementUtils().getTypeElement(desiredType.getName()).asType();
         return processingEnv.getTypeUtils().isAssignable(toCheck.asType(), desired);
+    }
+    
+    /**
+     * Get all instances of the desired annotation which are applied to the element which is currently being processed
+     * 
+     * @param <ANNOTATION> indicating the type of annotation that is desired
+     * @param annotation {@link Class} of the desired annotation
+     * @return {@link List} of all instances of the annotation which have been applied
+     */
+    protected <ANNOTATION extends Annotation> List<ANNOTATION> getElementAnnotations(Class<ANNOTATION> annotation) {
+        if (currentTypeElement != null)
+            return getElementAnnotations(currentTypeElement, annotation);
+        
+        return Collections.emptyList();
+    }
+    
+    /**
+     * Get all instances of the desired annotation which are applied to the specified element
+     * 
+     * @param <ANNOTATION> indicating the type of annotation that is desired
+     * @param e {@link Element} on which to look for the annotation
+     * @param annotation {@link Class} of the desired annotation
+     * @return {@link List} of all instances of the annotation which have been applied
+     */
+    protected <ANNOTATION extends Annotation> List<ANNOTATION> getElementAnnotations(Element e, Class<ANNOTATION> annotation) {
+        return Arrays.asList(e.getAnnotationsByType(annotation));
     }
 
     /**
