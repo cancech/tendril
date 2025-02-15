@@ -20,6 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import javax.annotation.processing.Generated;
 
@@ -122,8 +123,10 @@ public class ClassBuilderTest extends AbstractUnitTest {
     @Override
     protected void prepareTest() {
         when(mockClassType.getSimpleName()).thenReturn("MockClass");
+        when(mockClassType.getGenerics()).thenReturn(Collections.emptyList());
         builder = new TestClassBuilder();
         verify(mockClassType).getSimpleName();
+        verify(mockClassType).getGenerics();
     }
     
     /**
@@ -132,9 +135,13 @@ public class ClassBuilderTest extends AbstractUnitTest {
     @Test
     public void testCreateViaFactory() {
         ClassAssert.assertInstance(ConcreteClassBuilder.class, ClassBuilder.forConcreteClass(mockClassType));
+        ClassAssert.assertInstance(ConcreteClassBuilder.class, ClassBuilder.forConcreteClass(ClassBuilder.class));
         ClassAssert.assertInstance(AbstractClassBuilder.class, ClassBuilder.forAbstractClass(mockClassType));
+        ClassAssert.assertInstance(AbstractClassBuilder.class, ClassBuilder.forAbstractClass(ClassBuilder.class));
         ClassAssert.assertInstance(InterfaceBuilder.class, ClassBuilder.forInterface(mockClassType));
+        ClassAssert.assertInstance(InterfaceBuilder.class, ClassBuilder.forInterface(ClassBuilder.class));
         ClassAssert.assertInstance(AnnotationBuilder.class, ClassBuilder.forAnnotation(mockClassType));
+        ClassAssert.assertInstance(AnnotationBuilder.class, ClassBuilder.forAnnotation(ClassBuilder.class));
     }
     
     /**

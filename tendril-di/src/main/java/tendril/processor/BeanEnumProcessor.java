@@ -29,6 +29,8 @@ import javax.lang.model.element.TypeElement;
 
 import com.google.auto.service.AutoService;
 
+import tendril.annotationprocessor.AbstractTendrilProccessor;
+import tendril.annotationprocessor.ClassDefinition;
 import tendril.bean.qualifier.BeanId;
 import tendril.bean.qualifier.BeanIdEnum;
 import tendril.bean.qualifier.EnumQualifier;
@@ -50,15 +52,21 @@ import tendril.codegen.field.value.JValueFactory;
 public class BeanEnumProcessor extends AbstractTendrilProccessor {
 
     /**
+     * CTOR
+     */
+    public BeanEnumProcessor() {
+    }
+
+    /**
      * The annotated {@link TypeElement} must be an {@link Enum} and it must implement the {@link BeanId} interface
      * 
-     * @see tendril.processor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
      */
     @Override
     protected void validateType(TypeElement type) {
         if (type.getKind() != ElementKind.ENUM)
             throwValidationException(type, "Must be an enum");
-        if (!isAssignable(type, BeanId.class))
+        if (!isTypeOf(type, BeanId.class))
             throwValidationException(type, "Must implement the " + BeanId.class.getName() + " interface");
     }
 
@@ -75,7 +83,7 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
     /**
      * Process the annotated class, generating the appropriate {@link EnumQualifier} for the {@link Enum}
      * 
-     * @see tendril.processor.AbstractTendrilProccessor#processType(tendril.codegen.field.type.ClassType)
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType(tendril.codegen.field.type.ClassType)
      */
     @Override
     public ClassDefinition processType(ClassType data) {
@@ -101,7 +109,7 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
     }
 
     /**
-     * @see tendril.processor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
      */
     @Override
     protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {

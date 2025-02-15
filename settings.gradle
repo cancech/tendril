@@ -3,6 +3,7 @@ rootProject.name = 'tendril'
 // Reusable/shared libraries
 include 'tendril-util'
 include 'tendril-codegen'
+include 'tendril-annotation-processor'
 include 'tendril-di'
 include 'tendril-test'
 

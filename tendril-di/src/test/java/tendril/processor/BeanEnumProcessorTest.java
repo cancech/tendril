@@ -26,6 +26,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Arrays;
+import java.util.Collections;
 
 import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -40,6 +41,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.annotationprocessor.ClassDefinition;
 import tendril.bean.qualifier.BeanId;
 import tendril.bean.qualifier.EnumQualifier;
 import tendril.codegen.classes.method.JMethod;
@@ -164,6 +166,8 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
         when(mockClassToGenerate.getSimpleName()).thenReturn("MockEnumId");
         when(mockClassToGenerate.getClassName()).thenReturn("MockEnumId");
         when(mockClassToGenerate.getPackageName()).thenReturn("a.b.c.d");
+        when(mockClassToGenerate.getFullyQualifiedName()).thenReturn("a.b.c.d.MockEnumId");
+        when(mockClassToGenerate.getGenerics()).thenReturn(Collections.emptyList());
 
         ClassDefinition generated = processor.processType(mockAnnotatedClass);
         verify(mockAnnotatedClass).generateFromClassSuffix("Id");
@@ -172,7 +176,7 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
         verify(mockAnnotatedClass).getSimpleName();
         verify(mockClassToGenerate).getSimpleName();
         verify(mockClassToGenerate).getClassName();
-        verify(mockClassToGenerate).getPackageName();
+        verify(mockClassToGenerate, times(2)).getPackageName();
 
         // The code which should be generated
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();

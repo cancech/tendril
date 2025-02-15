@@ -10,7 +10,7 @@ dependencies {
 	
     // Tendril
     api project(':tendril-util')
-    api project(':tendril-annotation-processor')
+    api project(':tendril-codegen')
     testImplementation project(':tendril-test')
 }
 

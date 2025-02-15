@@ -30,6 +30,7 @@ import org.mockito.Mock;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.InterfaceMethodBuilder;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.ClassAssert;
 
@@ -49,6 +50,12 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
     private JClass mockJClass3;
     @Mock
     private JClass mockClass;
+    @Mock
+    private GenericType mockGeneric1;
+    @Mock
+    private GenericType mockGeneric2;
+    @Mock
+    private GenericType mockGeneric3;
     
     // Instance to test
     private InterfaceBuilder builder;
@@ -59,8 +66,10 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
     @Override
     protected void prepareTest() {
         when(mockClassType1.getSimpleName()).thenReturn("MockClass");
+        when(mockClassType1.getGenerics()).thenReturn(Arrays.asList(mockGeneric1, mockGeneric2, mockGeneric3));
         builder = new InterfaceBuilder(mockClassType1);
         verify(mockClassType1).getSimpleName();
+        verify(mockClassType1).getGenerics();
     }
     
     /**
@@ -121,6 +130,9 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
         verify(mockClass).setStatic(anyBoolean());
         verify(mockClass).setFinal(anyBoolean());
         verify(mockClass, times(1)).addAnnotation(any());
+        verify(mockClass).addGeneric(mockGeneric1);
+        verify(mockClass).addGeneric(mockGeneric2);
+        verify(mockClass).addGeneric(mockGeneric3);
     }
     
     /**

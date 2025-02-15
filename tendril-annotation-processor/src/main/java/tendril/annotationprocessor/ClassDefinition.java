@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.processor;
+package tendril.annotationprocessor;
 
 import tendril.codegen.field.type.ClassType;
 
@@ -42,7 +42,7 @@ public class ClassDefinition {
      * 
      * @return {@link ClassType}
      */
-    ClassType getType() {
+    public ClassType getType() {
         return type;
     }
     
@@ -51,7 +51,7 @@ public class ClassDefinition {
      * 
      * @return {@link String}
      */
-    String getCode() {
+    public String getCode() {
         return code;
     }
 }

@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.bean.qualifier;
+package tendril.context.launch;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import tendril.context.ApplicationContext;
+
 /**
- * Annotation to denote a generated annotation which is to be used for the purpose of using an enum as a bean qualifier. This is not intended to by used by any client code
- * directly, rather applied to any qualifier annotation that was generated from an enum annotated with @{@link BeanIdEnum}.
+ * Annotation to be applied to a single class in the client code, to indicate the specific entry point into the {@link ApplicationContext}. The annotated class
+ * must implement the {@link TendrilRunner} interface, and otherwise it can be treated as any other Consumer. No additional annotation should be applied to the class,
+ * however for the purpose of assembly the regular bean consumption rules will be applied (i.e.: constructor, field, method, etc). The class cannot however provide any
+ * beans as it is purely intended as an entry mechanism.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE })
-public @interface EnumQualifier {
+@Target(ElementType.TYPE)
+public @interface Runner {
 
 }

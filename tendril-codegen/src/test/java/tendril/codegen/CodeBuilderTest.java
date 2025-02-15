@@ -51,6 +51,19 @@ public class CodeBuilderTest extends AbstractUnitTest {
 	public void testEmptyBuilder() {
 		Assertions.assertEquals("", builder.get());
 	}
+	
+	/**
+	 * Verify that a builder with initial lines accounts for those initial lines
+	 */
+	@Test
+	public void testInitialLines() {
+	    builder = new CodeBuilder("a", "b", "c", "d");
+        expectedLines.add("a");
+        expectedLines.add("b");
+        expectedLines.add("c");
+        expectedLines.add("d");
+	    assertBuilder();
+	}
 
 	/**
 	 * Verify a code without indents can be created properly
@@ -152,6 +165,47 @@ public class CodeBuilderTest extends AbstractUnitTest {
         expectedLines.add("");
         assertBuilder();
 	}
+    
+    /**
+     * Verify that multi-line Strings can be added properly
+     */
+    @Test
+    public void testMultiLineAppendWithInitialLines() {
+        builder = new CodeBuilder("qwe", "asd", "zxc");
+        expectedLines.add("qwe");
+        expectedLines.add("asd");
+        expectedLines.add("zxc");
+        
+        builder.appendMultiLine(TendrilStringUtil.join(Arrays.asList("abc", "def", "ghi"), System.lineSeparator()));
+        expectedLines.add("abc");
+        expectedLines.add("def");
+        expectedLines.add("ghi");
+        assertBuilder();
+        
+        builder.indent();
+        builder.appendMultiLine(TendrilStringUtil.join(Arrays.asList("jkl", "mno", "pqr"), System.lineSeparator()));
+        expectedLines.add("    jkl");
+        expectedLines.add("    mno");
+        expectedLines.add("    pqr");
+        assertBuilder();
+        
+        builder.indent();
+        builder.appendMultiLine(TendrilStringUtil.join(Arrays.asList("stu", "vwx", "yz"), System.lineSeparator()));
+        expectedLines.add("        stu");
+        expectedLines.add("        vwx");
+        expectedLines.add("        yz");
+        assertBuilder();
+        
+        builder.deIndent();
+        builder.appendMultiLine("123");
+        expectedLines.add("    123");
+        assertBuilder();
+        
+        builder.deIndent();
+        builder.appendMultiLine("");
+        expectedLines.add("");
+        assertBuilder();
+    }
 
 	/**
 	 * Appends the lines to the builder, and build up the expected text

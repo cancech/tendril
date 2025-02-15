@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Jaroslav Bosak
+ * Copyright 2025 Jaroslav Bosak
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,48 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.processor;
+package tendril.bean.recipe;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.codegen.field.type.ClassType;
+import tendril.context.Engine;
 import tendril.test.AbstractUnitTest;
+import tendril.test.bean.SingleCtorBean;
 
 /**
- * Test case for {@link ClassDefinition}
+ * Test case for the {@link SingletonRecipe}
  */
-public class ClassDefinitionTest extends AbstractUnitTest {
+public class SingletonRecipeTest extends AbstractUnitTest {
     
     // Mocks to use for testing
     @Mock
-    private ClassType mockType;
+    private Engine mockEngine;
     
     // Instance to test
-    private ClassDefinition def;
+    private SingletonRecipe<SingleCtorBean> recipe;
 
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {
-        def = new ClassDefinition(mockType, "code");
-    }
-    
-    /**
-     * Verify that the type can be properly retrieved
-     */
-    @Test
-    public void testType() {
-        Assertions.assertEquals(mockType, def.getType());
+        recipe = new SingletonRecipe<>(mockEngine, SingleCtorBean.class) {
+
+            @Override
+            protected void setupDescriptor(Descriptor<SingleCtorBean> descriptor) {
+            }};
     }
 
     /**
-     * Verify that the code can be properly retrieved
+     * Verify that the singleton instance is created and always returned
      */
     @Test
-    public void testCode() {
-        Assertions.assertEquals("code", def.getCode());
+    public void testSingletonInstance() {
+        SingleCtorBean bean = recipe.get();
+        Assertions.assertTrue(bean == recipe.get());
+        Assertions.assertTrue(bean == recipe.get());
+        Assertions.assertTrue(bean == recipe.get());
+        Assertions.assertTrue(bean == recipe.get());
     }
 }

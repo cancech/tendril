@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.processor;
+package tendril.annotationprocessor;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -92,7 +92,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
         }
 
         /**
-         * @see tendril.processor.AbstractTendrilProccessor#processType(tendril.codegen.field.type.ClassType)
+         * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType(tendril.codegen.field.type.ClassType)
          */
         protected ClassDefinition processType(ClassType data) {
             timesTypeCalled++;
@@ -112,7 +112,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
         }
 
         /**
-         * @see tendril.processor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
+         * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
          */
         protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
             timesMethodCalled++;
@@ -490,14 +490,14 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
         when(mockTypeElement.asType()).thenReturn(mockTypeMirror);
 
         when(mockTypeUtils.isAssignable(mockTypeMirror, mockParam1TypeMirror)).thenReturn(false);
-        Assertions.assertFalse(processor.isAssignable(mockTypeElement, getClass()));
+        Assertions.assertFalse(processor.isTypeOf(mockTypeElement, getClass()));
         verify(mockProcessingEnv).getElementUtils();
         verify(mockElementUtils).getTypeElement(anyString());
         verify(mockProcessingEnv).getTypeUtils();
         verify(mockTypeUtils).isAssignable(mockTypeMirror, mockParam1TypeMirror);
 
         when(mockTypeUtils.isAssignable(mockTypeMirror, mockParam1TypeMirror)).thenReturn(true);
-        Assertions.assertTrue(processor.isAssignable(mockTypeElement, getClass()));
+        Assertions.assertTrue(processor.isTypeOf(mockTypeElement, getClass()));
         verify(mockProcessingEnv, times(2)).getElementUtils();
         verify(mockElementUtils, times(2)).getTypeElement(anyString());
         verify(mockProcessingEnv, times(2)).getTypeUtils();

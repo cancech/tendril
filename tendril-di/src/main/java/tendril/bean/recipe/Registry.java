@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.bean;
+package tendril.bean.recipe;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import tendril.context.ApplicationContext;
+import tendril.context.Engine;
+
 /**
- * Annotation which is used to mark a method or field as a bean consumer, provided that the encompassing class is a bean {@link Provider} in its own right. As part of the initialization of the bean
- * these will be automatically populated with the required bean(s), such that fields will be guaranteed to have the appropriate value (bean) applied, and methods will be called with the appropriate
- * parameters (beans). 
- * <p>Note that a Consumer method is expected to be void as any return will be "lost", and can be considered analogous to a method annotated with PostConstruct.</p>
+ * Annotation that is to be applied to generated Recipes. This is used to create a full list of all recipes that are to be registered, allowing for them to be easily
+ * and efficiently found and loaded by the {@link ApplicationContext} {@link Engine}.
+ * 
+ * This is not intended to be used by any client code, unless manually creating the bean infrastructure which is heavily discouraged.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.FIELD })
-public @interface Consumer {
+@Target(ElementType.TYPE)
+public @interface Registry {
 
 }

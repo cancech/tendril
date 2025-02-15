@@ -53,11 +53,31 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     /**
      * Get the class builder for creating concrete classes
      * 
+     * @param type {@link Class} of the class to build
+     * @return {@link ClassBuilder}
+     */
+    public static ClassBuilder forConcreteClass(Class<?> type) {
+        return forConcreteClass(new ClassType(type));
+    }
+
+    /**
+     * Get the class builder for creating concrete classes
+     * 
      * @param type {@link ClassType} of the class to build
      * @return {@link ClassBuilder}
      */
     public static ClassBuilder forConcreteClass(ClassType type) {
         return new ConcreteClassBuilder(type);
+    }
+
+    /**
+     * Get the class builder for creating abstract classes
+     * 
+     * @param type {@link Class} of the class to build
+     * @return {@link ClassBuilder}
+     */
+    public static ClassBuilder forAbstractClass(Class<?> type) {
+        return forAbstractClass(new ClassType(type));
     }
 
     /**
@@ -81,6 +101,16 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     }
 
     /**
+     * Get the class builder for creating interfaces
+     * 
+     * @param type {@link Class} of the interface to build
+     * @return {@link ClassBuilder}
+     */
+    public static ClassBuilder forInterface(Class<?> type) {
+        return forInterface(new ClassType(type));
+    }
+
+    /**
      * Get the class builder for creating annotations
      * 
      * @param type {@link ClassType} of the annotation to build
@@ -88,6 +118,16 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      */
     public static ClassBuilder forAnnotation(ClassType type) {
         return new AnnotationBuilder(type);
+    }
+
+    /**
+     * Get the class builder for creating annotations
+     * 
+     * @param type {@link Class} of the annotation to build
+     * @return {@link ClassBuilder}
+     */
+    public static ClassBuilder forAnnotation(Class<?> type) {
+        return forAnnotation(new ClassType(type));
     }
 
     /**
@@ -99,6 +139,10 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
         super(type.getSimpleName());
         setType(type);
         addAnnotation(JAnnotationFactory.create(Generated.class, Map.of("value", JValueFactory.create("tendril"), "date", JValueFactory.create(Utilities.iso8061TimeStamp()))));
+        
+        // Add any generics that may have been applied to the type
+        for (GenericType g: type.getGenerics())
+            addGeneric(g);
     }
 
     /**

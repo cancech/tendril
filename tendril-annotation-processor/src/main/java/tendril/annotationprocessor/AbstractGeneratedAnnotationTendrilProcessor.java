@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.processor;
+package tendril.annotationprocessor;
 
-import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.TypeElement;
 
 /**
@@ -25,12 +24,18 @@ import javax.lang.model.element.TypeElement;
 public abstract class AbstractGeneratedAnnotationTendrilProcessor extends AbstractTendrilProccessor {
 
     /**
-     * @see tendril.processor.AbstractTendrilProccessor#findAndProcessElements(javax.lang.model.element.TypeElement, javax.annotation.processing.RoundEnvironment)
+     * CTOR
+     */
+    public AbstractGeneratedAnnotationTendrilProcessor() {
+    }
+
+    /**
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#findAndProcessElements(javax.lang.model.element.TypeElement)
      */
     @Override
-    protected void findAndProcessElements(TypeElement annotation, RoundEnvironment env) {
-        findAndProcessElements(annotation, env, customAnnon -> {
-            EnvironmentCollector.getAllEnvironments(env).forEach(e -> super.findAndProcessElements((TypeElement) customAnnon, e, defaultConsumer()));
+    protected void findAndProcessElements(TypeElement annotation) {
+        findAndProcessElements(annotation, customAnnon -> {
+            EnvironmentCollector.getAllEnvironments(roundEnv).forEach(e -> super.findAndProcessElements((TypeElement) customAnnon, defaultConsumer()));
         });
     }
 }

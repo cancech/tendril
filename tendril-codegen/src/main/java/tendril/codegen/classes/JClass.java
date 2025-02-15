@@ -115,14 +115,25 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
     }
 
     /**
-     * Generate the code which represents this class.
+     * Generate the code which represents this class, without needing any "external" imports. In this case an "external" import would be one, which is not part of the
+     * API documentation. Thus, this should be called if there are no additional imports required beyond what the API of the class requires.
      * 
      * @return {@link String} the code for the class
      */
     public String generateCode() {
+        return generateCode(new HashSet<>());
+    }
+    
+    /**
+     * Generate the code which represents this class, with a starting point of additional "external" imports. These "external" imports would be for items which are external
+     * to the API of the class, meaning listing imports required for elements which appear in the internal code of the methods/constructors for the class to be generated.
+     * 
+     * @param imports {@link Set} of {@link ClassType}s indicating the external elements to be imported
+     * 
+     * @return {@link String} the code for the class
+     */
+    public String generateCode(Set<ClassType> imports) {
         // Generate the class body
-        Set<ClassType> imports = new HashSet<>();
-        
         CodeBuilder body = new CodeBuilder();
         generate(body, imports);
 

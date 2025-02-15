@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.bean.qualifier;
+package tendril.bean;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -21,11 +21,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to denote a generated annotation which is to be used for the purpose of using an enum as a bean qualifier. This is not intended to by used by any client code
- * directly, rather applied to any qualifier annotation that was generated from an enum annotated with @{@link BeanIdEnum}.
+ * Annotation which is used to mark a method or field into which a bean is to be injected as a bean consumer, provided that the encompassing class is a bean {@link Bean} in its own right. As 
+ * part of the initialization of the bean these will be automatically populated with the required bean(s), such that fields will be guaranteed to have the appropriate value (bean) applied, and 
+ * methods will be called with the appropriate parameters (beans).
+ *  
+ * <p>Note that an injected (consumer) method is expected to be void as any return will be "lost", and can be considered analogous to a method annotated with PostConstruct.</p>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE })
-public @interface EnumQualifier {
+@Target({ ElementType.METHOD, ElementType.FIELD })
+public @interface Inject {
 
 }
