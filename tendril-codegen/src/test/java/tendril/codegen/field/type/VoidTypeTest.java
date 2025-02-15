@@ -21,6 +21,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
+
 /**
  * Test case for {@link VoidType}
  */
@@ -77,6 +79,6 @@ public class VoidTypeTest extends SharedTypeTest<VoidType> {
      */
     @Test
     public void testAsValueThrowsException() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> type.asValue(mockObject));
+        Assertions.assertThrows(DefinitionException.class, () -> type.asValue(mockObject));
     }
 }

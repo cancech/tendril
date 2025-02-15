@@ -17,6 +17,7 @@ package tendril.codegen.classes;
 
 import java.util.List;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
 
 /**
@@ -47,7 +48,7 @@ public class JClassAnnotation extends JClassInterface {
     @Override
     public void setParentClass(JClass parent) {
         if (parent != null)
-            throw new IllegalArgumentException("Annotations cannot have an explicit parent class");
+            throw new DefinitionException(type, "Annotations cannot have an explicit parent class");
     }
 
     /**
@@ -56,6 +57,6 @@ public class JClassAnnotation extends JClassInterface {
     @Override
     public void setParentInterfaces(List<JClass> ifaces) {
         if (!ifaces.isEmpty())
-            throw new IllegalArgumentException("Annotations cannot implement any interfaces");
+            throw new DefinitionException(type, "Annotations cannot implement any interfaces");
     }
 }

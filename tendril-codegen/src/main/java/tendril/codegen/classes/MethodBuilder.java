@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
@@ -48,7 +49,7 @@ public abstract class MethodBuilder<RETURN_TYPE extends Type> extends NestedClas
      * @return {@link MethodBuilder}
      */
     public MethodBuilder<RETURN_TYPE> setDefaultValue(JValue<RETURN_TYPE, ?> value) {
-        throw new IllegalArgumentException("Only annotations support default values for methods values");
+        throw new DefinitionException(classBuilder.getType(), name + "cannot have a default value. Only annotations support default values for methods values");
     }
     
     /**

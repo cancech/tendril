@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.ConcreteMethodBuilder;
 import tendril.codegen.field.type.ClassType;
@@ -69,9 +70,10 @@ public class ConcreteClassBuilderTest extends AbstractUnitTest {
     public void testValidate() {
         for (VisibilityType type: VisibilityType.values()) {
             builder.setVisibility(type);
-            if (type == VisibilityType.PRIVATE)
-                Assertions.assertThrows(IllegalArgumentException.class, () -> builder.validate());
-            else
+            if (type == VisibilityType.PRIVATE) {
+                Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
+                verify(mockClassType).getFullyQualifiedName();
+            } else
                 Assertions.assertDoesNotThrow(() -> builder.validate());
         }
     }

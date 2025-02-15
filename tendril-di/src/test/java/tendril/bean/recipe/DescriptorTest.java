@@ -138,4 +138,18 @@ public class DescriptorTest extends AbstractUnitTest {
         Assertions.assertFalse(lhs.matches(new Descriptor<>(StringTestRecipe.class)));
         Assertions.assertFalse(lhs.matches(new Descriptor<>(ArrayList.class)));
     }
+    
+    /**
+     * Verify that the toString provides the full details of the bean description
+     */
+    @Test
+    public void testToString() {
+        // No name
+        Assertions.assertEquals("Bean type " + Double1TestRecipe.class.getSimpleName(), new Descriptor<>(Double1TestRecipe.class).toString());
+        Assertions.assertEquals("Bean type " + StringTestRecipe.class.getSimpleName(), new Descriptor<>(StringTestRecipe.class).toString());
+        
+        // With a concrete name
+        Assertions.assertEquals("Bean type " + Double1TestRecipe.class.getSimpleName() + " named \"abc123\"", new Descriptor<>(Double1TestRecipe.class).setName("abc123").toString());
+        Assertions.assertEquals("Bean type " + StringTestRecipe.class.getSimpleName() + " named \"qwerty\"", new Descriptor<>(StringTestRecipe.class).setName("qwerty").toString());
+    }
 }

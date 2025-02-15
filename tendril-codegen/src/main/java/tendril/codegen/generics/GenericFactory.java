@@ -17,6 +17,7 @@ package tendril.codegen.generics;
 
 import java.util.Arrays;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.Utilities;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
@@ -94,7 +95,7 @@ public class GenericFactory {
     public static GenericType createExtends(String name, ClassType...extended) {
         Utilities.throwIfNotValidIdentifier(name);
         if (extended.length == 0)
-            throw new IllegalArgumentException("Generic must extend at least one class");
+            throw new DefinitionException("Generic must extend at least one class");
         
         return new CompoundExtendsGeneric(name, Arrays.asList(extended));
     }
@@ -156,7 +157,7 @@ public class GenericFactory {
      */
     public static GenericType createWildcardExtends(ClassType...extended) {
         if (extended.length == 0)
-            throw new IllegalArgumentException("Generic must extend at least one class");
+            throw new DefinitionException("Generic must extend at least one class");
         
         return new CompoundExtendsWildcardGeneric(Arrays.asList(extended));
     }

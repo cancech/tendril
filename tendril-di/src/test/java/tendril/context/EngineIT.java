@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+import tendril.BeanRetrievalException;
 import tendril.bean.recipe.Descriptor;
 import tendril.processor.registration.RegistryFile;
 import tendril.test.AbstractUnitTest;
@@ -59,8 +60,8 @@ public class EngineIT extends AbstractUnitTest {
         }
         
         Assertions.assertEquals(2, engine.getBeanCount());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> engine.getBean(new Descriptor<>(Double.class)));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
+        Assertions.assertThrows(BeanRetrievalException.class, () -> engine.getBean(new Descriptor<>(Double.class)));
+        Assertions.assertThrows(BeanRetrievalException.class, () -> engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
     }
 
     /**
@@ -83,8 +84,11 @@ public class EngineIT extends AbstractUnitTest {
     @Test
     public void testGetBean() {
         testInitAllUnique();
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> engine.getBean(new Descriptor<>(Double.class)));
+        
+        // Not available
+        Assertions.assertThrows(BeanRetrievalException.class, () -> engine.getBean(new Descriptor<>(Long.class)));
+        // Too vague
+        Assertions.assertThrows(BeanRetrievalException.class, () -> engine.getBean(new Descriptor<>(Double.class)));
         Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
         Assertions.assertEquals(Double2TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double2TestRecipe.NAME)));
         Assertions.assertEquals(IntTestRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class)));

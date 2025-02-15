@@ -17,6 +17,7 @@ package tendril.codegen.classes.method;
 
 import java.util.List;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.Type;
 
@@ -47,7 +48,7 @@ class JMethodInterface<RETURN_TYPE extends Type> extends JMethod<RETURN_TYPE> {
     @Override
     public void setVisibility(VisibilityType visibility) {
         if(visibility != VisibilityType.PUBLIC && visibility != VisibilityType.PRIVATE)
-            throw new IllegalArgumentException("Interface methods can only be public or private");
+            throw new DefinitionException(type, "Interface methods can only be public or private");
         
         super.setVisibility(visibility);
     }
@@ -60,7 +61,7 @@ class JMethodInterface<RETURN_TYPE extends Type> extends JMethod<RETURN_TYPE> {
     @Override
     public void setFinal(boolean isFinal) {
         if (isFinal)
-            throw new IllegalArgumentException("Interface methods cannot be final");
+            throw new DefinitionException(type, "Interface methods cannot be final");
         
         super.setFinal(isFinal);
     }
@@ -71,7 +72,7 @@ class JMethodInterface<RETURN_TYPE extends Type> extends JMethod<RETURN_TYPE> {
     @Override
     protected String generateSignatureStart(boolean hasImplementation) {
         if (isStatic() && !hasImplementation)
-            throw new IllegalArgumentException("Static interface methods must have an implementation");
+            throw new DefinitionException(type, "Static interface methods must have an implementation");
         
         if (VisibilityType.PUBLIC == visibility) {
             if (hasImplementation)
@@ -81,7 +82,7 @@ class JMethodInterface<RETURN_TYPE extends Type> extends JMethod<RETURN_TYPE> {
         }
         
         if (!hasImplementation)
-            throw new IllegalArgumentException("Private interface methods must have an implementation");
+            throw new DefinitionException(type, "Private interface methods must have an implementation");
         
         return visibility.getKeyword() + getStaticKeyword();
     }

@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.classes.method.JConstructor;
 import tendril.codegen.field.type.ClassType;
 
@@ -39,7 +40,7 @@ public class ConstructorBuilder extends NestedClassMethodElementBuilder<ClassTyp
      */
     @Override
     public ConstructorBuilder setType(ClassType type) {
-        throw new IllegalArgumentException("It is not possible to change the type of a constructor");
+        throw new DefinitionException(super.type, "It is not possible to change the type of a constructor");
     }
 
     /**
@@ -48,11 +49,11 @@ public class ConstructorBuilder extends NestedClassMethodElementBuilder<ClassTyp
     @Override
     protected void validate() {
         if (isStatic)
-            throw new IllegalArgumentException("Constructors cannot be static");
+            throw new DefinitionException(type, "Constructors cannot be static");
         if (isFinal)
-            throw new IllegalArgumentException("Constructors cannot be final");
+            throw new DefinitionException(type, "Constructors cannot be final");
         if (!hasCode())
-            throw new IllegalArgumentException("Constructor must have an implementation");
+            throw new DefinitionException(type, "Constructor must have an implementation");
         super.validate();
     }
 

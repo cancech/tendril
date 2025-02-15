@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.InterfaceMethodBuilder;
 import tendril.codegen.field.type.ClassType;
@@ -85,11 +86,13 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
      */
     @Test
     public void testValidate() {
+        int times = 0;
         for (VisibilityType type: VisibilityType.values()) {
             builder.setVisibility(type);
-            if (type == VisibilityType.PRIVATE || type == VisibilityType.PROTECTED)
-                Assertions.assertThrows(IllegalArgumentException.class, () -> builder.validate());
-            else
+            if (type == VisibilityType.PRIVATE || type == VisibilityType.PROTECTED) {
+                Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
+                verify(mockClassType1, times(++times)).getFullyQualifiedName();
+            } else
                 Assertions.assertDoesNotThrow(() -> builder.validate());
         }
     }
@@ -111,7 +114,8 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
      */
     @Test
     public void testInterfaceCannotImplement() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.implementsInterface(mockJClass1));
+        Assertions.assertThrows(DefinitionException.class, () -> builder.implementsInterface(mockJClass1));
+        verify(mockClassType1).getFullyQualifiedName();
     }
     
     /**
@@ -140,6 +144,7 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
      */
     @Test
     public void testCannotCreateConstructor() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildConstructor());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.buildConstructor());
+        verify(mockClassType1).getFullyQualifiedName();
     }
 }

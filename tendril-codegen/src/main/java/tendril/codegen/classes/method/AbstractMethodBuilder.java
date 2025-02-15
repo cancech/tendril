@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes.method;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.MethodBuilder;
@@ -26,15 +27,6 @@ import tendril.codegen.field.type.Type;
  * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
 public class AbstractMethodBuilder<RETURN_TYPE extends Type> extends MethodBuilder<RETURN_TYPE> {
-
-    /**
-     * CTOR - for use when creating an arbitrary method
-     * 
-     * @param name {@link String} the name of the method
-     */
-    public AbstractMethodBuilder(String name) {
-        this(null, name);
-    }
 
     /**
      * CTOR - for use when creating methods nested within a class being defined
@@ -54,7 +46,7 @@ public class AbstractMethodBuilder<RETURN_TYPE extends Type> extends MethodBuild
     @Override
     protected void validate() {
         if (VisibilityType.PRIVATE == visibility && !hasCode())
-            throw new IllegalArgumentException("An abstract method cannot be private");
+            throw new DefinitionException(classBuilder.getType(), "Abstract method " + name + " cannot be private");
 
         super.validate();
     }

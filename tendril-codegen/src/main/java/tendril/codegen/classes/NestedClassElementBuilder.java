@@ -30,7 +30,7 @@ import tendril.codegen.field.type.Type;
 public abstract class NestedClassElementBuilder<DATA_TYPE extends Type, ELEMENT extends JVisibleType<DATA_TYPE>, BUILDER extends NestedClassElementBuilder<DATA_TYPE, ELEMENT, BUILDER>>
         extends VisibileTypeBuilder<DATA_TYPE, ELEMENT, BUILDER> {
     /** The class containing the method */
-    private final ClassBuilder classBuilder;
+    protected final ClassBuilder classBuilder;
 
     /**
      * CTOR

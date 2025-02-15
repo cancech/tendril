@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import tendril.BeanRetrievalException;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.Descriptor;
 import tendril.processor.registration.RegistryFile;
@@ -45,6 +46,7 @@ public class Engine {
      * is not created until it becomes necessary to do so (i.e.: accessed by a Consumer).
      */
     void init() {
+        // TODO switch to proper logging messages
         try {
             for (String recipe: RegistryFile.read()) {
                 try {
@@ -81,15 +83,15 @@ public class Engine {
      * @param descriptor {@link Descriptor} containing the description of the bean that is to be retrieved
      * 
      * @return The specific bean that is desired
-     * @throws IllegalArgumentException if there is an issue retrieving the desired bean
+     * @throws BeanRetrievalException if there is an issue retrieving the desired bean
      */
     public <BEAN_TYPE> BEAN_TYPE getBean(Descriptor<BEAN_TYPE> descriptor) {
         List<AbstractRecipe<BEAN_TYPE>> matchingRecipes = findRecipes(descriptor);
         
         if (matchingRecipes.isEmpty())
-            throw new IllegalArgumentException("No matching bean found");
+            throw new BeanRetrievalException(descriptor);
         if (matchingRecipes.size() > 1)
-            throw new IllegalArgumentException("Too many matches found");
+            throw new BeanRetrievalException(descriptor, matchingRecipes);
         
         return matchingRecipes.get(0).get();
     }

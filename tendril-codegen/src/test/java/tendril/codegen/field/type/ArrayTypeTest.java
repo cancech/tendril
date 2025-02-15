@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.value.JValueArray;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.test.AbstractUnitTest;
@@ -162,8 +163,8 @@ public class ArrayTypeTest extends AbstractUnitTest {
     @Test
     public void testAsValueIncorrectType() {
         when(mockType.isAssignableFrom(any())).thenReturn(false);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> type.asValue(new String[] {"a", "b", "c"}));
+        Assertions.assertThrows(DefinitionException.class, () -> type.asValue(new String[] {"a", "b", "c"}));
         verify(mockType).isAssignableFrom(any());
-        verify(mockType).getSimpleName();
+        verify(mockType, times(2)).getSimpleName();
     }
 }

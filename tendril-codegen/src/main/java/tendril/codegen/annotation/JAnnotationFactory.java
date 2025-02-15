@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.InterfaceMethodBuilder;
 import tendril.codegen.classes.method.JMethod;
@@ -99,7 +100,7 @@ public abstract class JAnnotationFactory {
         try {
             Class<?> klass = Class.forName(classType.getFullyQualifiedName());
             if (!klass.isAnnotation())
-                throw new IllegalArgumentException(classType.getFullyQualifiedName() + " is not an enumeration");
+                throw new DefinitionException(classType, "Cannot be used as an Annotation as it is not an Annotation");
             return klass;
         } catch (ClassNotFoundException e) {
             LOGGER.severe("Cannot find Class for " + classType.getFullyQualifiedName() + ". It does not exist on the classpath");
@@ -109,7 +110,7 @@ public abstract class JAnnotationFactory {
     }
 
     /**
-     * Create a marker {@link JAnnotation}, throwing an {@link IllegalArgumentException} if the annotation has any actual attributes
+     * Create a marker {@link JAnnotation}, throwing an {@link DefinitionException} if the annotation has any actual attributes
      * 
      * @param annotationClass {@link Class} which defined the annotation itself
      * @param classType       {@link ClassType} representing the class
@@ -180,7 +181,7 @@ public abstract class JAnnotationFactory {
         if (annotationClass != null) {
             Method[] methods = annotationClass.getDeclaredMethods();
             if (methods.length != 1 || !"value".equals(methods[0].getName()))
-                throw new IllegalArgumentException(annotationClass.getSimpleName() + " annotation must have exactly one attribute named value");
+                throw new DefinitionException(annotationType, "Cannot employ default value, to use default value Annotation must have exactly one attribute named value");
         } else {
             LOGGER.warning(buildAnnotationClassNotFoundWarning("Default Value", annotationType));
         }
@@ -215,7 +216,7 @@ public abstract class JAnnotationFactory {
         for (String name : sortedNames) {
             JValue<?, ?> value = values.get(name);
             validateCorrectType(annotationClass, name, value);
-            JMethod<?> method = new InterfaceMethodBuilder<>(name).setType(value.getType()).setVisibility(VisibilityType.PUBLIC).build();
+            JMethod<?> method = new InterfaceMethodBuilder<>(annotationType, name).setType(value.getType()).setVisibility(VisibilityType.PUBLIC).build();
             annotation.addAttribute(method, value);
         }
 
@@ -238,21 +239,21 @@ public abstract class JAnnotationFactory {
             // The annotation method cannot be void
             Class<?> expectedReturn = annotationClass.getDeclaredMethod(attrName).getReturnType();
             if (Void.TYPE.equals(expectedReturn))
-                throw new IllegalArgumentException(annotationClass.getName() + " cannot have a void attribute " + attrName);
+                throw new DefinitionException(annotationClass, "Attribute " + attrName + " cannot be void");
 
             // Make sure that this is a correct instance
             Type returnType = TypeFactory.create(expectedReturn);
             if (!value.isInstanceOf(returnType))
-                throw new IllegalArgumentException("Incompatible attribute " + attrName + ", expect " + returnType.getSimpleName() + " but got " + value.getType());
+                throw new DefinitionException(annotationClass, "Incompatible attribute " + attrName + ", expect " + returnType.getSimpleName() + " but got " + value.getType());
         } catch (NoSuchMethodException e) {
-            throw new IllegalArgumentException("attribute " + attrName + " does not exist in " + annotationClass.getName());
+            throw new DefinitionException(annotationClass, "Attribute " + attrName + " does not exist in " + annotationClass.getName());
         } catch (SecurityException e) {
-            throw new IllegalArgumentException("Unable to apply attribute " + attrName + " to " + annotationClass.getName(), e);
+            throw new DefinitionException(annotationClass, "Unable to apply attribute " + attrName + " to " + annotationClass.getName(), e);
         }
     }
 
     /**
-     * Create an annotation which takes a single default value
+     * Create an annotation which takes an arbitrary number of named values (at least one)
      * 
      * @param annotationClass {@link Class} extending {@link Annotation} where the annotation is defined
      * @param values          {@link Map} of {@link String} attribute name to it intended {@link JValue}
@@ -263,7 +264,7 @@ public abstract class JAnnotationFactory {
     }
 
     /**
-     * Create an annotation which takes a single default value
+     * Create an annotation which takes an arbitrary number of named values (at least one)
      * 
      * @param fullyQualifiedName {@link String} the fully qualified name of the annotation
      * @param values             {@link Map} of {@link String} attribute name to it intended {@link JValue}
@@ -274,7 +275,7 @@ public abstract class JAnnotationFactory {
     }
 
     /**
-     * Create an annotation which takes a single default value
+     * Create an annotation which takes an arbitrary number of named values (at least one)
      * 
      * @param packageName {@link String} the name of the package where the annotation resides
      * @param className   {@link String} the name of the annotation
@@ -286,7 +287,7 @@ public abstract class JAnnotationFactory {
     }
 
     /**
-     * Create an annotation which takes a single default value
+     * Create an annotation which takes an arbitrary number of named values (at least one)
      * 
      * @param annotationClass {@link ClassType} representing the annotation
      * @param values          {@link Map} of {@link String} attribute name to it intended {@link JValue}
@@ -308,7 +309,7 @@ public abstract class JAnnotationFactory {
         // Verify that at a basic level all attributes are accounted for
         if (annotationClass != null) {
             if (annotationClass.getDeclaredMethods().length == 0)
-                throw new IllegalArgumentException(annotationClass.getName() + " annotation must have at least one attribute");
+                throw new DefinitionException(annotationClass, "Annotations with named attributes must have at least one attribute");
             checkUnsatisfiedAttributes(annotationClass, values.keySet());
         } else {
             LOGGER.warning(buildAnnotationClassNotFoundWarning("Multi-Value", annotationType));
@@ -337,7 +338,7 @@ public abstract class JAnnotationFactory {
             }
 
             if (foundMethod == null)
-                throw new IllegalArgumentException("Specified attribute " + s + " does not appear in " + annotationClass.getName());
+                throw new DefinitionException(annotationClass, "Does not contain specified attribute " + s);
             else
                 methods.remove(foundMethod);
         }
@@ -346,6 +347,6 @@ public abstract class JAnnotationFactory {
         methods.removeIf(m -> m.getDefaultValue() != null);
 
         if (!methods.isEmpty())
-            throw new IllegalArgumentException(annotationClass.getName() + " annotation has attributes without assigned values [" + TendrilStringUtil.join(methods, m -> m.getName()) + "]");
+            throw new DefinitionException(annotationClass, "Annotation has attributes without assigned values [" + TendrilStringUtil.join(methods, m -> m.getName()) + "]");
     }
 }

@@ -20,6 +20,7 @@ import static org.mockito.Mockito.verify;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.JType;
 import tendril.codegen.field.value.JValue;
@@ -74,7 +75,7 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
         // Everything else generates an exception
         type = new ClassType(ClassType.class);
         verifyDataState(ClassType.class);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> type.asValue(new ClassType(getClass())));
+        Assertions.assertThrows(DefinitionException.class, () -> type.asValue(new ClassType(getClass())));
     }
 
     /**
@@ -95,7 +96,7 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
             if ((valueClass.isEnum() && test.equals(Enum.class)) || test.equals(valueClass))
                 TendrilAssert.assertJValue(expectedValue, type.asValue(value));
             else
-                Assertions.assertThrows(IllegalArgumentException.class, () -> type.asValue(value));
+                Assertions.assertThrows(DefinitionException.class, () -> type.asValue(value));
         }
 
         verifyDataState(valueClass);
@@ -183,11 +184,11 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
      */
     @Test
     public void testClassInDefaultPackage() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ClassType("SomeClass"));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ClassType(null, "SomeOtherClass"));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ClassType("", "YetOtherClass"));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ClassType(" ", "MyClass"));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new ClassType("        ", "MyOtherClass"));
+        Assertions.assertThrows(DefinitionException.class, () -> new ClassType("SomeClass"));
+        Assertions.assertThrows(DefinitionException.class, () -> new ClassType(null, "SomeOtherClass"));
+        Assertions.assertThrows(DefinitionException.class, () -> new ClassType("", "YetOtherClass"));
+        Assertions.assertThrows(DefinitionException.class, () -> new ClassType(" ", "MyClass"));
+        Assertions.assertThrows(DefinitionException.class, () -> new ClassType("        ", "MyOtherClass"));
     }
     
     /**

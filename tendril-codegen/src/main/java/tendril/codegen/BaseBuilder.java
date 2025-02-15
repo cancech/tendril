@@ -101,7 +101,7 @@ public abstract class BaseBuilder<ELEMENT extends JBase, BUILDER extends BaseBui
     }
 
     /**
-     * Validate that the provided details to ensure that they are valid for the desired element. Any issues are raised via an {@link IllegalArgumentException}
+     * Validate that the provided details to ensure that they are valid for the desired element. Any issues are raised via an {@link DefinitionException}
      */
     protected abstract void validate();
 

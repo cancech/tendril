@@ -17,6 +17,7 @@ package tendril.codegen.generics;
 
 import java.util.Collections;
 
+import tendril.codegen.CodeGenerationException;
 import tendril.codegen.field.type.ClassType;
 
 /**
@@ -46,7 +47,7 @@ class CompoundSuperGeneric extends CompoundGeneric {
      */
     @Override
     public String generateDefinition() {
-        throw new IllegalArgumentException("Generic definition cannot use super");
+        throw new CodeGenerationException("Generic definition cannot use super");
     }
     
     /**

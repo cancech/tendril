@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.CodeGenerationException;
 import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
 
@@ -58,7 +59,7 @@ public class CompoundSuperGenericTest extends AbstractUnitTest {
      */
     @Test
     public void testGenerateDefinition() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> gen.generateDefinition());
+        Assertions.assertThrows(CodeGenerationException.class, () -> gen.generateDefinition());
     }
 
     /**

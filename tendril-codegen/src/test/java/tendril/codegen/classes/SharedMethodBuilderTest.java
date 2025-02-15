@@ -15,13 +15,19 @@
  */
 package tendril.codegen.classes;
 
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Assertions;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.JMethod;
+import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.ClassAssert;
@@ -37,6 +43,8 @@ public abstract class SharedMethodBuilderTest<T extends MethodBuilder<Type>> ext
     @Mock
     protected ClassBuilder mockClassBuilder;
     @Mock
+    protected ClassType mockEnclosingClassType;
+    @Mock
     protected Type mockReturnType;
     @Mock
     protected VisibilityType mockVisibilityType;
@@ -44,11 +52,16 @@ public abstract class SharedMethodBuilderTest<T extends MethodBuilder<Type>> ext
     // Instance to test
     protected MethodBuilder<Type> builder;
     
+    private int timesValidateExceptionThrown;
+    
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {
+        timesValidateExceptionThrown = 0;
+        
+        lenient().when(mockClassBuilder.getType()).thenReturn(mockEnclosingClassType);
         builder = createBuilder();
         builder.setType(mockReturnType);
     }
@@ -69,10 +82,14 @@ public abstract class SharedMethodBuilderTest<T extends MethodBuilder<Type>> ext
      * Apply the visibility and ensure that the exception is thrown
      * 
      * @param visibility {@link VisibilityType} to apply
+     * @param retrievesType boolean true if the type is retrieved when generating the exception
      */
-    protected void verifyValidateDoesThrow(VisibilityType visibility) {
+    protected void verifyValidateDoesThrow(VisibilityType visibility, boolean retrievesType) {
         builder.setVisibility(visibility);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.validate());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
+        verify(mockEnclosingClassType, times(++timesValidateExceptionThrown)).getFullyQualifiedName();
+        if (retrievesType)
+            verify(mockClassBuilder, times(timesValidateExceptionThrown)).getType();
     }
 
     /**

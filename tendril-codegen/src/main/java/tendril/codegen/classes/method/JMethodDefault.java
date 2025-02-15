@@ -17,6 +17,7 @@ package tendril.codegen.classes.method;
 
 import java.util.List;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.Type;
 
 /**
@@ -45,9 +46,9 @@ class JMethodDefault<RETURN_TYPE extends Type> extends JMethod<RETURN_TYPE> {
         String start = visibility.getKeyword();
         if (!hasImplementation) {
             if (isStatic())
-                throw new IllegalArgumentException("Abstract method cannot be static");
+                throw new DefinitionException(type, "Abstract method cannot be static");
             if (isFinal())
-                throw new IllegalArgumentException("Abstract method cannot be final");
+                throw new DefinitionException(type, "Abstract method cannot be final");
             return start + "abstract ";
         }
         return start + getStaticKeyword() + getFinalKeyword();

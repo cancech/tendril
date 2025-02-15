@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.ClassType;
 import tendril.test.helper.TestEnum;
@@ -75,7 +76,7 @@ public class JValueFactoryTest extends SharedJValueTest {
         lastImport = new ClassType(VisibilityType.class);
         assertCode("VisibilityType.PACKAGE_PRIVATE", JValueFactory.create(VisibilityType.PACKAGE_PRIVATE));
         
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JValueFactory.create(new ClassType("a", "b")));
+        Assertions.assertThrows(DefinitionException.class, () -> JValueFactory.create(new ClassType("a", "b")));
     }
     
     /**

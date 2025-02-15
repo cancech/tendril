@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.generics.GenericType;
@@ -137,7 +138,8 @@ public class JConstructorTest extends AbstractUnitTest {
      */
     @Test
     public void testCtorWithoutCode() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> ctor.generateSignature(mockImports, false));
+        Assertions.assertThrows(DefinitionException.class, () -> ctor.generateSignature(mockImports, false));
+        verify(mockClass).getFullyQualifiedName();
     }
     
     /**
@@ -147,7 +149,8 @@ public class JConstructorTest extends AbstractUnitTest {
     public void testStatic() {
         Assertions.assertFalse(ctor.isStatic());
         
-        Assertions.assertThrows(IllegalArgumentException.class, () -> ctor.setStatic(true));
+        Assertions.assertThrows(DefinitionException.class, () -> ctor.setStatic(true));
+        verify(mockClass).getFullyQualifiedName();
         Assertions.assertFalse(ctor.isStatic());
         ctor.setStatic(false);
         Assertions.assertFalse(ctor.isStatic());
@@ -160,7 +163,8 @@ public class JConstructorTest extends AbstractUnitTest {
     public void testFinal() {
         Assertions.assertFalse(ctor.isFinal());
         
-        Assertions.assertThrows(IllegalArgumentException.class, () -> ctor.setFinal(true));
+        Assertions.assertThrows(DefinitionException.class, () -> ctor.setFinal(true));
+        verify(mockClass).getFullyQualifiedName();
         Assertions.assertFalse(ctor.isFinal());
         ctor.setFinal(false);
         Assertions.assertFalse(ctor.isFinal());

@@ -17,6 +17,7 @@ package tendril.codegen.field.type;
 
 import java.util.Set;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.JGeneric;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
@@ -48,7 +49,7 @@ public class ClassType extends JGeneric implements Type {
     public ClassType(String fullyQualifiedName) {
         int lastDot = fullyQualifiedName.lastIndexOf('.');
         if (lastDot <= 0)
-            throw new IllegalArgumentException("Invalid fully qualified class \"" + fullyQualifiedName + "\". Hint: default package is not supported");
+            throw new DefinitionException(this, "Invalid fully qualified class \"" + fullyQualifiedName + "\". Hint: default package is not supported");
 
         this.packageName = fullyQualifiedName.substring(0, lastDot);
         this.className = fullyQualifiedName.substring(lastDot + 1);
@@ -62,7 +63,7 @@ public class ClassType extends JGeneric implements Type {
      */
     public ClassType(String packageName, String className) {
         if (packageName == null || packageName.isBlank())
-            throw new IllegalArgumentException("Invalid package \"" + packageName + "\" - valid (non default) package is required");
+            throw new DefinitionException(this, "Invalid package \"" + packageName + "\" - valid (non default) package is required");
 
         this.packageName = packageName;
         this.className = className;
@@ -164,7 +165,7 @@ public class ClassType extends JGeneric implements Type {
     @Override
     public JValue<?, ?> asValue(Object value) {
         if (!isTypeOf(value))
-            throw new IllegalArgumentException("Invalid object provided: require " + getFullyQualifiedName() + " but received " + value.getClass().getName());
+            throw new DefinitionException(this, "Invalid object provided: require " + getFullyQualifiedName() + " but received " + value.getClass().getName());
         
         return JValueFactory.create(value);
     }

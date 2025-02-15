@@ -42,6 +42,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.annotationprocessor.ClassDefinition;
+import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.qualifier.BeanId;
 import tendril.bean.qualifier.EnumQualifier;
 import tendril.codegen.classes.method.JMethod;
@@ -113,7 +114,7 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
             if (kind == ElementKind.ENUM)
                 continue;
             when(mockType.getKind()).thenReturn(kind);
-            Assertions.assertThrows(IllegalArgumentException.class, () -> processor.validateType(mockType));
+            Assertions.assertThrows(ProcessingException.class, () -> processor.validateType(mockType));
             verify(mockType, times(++timesGetKind)).getKind();
             verify(mockType, times(++timesGetQualifiedName)).getQualifiedName();
         }
@@ -126,7 +127,7 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
         when(mockType.asType()).thenReturn(mockTypeMirror);
 
         when(mockTypeUtils.isAssignable(mockTypeMirror, mockBeanIdMirror)).thenReturn(false);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> processor.validateType(mockType));
+        Assertions.assertThrows(ProcessingException.class, () -> processor.validateType(mockType));
         verify(mockType, times(++timesGetKind)).getKind();
         verify(mockType, times(++timesGetQualifiedName)).getQualifiedName();
         verify(mockType).asType();
@@ -151,7 +152,7 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
     @Test
     public void testProcessMethod() {
         when(mockAnnotatedMethod.getName()).thenReturn("mockMethod");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> processor.processMethod(mockAnnotatedClass, mockAnnotatedMethod));
+        Assertions.assertThrows(ProcessingException.class, () -> processor.processMethod(mockAnnotatedClass, mockAnnotatedMethod));
         verify(mockAnnotatedMethod).getName();
     }
 

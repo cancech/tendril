@@ -102,4 +102,17 @@ public class Descriptor<BEAN_TYPE> {
         
         return true;
     }
+    
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder("Bean type " + beanClass.getSimpleName());
+        
+        if (!name.isEmpty())
+            str.append(" named \"" + name + "\"");
+        
+        return str.toString();
+    }
 }

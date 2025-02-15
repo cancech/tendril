@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
+import tendril.codegen.DefinitionException;
 import tendril.codegen.JBase;
 import tendril.codegen.classes.JClassAnnotation;
 import tendril.codegen.classes.method.JMethod;
@@ -78,11 +79,11 @@ public class JAnnotation extends JBase {
     /**
      * @see tendril.codegen.JBase#addGeneric(tendril.codegen.generics.GenericType)
      * 
-     * @throws IllegalArgumentException - annotations cannot be generic
+     * @throws DefinitionException - annotations cannot be generic
      */
     @Override
     public void addGeneric(GenericType generic) {
-        throw new IllegalArgumentException("Annotations cannot be generic");
+        throw new DefinitionException(annotationClass, "Annotations cannot be generic");
     }
 
     /**

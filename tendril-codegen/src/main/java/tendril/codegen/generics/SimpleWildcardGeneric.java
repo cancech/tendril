@@ -15,6 +15,8 @@
  */
 package tendril.codegen.generics;
 
+import tendril.codegen.CodeGenerationException;
+
 /**
  * {@link GenericType} which represents a situation where a single wildcard is present (i.e: <?>).
  */
@@ -34,6 +36,6 @@ class SimpleWildcardGeneric extends SimpleGeneric {
      */
     @Override
     public String generateDefinition() {
-        throw new IllegalArgumentException("A wildcard generic cannot be used in a definition");
+        throw new CodeGenerationException("A wildcard generic cannot be used in a definition");
     }
 }

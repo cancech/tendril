@@ -16,12 +16,15 @@
 package tendril.codegen.classes;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.classes.method.JMethod;
+import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 import tendril.test.AbstractUnitTest;
@@ -57,6 +60,8 @@ public class MethodBuilderTest extends AbstractUnitTest {
     @Mock
     private ClassBuilder mockClassBuilder;
     @Mock
+    private ClassType mockClassType;
+    @Mock
     private JMethod<Type> mockMethod;
     @Mock
     private JValue<Type, ?> mockValue;
@@ -77,7 +82,10 @@ public class MethodBuilderTest extends AbstractUnitTest {
      */
     @Test
     public void testDefaultValueThrowsException() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.setDefaultValue(mockValue));
+        when(mockClassBuilder.getType()).thenReturn(mockClassType);
+        Assertions.assertThrows(DefinitionException.class, () -> builder.setDefaultValue(mockValue));
+        verify(mockClassBuilder).getType();
+        verify(mockClassType).getFullyQualifiedName();
     }
     
     /**

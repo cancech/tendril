@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
+import tendril.codegen.DefinitionException;
 import tendril.codegen.JBase;
 import tendril.codegen.classes.method.JConstructor;
 import tendril.codegen.classes.method.JMethod;
@@ -64,7 +65,7 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
     @Override
     public void setStatic(boolean isStatic) {
         if (isStatic)
-            throw new IllegalArgumentException("Classes cannot be static.");
+            throw new DefinitionException(type, "Classes cannot be static.");
             
         super.setStatic(isStatic);
     }

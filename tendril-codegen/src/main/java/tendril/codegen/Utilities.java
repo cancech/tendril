@@ -42,27 +42,27 @@ public abstract class Utilities {
      * Validate whether the name is considered a valid identifier
      * 
      * @param name {@link String} to check
-     * @throws IllegalArgumentException if it is not a valid identifier
+     * @throws DefinitionException if it is not a valid identifier
      */
-    public static void throwIfNotValidIdentifier(String name) throws IllegalArgumentException{
+    public static void throwIfNotValidIdentifier(String name) {
 		// Check basic name characteristics
 		if (name == null)
-			throw new IllegalArgumentException("Identifier name cannot be null");
+			throw new DefinitionException("Identifier name cannot be null");
 		
 		// Make sure that it is not an empty name
 		String trimmed = name.trim();
 		if (trimmed.isEmpty())
-			throw new IllegalArgumentException("Identifier name cannot be empty");
+			throw new DefinitionException("Identifier name cannot be empty");
 		
 		// Ensure that only valid characters are employed
 		char c = trimmed.charAt(0);
 		if (!Character.isJavaIdentifierStart(c))
-			throw new IllegalArgumentException("Identifier cannot start with " + c);
+			throw new DefinitionException("Identifier cannot start with " + c);
 		for (int i = 1; i < trimmed.length(); i++) {
 			c = trimmed.charAt(i);
 
 			if (!Character.isJavaIdentifierPart(c))
-				throw new IllegalArgumentException("Identifier cannot contain " + c);
+				throw new DefinitionException("Identifier cannot contain " + c);
 		}
     }
 }

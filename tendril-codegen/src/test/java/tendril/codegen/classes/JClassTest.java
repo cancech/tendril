@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.CodeBuilder;
+import tendril.codegen.DefinitionException;
 import tendril.codegen.JBase;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.method.JConstructor;
@@ -259,7 +260,8 @@ public class JClassTest extends AbstractUnitTest {
     public void testSetStatic() {
         Assertions.assertFalse(jclass.isStatic());
         
-        Assertions.assertThrows(IllegalArgumentException.class, () -> jclass.setStatic(true));
+        Assertions.assertThrows(DefinitionException.class, () -> jclass.setStatic(true));
+        verify(mockClassType).getFullyQualifiedName();
         Assertions.assertFalse(jclass.isStatic());
         
         jclass.setStatic(false);

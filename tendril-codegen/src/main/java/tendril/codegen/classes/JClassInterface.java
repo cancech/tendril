@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
 
 /**
@@ -45,7 +46,7 @@ public class JClassInterface extends JClass {
     @Override
     public void setParentClass(JClass parent) {
         if (parent != null)
-            throw new IllegalArgumentException("Interfaces cannot have an explicit parent class");
+            throw new DefinitionException(type, "Interfaces cannot have an explicit parent class");
     }
 
     /**

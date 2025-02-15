@@ -19,6 +19,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import tendril.BeanCreationException;
 import tendril.context.Engine;
 
 /**
@@ -101,6 +102,7 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
      * recipe to focus on the mechanism of managing the bean instance life cycle, with the abstract recipe bean construction.
      * 
      * @return The (an) instance of the bean that the recipe is to create
+     * @throws BeanCreationException if there is an issue creating the bean
      */
     @SuppressWarnings("unchecked")
     protected BEAN_TYPE buildBean() {
@@ -108,9 +110,11 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
 
         // Create the instance
         if (ctors.length == 0)
-            throw new RuntimeException("Too few constructors");
+            throw new BeanCreationException(descriptor, "Bean has no constructors defined (is this an interface?)");
+        
+        // TODO allow @inject to identify which exact constructor to use
         if (ctors.length > 1)
-            throw new RuntimeException("Too many constructors");
+            throw new BeanCreationException(descriptor, "Multiple constructors are available, ambiguous as to which to call");
         
         // Apply all dependencies
         try {
@@ -118,7 +122,7 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
             consumers.forEach(c -> c.inject(bean, engine));
             return bean;
         } catch (Exception e) {
-            throw new RuntimeException("Cannot create instance", e);
+            throw new BeanCreationException(descriptor, e);
         }
     }
 }

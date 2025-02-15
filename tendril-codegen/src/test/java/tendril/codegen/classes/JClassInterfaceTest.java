@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
@@ -67,7 +68,8 @@ public class JClassInterfaceTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testClassHierarchy() {
-	    Assertions.assertThrows(IllegalArgumentException.class, () -> cls.setParentClass(mockJClass));
+	    Assertions.assertThrows(DefinitionException.class, () -> cls.setParentClass(mockJClass));
+	    verify(mockClassType).getFullyQualifiedName();
 	    cls.setParentClass(null);
 	    Assertions.assertEquals("extends ", cls.interfaceExtensionKeyword());
 	}

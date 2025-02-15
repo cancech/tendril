@@ -15,11 +15,15 @@
  */
 package tendril.codegen.classes.method;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import java.util.Collections;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.Type;
 
@@ -36,9 +40,11 @@ public class JMethodInterfaceTest extends AbstractMethodTest {
         JMethodInterface<Type> method = new JMethodInterface<>(mockReturnType, "publicInterfaceMethod", Collections.emptyList());
         Assertions.assertEquals(VisibilityType.PUBLIC, method.getVisibility());
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> method.setVisibility(VisibilityType.PACKAGE_PRIVATE));
+        Assertions.assertThrows(DefinitionException.class, () -> method.setVisibility(VisibilityType.PACKAGE_PRIVATE));
+        verify(mockReturnType).getSimpleName();
         Assertions.assertEquals(VisibilityType.PUBLIC, method.getVisibility());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> method.setVisibility(VisibilityType.PROTECTED));
+        Assertions.assertThrows(DefinitionException.class, () -> method.setVisibility(VisibilityType.PROTECTED));
+        verify(mockReturnType, times(2)).getSimpleName();
         Assertions.assertEquals(VisibilityType.PUBLIC, method.getVisibility());
         
         method.setVisibility(VisibilityType.PRIVATE);
@@ -53,7 +59,8 @@ public class JMethodInterfaceTest extends AbstractMethodTest {
         JMethodInterface<Type> method = new JMethodInterface<>(mockReturnType, "publicInterfaceMethod", Collections.emptyList());
         Assertions.assertFalse(method.isFinal());
         
-        Assertions.assertThrows(IllegalArgumentException.class, () -> method.setFinal(true));
+        Assertions.assertThrows(DefinitionException.class, () -> method.setFinal(true));
+        verify(mockReturnType).getSimpleName();
         Assertions.assertFalse(method.isFinal());
         
         method.setFinal(false);
@@ -71,7 +78,8 @@ public class JMethodInterfaceTest extends AbstractMethodTest {
         Assertions.assertEquals("default ", method.generateSignatureStart(true));
         
         method.setStatic(true);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> method.generateSignatureStart(false));
+        Assertions.assertThrows(DefinitionException.class, () -> method.generateSignatureStart(false));
+        verify(mockReturnType).getSimpleName();
         Assertions.assertEquals("static ", method.generateSignatureStart(true));
     }
     
@@ -83,11 +91,13 @@ public class JMethodInterfaceTest extends AbstractMethodTest {
         JMethodInterface<Type> method = new JMethodInterface<>(mockReturnType, "publicInterfaceMethod", Collections.emptyList());
         method.setVisibility(VisibilityType.PRIVATE);
         verifyMethodInit("publicInterfaceMethod", method);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> method.generateSignatureStart(false));
+        Assertions.assertThrows(DefinitionException.class, () -> method.generateSignatureStart(false));
+        verify(mockReturnType).getSimpleName();
         Assertions.assertEquals("private ", method.generateSignatureStart(true));
         
         method.setStatic(true);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> method.generateSignatureStart(false));
+        Assertions.assertThrows(DefinitionException.class, () -> method.generateSignatureStart(false));
+        verify(mockReturnType, times(2)).getSimpleName();
         Assertions.assertEquals("private static ", method.generateSignatureStart(true));
     }
 }

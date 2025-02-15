@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes.method;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.MethodBuilder;
 import tendril.codegen.field.type.Type;
@@ -25,15 +26,6 @@ import tendril.codegen.field.type.Type;
  * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
 public class ConcreteMethodBuilder<RETURN_TYPE extends Type> extends MethodBuilder<RETURN_TYPE> {
-
-    /**
-     * CTOR - for use when creating an arbitrary method
-     * 
-     * @param name         {@link String} the name of the method
-     */
-    public ConcreteMethodBuilder(String name) {
-        this(null, name);
-    }
 
     /**
      * CTOR - for use when creating methods nested within a class being defined
@@ -53,7 +45,7 @@ public class ConcreteMethodBuilder<RETURN_TYPE extends Type> extends MethodBuild
     @Override
     protected void validate() {
         if (!hasCode())
-            throw new IllegalArgumentException("Concrete methods much have an implementation");
+            throw new DefinitionException(classBuilder.getType(), "Concrete methods much have an implementation");
 
         super.validate();
     }

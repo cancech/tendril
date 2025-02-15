@@ -20,6 +20,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.test.helper.assertions.TendrilAssert;
 
@@ -57,7 +58,7 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
         Assertions.assertEquals(PrimitiveType.LONG, PrimitiveType.from(long.class));
         Assertions.assertEquals(PrimitiveType.SHORT, PrimitiveType.from(Short.class));
         Assertions.assertEquals(PrimitiveType.SHORT, PrimitiveType.from(short.class));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.from(ClassType.class));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.from(ClassType.class));
     }
     
     /**
@@ -204,14 +205,14 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
      */
     @Test
     public void testInvalidAsValueObject() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.BOOLEAN.asValue(mockImports));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.BYTE.asValue(mockImports));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.CHAR.asValue(mockImports));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.DOUBLE.asValue(mockImports));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.FLOAT.asValue(mockImports));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.INT.asValue(mockImports));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.LONG.asValue(mockImports));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> PrimitiveType.SHORT.asValue(mockImports));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.BOOLEAN.asValue(mockImports));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.BYTE.asValue(mockImports));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.CHAR.asValue(mockImports));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.DOUBLE.asValue(mockImports));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.FLOAT.asValue(mockImports));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.INT.asValue(mockImports));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.LONG.asValue(mockImports));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.SHORT.asValue(mockImports));
     }
     
     /**

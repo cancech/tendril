@@ -138,7 +138,7 @@ public class UtilitiesTest {
 		Executable ex = () -> Utilities.throwIfNotValidIdentifier(name);
 
 		if (doesThrow)
-			Assertions.assertThrows(IllegalArgumentException.class, ex);
+			Assertions.assertThrows(DefinitionException.class, ex);
 		else
 			Assertions.assertDoesNotThrow(ex);
 	}

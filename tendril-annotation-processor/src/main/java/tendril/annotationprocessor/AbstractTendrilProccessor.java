@@ -196,6 +196,18 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
     }
     
     /**
+     * Get the element which is currently being processed.
+     * 
+     * @return {@link Element}
+     */
+    protected Element getCurrentElement() {
+        if (currentTypeElement != null)
+            return currentTypeElement;
+        
+        return null;
+    }
+    
+    /**
      * Get all instances of the desired annotation which are applied to the specified element
      * 
      * @param <ANNOTATION> indicating the type of annotation that is desired
@@ -266,13 +278,14 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * 
      * @param element {@link ExecutableElement} containing the details of the method
      * @return {@link Pair} of {@link ClassType} of the enclosing class and {@link JMethod} representing the full details of the method
+     * @throws ProcessingException if there is an issue loading the details of the method
      */
     private Pair<ClassType, JMethod<?>> loadMethodDetails(ExecutableElement element) {
         ClassType classData = deriveClassData((TypeElement) element.getEnclosingElement());
         List<? extends TypeMirror> parameterTypes = ((ExecutableType) element.asType()).getParameterTypes();
         List<? extends VariableElement> parameters = element.getParameters();
         if (parameterTypes.size() != parameters.size())
-            throw new IllegalStateException(element + " mismatch between number of parameters and parameter types");
+            throw new ProcessingException(element + " mismatch between number of parameters and parameter types");
 
         JMethod<?> method = new AnonymousMethod<>(TypeFactory.create(element.getReturnType()), element.getSimpleName().toString());
         for (int i = 0; i < parameters.size(); i++) {

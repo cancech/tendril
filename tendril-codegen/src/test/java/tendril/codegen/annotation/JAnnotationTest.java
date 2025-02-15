@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.CodeBuilder;
+import tendril.codegen.DefinitionException;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
@@ -80,7 +81,8 @@ public class JAnnotationTest extends AbstractUnitTest {
         JAnnotation annotation = new JAnnotation(mockAnnotationClass);
         verify(mockAnnotationClass).getClassName();
         
-        Assertions.assertThrows(IllegalArgumentException.class, () -> annotation.addGeneric(mockGeneric));
+        Assertions.assertThrows(DefinitionException.class, () -> annotation.addGeneric(mockGeneric));
+        verify(mockAnnotationClass).getFullyQualifiedName();
     }
 
     /**

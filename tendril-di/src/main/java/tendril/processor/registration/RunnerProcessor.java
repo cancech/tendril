@@ -24,6 +24,7 @@ import javax.lang.model.element.TypeElement;
 import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.ClassDefinition;
+import tendril.annotationprocessor.ProcessingException;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.context.launch.Runner;
@@ -50,20 +51,24 @@ public class RunnerProcessor extends BeanProcessor {
     
     /**
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
+     * 
+     * @throws ProcessingException if the annotated type does not implement the {@link TendrilRunner} interface
      */
     @Override
     protected void validateType(TypeElement type) {
         if (!isTypeOf(type, TendrilRunner.class))
-            throw new RuntimeException(type.getQualifiedName() + " must implement the TendrilRunner interface");
+            throw new ProcessingException(type.getQualifiedName() + " must implement the " + TendrilRunner.class.getSimpleName() + " interface");
     }
 
     /**
      * @see tendril.processor.BeanProcessor#processType(tendril.codegen.field.type.ClassType)
+     * 
+     * @throws ProcessingException if multiple @{@link Runner}s were defined
      */
     @Override
     protected ClassDefinition processType(ClassType data) {
         if (mainRunner != null)
-            throw new RuntimeException("There can only be a single runner specified");
+            throw new ProcessingException("There can only be a single runner specified");
         
         ClassDefinition generatedDef = super.processType(data);
         mainRunner = generatedDef.getType().getFullyQualifiedName();
@@ -72,10 +77,12 @@ public class RunnerProcessor extends BeanProcessor {
 
     /**
      * @see tendril.processor.BeanProcessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
+     * 
+     * @throws ProcessingException if the annotation is applied to a method
      */
     @Override
     protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
-        throw new RuntimeException("Runner cannot be a method");
+        throw new ProcessingException("Runner cannot be a method");
     }
 
     /**

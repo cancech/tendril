@@ -45,7 +45,7 @@ public class AbstractMethodBuilderTest extends SharedMethodBuilderTest<AbstractM
         verifyValidateDoesNotThrow(VisibilityType.PUBLIC);
         verifyValidateDoesNotThrow(VisibilityType.PROTECTED);
         verifyValidateDoesNotThrow(VisibilityType.PACKAGE_PRIVATE);
-        verifyValidateDoesThrow(VisibilityType.PRIVATE);
+        verifyValidateDoesThrow(VisibilityType.PRIVATE, true);
 
         // With code, all pass
         builder.emptyImplementation();

@@ -31,6 +31,7 @@ import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.AbstractTendrilProccessor;
 import tendril.annotationprocessor.ClassDefinition;
+import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.qualifier.BeanId;
 import tendril.bean.qualifier.BeanIdEnum;
 import tendril.bean.qualifier.EnumQualifier;
@@ -61,6 +62,8 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
      * The annotated {@link TypeElement} must be an {@link Enum} and it must implement the {@link BeanId} interface
      * 
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
+     * 
+     * @throws ProcessingException if the annotated element is not an {@link Enum} or does not implement the {@link BeanId} interface 
      */
     @Override
     protected void validateType(TypeElement type) {
@@ -77,7 +80,7 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
      * @param reason {@link String} the reason why the exception is being produced
      */
     private void throwValidationException(TypeElement type, String reason) {
-        throw new IllegalArgumentException("Unable to use " + type.getQualifiedName() + " - " + reason);
+        throw new ProcessingException("Unable to use " + type.getQualifiedName() + " - " + reason);
     }
 
     /**
@@ -110,9 +113,11 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
 
     /**
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
+     * 
+     * @throws ProcessingException if the annotation is applied to a method
      */
     @Override
     protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
-        throw new IllegalArgumentException(BeanId.class.getName() + " cannot be applied to any method [" + methodData.getName() + "]");
+        throw new ProcessingException(BeanId.class.getName() + " cannot be applied to any method [" + methodData.getName() + "]");
     }
 }

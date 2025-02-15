@@ -17,6 +17,7 @@ package tendril.codegen.field.type;
 
 import java.util.Set;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.value.JValue;
 
 /**
@@ -97,6 +98,6 @@ public class VoidType implements Type {
      */
     @Override
     public JValue<?, ?> asValue(Object value) {
-        throw new IllegalArgumentException("A void type cannot hold any value");
+        throw new DefinitionException("A void type cannot hold any value");
     }
 }

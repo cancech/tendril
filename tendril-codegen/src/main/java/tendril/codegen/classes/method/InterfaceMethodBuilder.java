@@ -15,9 +15,11 @@
  */
 package tendril.codegen.classes.method;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.MethodBuilder;
+import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 
 /**
@@ -26,14 +28,18 @@ import tendril.codegen.field.type.Type;
  * @param <RETURN_TYPE> indicating the return {@link Type} of the method
  */
 public class InterfaceMethodBuilder<RETURN_TYPE extends Type> extends MethodBuilder<RETURN_TYPE> {
+    /** The type that the method is to be contained within */
+    protected final ClassType enclosingType;
 
     /**
      * CTOR - for use when creating an arbitrary method
      * 
-     * @param name         {@link String} the name of the method
+     * @param type {@link ClassType} of the class which is to contain the method
+     * @param name {@link String} the name of the method
      */
-    public InterfaceMethodBuilder(String name) {
-        this(null, name);
+    public InterfaceMethodBuilder(ClassType type, String name) {
+        super(null, name);
+        this.enclosingType = type;
     }
 
     /**
@@ -44,6 +50,7 @@ public class InterfaceMethodBuilder<RETURN_TYPE extends Type> extends MethodBuil
      */
     public InterfaceMethodBuilder(ClassBuilder classBuilder, String name) {
         super(classBuilder, name);
+        this.enclosingType = classBuilder.getType();
     }
 
     /**
@@ -54,9 +61,9 @@ public class InterfaceMethodBuilder<RETURN_TYPE extends Type> extends MethodBuil
     @Override
     protected void validate() {
         super.validate();
-        
+
         if (visibility != VisibilityType.PUBLIC && !(visibility == VisibilityType.PRIVATE && hasCode()))
-            throw new IllegalArgumentException("Interface method can only be public, or private if it has an implementation");
+            throw new DefinitionException(enclosingType, "Interface method " + name + " can only be public, or private if it has an implementation");
     }
 
     /**

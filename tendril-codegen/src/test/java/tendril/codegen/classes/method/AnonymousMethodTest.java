@@ -17,11 +17,11 @@ package tendril.codegen.classes.method;
 
 import java.util.Set;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.CodeGenerationException;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
@@ -51,8 +51,8 @@ public class AnonymousMethodTest extends AbstractUnitTest {
     @Test
     public void testGenerateThrowsException() {
         AnonymousMethod<Type> method = new AnonymousMethod<Type>(mockReturnType, "anonymousMethod");
-        Assertions.assertThrows(NotImplementedException.class, () -> method.generateSignatureStart(true));
-        Assertions.assertThrows(NotImplementedException.class, () -> method.generateSignatureStart(false));
-        Assertions.assertThrows(NotImplementedException.class, () -> method.generateSelf(mockImports));
+        Assertions.assertThrows(CodeGenerationException.class, () -> method.generateSignatureStart(true));
+        Assertions.assertThrows(CodeGenerationException.class, () -> method.generateSignatureStart(false));
+        Assertions.assertThrows(CodeGenerationException.class, () -> method.generateSelf(mockImports));
     }
 }

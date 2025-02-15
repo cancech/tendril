@@ -41,10 +41,10 @@ public class ConcreteMethodBuilderTest extends SharedMethodBuilderTest<ConcreteM
     @Test
     public void testValidate() {
         // No code, only private fails
-        verifyValidateDoesThrow(VisibilityType.PUBLIC);
-        verifyValidateDoesThrow(VisibilityType.PROTECTED);
-        verifyValidateDoesThrow(VisibilityType.PACKAGE_PRIVATE);
-        verifyValidateDoesThrow(VisibilityType.PRIVATE);
+        verifyValidateDoesThrow(VisibilityType.PUBLIC, true);
+        verifyValidateDoesThrow(VisibilityType.PROTECTED, true);
+        verifyValidateDoesThrow(VisibilityType.PACKAGE_PRIVATE, true);
+        verifyValidateDoesThrow(VisibilityType.PRIVATE, true);
 
         // With code, all pass
         builder.emptyImplementation();

@@ -16,6 +16,7 @@
 package tendril.codegen.field;
 
 import tendril.codegen.BaseBuilder;
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.Type;
 
 /**
@@ -49,6 +50,15 @@ public abstract class TypeBuilder<DATA_TYPE extends Type, ELEMENT extends JType<
         this.type = type;
         return get();
     }
+    
+    /**
+     * Get the type of data the the builder is building
+     * 
+     * @return DATA_TYPE
+     */
+    public DATA_TYPE getType() {
+        return type;
+    }
 
     /**
      * @see tendril.codegen.BaseBuilder#validate()
@@ -56,6 +66,6 @@ public abstract class TypeBuilder<DATA_TYPE extends Type, ELEMENT extends JType<
     @Override
     protected void validate() {
         if (type == null)
-            throw new IllegalArgumentException("A valid type must be specified");
+            throw new DefinitionException(name + " - A valid type must be specified");
     }
 }

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
@@ -58,7 +59,7 @@ public class ParameterBuilderTest extends AbstractUnitTest {
     public void testValidate() {
         // Void parameter type is not allowed
         ParameterBuilder<Type, VoidType> builder = new ParameterBuilder<Type, VoidType>(VoidType.INSTANCE, "paramName");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.validate());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
 
         // Primitive is OK
         for (PrimitiveType type : PrimitiveType.values()) {
@@ -78,7 +79,8 @@ public class ParameterBuilderTest extends AbstractUnitTest {
 
         // Void is not OK
         when(mockType.isVoid()).thenReturn(true);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.validate());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
+        verify(mockType).getSimpleName();
         verify(mockType, times(2)).isVoid();
     }
 

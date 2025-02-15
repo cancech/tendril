@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.classes.method.JConstructor;
 import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
@@ -59,9 +61,12 @@ public class ConstructorBuilderTest extends AbstractUnitTest {
      */
     @Test
     public void testSetType() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.setType(mockEnclosingClass));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.setType(mockOTherType));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.setType(null));
+        Assertions.assertThrows(DefinitionException.class, () -> builder.setType(mockEnclosingClass));
+        verify(mockEnclosingClass).getFullyQualifiedName();
+        Assertions.assertThrows(DefinitionException.class, () -> builder.setType(mockOTherType));
+        verify(mockEnclosingClass, times(2)).getFullyQualifiedName();
+        Assertions.assertThrows(DefinitionException.class, () -> builder.setType(null));
+        verify(mockEnclosingClass, times(3)).getFullyQualifiedName();
     }
     
     /**
@@ -70,7 +75,8 @@ public class ConstructorBuilderTest extends AbstractUnitTest {
     @Test
     public void testValidate() {
         // Must have an implementation
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.validate());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
+        verify(mockEnclosingClass).getFullyQualifiedName();
         builder.emptyImplementation();
         builder.validate();
         builder.addCode("a", "b", "c", "d", "e");
@@ -78,13 +84,15 @@ public class ConstructorBuilderTest extends AbstractUnitTest {
         
         // Cannot be static
         builder.setStatic(true);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.validate());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
+        verify(mockEnclosingClass, times(2)).getFullyQualifiedName();
         builder.setStatic(false);
         builder.validate();
         
         // Cannot be final
         builder.setFinal(true);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.validate());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
+        verify(mockEnclosingClass, times(3)).getFullyQualifiedName();
         builder.setFinal(false);
         builder.validate();
     }

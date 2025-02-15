@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.CodeGenerationException;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
@@ -64,7 +65,7 @@ class SimpleWildcardGenericTest extends AbstractUnitTest {
      */
     @Test
     public void testGenerateDefinition() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> gen.generateDefinition());
+        Assertions.assertThrows(CodeGenerationException.class, () -> gen.generateDefinition());
     }
     
     /**

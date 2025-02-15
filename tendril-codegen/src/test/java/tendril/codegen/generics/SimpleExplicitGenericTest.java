@@ -26,6 +26,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.CodeGenerationException;
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
@@ -75,7 +77,7 @@ class SimpleExplicitGenericTest extends AbstractUnitTest {
      */
     @Test
     public void testGenerateDefinition() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> gen.generateDefinition());
+        Assertions.assertThrows(CodeGenerationException.class, () -> gen.generateDefinition());
     }
     
     /**
@@ -134,13 +136,13 @@ class SimpleExplicitGenericTest extends AbstractUnitTest {
     public void testAsValue() {
         // If class type says no, it is not
         when(mockClassType.isTypeOf(any())).thenReturn(false);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> gen.asValue(true));
+        Assertions.assertThrows(DefinitionException.class, () -> gen.asValue(true));
         verify(mockClassType, times(1)).isTypeOf(any());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> gen.asValue("abc123"));
+        Assertions.assertThrows(DefinitionException.class, () -> gen.asValue("abc123"));
         verify(mockClassType, times(2)).isTypeOf(any());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> gen.asValue(123));
+        Assertions.assertThrows(DefinitionException.class, () -> gen.asValue(123));
         verify(mockClassType, times(3)).isTypeOf(any());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> gen.asValue(PrimitiveType.BYTE));
+        Assertions.assertThrows(DefinitionException.class, () -> gen.asValue(PrimitiveType.BYTE));
         verify(mockClassType, times(4)).isTypeOf(any());
 
         // If class type says yes, it is

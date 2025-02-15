@@ -18,6 +18,7 @@ package tendril.codegen.field.value;
 import java.util.ArrayList;
 import java.util.List;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ArrayType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
@@ -90,7 +91,7 @@ public class JValueFactory {
         else if (cls.equals(Short.class))
             createdValue = create((short) value);
         else
-            throw new IllegalArgumentException("No factory method exists to create a JValue for " + value);
+            throw new DefinitionException("No factory method exists to create a JValue for " + value);
 
         return (JValue<DATA_TYPE, VALUE>) createdValue;
     }

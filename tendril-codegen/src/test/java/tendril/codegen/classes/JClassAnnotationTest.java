@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
 
@@ -67,8 +69,10 @@ public class JClassAnnotationTest extends AbstractUnitTest {
     @Test
     public void testCannotHaveAnyParent() {
         // "Proper" values are not allowed
-        Assertions.assertThrows(IllegalArgumentException.class, () -> cls.setParentClass(mockJClass));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> cls.setParentInterfaces(Collections.singletonList(mockJClass)));
+        Assertions.assertThrows(DefinitionException.class, () -> cls.setParentClass(mockJClass));
+        verify(mockClassType).getFullyQualifiedName();
+        Assertions.assertThrows(DefinitionException.class, () -> cls.setParentInterfaces(Collections.singletonList(mockJClass)));
+        verify(mockClassType, times(2)).getFullyQualifiedName();
         
         // Empty values are OK
         cls.setParentClass(null);

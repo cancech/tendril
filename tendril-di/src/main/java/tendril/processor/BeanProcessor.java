@@ -35,6 +35,7 @@ import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.AbstractTendrilProccessor;
 import tendril.annotationprocessor.ClassDefinition;
+import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.Inject;
 import tendril.bean.qualifier.Named;
 import tendril.bean.Bean;
@@ -100,6 +101,7 @@ public class BeanProcessor extends AbstractTendrilProccessor {
         Set<ClassType> externalImports = new HashSet<>();
         
         // The parent class
+        // TODO allow for more than just Singleton recipes
         JClass parent = ClassBuilder.forConcreteClass(SingletonRecipe.class).addGeneric(GenericFactory.create(bean)).build();
         
         // CTOR contents
@@ -167,7 +169,7 @@ public class BeanProcessor extends AbstractTendrilProccessor {
      */
     private String getDependencyDescriptor(Element e, String depClassName) {
         String desc = "new " + Descriptor.class.getSimpleName() + "<>(" + depClassName + ".class)";
-        desc += appendInline(getDescriptorName(getElementAnnotations(e, Named.class)));
+        desc += appendInline(getDescriptorName(e, getElementAnnotations(e, Named.class)));
         return desc;
     }
     
@@ -189,14 +191,17 @@ public class BeanProcessor extends AbstractTendrilProccessor {
     /**
      * Get the code through which the name is applied to the Descriptor
      * 
+     * @param e {@link Element} whose name it being determined
      * @param names {@link List} of {@link Named} annotation that have been applied to the element
      * @return {@link String} containing the code with the appropriate descriptor update
+     * @throws ProcessingException if more than one name is applied to the bean
      */
-    private String getDescriptorName(List<Named> names) {
+    private String getDescriptorName(Element e, List<Named> names) {
         if (names.isEmpty())
             return "";
         if (names.size() > 1)
-            throw new IllegalArgumentException("Bean cannot have more than one name");
+            // This situation is prevented by the compiler
+            throw new ProcessingException(e + " cannot have more than one name");
         
         return ".setName(\"" + names.get(0).value() + "\")";
     }
@@ -208,7 +213,7 @@ public class BeanProcessor extends AbstractTendrilProccessor {
      * @return {@link String}[] containing all of the lines of code which apply the defined bean description
      */
     private String[] getBeanDescriptorContents(String varName) {
-        return new String[] {createDescriptorContentsLine(varName, getDescriptorName(getElementAnnotations(Named.class)))};
+        return new String[] {createDescriptorContentsLine(varName, getDescriptorName(getCurrentElement(), getElementAnnotations(Named.class)))};
     }
     
     /**
@@ -230,6 +235,7 @@ public class BeanProcessor extends AbstractTendrilProccessor {
      */
     @Override
     protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
+        // TODO allow for the creation of configuration/factory classes
         throw new NotImplementedException();
     }
 }

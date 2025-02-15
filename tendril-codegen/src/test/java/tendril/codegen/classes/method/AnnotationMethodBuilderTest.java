@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.MethodBuilder;
 import tendril.codegen.classes.SharedMethodBuilderTest;
@@ -57,7 +58,9 @@ public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<Concret
      */
     @Override
     protected MethodBuilder<Type> createBuilder() {
-        return new AnnotationMethodBuilder<>(mockClassBuilder, METHOD_NAME);
+        AnnotationMethodBuilder<Type> builder = new AnnotationMethodBuilder<>(mockClassBuilder, METHOD_NAME);
+        verify(mockClassBuilder).getType();
+        return builder;
     }
 
     /**
@@ -75,15 +78,15 @@ public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<Concret
         verify(mockReturnType).isVoid();
         verify(mockDefaultValue).getType();
         verify(mockReturnType).isAssignableFrom(mockReturnType);
-        verifyValidateDoesThrow(VisibilityType.PROTECTED);
+        verifyValidateDoesThrow(VisibilityType.PROTECTED, false);
         verify(mockReturnType).isVoid();
         verify(mockReturnType).isVoid();
         verify(mockDefaultValue).getType();
-        verifyValidateDoesThrow(VisibilityType.PACKAGE_PRIVATE);
+        verifyValidateDoesThrow(VisibilityType.PACKAGE_PRIVATE, false);
         verify(mockReturnType).isVoid();
         verify(mockReturnType).isVoid();
         verify(mockDefaultValue).getType();
-        verifyValidateDoesThrow(VisibilityType.PRIVATE);
+        verifyValidateDoesThrow(VisibilityType.PRIVATE, false);
         verify(mockReturnType).isVoid();
         verify(mockReturnType).isVoid();
         verify(mockDefaultValue).getType();
@@ -98,13 +101,13 @@ public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<Concret
         builder.setDefaultValue(mockDefaultValue);
         
         // Void is not allowed at all
-        verifyValidateDoesThrow(VisibilityType.PUBLIC);
+        verifyValidateDoesThrow(VisibilityType.PUBLIC, false);
         verify(mockReturnType).isVoid();
-        verifyValidateDoesThrow(VisibilityType.PROTECTED);
+        verifyValidateDoesThrow(VisibilityType.PROTECTED, false);
         verify(mockReturnType).isVoid();
-        verifyValidateDoesThrow(VisibilityType.PACKAGE_PRIVATE);
+        verifyValidateDoesThrow(VisibilityType.PACKAGE_PRIVATE, false);
         verify(mockReturnType).isVoid();
-        verifyValidateDoesThrow(VisibilityType.PRIVATE);
+        verifyValidateDoesThrow(VisibilityType.PRIVATE, false);
         verify(mockReturnType).isVoid();
     }
 
@@ -121,9 +124,12 @@ public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<Concret
      */
     @Test
     public void testAddCodeThrowsException() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.emptyImplementation());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.addCode());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.addCode("a", "b", "c", "d"));
+        Assertions.assertThrows(DefinitionException.class, () -> builder.emptyImplementation());
+        verify(mockEnclosingClassType).getFullyQualifiedName();
+        Assertions.assertThrows(DefinitionException.class, () -> builder.addCode());
+        verify(mockEnclosingClassType, times(2)).getFullyQualifiedName();
+        Assertions.assertThrows(DefinitionException.class, () -> builder.addCode("a", "b", "c", "d"));
+        verify(mockEnclosingClassType, times(3)).getFullyQualifiedName();
     }
     
     /**
@@ -135,6 +141,7 @@ public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<Concret
         
         for (PrimitiveType methodType: PrimitiveType.values()) {
             AnnotationMethodBuilder<PrimitiveType> builder = new AnnotationMethodBuilder<>(mockClassBuilder, "primitiveAttr");
+            verify(mockClassBuilder, times(methodType.ordinal() + 2)).getType();
             builder.setType(methodType);
 
             for (PrimitiveType valueType: PrimitiveType.values()) {
@@ -143,8 +150,9 @@ public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<Concret
 
                 when(mockPrimitiveValue.getType()).thenReturn(valueType);
                 builder.setDefaultValue(mockPrimitiveValue);
-                Assertions.assertThrows(IllegalArgumentException.class, ()-> builder.validate());
-                verify(mockPrimitiveValue, times(++times)).getType();
+                Assertions.assertThrows(DefinitionException.class, ()-> builder.validate());
+                verify(mockEnclosingClassType, times(++times)).getFullyQualifiedName();
+                verify(mockPrimitiveValue, times(times)).getType();
             }
         }
     }
@@ -159,9 +167,11 @@ public class AnnotationMethodBuilderTest extends SharedMethodBuilderTest<Concret
         when(mockReturnTypeClassType.isVoid()).thenReturn(false);
         
         AnnotationMethodBuilder<ClassType> builder = new AnnotationMethodBuilder<>(mockClassBuilder, "classAttr");
+        verify(mockClassBuilder, times(2)).getType();
         builder.setType(mockReturnTypeClassType);
         builder.setDefaultValue(mockClassValue);
-        Assertions.assertThrows(IllegalArgumentException.class, ()-> builder.validate());
+        Assertions.assertThrows(DefinitionException.class, ()-> builder.validate());
+        verify(mockEnclosingClassType).getFullyQualifiedName();
         verify(mockClassValue).getType();
         verify(mockReturnTypeClassType).isVoid();
         verify(mockReturnTypeClassType).isAssignableFrom(mockValueClassType);

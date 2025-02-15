@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
 
@@ -54,7 +55,7 @@ public class TypeBuilderTest extends AbstractUnitTest {
          * @param expected {@link Type} that should be applied
          */
         private void verifyType(Type expected) {
-            Assertions.assertEquals(expected, type);
+            Assertions.assertEquals(expected, getType());
         }
         
     }
@@ -83,7 +84,7 @@ public class TypeBuilderTest extends AbstractUnitTest {
     public void testTypeApplied() {
         // Initially null
         builder.verifyType(null);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.validate());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
         
         // Make sure that we can update the type
         builder.setType(mockType1);
@@ -96,7 +97,7 @@ public class TypeBuilderTest extends AbstractUnitTest {
         // Make sure that it can be reset
         builder.setType(null);
         builder.verifyType(null);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.validate());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
     }
 
 }

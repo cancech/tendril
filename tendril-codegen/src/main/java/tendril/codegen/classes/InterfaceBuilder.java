@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.InterfaceMethodBuilder;
 import tendril.codegen.field.type.ClassType;
@@ -40,7 +41,7 @@ class InterfaceBuilder extends ClassBuilder {
      */
     @Override
     public ConstructorBuilder buildConstructor() {
-        throw new IllegalArgumentException("Interfaces cannot have a constructor");
+        throw new DefinitionException(type, "Interfaces cannot have a constructor");
     }
 
     /**
@@ -57,7 +58,7 @@ class InterfaceBuilder extends ClassBuilder {
     @Override
     protected void validate() {
         if (TendrilUtil.oneOfMany(visibility, VisibilityType.PROTECTED, VisibilityType.PRIVATE))
-            throw new IllegalArgumentException("Illegal visibility " + visibility.name() + ". Only PUBLIC and PACKAGE_PRIVATE are allowed");
+            throw new DefinitionException(type, "Illegal visibility " + visibility.name() + ". Only PUBLIC and PACKAGE_PRIVATE are allowed");
     }
 
     /**
@@ -81,6 +82,6 @@ class InterfaceBuilder extends ClassBuilder {
      */
     @Override
     public ClassBuilder implementsInterface(JClass iface) {
-        throw new IllegalArgumentException("Interfaces cannot implement anything, they can only extend other interfaces.");
+        throw new DefinitionException(type, "Interfaces cannot implement anything, they can only extend other interfaces.");
     }
 }

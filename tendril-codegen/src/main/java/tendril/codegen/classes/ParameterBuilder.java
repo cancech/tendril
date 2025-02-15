@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.TypeBuilder;
 import tendril.codegen.field.type.Type;
 
@@ -63,7 +64,7 @@ public class ParameterBuilder<DATA_TYPE extends Type, BUILDER> extends TypeBuild
         super.validate();
 
         if (type.isVoid())
-            throw new IllegalArgumentException("Parameters cannot be void");
+            throw new DefinitionException(type, "Parameter " + name + " cannot be void");
     }
 
     /**

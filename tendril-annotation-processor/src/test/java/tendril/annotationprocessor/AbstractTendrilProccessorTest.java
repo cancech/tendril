@@ -452,7 +452,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
         doReturn(Arrays.asList(mockParam1TypeMirror)).when(mockMethodType).getParameterTypes();
         doReturn(Arrays.asList(mockParam1Var, mockParam2Var)).when(mockMethodElement).getParameters();
 
-        Assertions.assertThrows(IllegalStateException.class, () -> processor.process(Set.of(mockAnnotation), mockEnvironment));
+        Assertions.assertThrows(ProcessingException.class, () -> processor.process(Set.of(mockAnnotation), mockEnvironment));
         verify(mockEnvironment).errorRaised();
         verify(mockEnvironment).processingOver();
     }
@@ -473,7 +473,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
         doReturn(Arrays.asList(mockParam1TypeMirror, mockParam2TypeMirror)).when(mockMethodType).getParameterTypes();
         doReturn(Arrays.asList(mockParam1Var)).when(mockMethodElement).getParameters();
 
-        Assertions.assertThrows(IllegalStateException.class, () -> processor.process(Set.of(mockAnnotation), mockEnvironment));
+        Assertions.assertThrows(ProcessingException.class, () -> processor.process(Set.of(mockAnnotation), mockEnvironment));
         verify(mockEnvironment).errorRaised();
         verify(mockEnvironment).processingOver();
     }

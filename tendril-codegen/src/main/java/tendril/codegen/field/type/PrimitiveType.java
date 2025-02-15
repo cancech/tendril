@@ -17,6 +17,7 @@ package tendril.codegen.field.type;
 
 import java.util.Set;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.util.TendrilUtil;
@@ -43,10 +44,10 @@ public enum PrimitiveType implements Type {
     SHORT(Short.class, short.class);
 
     /**
-     * Provide the appropriate {@link PrimitiveType} for the specified {@link Class}. If no {@link PrimitiveType} exists for the specified {@link Class} an {@link IllegalArgumentException} is thrown
+     * Provide the appropriate {@link PrimitiveType} for the specified {@link Class}. If no {@link PrimitiveType} exists for the specified {@link Class} an {@link DefinitionException} is thrown
      * 
      * @param klass {@link Class} for which to find the {@link PrimitiveType}
-     * @return {@link PrimitiveType} for the {@link Class} or {@link IllegalArgumentException} if no such {@link PrimitiveType} exists
+     * @return {@link PrimitiveType} for the {@link Class} or {@link DefinitionException} if no such {@link PrimitiveType} exists
      */
     public static PrimitiveType from(Class<?> klass) {
         for (PrimitiveType type : PrimitiveType.values()) {
@@ -54,7 +55,7 @@ public enum PrimitiveType implements Type {
                 return type;
         }
 
-        throw new IllegalArgumentException("Invalid Primitive: " + klass.getName());
+        throw new DefinitionException("Invalid Primitive: " + klass.getName());
     }
 
     /** Class where the object version of the primitive is defined */
@@ -122,7 +123,7 @@ public enum PrimitiveType implements Type {
                 return value instanceof Short;
         }
         
-        throw new IllegalArgumentException("Invalid primitive type " + this);
+        throw new DefinitionException("Invalid primitive type " + this);
     }
 
     /**
@@ -154,7 +155,7 @@ public enum PrimitiveType implements Type {
     @Override
     public JValue<?, ?> asValue(Object value) {
         if (!isTypeOf(value))
-            throw new IllegalArgumentException("Invalid value provided. Expected " + this + " but received " + value.getClass());
+            throw new DefinitionException("Invalid value provided. Expected " + this + " but received " + value.getClass());
 
         return JValueFactory.create(value);
     }

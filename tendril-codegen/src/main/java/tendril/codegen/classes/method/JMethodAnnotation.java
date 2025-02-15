@@ -17,6 +17,7 @@ package tendril.codegen.classes.method;
 
 import java.util.HashSet;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 
@@ -50,7 +51,7 @@ class JMethodAnnotation<RETURN_TYPE extends Type> extends JMethodInterface<RETUR
     @Override
     public void setStatic(boolean isStatic) {
         if (isStatic)
-            throw new IllegalArgumentException("Interface methods cannot be static");
+            throw new DefinitionException(type, "Interface methods cannot be static");
         
         super.setStatic(isStatic);
     }

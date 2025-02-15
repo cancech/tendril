@@ -23,6 +23,7 @@ import java.util.Collections;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.Type;
 
@@ -51,12 +52,14 @@ public class JMethodDefaultTest extends AbstractMethodTest {
         verify(mockVisibility).getKeyword();
         
         method.setFinal(true);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> method.generateSignatureStart(false));
+        Assertions.assertThrows(DefinitionException.class, () -> method.generateSignatureStart(false));
+        verify(mockReturnType).getSimpleName();
         verify(mockVisibility, times(2)).getKeyword();
         
         method.setFinal(false);
         method.setStatic(true);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> method.generateSignatureStart(false));
+        Assertions.assertThrows(DefinitionException.class, () -> method.generateSignatureStart(false));
+        verify(mockReturnType, times(2)).getSimpleName();
         verify(mockVisibility, times(3)).getKeyword();
         
         method.setStatic(false);

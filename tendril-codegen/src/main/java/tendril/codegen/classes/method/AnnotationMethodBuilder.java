@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes.method;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.MethodBuilder;
@@ -32,15 +33,6 @@ public class AnnotationMethodBuilder<RETURN_TYPE extends Type> extends Interface
     private JValue<RETURN_TYPE, ?> defaultValue = null;
 
     /**
-     * CTOR - for use when creating an arbitrary method
-     * 
-     * @param name         {@link String} the name of the method
-     */
-    public AnnotationMethodBuilder(String name) {
-        this(null, name);
-    }
-
-    /**
      * CTOR - for use when creating methods nested within a class being defined
      * 
      * @param classBuilder {@link ClassBuilder} building the class to which the method belongs
@@ -56,7 +48,7 @@ public class AnnotationMethodBuilder<RETURN_TYPE extends Type> extends Interface
      */
     @Override
     public MethodBuilder<RETURN_TYPE> addCode(String... lines) {
-        throw new IllegalArgumentException("Annotation attributes cannot have any implemnetation");
+        throw new DefinitionException(enclosingType, "Annotation attribute " + name + " cannot have an implemnetation");
     }
 
     /**
@@ -64,7 +56,7 @@ public class AnnotationMethodBuilder<RETURN_TYPE extends Type> extends Interface
      */
     @Override
     public MethodBuilder<RETURN_TYPE> emptyImplementation() {
-        throw new IllegalArgumentException("Annotation attributes cannot have any implemnetation");
+        throw new DefinitionException(enclosingType, "Annotation attribute " + name + " cannot have an implemnetation");
     }
 
     /**
@@ -90,12 +82,12 @@ public class AnnotationMethodBuilder<RETURN_TYPE extends Type> extends Interface
         super.validate();
         
         if (type.isVoid())
-            throw new IllegalArgumentException("Annotation methods cannot be void");
+            throw new DefinitionException(enclosingType, "Annotation method " + name + " cannot be void");
         
         if (defaultValue != null) {
             RETURN_TYPE valueType = defaultValue.getType();
             if (!type.isAssignableFrom(valueType))
-                throw new IllegalArgumentException("Invalid default value type. Expected " + type + " but " + valueType + " was provided");
+                throw new DefinitionException(enclosingType, "Invalid default value type for " + name + ". Expected " + type + " but " + valueType + " was provided");
         }
     }
 

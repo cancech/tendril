@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 
@@ -64,7 +65,8 @@ public class JMethodAnnotationTest extends AbstractMethodTest {
         JMethodAnnotation<Type> method = new JMethodAnnotation<Type>(mockReturnType, "attribute", mockDefaultValue);
         Assertions.assertFalse(method.isStatic());
         
-        Assertions.assertThrows(IllegalArgumentException.class, () -> method.setStatic(true));
+        Assertions.assertThrows(DefinitionException.class, () -> method.setStatic(true));
+        verify(mockReturnType).getSimpleName();
         Assertions.assertFalse(method.isStatic());
         method.setStatic(false);
         Assertions.assertFalse(method.isStatic());

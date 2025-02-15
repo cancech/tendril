@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -99,7 +100,7 @@ public class TypeFactoryTest extends AbstractUnitTest {
                 continue;
             
             when(mockMirror.getKind()).thenReturn(kind);
-            Assertions.assertThrows(IllegalArgumentException.class, () -> TypeFactory.create(mockMirror));
+            Assertions.assertThrows(DefinitionException.class, () -> TypeFactory.create(mockMirror));
             verify(mockMirror, times(++timesGetKind)).getKind();
         }
     }

@@ -17,6 +17,7 @@ package tendril.codegen.field.type;
 
 import java.util.Set;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.util.ArrayConverter;
@@ -101,7 +102,7 @@ public class ArrayType<DATA_TYPE extends Type> implements Type {
     @Override
     public JValue<?, ?> asValue(Object value) {
         if (!isTypeOf(value))
-            throw new IllegalArgumentException("Incompatible value, expected " + getSimpleName() + " but received " + value);
+            throw new DefinitionException(containedType, "Incompatible value, expected " + getSimpleName() + " but received " + value);
 
         return JValueFactory.createArray(ArrayConverter.toObjectArray(value));
     }

@@ -23,6 +23,7 @@ import javax.annotation.processing.Generated;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
@@ -51,8 +52,8 @@ public class CreateInterfaceTest {
         ClassBuilder builder = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y"));
         ClassAssert.assertInstance(JClassInterface.class, builder.setVisibility(VisibilityType.PUBLIC).build());
         ClassAssert.assertInstance(JClassInterface.class, builder.setVisibility(VisibilityType.PACKAGE_PRIVATE).build());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.setVisibility(VisibilityType.PROTECTED).build());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.setVisibility(VisibilityType.PRIVATE).build());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.setVisibility(VisibilityType.PROTECTED).build());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.setVisibility(VisibilityType.PRIVATE).build());
     }
 
     /**
@@ -61,9 +62,9 @@ public class CreateInterfaceTest {
     @Test
     public void cannotAddInvalidMethods() {
         ClassBuilder builder = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "privateNoCodeNotAllowed").setVisibility(VisibilityType.PRIVATE).finish());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "protectedNotAllowed").setVisibility(VisibilityType.PROTECTED).finish());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "packagePrivateNotAllowed").setVisibility(VisibilityType.PACKAGE_PRIVATE).finish());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "privateNoCodeNotAllowed").setVisibility(VisibilityType.PRIVATE).finish());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "protectedNotAllowed").setVisibility(VisibilityType.PROTECTED).finish());
+        Assertions.assertThrows(DefinitionException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "packagePrivateNotAllowed").setVisibility(VisibilityType.PACKAGE_PRIVATE).finish());
     }
 
     /**

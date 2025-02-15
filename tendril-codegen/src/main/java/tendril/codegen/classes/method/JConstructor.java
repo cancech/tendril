@@ -18,6 +18,7 @@ package tendril.codegen.classes.method;
 import java.util.List;
 import java.util.Set;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
 
 /**
@@ -43,7 +44,7 @@ public class JConstructor extends JAbstractMethodElement<ClassType> {
     @Override
     public void setStatic(boolean isStatic) {
         if (isStatic)
-            throw new IllegalArgumentException("CTOR cannot be static");
+            throw new DefinitionException(type, "CTOR cannot be static");
         
         super.setStatic(isStatic);
     }
@@ -56,7 +57,7 @@ public class JConstructor extends JAbstractMethodElement<ClassType> {
     @Override
     public void setFinal(boolean isFinal) {
         if (isFinal)
-            throw new IllegalArgumentException("CTOR cannot be final");
+            throw new DefinitionException(type, "CTOR cannot be final");
         
         super.setStatic(isFinal);
     }
@@ -68,7 +69,7 @@ public class JConstructor extends JAbstractMethodElement<ClassType> {
     protected String generateSignature(Set<ClassType> classImports, boolean hasImplementation) {
         // A CTOR without implementation is not possible
         if (!hasImplementation)
-            throw new IllegalArgumentException("Constructor must have a valid implementation");
+            throw new DefinitionException(type, "Constructor must have a valid implementation");
         
         return visibility.getKeyword() + getGenericsDefinitionKeyword(false) + getName() + "(" + generateParameters(classImports) + ") {";
     }

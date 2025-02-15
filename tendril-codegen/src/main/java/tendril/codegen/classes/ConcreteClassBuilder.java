@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.method.ConcreteMethodBuilder;
 import tendril.codegen.field.type.ClassType;
@@ -50,7 +51,7 @@ class ConcreteClassBuilder extends ClassBuilder {
         super.validate();
         
         if (visibility == VisibilityType.PRIVATE)
-            throw new IllegalArgumentException("Illegal visibility " + visibility.name() + ". PRIVATE classes are not allowed");
+            throw new DefinitionException(type, "Illegal visibility " + visibility.name() + ". PRIVATE classes are not allowed");
     }
 
     /**

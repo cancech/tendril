@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
@@ -71,9 +72,9 @@ public class GenericFactoryTest extends AbstractUnitTest {
         ClassAssert.assertInstance(SimpleGeneric.class, GenericFactory.create("_123T"));
         
         // Invalid names generate exception
-        Assertions.assertThrows(IllegalArgumentException.class, () -> GenericFactory.create("123"));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> GenericFactory.create("?"));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> GenericFactory.create(""));
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create("123"));
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create("?"));
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create(""));
     }
     
     /**
@@ -109,9 +110,9 @@ public class GenericFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateExtendsClassType() {
         // Must have at least one extension
-        Assertions.assertThrows(IllegalArgumentException.class, () -> GenericFactory.createExtends("MyGeneric", new JClass[0]));
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.createExtends("MyGeneric", new JClass[0]));
         // Must have a valid name
-        Assertions.assertThrows(IllegalArgumentException.class, () -> GenericFactory.createExtends("123", mockClassType1, mockClassType2, mockClassType3));
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.createExtends("123", mockClassType1, mockClassType2, mockClassType3));
 
         ClassAssert.assertInstance(CompoundExtendsGeneric.class, GenericFactory.createExtends("MyGeneric", mockClassType1));
         ClassAssert.assertInstance(CompoundExtendsGeneric.class, GenericFactory.createExtends("MyGeneric", mockClassType1, mockClassType2));
@@ -124,9 +125,9 @@ public class GenericFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateExtendsJClass() {
         // Must have at least one extension
-        Assertions.assertThrows(IllegalArgumentException.class, () -> GenericFactory.createExtends("MyGeneric", new ClassType[0]));
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.createExtends("MyGeneric", new ClassType[0]));
         // Must have a valid name
-        Assertions.assertThrows(IllegalArgumentException.class, () -> GenericFactory.createExtends("123", mockClass1, mockClass2, mockClass3));
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.createExtends("123", mockClass1, mockClass2, mockClass3));
         verify(mockClass1).getType();
         verify(mockClass2).getType();
         verify(mockClass3).getType();
@@ -165,7 +166,7 @@ public class GenericFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateWildcardExtendsClassType() {
         // Must have at least one extension
-        Assertions.assertThrows(IllegalArgumentException.class, () -> GenericFactory.createWildcardExtends(new ClassType[0]));
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.createWildcardExtends(new ClassType[0]));
         
         ClassAssert.assertInstance(CompoundExtendsGeneric.class, GenericFactory.createWildcardExtends(mockClassType1));
         ClassAssert.assertInstance(CompoundExtendsGeneric.class, GenericFactory.createWildcardExtends(mockClassType1, mockClassType2));
@@ -178,7 +179,7 @@ public class GenericFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateWildcardExtendsJClass() {
         // Must have at least one extension
-        Assertions.assertThrows(IllegalArgumentException.class, () -> GenericFactory.createWildcardExtends(new JClass[0]));
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.createWildcardExtends(new JClass[0]));
         
         ClassAssert.assertInstance(CompoundExtendsGeneric.class, GenericFactory.createWildcardExtends(mockClass1));
         verify(mockClass1).getType();

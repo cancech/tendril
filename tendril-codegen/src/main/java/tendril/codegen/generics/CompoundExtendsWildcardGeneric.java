@@ -17,6 +17,7 @@ package tendril.codegen.generics;
 
 import java.util.List;
 
+import tendril.codegen.CodeGenerationException;
 import tendril.codegen.field.type.ClassType;
 
 /**
@@ -38,7 +39,7 @@ class CompoundExtendsWildcardGeneric extends CompoundExtendsGeneric {
      */
     @Override
     public String generateDefinition() {
-        throw new IllegalArgumentException("A wildcard generic cannot be used in a definition");
+        throw new CodeGenerationException("A wildcard generic cannot be used in a definition");
     }
     
     /**

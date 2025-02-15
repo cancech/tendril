@@ -15,6 +15,8 @@
  */
 package tendril.codegen.classes.method;
 
+import static org.mockito.Mockito.verify;
+
 import org.junit.jupiter.api.Test;
 
 import tendril.codegen.VisibilityType;
@@ -32,7 +34,9 @@ public class InterfaceMethodBuilderTest extends SharedMethodBuilderTest<Concrete
      */
     @Override
     protected MethodBuilder<Type> createBuilder() {
-        return new InterfaceMethodBuilder<Type>(mockClassBuilder, METHOD_NAME);
+        InterfaceMethodBuilder<Type> builder =  new InterfaceMethodBuilder<>(mockClassBuilder, METHOD_NAME);
+        verify(mockClassBuilder).getType();
+        return builder;
     }
 
     /**
@@ -42,15 +46,15 @@ public class InterfaceMethodBuilderTest extends SharedMethodBuilderTest<Concrete
     public void testValidate() {
         // No code, only private fails
         verifyValidateDoesNotThrow(VisibilityType.PUBLIC);
-        verifyValidateDoesThrow(VisibilityType.PROTECTED);
-        verifyValidateDoesThrow(VisibilityType.PACKAGE_PRIVATE);
-        verifyValidateDoesThrow(VisibilityType.PRIVATE);
+        verifyValidateDoesThrow(VisibilityType.PROTECTED, false);
+        verifyValidateDoesThrow(VisibilityType.PACKAGE_PRIVATE, false);
+        verifyValidateDoesThrow(VisibilityType.PRIVATE, false);
 
         // With code, all pass
         builder.emptyImplementation();
         verifyValidateDoesNotThrow(VisibilityType.PUBLIC);
-        verifyValidateDoesThrow(VisibilityType.PROTECTED);
-        verifyValidateDoesThrow(VisibilityType.PACKAGE_PRIVATE);
+        verifyValidateDoesThrow(VisibilityType.PROTECTED, false);
+        verifyValidateDoesThrow(VisibilityType.PACKAGE_PRIVATE, false);
         verifyValidateDoesNotThrow(VisibilityType.PRIVATE);
     }
 

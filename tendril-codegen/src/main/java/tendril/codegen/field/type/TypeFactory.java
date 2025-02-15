@@ -18,6 +18,8 @@ package tendril.codegen.field.type;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
+import tendril.codegen.DefinitionException;
+
 /**
  * Factory to facilitate the creation of {@link Type} instances
  */
@@ -44,7 +46,7 @@ public abstract class TypeFactory {
         if (kind == TypeKind.DECLARED)
             return new ClassType(mirror.toString());
 
-        throw new IllegalArgumentException("Unknown type: " + mirror + "[" + kind + "]");
+        throw new DefinitionException("Unknown type: " + mirror + "[" + kind + "]");
     }
     
     /**
@@ -58,7 +60,7 @@ public abstract class TypeFactory {
             return new ArrayType<Type>(create(klass.getComponentType()));
         try {
             return PrimitiveType.from(klass);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             return new ClassType(klass);
         }
     }

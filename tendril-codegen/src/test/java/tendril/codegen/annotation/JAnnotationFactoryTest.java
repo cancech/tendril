@@ -23,6 +23,7 @@ import javax.annotation.processing.Generated;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.classes.method.AnonymousMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
@@ -115,9 +116,9 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
      */
     @Test
     public void testCreateMarkerAnnotationNotADefaultClass() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(new ClassType(JAnnotation.class)));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestDefaultAttrAnnotation.class));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(new ClassType(JAnnotation.class)));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TestDefaultAttrAnnotation.class));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class));
     }
 
     /**
@@ -191,9 +192,9 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateDefaultValueAnnotationNotADefaultClass() {
         JValue<ClassType, String> value = JValueFactory.create("abc123");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMarkerAnnotation.class, value));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, value));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, value));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TestMarkerAnnotation.class, value));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, value));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, value));
     }
 
     /**
@@ -280,7 +281,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
         JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMarkerAnnotation.class, Map.of("valStr", strValue, "valInt", intValue)));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TestMarkerAnnotation.class, Map.of("valStr", strValue, "valInt", intValue)));
     }
 
     /**
@@ -291,11 +292,11 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
         JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("strVal", strValue, "valInt", intValue)));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", strValue, "intVal", intValue)));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("strVal", strValue, "intVal", intValue, "extra", intValue)));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("strVal", strValue)));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("strVal", intValue, "valInt", strValue)));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("strVal", strValue, "valInt", intValue)));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", strValue, "intVal", intValue)));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("strVal", strValue, "intVal", intValue, "extra", intValue)));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("strVal", strValue)));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("strVal", intValue, "valInt", strValue)));
     }
 
     /**
@@ -312,7 +313,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
         JValue<ClassType, String> comments = JValueFactory.create("comments");
         
         // None provided, exception is thrown
-        Assertions.assertThrows(IllegalArgumentException.class, () -> JAnnotationFactory.create(Generated.class, Map.of()));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(Generated.class, Map.of()));
 
         // All defaults
         JAnnotation annotation = JAnnotationFactory.create(Generated.class, Map.of("value", value));

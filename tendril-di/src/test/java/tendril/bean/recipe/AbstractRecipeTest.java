@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.BeanCreationException;
 import tendril.context.Engine;
 import tendril.test.AbstractUnitTest;
 import tendril.test.bean.HiddenCtorBean;
@@ -101,9 +102,9 @@ public class AbstractRecipeTest extends AbstractUnitTest {
      */
     @Test
     public void testInvalidCtors() {
-        Assertions.assertThrows(RuntimeException.class, () -> new TestRecipe<>(Runnable.class).buildBean());
-        Assertions.assertThrows(RuntimeException.class, () -> new TestRecipe<>(MultipleCtorBean.class).buildBean());
-        Assertions.assertThrows(RuntimeException.class, () -> new TestRecipe<>(HiddenCtorBean.class).buildBean());
+        Assertions.assertThrows(BeanCreationException.class, () -> new TestRecipe<>(Runnable.class).buildBean());
+        Assertions.assertThrows(BeanCreationException.class, () -> new TestRecipe<>(MultipleCtorBean.class).buildBean());
+        Assertions.assertThrows(BeanCreationException.class, () -> new TestRecipe<>(HiddenCtorBean.class).buildBean());
     }
     
     /**
