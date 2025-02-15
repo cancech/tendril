@@ -18,9 +18,7 @@ package tendril.context;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.Descriptor;
@@ -33,8 +31,8 @@ import tendril.processor.registration.RegistryFile;
  */
 public class Engine {
 
-    /** Mapping of all descriptions to the recipe they create */
-    private final Map<Descriptor<?>, AbstractRecipe<?>> recipes = new HashMap<>();
+    /** All recipes that have been registered */
+    private final List<AbstractRecipe<?>> recipes = new ArrayList<>();
 
     /**
      * CTOR
@@ -50,8 +48,7 @@ public class Engine {
         try {
             for (String recipe: RegistryFile.read()) {
                 try {
-                    AbstractRecipe<?> recipeClass = (AbstractRecipe<?>) Class.forName(recipe).getDeclaredConstructor(Engine.class).newInstance(this);
-                    recipes.put(recipeClass.getDescription(), recipeClass);
+                    recipes.add((AbstractRecipe<?>) Class.forName(recipe).getDeclaredConstructor(Engine.class).newInstance(this));
                     System.out.println("Loading: " + recipe);
                 } catch (ClassCastException e) {
                     System.err.println(recipe + " is not a proper recipe (does not extend " + AbstractRecipe.class.getName() + ")");
@@ -108,8 +105,8 @@ public class Engine {
     @SuppressWarnings("unchecked")
     private <BEAN_TYPE> List<AbstractRecipe<BEAN_TYPE>> findRecipes(Descriptor<BEAN_TYPE> descriptor) {
         List<AbstractRecipe<BEAN_TYPE>> foundRecipes = new ArrayList<>();
-        recipes.forEach((d, r) -> {
-            if (d.matches(descriptor))
+        recipes.forEach((r) -> {
+            if (r.getDescription().matches(descriptor))
                 foundRecipes.add((AbstractRecipe<BEAN_TYPE>) r);
         });
         

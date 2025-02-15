@@ -26,6 +26,7 @@ import org.mockito.Mockito;
 import tendril.bean.recipe.Descriptor;
 import tendril.processor.registration.RegistryFile;
 import tendril.test.AbstractUnitTest;
+import tendril.test.recipe.Double1DuplicateTestRecipe;
 import tendril.test.recipe.Double1TestRecipe;
 import tendril.test.recipe.Double2TestRecipe;
 import tendril.test.recipe.IntTestRecipe;
@@ -48,10 +49,25 @@ public class EngineIT extends AbstractUnitTest {
     }
 
     /**
+     * Verify that the engine can be properly initialized where there are duplicate beans
+     */
+    @Test
+    public void testInitDuplicateEntries() {
+        try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
+            registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), Double1DuplicateTestRecipe.class.getName())));
+            engine.init();
+        }
+        
+        Assertions.assertEquals(2, engine.getBeanCount());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> engine.getBean(new Descriptor<>(Double.class)));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
+    }
+
+    /**
      * Verify that the engine can be properly initialized
      */
     @Test
-    public void testInit() {
+    public void testInitAllUnique() {
         try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
             registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), Double2TestRecipe.class.getName(),
                     IntTestRecipe.class.getName(), StringTestRecipe.class.getName())));
@@ -66,7 +82,7 @@ public class EngineIT extends AbstractUnitTest {
      */
     @Test
     public void testGetBean() {
-        testInit();
+        testInitAllUnique();
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> engine.getBean(new Descriptor<>(Double.class)));
         Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
