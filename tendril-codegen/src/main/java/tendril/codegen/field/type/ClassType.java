@@ -26,13 +26,6 @@ import tendril.codegen.field.value.JValueFactory;
  */
 public class ClassType extends JGeneric implements Type {
     
-    /*
-     * TODO - finish this
-     * 
-     * - ClassType getSimpleName() includes the generics definition
-     * - breaks JClassTest
-     */
-    
     /** The name of the package where the importable item lives */
     private final String packageName;
     /** The name of the importable element (class or equivalent) */
