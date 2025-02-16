@@ -7,9 +7,9 @@ public class TempManager {
     
     public String other;
 
-	private final TempClass cls;
+	private final SingletonClass cls;
 	
-	public TempManager(TempClass cls) {
+	public TempManager(SingletonClass cls) {
 		this.cls = cls;
 	}
 	

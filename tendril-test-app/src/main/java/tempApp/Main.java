@@ -28,11 +28,29 @@ public class Main implements TendrilRunner {
     
     @Inject
     @Named("TempName")
-    @MyTypeId(MyType.VAL1)
     Object tmpClass;
+
+    @Inject
+    FactoryClass factoryBean1;
+    @Inject
+    FactoryClass factoryBean2;
+    @Inject
+    FactoryClass factoryBean3;
+    @Inject
+    FactoryClass factoryBean4;
 
     @Override
     public void run() {
         System.out.println("RUNNING!!! " + tmpClass);
+        System.out.println(factoryBean1);
+        System.out.println(factoryBean2);
+        System.out.println(factoryBean3);
+        System.out.println(factoryBean4);
+        assert(factoryBean1 != factoryBean2);
+        assert(factoryBean1 != factoryBean3);
+        assert(factoryBean1 != factoryBean4);
+        assert(factoryBean2 != factoryBean3);
+        assert(factoryBean2 != factoryBean4);
+        assert(factoryBean3 != factoryBean4);
     }
 }

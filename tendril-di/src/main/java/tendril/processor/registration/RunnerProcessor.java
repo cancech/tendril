@@ -25,6 +25,8 @@ import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.ProcessingException;
+import tendril.bean.recipe.AbstractRecipe;
+import tendril.bean.recipe.SingletonRecipe;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.context.launch.Runner;
@@ -73,6 +75,15 @@ public class RunnerProcessor extends BeanProcessor {
         ClassDefinition generatedDef = super.processType(data);
         mainRunner = generatedDef.getType().getFullyQualifiedName();
         return generatedDef;
+    }
+    
+    /**
+     * @see tendril.processor.BeanProcessor#getRecipeClass()
+     */
+    @SuppressWarnings("rawtypes")
+    @Override
+    protected Class<? extends AbstractRecipe> getRecipeClass() {
+        return SingletonRecipe.class;
     }
 
     /**

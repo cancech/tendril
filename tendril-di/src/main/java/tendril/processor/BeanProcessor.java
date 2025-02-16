@@ -15,7 +15,9 @@
  */
 package tendril.processor;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,10 +39,14 @@ import tendril.annotationprocessor.AbstractTendrilProccessor;
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.Inject;
+import tendril.bean.Singleton;
 import tendril.bean.qualifier.Named;
 import tendril.bean.Bean;
+import tendril.bean.Factory;
+import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.Applicator;
 import tendril.bean.recipe.Descriptor;
+import tendril.bean.recipe.FactoryRecipe;
 import tendril.bean.recipe.Registry;
 import tendril.bean.recipe.SingletonRecipe;
 import tendril.codegen.VisibilityType;
@@ -53,6 +59,7 @@ import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.VoidType;
 import tendril.codegen.generics.GenericFactory;
 import tendril.context.Engine;
+import tendril.util.TendrilStringUtil;
 
 /**
  * Processor for the {@link Bean} annotation, which will generate the appropriate Recipe for the specified Provider
@@ -64,6 +71,9 @@ public class BeanProcessor extends AbstractTendrilProccessor {
     
     /** Flag for whether the generated recipe is to be annotated with @{@link Registry} */
     private final boolean annotateRegistry;
+    /** Mapping of the types of life cycle annotations that are supported to the recipe that implements it */
+    @SuppressWarnings("rawtypes")
+    protected final Map<Class<? extends Annotation>, Class<? extends AbstractRecipe>> recipeTypeMap = new HashMap<>();
     
     /**
      * CTOR - will be annotated as a {@link Registry}
@@ -79,6 +89,16 @@ public class BeanProcessor extends AbstractTendrilProccessor {
      */
     protected BeanProcessor(boolean annotateRegistry) {
         this.annotateRegistry = annotateRegistry;
+        registerAvailableRecipeTypes();
+    }
+    
+    /**
+     * Register the life cycle annotations that are to be supported, to the type of recipe that is to be used when it is employed. By default Singleton and Factory are registered
+     * and supported.
+     */
+    protected void registerAvailableRecipeTypes() {
+        recipeTypeMap.put(Singleton.class, SingletonRecipe.class);
+        recipeTypeMap.put(Factory.class, FactoryRecipe.class);
     }
 
     /**
@@ -101,8 +121,7 @@ public class BeanProcessor extends AbstractTendrilProccessor {
         Set<ClassType> externalImports = new HashSet<>();
         
         // The parent class
-        // TODO allow for more than just Singleton recipes
-        JClass parent = ClassBuilder.forConcreteClass(SingletonRecipe.class).addGeneric(GenericFactory.create(bean)).build();
+        JClass parent = ClassBuilder.forConcreteClass(getRecipeClass()).addGeneric(GenericFactory.create(bean)).build();
         
         // CTOR contents
         List<String> ctorCode = new ArrayList<>();
@@ -125,6 +144,28 @@ public class BeanProcessor extends AbstractTendrilProccessor {
             clsBuilder.addAnnotation(JAnnotationFactory.create(Registry.class));
         JClass cls = clsBuilder.build();
         return cls.generateCode(externalImports);
+    }
+    
+    /**
+     * Get the recipe class that is to be employed for the indicated bean.
+     * 
+     * @return {@link Class} extending {@link AbstractRecipe} representing the concrete recipe that is to be used for the bean
+     */
+    @SuppressWarnings("rawtypes")
+    protected Class<? extends AbstractRecipe> getRecipeClass() {
+        List<Class<? extends Annotation>> foundTypes = new ArrayList<>();
+        
+        for(Class<? extends Annotation> annonClass: recipeTypeMap.keySet()) {
+            if (!getElementAnnotations(annonClass).isEmpty())
+                foundTypes.add(annonClass);
+        }
+        
+        if (foundTypes.isEmpty())
+            throw new ProcessingException(getCurrentElement() + " must have a single life cycle indicated");
+        if (foundTypes.size() > 1)
+            throw new ProcessingException(getCurrentElement() + "has multiple life cycles indicated [" + TendrilStringUtil.join(foundTypes) + "]");
+        
+        return recipeTypeMap.get(foundTypes.get(0));
     }
     
     /**

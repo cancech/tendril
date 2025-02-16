@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Jaroslav Bosak
+ * Copyright 2025 Jaroslav Bosak
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,37 +19,30 @@ import tendril.context.ApplicationContext;
 import tendril.context.Engine;
 
 /**
- * Abstract recipe for creating singleton beans. This takes on the responsibility for creating and managing the singleton instance of the bean. The class of the bean does not
- * need to be singleton, rather the recipe ensures that the specific instance of an concrete bean is only created once and simply returns the created instance for every
- * subsequent access to the bean.
+ * Abstract recipe for creating factory beans, where each retrieved bean is a separate and unique instance. Thus as many beans are retrieved, that many copies of the bean are
+ * created and provided
  * 
  * @param <BEAN_TYPE> the type of bean the recipe creates
  */
-public abstract class SingletonRecipe<BEAN_TYPE> extends AbstractRecipe<BEAN_TYPE> {
+public abstract class FactoryRecipe<BEAN_TYPE> extends AbstractRecipe<BEAN_TYPE> {
 
-    /** The singleton instance of the bean */
-    private BEAN_TYPE bean = null;
-    
     /**
      * CTOR
      * 
      * @param engine {@link Engine} powering the {@link ApplicationContext} in which the bean lives
      * @param beanClass {@link Class} of the bean instance
      */
-    protected SingletonRecipe(Engine engine, Class<BEAN_TYPE> beanClass) {
+    protected FactoryRecipe(Engine engine, Class<BEAN_TYPE> beanClass) {
         super(engine, beanClass);
     }
     
     /**
-     * The bean instance is treated as a singleton, created on the first access and the existing instance returned for each subsequent one.
+     * A new instance is created for each retrieval
      * 
      * @see tendril.bean.recipe.AbstractRecipe#get()
      */
     @Override
     public BEAN_TYPE get() {
-        if (bean == null)
-            bean = buildBean();
-        
-        return bean;
+        return buildBean();
     }
 }
