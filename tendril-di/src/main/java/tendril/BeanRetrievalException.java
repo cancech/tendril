@@ -39,6 +39,7 @@ public class BeanRetrievalException  extends RuntimeException {
     /**
      * CTOR
      * 
+     * @param <BEAN_TYPE> indicating the type of bean that was attempted to be retrieved
      * @param desc {@link Descriptor} describing the bean that was attempted to be retrieved
      * @param options {@link List} of {@link AbstractRecipe}s that were all matched
      */
