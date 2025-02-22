@@ -23,7 +23,7 @@ import tendril.context.Engine;
  * @param <BEAN_TYPE> The type into which the dependency is to be injected
  * @param <DEPENDENCY_TYPE> The type of dependency that the bean is to be injected with
  */
-public class InjectDependency<BEAN_TYPE, DEPENDENCY_TYPE> {
+public class InjectDependency<BEAN_TYPE, DEPENDENCY_TYPE> implements Injector<BEAN_TYPE> {
     
     /** Contains the description of the dependency which is to be consumed */
     private final Descriptor<DEPENDENCY_TYPE> descriptor;
@@ -42,11 +42,9 @@ public class InjectDependency<BEAN_TYPE, DEPENDENCY_TYPE> {
     }
     
     /**
-     * Inject the dependency by retrieving it from the engine and applying to the destination consumer.
-     * 
-     * @param consumer CONSUMER_TYPE which is the destination consumer of the bean
-     * @param engine {@link Engine} where the bean is to be retrieved from
+     * @see tendril.bean.recipe.Injector#inject(java.lang.Object, tendril.context.Engine)
      */
+    @Override
     public void inject(BEAN_TYPE consumer, Engine engine) {
         applicator.apply(consumer, engine.getBean(descriptor));
     }

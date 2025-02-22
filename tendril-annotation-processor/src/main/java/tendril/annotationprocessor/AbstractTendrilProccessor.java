@@ -39,6 +39,7 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ExecutableType;
@@ -50,10 +51,15 @@ import javax.tools.StandardLocation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import tendril.codegen.BaseBuilder;
+import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotation;
+import tendril.codegen.classes.FieldBuilder;
 import tendril.codegen.classes.ParameterBuilder;
 import tendril.codegen.classes.method.AnonymousMethod;
 import tendril.codegen.classes.method.JMethod;
+import tendril.codegen.field.JField;
+import tendril.codegen.field.VisibileTypeBuilder;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypeFactory;
@@ -280,31 +286,91 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * @return {@link Pair} of {@link ClassType} of the enclosing class and {@link JMethod} representing the full details of the method
      * @throws ProcessingException if there is an issue loading the details of the method
      */
-    private Pair<ClassType, JMethod<?>> loadMethodDetails(ExecutableElement element) {
+    protected Pair<ClassType, JMethod<?>> loadMethodDetails(ExecutableElement element) {
         ClassType classData = deriveClassData((TypeElement) element.getEnclosingElement());
         List<? extends TypeMirror> parameterTypes = ((ExecutableType) element.asType()).getParameterTypes();
         List<? extends VariableElement> parameters = element.getParameters();
         if (parameterTypes.size() != parameters.size())
             throw new ProcessingException(element + " mismatch between number of parameters and parameter types");
 
+        // TODO switch to using a method builder, so that the load<something> methods can be leveraged
         JMethod<?> method = new AnonymousMethod<>(TypeFactory.create(element.getReturnType()), element.getSimpleName().toString());
         for (int i = 0; i < parameters.size(); i++) {
             VariableElement varElement = parameters.get(i);
             ParameterBuilder<?, ?> paramBuilder = new ParameterBuilder<>(TypeFactory.create(parameterTypes.get(i)), varElement.getSimpleName().toString());
-            for (AnnotationMirror m : varElement.getAnnotationMirrors()) {
-                JAnnotation annonData = new JAnnotation(deriveClassData((TypeElement) m.getAnnotationType().asElement()));
-                for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : m.getElementValues().entrySet()) {
-                    Pair<ClassType, JMethod<?>> details = loadMethodDetails(entry.getKey());
-                    JValue<?, ?> value = details.getRight().getType().asValue(entry.getValue().getValue());
-                    annonData.addAttribute(details.getRight(), value);
-                }
-                paramBuilder.addAnnotation(annonData);
-            }
+            loadAnnotations(paramBuilder, varElement);
 
             method.addParameter(paramBuilder.build());
         }
 
         return Pair.of(classData, method);
+    }
+    
+    /**
+     * Load the details of the field from the element
+     * 
+     * @param varElement {@link VariableElement} containing the details of the field
+     * @return {@link Pair} of {@link ClassType} of the enclosing class and the {@link JMethod} representing the full details of the field
+     */
+    protected Pair<ClassType, JField<?>> loadFieldDetails(VariableElement varElement) {
+        ClassType classData = deriveClassData((TypeElement) varElement.getEnclosingElement());
+        
+        FieldBuilder<Type> fieldBuilder = new FieldBuilder<>(varElement.getSimpleName().toString());
+        fieldBuilder.setType(TypeFactory.create(varElement.asType()));
+        
+        // Load the details of the field
+        loadElementFinality(fieldBuilder, varElement);
+        loadElementMods(fieldBuilder, varElement);
+        loadAnnotations(fieldBuilder, varElement);
+        
+        return Pair.of(classData, fieldBuilder.build());
+    }
+    
+    /**
+     * Load the final state of the element into the builder
+     * 
+     * @param builder {@link BaseBuilder} with which the representative element is being built
+     * @param element {@link Element} from which to load the details
+     */
+    private void loadElementFinality(BaseBuilder<?, ?> builder, Element element) {
+        builder.setFinal(element.getModifiers().contains(Modifier.FINAL));
+    }
+    
+    /**
+     * Load the visibility type modifiers of the element into the builder
+     * 
+     * @param builder {@link VisibileTypeBuilder} with which the representative element is being built
+     * @param element {@link Element} from which to load the details
+     */
+    private void loadElementMods(VisibileTypeBuilder<?, ?, ?> builder, Element element) {
+        Set<Modifier> mods = element.getModifiers();
+        builder.setStatic(mods.contains(Modifier.STATIC));
+        if (mods.contains(Modifier.PUBLIC))
+            builder.setVisibility(VisibilityType.PUBLIC);
+        else if (mods.contains(Modifier.PRIVATE))
+            builder.setVisibility(VisibilityType.PRIVATE);
+        else if (mods.contains(Modifier.PROTECTED))
+            builder.setVisibility(VisibilityType.PROTECTED);
+        else
+            builder.setVisibility(VisibilityType.PACKAGE_PRIVATE);
+    }
+    
+    /**
+     * Load annotations from the element into the builder
+     * 
+     * @param builder {@link BaseBuilder} with which the representative element is being built
+     * @param element {@link Element} from which to load the annotations
+     */
+    private void loadAnnotations(BaseBuilder<?, ?> builder, Element element) {
+        for (AnnotationMirror m : element.getAnnotationMirrors()) {
+            JAnnotation annonData = new JAnnotation(deriveClassData((TypeElement) m.getAnnotationType().asElement()));
+            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : m.getElementValues().entrySet()) {
+                Pair<ClassType, JMethod<?>> details = loadMethodDetails(entry.getKey());
+                JValue<?, ?> value = details.getRight().getType().asValue(entry.getValue().getValue());
+                annonData.addAttribute(details.getRight(), value);
+            }
+            builder.addAnnotation(annonData);
+        }
     }
 
     /**

@@ -38,7 +38,7 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
     private final Descriptor<BEAN_TYPE> descriptor;
     
     /** List of the dependencies that the bean must receive */
-    private final List<InjectDependency<BEAN_TYPE, ?>> consumers = new ArrayList<>();
+    private final List<Injector<BEAN_TYPE>> consumers = new ArrayList<>();
     
     /**
      * CTOR
@@ -86,7 +86,16 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
      * @param appl {@link Applicator} providing the appropriate mechanism for applying the dependency to the bean under construction
      */
     protected <DEPENDENCY_TYPE> void registerDependency(Descriptor<DEPENDENCY_TYPE> desc, Applicator<BEAN_TYPE, DEPENDENCY_TYPE> appl) {
-        consumers.add(new InjectDependency<>(desc, appl));
+        registerInjector(new InjectDependency<>(desc, appl));
+    }
+    
+    /**
+     * Register an injector which is to inject a dependency into the bean created by the recipe
+     * 
+     * @param injector {@link Injector} for the bean
+     */
+    protected void registerInjector(Injector<BEAN_TYPE> injector) {
+        consumers.add(injector);
     }
     
     /**

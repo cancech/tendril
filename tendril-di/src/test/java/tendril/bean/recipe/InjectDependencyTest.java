@@ -29,7 +29,7 @@ import tendril.test.bean.SingleCtorBean;
 /**
  * Test case for {@link InjectDependency}
  */
-public class ConsumeDependencyTest extends AbstractUnitTest {
+public class InjectDependencyTest extends AbstractUnitTest {
     
     // Mocks to use for testing
     @Mock

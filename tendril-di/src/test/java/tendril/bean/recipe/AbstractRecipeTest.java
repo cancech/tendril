@@ -83,6 +83,12 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     private Descriptor<Double> mockDoubleDescriptor;
     @Mock
     private Applicator<SingleCtorBean, Double> mockDoubleApplicator;
+    @Mock
+    private Injector<SingleCtorBean> mockInjector1;
+    @Mock
+    private Injector<SingleCtorBean> mockInjector2;
+    @Mock
+    private Injector<SingleCtorBean> mockInjector3;
     
     // Instance to test
     private TestRecipe<SingleCtorBean> recipe;
@@ -116,10 +122,10 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     }
     
     /**
-     * Verify that the bean can be built if one dependency is specified
+     * Verify that the bean can be built if one Applicator is specified
      */
     @Test
-    public void testBuildSingleDependencies() {
+    public void testBuildSingleApplicatorNoInjectors() {
         recipe.registerDependency(mockStringDescriptor, mockStringApplicator);
         verifyAllChecked();
         
@@ -131,10 +137,10 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     }
     
     /**
-     * Verify that the bean can be built if multiples dependencies are specified
+     * Verify that the bean can be built if multiples Applicators are specified
      */
     @Test
-    public void testBuildMultipleDependencies() {
+    public void testBuildMultipleApplicatorsNoInjectors() {
         recipe.registerDependency(mockStringDescriptor, mockStringApplicator);
         recipe.registerDependency(mockIntDescriptor, mockIntApplicator);
         recipe.registerDependency(mockDoubleDescriptor, mockDoubleApplicator);
@@ -151,6 +157,65 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         verify(mockStringApplicator).apply(instance, "abc123");
         verify(mockIntApplicator).apply(instance, 123);
         verify(mockDoubleApplicator).apply(instance, 1.23);
+    }
+    
+    /**
+     * Verify that the bean can be build if one injector is specified
+     */
+    @Test
+    public void testBuildSingleInjectorNoApplicators() {
+        recipe.registerInjector(mockInjector1);
+        verifyAllChecked();
+        
+        SingleCtorBean instance = recipe.buildBean();
+        Assertions.assertNotNull(instance);
+        verify(mockInjector1).inject(instance, mockEngine);
+    }
+    
+    /**
+     * Verify that the bean can be build if multiple injectors are specified
+     */
+    @Test
+    public void testBuildMultipleInjectorsNoApplicators() {
+        recipe.registerInjector(mockInjector1);
+        recipe.registerInjector(mockInjector2);
+        recipe.registerInjector(mockInjector3);
+        verifyAllChecked();
+        
+        SingleCtorBean instance = recipe.buildBean();
+        Assertions.assertNotNull(instance);
+        verify(mockInjector1).inject(instance, mockEngine);
+        verify(mockInjector2).inject(instance, mockEngine);
+        verify(mockInjector3).inject(instance, mockEngine);
+    }
+    
+    /**
+     * Verify that the bean can be built if multiples Applicators and multiple injectors are specified
+     */
+    @Test
+    public void testBuildMultipleApplicatorsMultipleInjectors() {
+        recipe.registerDependency(mockStringDescriptor, mockStringApplicator);
+        recipe.registerDependency(mockIntDescriptor, mockIntApplicator);
+        recipe.registerDependency(mockDoubleDescriptor, mockDoubleApplicator);
+        recipe.registerInjector(mockInjector1);
+        recipe.registerInjector(mockInjector2);
+        recipe.registerInjector(mockInjector3);
+        verifyAllChecked();
+
+        when(mockEngine.getBean(mockStringDescriptor)).thenReturn("abc123");
+        when(mockEngine.getBean(mockIntDescriptor)).thenReturn(123);
+        when(mockEngine.getBean(mockDoubleDescriptor)).thenReturn(1.23);
+        SingleCtorBean instance = recipe.buildBean();
+        Assertions.assertNotNull(instance);
+        verify(mockEngine).getBean(mockStringDescriptor);
+        verify(mockEngine).getBean(mockIntDescriptor);
+        verify(mockEngine).getBean(mockDoubleDescriptor);
+        verify(mockStringApplicator).apply(instance, "abc123");
+        verify(mockIntApplicator).apply(instance, 123);
+        verify(mockDoubleApplicator).apply(instance, 1.23);
+        verify(mockInjector1).inject(instance, mockEngine);
+        verify(mockInjector2).inject(instance, mockEngine);
+        verify(mockInjector3).inject(instance, mockEngine);
     }
 
 }

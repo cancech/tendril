@@ -38,6 +38,33 @@ public class Main implements TendrilRunner {
     FactoryClass factoryBean3;
     @Inject
     FactoryClass factoryBean4;
+    private FactoryClass factoryBean5;
+    
+    @Inject
+    void doSomething(SingletonClass singleton1, SingletonClass singleton2, FactoryClass factory1, FactoryClass factory2, FactoryClass factory3) {
+        System.out.println("doSomething()");
+        factoryBean5 = factory1;
+
+        System.out.println(factory1);
+        System.out.println(factory2);
+        System.out.println(factory3);
+        
+        assert(singleton1 == singleton2);
+        assert(factory1 != factory2);
+        assert(factory1 != factory3);
+        assert(factory2 != factory3);
+    }
+    
+    @Inject
+    void doSomethingElse(FactoryClass factory1) {
+        System.out.println("doSomethingElse()");
+        System.out.println(factory1);
+    }
+    
+    @Inject
+    void doNothing() {
+        System.out.println("doNothing()");
+    }
 
     @Override
     public void run() {
@@ -46,11 +73,16 @@ public class Main implements TendrilRunner {
         System.out.println(factoryBean2);
         System.out.println(factoryBean3);
         System.out.println(factoryBean4);
+        System.out.println(factoryBean5);
         assert(factoryBean1 != factoryBean2);
         assert(factoryBean1 != factoryBean3);
         assert(factoryBean1 != factoryBean4);
+        assert(factoryBean1 != factoryBean5);
         assert(factoryBean2 != factoryBean3);
         assert(factoryBean2 != factoryBean4);
+        assert(factoryBean2 != factoryBean5);
         assert(factoryBean3 != factoryBean4);
+        assert(factoryBean3 != factoryBean5);
+        assert(factoryBean4 != factoryBean5);
     }
 }

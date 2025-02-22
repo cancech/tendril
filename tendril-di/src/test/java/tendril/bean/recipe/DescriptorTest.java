@@ -65,27 +65,31 @@ public class DescriptorTest extends AbstractUnitTest {
     /**
      * Verify that equality is properly determined
      */
+    @SuppressWarnings("unlikely-arg-type")
     @Test
     public void testEquals() {
+        // Must be the same type
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).equals(new String("")));
+        
         // So long as it's assignable, it will pass
-        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).matches(new Descriptor<>(Double1TestRecipe.class)));
-        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).matches(new Descriptor<>(AbstractRecipe.class)));
-        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).matches(new Descriptor<>(Object.class)));
+        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(Double1TestRecipe.class)));
+        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(AbstractRecipe.class)));
+        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(Object.class)));
         
         // So long as it's assignable and the exact same name, it will pass
-        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").setName("qwerty").matches(new Descriptor<>(Double1TestRecipe.class).setName("qwerty")));
-        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").matches(new Descriptor<>(AbstractRecipe.class).setName("qwerty")));
-        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").matches(new Descriptor<>(Object.class).setName("qwerty")));
+        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").setName("qwerty").equals(new Descriptor<>(Double1TestRecipe.class).setName("qwerty")));
+        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").equals(new Descriptor<>(AbstractRecipe.class).setName("qwerty")));
+        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").equals(new Descriptor<>(Object.class).setName("qwerty")));
         
         // Assignable but with a different name fails
-        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").setName("qwerty").matches(new Descriptor<>(Double2TestRecipe.class).setName("qwerty")));
-        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").matches(new Descriptor<>(StringTestRecipe.class).setName("qwerty")));
-        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").matches(new Descriptor<>(IntTestRecipe.class).setName("qwerty")));
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").setName("qwerty").equals(new Descriptor<>(Double2TestRecipe.class).setName("qwerty")));
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").equals(new Descriptor<>(StringTestRecipe.class).setName("qwerty")));
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").equals(new Descriptor<>(IntTestRecipe.class).setName("qwerty")));
         
         // If it is not assignable, it will fail
-        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).matches(new Descriptor<>(Double2TestRecipe.class)));
-        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).matches(new Descriptor<>(StringTestRecipe.class)));
-        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).matches(new Descriptor<>(IntTestRecipe.class)));
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(Double2TestRecipe.class)));
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(StringTestRecipe.class)));
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(IntTestRecipe.class)));
     }
     
     /**
