@@ -249,7 +249,7 @@ public class BeanProcessor extends AbstractTendrilProccessor {
     }
     
     /**
-     * Get the code for the descriptor that is to be applied to a dependency of the bean defined by this recipe
+     * Get the code for the descriptor that is to be applied to a dependency of the bean defined by this recipe.
      * 
      * @param field {@link JType} which defines the dependency
      * @return {@link String} containing the code defining the dependency
