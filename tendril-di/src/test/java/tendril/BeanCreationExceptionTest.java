@@ -64,9 +64,4 @@ public class BeanCreationExceptionTest extends AbstractUnitTest {
         Assertions.assertEquals(mockCause, ex.getCause());
     }
     
-    @Test
-    public void fail() {
-        Assertions.assertEquals(1, 2);
-    }
-    
 }
