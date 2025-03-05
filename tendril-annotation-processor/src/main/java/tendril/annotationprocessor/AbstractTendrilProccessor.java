@@ -293,7 +293,6 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
         if (parameterTypes.size() != parameters.size())
             throw new ProcessingException(element + " mismatch between number of parameters and parameter types");
 
-        // TODO switch to using a method builder, so that the load<something> methods can be leveraged
         JMethod<?> method = new AnonymousMethod<>(TypeFactory.create(element.getReturnType()), element.getSimpleName().toString());
         for (int i = 0; i < parameters.size(); i++) {
             VariableElement varElement = parameters.get(i);
