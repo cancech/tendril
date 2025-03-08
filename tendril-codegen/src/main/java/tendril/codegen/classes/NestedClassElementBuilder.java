@@ -45,26 +45,26 @@ public abstract class NestedClassElementBuilder<DATA_TYPE extends Type, ELEMENT 
 
     /**
      * @see tendril.codegen.BaseBuilder#build()
+     * 
+     * This is ultimately responsible for creating the element. If a {@link ClassBuilder} is present, the method is added to the class prior to returning. 
      */
     @Override
     public ELEMENT build() {
-        // TODO merge build and finish into a single action/method. ElementLoad can then load the element separately from the class
+        ELEMENT element = super.build();
         if (classBuilder != null)
-            throw new IllegalStateException("Cannot be built directly - ClassBuilder for encompassing class provided. Use finish() instead to build the element and add it to the encompassing class");
+            addToClass(classBuilder, element);
 
-        return super.build();
+        return element;
     }
 
     /**
-     * Finish specifying the details of the method, build it, and apply it to the target class
+     * Finish specifying the details of the method, build it, and apply it to the target class. Essentially, this triggers build(), but returns the {@link ClassBuilder},
+     * such that it can be included in a chain of calls.
      * 
      * @return {@link ClassBuilder} to which the method is applied
      */
     public ClassBuilder finish() {
-        if (classBuilder == null)
-            throw new IllegalStateException("No ClassBuilder for encompassing class provided. Use build() to build the element without adding it to an encompassing class");
-
-        addToClass(classBuilder, super.build());
+        build();
         return classBuilder;
     }
 

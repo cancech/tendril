@@ -288,10 +288,10 @@ public class BeanProcessor extends AbstractTendrilProccessor {
     }
 
     /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.classes.JClass, tendril.codegen.classes.method.JMethod)
      */
     @Override
-    protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
+    protected ClassDefinition processMethod(JClass enclosingType, JMethod<?> methodData) {
         // TODO allow for the creation of configuration/factory classes
         throw new NotImplementedException();
     }

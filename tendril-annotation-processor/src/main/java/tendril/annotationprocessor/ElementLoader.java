@@ -113,27 +113,11 @@ public abstract class ElementLoader {
      * Load the details of the method from the element
      * 
      * @param element {@link ExecutableElement} containing the details of the method
-     * @return {@link Pair} of {@link ClassType} of the enclosing class and {@link JMethod} representing the full details of the method
+     * @return {@link Pair} of {@link JClass} of the enclosing class and {@link JMethod} representing the full details of the method
      * @throws ProcessingException if there is an issue loading the details of the method
      */
-    public static Pair<ClassType, JMethod<?>> loadMethodDetails(ExecutableElement element) {
-        // TODO should be able to remove this in favour of the variation below?
-        ClassType classData = deriveClassData((TypeElement) element.getEnclosingElement());
-        List<? extends TypeMirror> parameterTypes = ((ExecutableType) element.asType()).getParameterTypes();
-        List<? extends VariableElement> parameters = element.getParameters();
-        if (parameterTypes.size() != parameters.size())
-            throw new ProcessingException(element + " mismatch between number of parameters and parameter types");
-
-        JMethod<?> method = new AnonymousMethod<>(TypeFactory.create(element.getReturnType()), element.getSimpleName().toString());
-        for (int i = 0; i < parameters.size(); i++) {
-            VariableElement varElement = parameters.get(i);
-            ParameterBuilder<?, ?> paramBuilder = new ParameterBuilder<>(TypeFactory.create(parameterTypes.get(i)), varElement.getSimpleName().toString());
-            loadAnnotations(paramBuilder, varElement);
-
-            method.addParameter(paramBuilder.build());
-        }
-
-        return Pair.of(classData, method);
+    public static Pair<JClass, JMethod<?>> loadMethodDetails(ExecutableElement element) {
+        return Pair.of(loadClassDetails((TypeElement) element.getEnclosingElement()), (JMethod<?>)cache.get(element));
     }
 
     /**
@@ -203,7 +187,7 @@ public abstract class ElementLoader {
         if (!element.getModifiers().contains(Modifier.ABSTRACT))
             builder.emptyImplementation();
         
-        builder.finish();
+        cache.put(element, builder.build());
     }
     
     /**
@@ -216,7 +200,7 @@ public abstract class ElementLoader {
         loadElementFinality(builder, varElement);
         loadElementMods(builder, varElement);
         loadAnnotations(builder, varElement);
-        builder.finish();
+        cache.put(varElement, builder.build());
     }
     
     /**
@@ -234,10 +218,12 @@ public abstract class ElementLoader {
             
             JAnnotation annonData = new JAnnotation(annonType);
             for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : m.getElementValues().entrySet()) {
-                Pair<ClassType, JMethod<?>> details = loadMethodDetails(entry.getKey());
-                System.out.println(annonData.getType().getFullyQualifiedName() + "::" + entry.getKey() + " = " + entry.getValue());
-                JValue<?, ?> value = details.getRight().getType().asValue(entry.getValue().getValue());
-                annonData.addAttribute(details.getRight(), value);
+                // Cannot rely on loadMethodDetails as some annotations annotate themselves (i.e.: @Retention, @Target)
+                ExecutableElement attribute = entry.getKey();
+                Type attributeType = TypeFactory.create(attribute.getReturnType());
+                String attributeName = attribute.getSimpleName().toString();
+                JValue<?, ?> value = attributeType.asValue(entry.getValue().getValue());
+                annonData.addAttribute(new AnonymousMethod<Type>(attributeType, attributeName), value);
             }
             builder.addAnnotation(annonData);
         }

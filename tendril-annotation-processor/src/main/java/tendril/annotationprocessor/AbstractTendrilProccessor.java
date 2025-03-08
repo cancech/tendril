@@ -169,8 +169,7 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * @param element {@link ExecutableElement} of the method
      */
     private void prepareAndProcessMethod(ExecutableElement element) {
-        // TODO This should load the full enclosing class
-        Pair<ClassType, JMethod<?>> methodDetails = ElementLoader.loadMethodDetails(element);
+        Pair<JClass, JMethod<?>> methodDetails = ElementLoader.loadMethodDetails(element);
         writeCode(processMethod(methodDetails.getLeft(), methodDetails.getRight()));
     }
 
@@ -300,9 +299,9 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * Perform the necessary processing of the indicated method, which was found to have been annotated with the required annotation. An empty implementation is provided by default, leaving it up to
      * the subclass to provide the necessary concrete implementation.
      * 
-     * @param classData  {@link ClassType} representing class in which the method is located
+     * @param enclosingClass  {@link JClass} representing class in which the method is located
      * @param methodData {@link JMethod} containing the details of the method
      * @return {@link ClassDefinition} defining the generated type (null if nothing is to be generated)
      */
-    protected abstract ClassDefinition processMethod(ClassType classData, JMethod<?> methodData);
+    protected abstract ClassDefinition processMethod(JClass enclosingClass, JMethod<?> methodData);
 }

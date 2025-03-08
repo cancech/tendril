@@ -28,8 +28,8 @@ import com.google.auto.service.AutoService;
 import tendril.annotationprocessor.AbstractTendrilProccessor;
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.bean.recipe.Registry;
+import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
-import tendril.codegen.field.type.ClassType;
 
 /**
  * Annotation processor for recipes which are annotated with @{@link Registry} and are to be added to the recipe registry
@@ -57,11 +57,11 @@ public class RegistryProcessor extends AbstractTendrilProccessor {
     }
 
     /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.classes.JClass, tendril.codegen.classes.method.JMethod)
      */
     @Override
-    protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
-        registers.add(classData.getFullyQualifiedName() + "::" + methodData.getName());
+    protected ClassDefinition processMethod(JClass enclosingClass, JMethod<?> methodData) {
+        registers.add(enclosingClass.getType().getFullyQualifiedName() + "::" + methodData.getName());
         return null;
     }
 

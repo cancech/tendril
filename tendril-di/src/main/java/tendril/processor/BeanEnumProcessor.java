@@ -110,12 +110,12 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
     }
 
     /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.classes.JClass, tendril.codegen.classes.method.JMethod)
      * 
      * @throws ProcessingException if the annotation is applied to a method
      */
     @Override
-    protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
+    protected ClassDefinition processMethod(JClass enclosingClass, JMethod<?> methodData) {
         throw new ProcessingException(BeanId.class.getName() + " cannot be applied to any method [" + methodData.getName() + "]");
     }
 }

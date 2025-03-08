@@ -27,8 +27,8 @@ import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.SingletonRecipe;
+import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
-import tendril.codegen.field.type.ClassType;
 import tendril.context.launch.Runner;
 import tendril.context.launch.TendrilRunner;
 import tendril.processor.BeanProcessor;
@@ -87,12 +87,12 @@ public class RunnerProcessor extends BeanProcessor {
     }
 
     /**
-     * @see tendril.processor.BeanProcessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
+     * @see tendril.processor.BeanProcessor#processMethod(tendril.codegen.classes.JClass, tendril.codegen.classes.method.JMethod)
      * 
      * @throws ProcessingException if the annotation is applied to a method
      */
     @Override
-    protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
+    protected ClassDefinition processMethod(JClass enclosingClass, JMethod<?> methodData) {
         throw new ProcessingException("Runner cannot be a method");
     }
 

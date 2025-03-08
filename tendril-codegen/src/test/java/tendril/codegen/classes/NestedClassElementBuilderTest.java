@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Assertions;
@@ -105,12 +106,17 @@ public class NestedClassElementBuilderTest extends AbstractUnitTest {
     @Test
     public void testWithClassBuilder() {
         TestClassBuilder builder = new TestClassBuilder(mockClassBuilder, "WithClassBuilder");
-        Assertions.assertThrows(IllegalStateException.class, () -> builder.build());
-        Assertions.assertEquals(mockClassBuilder, builder.finish());
+        Assertions.assertEquals(mockElement, builder.build());
         verify(mockElement).setVisibility(VisibilityType.PACKAGE_PRIVATE);
         verify(mockElement).setStatic(false);
         verify(mockElement).setFinal(false);
         builder.verifyTimesAddToClassCalled(1);
+        
+        Assertions.assertEquals(mockClassBuilder, builder.finish());
+        verify(mockElement, times(2)).setVisibility(VisibilityType.PACKAGE_PRIVATE);
+        verify(mockElement, times(2)).setStatic(false);
+        verify(mockElement, times(2)).setFinal(false);
+        builder.verifyTimesAddToClassCalled(2);
     }
 
     /**
@@ -119,11 +125,16 @@ public class NestedClassElementBuilderTest extends AbstractUnitTest {
     @Test
     public void testWithoutClassBuilder() {
         TestClassBuilder builder = new TestClassBuilder(null, "WithClassBuilder");
-        Assertions.assertThrows(IllegalStateException.class, () -> builder.finish());
         Assertions.assertEquals(mockElement, builder.build());
         verify(mockElement).setVisibility(VisibilityType.PACKAGE_PRIVATE);
         verify(mockElement).setStatic(false);
         verify(mockElement).setFinal(false);
+        builder.verifyTimesAddToClassCalled(0);
+        
+        Assertions.assertEquals(null, builder.finish());
+        verify(mockElement, times(2)).setVisibility(VisibilityType.PACKAGE_PRIVATE);
+        verify(mockElement, times(2)).setStatic(false);
+        verify(mockElement, times(2)).setFinal(false);
         builder.verifyTimesAddToClassCalled(0);
     }
 }

@@ -45,6 +45,7 @@ import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.qualifier.BeanId;
 import tendril.bean.qualifier.EnumQualifier;
+import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
@@ -83,6 +84,8 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
     private TypeMirror mockBeanIdMirror;
     @Mock
     private TypeMirror mockTypeMirror;
+    @Mock
+    private JClass mockClass;
     @Mock
     private ClassType mockAnnotatedClass;
     @Mock
@@ -153,7 +156,7 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
     @Test
     public void testProcessMethod() {
         when(mockAnnotatedMethod.getName()).thenReturn("mockMethod");
-        Assertions.assertThrows(ProcessingException.class, () -> processor.processMethod(mockAnnotatedClass, mockAnnotatedMethod));
+        Assertions.assertThrows(ProcessingException.class, () -> processor.processMethod(mockClass, mockAnnotatedMethod));
         verify(mockAnnotatedMethod).getName();
     }
 

@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
@@ -73,7 +72,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
         private int timesTypeCalled = 0;
         private int timesMethodCalled = 0;
         private ClassType lastClassTypeClassData;
-        private ClassType lastMethodTypeClassData;
+        private JClass lastMethodTypeClass;
         private JMethod<?> lastMethodTypeMethodData;
 
         /**
@@ -106,9 +105,9 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
         /**
          * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
          */
-        protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
+        protected ClassDefinition processMethod(JClass enclosingClass, JMethod<?> methodData) {
             timesMethodCalled++;
-            lastMethodTypeClassData = classData;
+            lastMethodTypeClass = enclosingClass;
             lastMethodTypeMethodData = methodData;
             return mockGeneratedDef;
         }
@@ -117,12 +116,12 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
          * Verify that the call to {@code processMethod} was as expected
          * 
          * @param expectedTimesCalled int the number of times it was expected to be called
-         * @param expectedClassData   {@link ClassType} which should have been provided with the last call
+         * @param expectedClass   {@link JClass} which should have been provided with the last call
          * @param expectedMethodData  {@link JMethod} which should have been provided with the last call
          */
-        private void verifyMethodType(int expectedTimesCalled, ClassType expectedClassData, JMethod<?> expectedMethodData) {
+        private void verifyMethodType(int expectedTimesCalled, JClass expectedClass, JMethod<?> expectedMethodData) {
             Assertions.assertEquals(expectedTimesCalled, timesMethodCalled);
-            Assertions.assertEquals(expectedClassData, lastMethodTypeClassData);
+            Assertions.assertEquals(expectedClass, lastMethodTypeClass);
             Assertions.assertEquals(expectedMethodData, lastMethodTypeMethodData);
         }
     }
@@ -291,7 +290,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
     @Test
     public void testProcessMethod() throws IOException {
         try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
-            mockLoader.when(() -> ElementLoader.loadMethodDetails(mockMethodElement)).thenReturn(Pair.of(mockClassType, mockJMethod));
+            mockLoader.when(() -> ElementLoader.loadMethodDetails(mockMethodElement)).thenReturn(Pair.of(mockJClass, mockJMethod));
             when(mockGeneratedType.getFullyQualifiedName()).thenReturn("z.x.c.V");
             when(mockProcessingEnv.getFiler()).thenReturn(mockFiler);
             when(mockGeneratedDef.getType()).thenReturn(mockGeneratedType);
@@ -311,50 +310,8 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
             verify(mockFileWriter).close();
     
             processor.verifyClassType(0, null);
-            processor.verifyMethodType(1, mockClassType, mockJMethod);
+            processor.verifyMethodType(1, mockJClass, mockJMethod);
         }
-    }
-
-    /**
-     * Verify that parameter mismatch fails processing
-     */
-    @Test
-    public void testMethodMoreParamsThanTypes() {
-        when(mockTypeElement.getSimpleName()).thenReturn(mockSimpleName);
-        when(mockSimpleName.toString()).thenReturn("Qwerty");
-        when(mockTypeElement.getQualifiedName()).thenReturn(mockFullyQualifiedName);
-        when(mockFullyQualifiedName.toString()).thenReturn("a.b.c.d.Qwerty");
-
-        doReturn(Set.of(mockMethodElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
-        when(mockMethodElement.getEnclosingElement()).thenReturn(mockTypeElement);
-        when(mockMethodElement.asType()).thenReturn(mockMethodType);
-        doReturn(Arrays.asList(mockParam1TypeMirror)).when(mockMethodType).getParameterTypes();
-        doReturn(Arrays.asList(mockParam1Var, mockParam2Var)).when(mockMethodElement).getParameters();
-
-        Assertions.assertThrows(ProcessingException.class, () -> processor.process(Set.of(mockAnnotation), mockEnvironment));
-        verify(mockEnvironment).errorRaised();
-        verify(mockEnvironment).processingOver();
-    }
-
-    /**
-     * Verify that parameter mismatch fails processing
-     */
-    @Test
-    public void testMethodMoreTypesThanParams() {
-        when(mockTypeElement.getSimpleName()).thenReturn(mockSimpleName);
-        when(mockSimpleName.toString()).thenReturn("Qwerty");
-        when(mockTypeElement.getQualifiedName()).thenReturn(mockFullyQualifiedName);
-        when(mockFullyQualifiedName.toString()).thenReturn("a.b.c.d.Qwerty");
-
-        doReturn(Set.of(mockMethodElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
-        when(mockMethodElement.getEnclosingElement()).thenReturn(mockTypeElement);
-        when(mockMethodElement.asType()).thenReturn(mockMethodType);
-        doReturn(Arrays.asList(mockParam1TypeMirror, mockParam2TypeMirror)).when(mockMethodType).getParameterTypes();
-        doReturn(Arrays.asList(mockParam1Var)).when(mockMethodElement).getParameters();
-
-        Assertions.assertThrows(ProcessingException.class, () -> processor.process(Set.of(mockAnnotation), mockEnvironment));
-        verify(mockEnvironment).errorRaised();
-        verify(mockEnvironment).processingOver();
     }
 
     /**
