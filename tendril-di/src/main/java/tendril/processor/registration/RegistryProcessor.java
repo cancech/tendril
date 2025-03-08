@@ -48,11 +48,11 @@ public class RegistryProcessor extends AbstractTendrilProccessor {
     }
 
     /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType(tendril.codegen.field.type.ClassType)
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
      */
     @Override
-    protected ClassDefinition processType(ClassType data) {
-        registers.add(data.getFullyQualifiedName());
+    protected ClassDefinition processType() {
+        registers.add(currentClassType.getFullyQualifiedName());
         return null;
     }
 
@@ -61,7 +61,7 @@ public class RegistryProcessor extends AbstractTendrilProccessor {
      */
     @Override
     protected ClassDefinition processMethod(ClassType classData, JMethod<?> methodData) {
-        registers.add(classData.getFullyQualifiedName() + ":" + methodData.getName());
+        registers.add(classData.getFullyQualifiedName() + "::" + methodData.getName());
         return null;
     }
 

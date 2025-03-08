@@ -62,6 +62,7 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
         private BeanEnumProcessorForTest() {
             super();
             this.processingEnv = mockProcessingEnv;
+            this.currentClassType = mockAnnotatedClass; 
         }
     }
 
@@ -170,7 +171,7 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
         when(mockClassToGenerate.getFullyQualifiedName()).thenReturn("a.b.c.d.MockEnumId");
         when(mockClassToGenerate.getGenerics()).thenReturn(Collections.emptyList());
 
-        ClassDefinition generated = processor.processType(mockAnnotatedClass);
+        ClassDefinition generated = processor.processType();
         verify(mockAnnotatedClass).generateFromClassSuffix("Id");
         verify(mockAnnotatedClass).isVoid();
         verify(mockAnnotatedClass).registerImport(anySet());

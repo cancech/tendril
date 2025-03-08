@@ -28,7 +28,6 @@ import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.VisibileTypeBuilder;
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.VoidType;
 import tendril.codegen.field.value.JValueFactory;
@@ -187,18 +186,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * @return {@link MethodBuilder} for creating a the method
      */
     public MethodBuilder<VoidType> buildMethod(String name) {
-        return createAndCustomizeMethodBuilder(VoidType.INSTANCE, name);
-    }
-
-    /**
-     * Create a method builder through which to add a new method which returns a primitive to the class.
-     * 
-     * @param returnType {@link PrimitiveType} representing which primitive to return
-     * @param name       {@link String} the name of the method
-     * @return {@link MethodBuilder} for creating a the method
-     */
-    public MethodBuilder<PrimitiveType> buildMethod(PrimitiveType returnType, String name) {
-        return createAndCustomizeMethodBuilder(returnType, name);
+        return buildMethod(VoidType.INSTANCE, name);
     }
 
     /**
@@ -213,17 +201,6 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     }
 
     /**
-     * Create a method builder through which to add a new method which returns a Class object.
-     * 
-     * @param returnType {@link ClassType} representing the class that is to be returned
-     * @param name       {@link String} the name of the method
-     * @return {@link MethodBuilder} for creating the method
-     */
-    public MethodBuilder<ClassType> buildMethod(ClassType returnType, String name) {
-        return createAndCustomizeMethodBuilder(returnType, name);
-    }
-
-    /**
      * Helper which triggers the creation of the {@link MethodBuilder} and immediately applies the specified return type to it.
      * 
      * @param <RETURN_TYPE> extending {@link Type} indicating what the nature of the return of the method is
@@ -231,7 +208,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * @param name          {@link String} the name of the method
      * @return {@link MethodBuilder} for creating the method
      */
-    private <RETURN_TYPE extends Type> MethodBuilder<RETURN_TYPE> createAndCustomizeMethodBuilder(RETURN_TYPE returnType, String name) {
+    public <RETURN_TYPE extends Type> MethodBuilder<RETURN_TYPE> buildMethod(RETURN_TYPE returnType, String name) {
         MethodBuilder<RETURN_TYPE> builder = createMethodBuilder(name);
         builder.setType(returnType);
         return builder;
@@ -256,17 +233,6 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     }
 
     /**
-     * Create a field builder through which to add a new primitive field
-     * 
-     * @param type {@link PrimitiveType} representing the primtive type of the field
-     * @param name {@link String} the name of the field
-     * @return {@link FieldBuilder} for creating the field
-     */
-    public FieldBuilder<PrimitiveType> buildField(PrimitiveType type, String name) {
-        return createAndCustomizeFieldBuilder(type, name);
-    }
-
-    /**
      * Create a field builder through which to add a new class field
      * 
      * @param type {@link Class} of the object that is to be contained in the field
@@ -278,28 +244,6 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     }
 
     /**
-     * Create a field builder through which to add a new class field
-     * 
-     * @param type {@link Class} representing the class that is to be contained in the field
-     * @param name {@link String} the name of the field
-     * @return {@link FieldBuilder} for creating the field
-     */
-    public FieldBuilder<ClassType> buildField(ClassType type, String name) {
-        return createAndCustomizeFieldBuilder(type, name);
-    }
-    
-    /**
-     * Create a field builder through which to add a new class field
-     * 
-     * @param type {@link GenericType} representing the generic type of the field
-     * @param name {@link String} the name of the field
-     * @return {@link FieldBuilder} for creating the field
-     */
-    public FieldBuilder<GenericType> buildField(GenericType type, String name) {
-        return createAndCustomizeFieldBuilder(type, name);
-    }
-
-    /**
      * Helper which triggers the creation of the {@link FieldBuilder} and immediately applies the specified type to it.
      * 
      * @param <TYPE> extending {@link Type} indicating type of data is stored in the field
@@ -307,7 +251,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * @param name   {@link String} the name of the field
      * @return {@link FieldBuilder} which will create the field
      */
-    private <TYPE extends Type> FieldBuilder<TYPE> createAndCustomizeFieldBuilder(TYPE type, String name) {
+    public <TYPE extends Type> FieldBuilder<TYPE> buildField(TYPE type, String name) {
         FieldBuilder<TYPE> builder = new FieldBuilder<>(this, name);
         builder.setType(type);
         return builder;

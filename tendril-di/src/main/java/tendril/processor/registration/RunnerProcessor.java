@@ -63,16 +63,16 @@ public class RunnerProcessor extends BeanProcessor {
     }
 
     /**
-     * @see tendril.processor.BeanProcessor#processType(tendril.codegen.field.type.ClassType)
+     * @see tendril.processor.BeanProcessor#processType()
      * 
      * @throws ProcessingException if multiple @{@link Runner}s were defined
      */
     @Override
-    protected ClassDefinition processType(ClassType data) {
+    protected ClassDefinition processType() {
         if (mainRunner != null)
             throw new ProcessingException("There can only be a single runner specified");
         
-        ClassDefinition generatedDef = super.processType(data);
+        ClassDefinition generatedDef = super.processType();
         mainRunner = generatedDef.getType().getFullyQualifiedName();
         return generatedDef;
     }

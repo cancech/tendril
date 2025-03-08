@@ -98,6 +98,15 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
     }
     
     /**
+     * Get the fields which are available on the class
+     * 
+     * @return {@link List} of {@link JField}s
+     */
+    public List<JField<?>> getFields() {
+        return fields;
+    }
+    
+    /**
      * Add a constructor to the class
      * 
      * @param ctor {@link JConstructor} to add
@@ -115,6 +124,15 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
         methods.add(method);
     }
 
+    /**
+     * Get the methods which are available on the class
+     * 
+     * @return {@link List} of {@link JMethod}s
+     */
+    public List<JMethod<?>> getMethods() {
+        return methods;
+    }
+    
     /**
      * Generate the code which represents this class, without needing any "external" imports. In this case an "external" import would be one, which is not part of the
      * API documentation. Thus, this should be called if there are no additional imports required beyond what the API of the class requires.

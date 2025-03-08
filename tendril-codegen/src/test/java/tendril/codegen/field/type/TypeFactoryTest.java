@@ -37,6 +37,8 @@ public class TypeFactoryTest extends AbstractUnitTest {
     // Mocks to use for testing
     @Mock
     private TypeMirror mockMirror;
+    @Mock
+    private javax.lang.model.type.ArrayType mockArrayMirror;
 
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
@@ -90,13 +92,27 @@ public class TypeFactoryTest extends AbstractUnitTest {
     }
     
     /**
+     * Verify that an array can be created properly from {@link TypeKind}
+     */
+    @Test
+    public void testCreateArrayTypeKind() {
+        when(mockArrayMirror.getKind()).thenReturn(TypeKind.ARRAY);
+        when(mockArrayMirror.getComponentType()).thenReturn(mockMirror);
+        when(mockMirror.getKind()).thenReturn(TypeKind.INT);
+        Assertions.assertEquals(new ArrayType<Type>(PrimitiveType.INT), TypeFactory.create(mockArrayMirror));
+        verify(mockArrayMirror).getKind();
+        verify(mockArrayMirror).getComponentType();
+        verify(mockMirror).getKind();
+    }
+    
+    /**
      * Verify that an exception is thrown if creation from any other {@link TypeKind} is attempted
      */
     @Test
     public void testCreateOtherTypeKind() {
         int timesGetKind = 0;
         for (TypeKind kind: TypeKind.values()) {
-            if (kind.isPrimitive() || kind == TypeKind.VOID || kind == TypeKind.DECLARED)
+            if (kind.isPrimitive() || kind == TypeKind.VOID || kind == TypeKind.DECLARED || kind == TypeKind.ARRAY)
                 continue;
             
             when(mockMirror.getKind()).thenReturn(kind);

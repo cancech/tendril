@@ -85,13 +85,11 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
 
     /**
      * Process the annotated class, generating the appropriate {@link EnumQualifier} for the {@link Enum}
-     * 
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType(tendril.codegen.field.type.ClassType)
      */
     @Override
-    public ClassDefinition processType(ClassType data) {
-        ClassType providerClass = data.generateFromClassSuffix("Id");
-        return new ClassDefinition(providerClass, generateCode(providerClass, data));
+    public ClassDefinition processType() {
+        ClassType providerClass = currentClassType.generateFromClassSuffix("Id");
+        return new ClassDefinition(providerClass, generateCode(providerClass));
     }
 
     /**
@@ -102,12 +100,12 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
      * @return {@link String} containing the generated code
      * @throws ClassNotFoundException if the sourceEnum representing as unknown type
      */
-    private String generateCode(ClassType qualifier, ClassType sourceEnum) {
+    private String generateCode(ClassType qualifier) {
         JClass cls = ClassBuilder.forAnnotation(qualifier).setVisibility(VisibilityType.PUBLIC)
                 .addAnnotation(JAnnotationFactory.create(Retention.class, JValueFactory.create(RetentionPolicy.RUNTIME)))
                 .addAnnotation(JAnnotationFactory.create(Target.class, JValueFactory.createArray(ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER)))
                 .addAnnotation(JAnnotationFactory.create(EnumQualifier.class))
-                .buildMethod(sourceEnum, "value").setVisibility(VisibilityType.PUBLIC).finish().build();
+                .buildMethod(currentClassType, "value").setVisibility(VisibilityType.PUBLIC).finish().build();
         return cls.generateCode();
     }
 

@@ -15,7 +15,9 @@
  */
 package tendril.codegen;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -131,6 +133,8 @@ public class JBaseTest extends AbstractUnitTest {
      */
     @Test
     public void testSingleAnnotation() {
+        when(mockAnnotation1.getType()).thenReturn(new ClassType(Override.class));
+        
         element.setFinal(true);
         element.addAnnotation(mockAnnotation1);
         Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
@@ -138,6 +142,13 @@ public class JBaseTest extends AbstractUnitTest {
         element.generate(mockCodeBuilder, mockImports);
         verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
         element.verifyTimesCalled(1, 0);
+
+        Assertions.assertFalse(element.hasAnnotation(Deprecated.class));
+        verify(mockAnnotation1).getType();
+        Assertions.assertFalse(element.hasAnnotation(Test.class));
+        verify(mockAnnotation1, times(2)).getType();
+        Assertions.assertTrue(element.hasAnnotation(Override.class));
+        verify(mockAnnotation1, times(3)).getType();
     }
 
     /**
@@ -145,6 +156,10 @@ public class JBaseTest extends AbstractUnitTest {
      */
     @Test
     public void testMultipleAnnotations() {
+        when(mockAnnotation1.getType()).thenReturn(new ClassType(Override.class));
+        when(mockAnnotation2.getType()).thenReturn(new ClassType(Deprecated.class));
+        when(mockAnnotation3.getType()).thenReturn(new ClassType(Override.class));
+        
         element.addAnnotation(mockAnnotation1);
         Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
         element.addAnnotation(mockAnnotation2);
@@ -157,6 +172,17 @@ public class JBaseTest extends AbstractUnitTest {
         verify(mockAnnotation2).generate(mockCodeBuilder, mockImports);
         verify(mockAnnotation3).generate(mockCodeBuilder, mockImports);
         element.verifyTimesCalled(1, 0);
+        
+
+        Assertions.assertTrue(element.hasAnnotation(Deprecated.class));
+        verify(mockAnnotation1).getType();
+        verify(mockAnnotation2).getType();
+        Assertions.assertFalse(element.hasAnnotation(Test.class));
+        verify(mockAnnotation1, times(2)).getType();
+        verify(mockAnnotation2, times(2)).getType();
+        verify(mockAnnotation3, times(1)).getType();
+        Assertions.assertTrue(element.hasAnnotation(Override.class));
+        verify(mockAnnotation1, times(3)).getType();
     }
 
     /**

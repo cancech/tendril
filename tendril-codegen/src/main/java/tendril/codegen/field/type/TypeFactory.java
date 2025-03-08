@@ -45,6 +45,8 @@ public abstract class TypeFactory {
             return PrimitiveType.valueOf(kind.toString());
         if (kind == TypeKind.DECLARED)
             return new ClassType(mirror.toString());
+        if (kind == TypeKind.ARRAY)
+            return new ArrayType<Type>(create(((javax.lang.model.type.ArrayType) mirror).getComponentType()));
 
         throw new DefinitionException("Unknown type: " + mirror + "[" + kind + "]");
     }

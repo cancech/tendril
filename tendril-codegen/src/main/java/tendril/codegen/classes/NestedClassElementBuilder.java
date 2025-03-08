@@ -48,6 +48,7 @@ public abstract class NestedClassElementBuilder<DATA_TYPE extends Type, ELEMENT 
      */
     @Override
     public ELEMENT build() {
+        // TODO merge build and finish into a single action/method. ElementLoad can then load the element separately from the class
         if (classBuilder != null)
             throw new IllegalStateException("Cannot be built directly - ClassBuilder for encompassing class provided. Use finish() instead to build the element and add it to the encompassing class");
 

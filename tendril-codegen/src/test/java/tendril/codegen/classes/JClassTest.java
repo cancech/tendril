@@ -384,8 +384,11 @@ public class JClassTest extends AbstractUnitTest {
 
         // Add the additional features
         jclass.setFinal(true);
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getFields());
         jclass.addField(mockField1);
+        Assertions.assertIterableEquals(Collections.singletonList(mockField1), jclass.getFields());
         jclass.addField(mockField2);
+        Assertions.assertIterableEquals(Arrays.asList(mockField1, mockField2), jclass.getFields());
 
         // Verify that it matches  [mockClassType, mockField1Type, mockField2Type]
         assertGeneratedCode();
@@ -442,9 +445,13 @@ public class JClassTest extends AbstractUnitTest {
 
         // Add the additional features
         jclass.setFinal(true);
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getMethods());
         jclass.addMethod(mockVoidMethod);
+        Assertions.assertIterableEquals(Collections.singletonList(mockVoidMethod), jclass.getMethods());
         jclass.addMethod(mockPrimitiveMethod);
+        Assertions.assertIterableEquals(Arrays.asList(mockVoidMethod, mockPrimitiveMethod), jclass.getMethods());
         jclass.addMethod(mockClassMethod);
+        Assertions.assertIterableEquals(Arrays.asList(mockVoidMethod, mockPrimitiveMethod, mockClassMethod), jclass.getMethods());
 
         // Verify that it matches
         assertGeneratedCode();

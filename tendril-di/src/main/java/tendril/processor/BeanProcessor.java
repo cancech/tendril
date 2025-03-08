@@ -17,7 +17,6 @@ package tendril.processor;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,9 +29,6 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.VariableElement;
 
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -112,12 +108,12 @@ public class BeanProcessor extends AbstractTendrilProccessor {
     }
 
     /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType(tendril.codegen.field.type.ClassType)
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
      */
     @Override
-    protected ClassDefinition processType(ClassType data) {
-        ClassType providerClass = data.generateFromClassSuffix("Recipe");
-        return new ClassDefinition(providerClass, generateCode(providerClass, data));
+    protected ClassDefinition processType() {
+        ClassType providerClass = currentClassType.generateFromClassSuffix("Recipe");
+        return new ClassDefinition(providerClass, generateCode(providerClass));
     }
 
     /**
@@ -127,22 +123,21 @@ public class BeanProcessor extends AbstractTendrilProccessor {
      * @param bean {@link ClassType} for the bean that is to be provided
      * @return {@link String} containing the code for the recipe
      */
-    private String generateCode(ClassType recipe, ClassType bean) {
+    private String generateCode(ClassType recipe) {
         Set<ClassType> externalImports = new HashSet<>();
         
         // The parent class
-        JClass parent = ClassBuilder.forConcreteClass(getRecipeClass()).addGeneric(GenericFactory.create(bean)).build();
+        JClass parent = ClassBuilder.forConcreteClass(getRecipeClass()).addGeneric(GenericFactory.create(currentClass)).build();
         
         // CTOR contents
         List<String> ctorCode = new ArrayList<>();
-        ctorCode.add("super(engine, " + bean.getSimpleName() + ".class);");
-        Map<ElementKind, List<Element>> consumers = getEnclosedElements(Inject.class);
-        generateFieldConsumers(externalImports, bean, ctorCode, consumers.get(ElementKind.FIELD));
-        generateMethodConsumers(externalImports, bean, ctorCode, consumers.get(ElementKind.METHOD));
+        ctorCode.add("super(engine, " + currentClassType.getSimpleName() + ".class);");
+        generateFieldConsumers(externalImports, ctorCode);
+        generateMethodConsumers(externalImports, ctorCode);
         
         // Bean descriptor
         ClassType descriptorClass = new ClassType(Descriptor.class);
-        descriptorClass.addGeneric(GenericFactory.create(bean));
+        descriptorClass.addGeneric(GenericFactory.create(currentClass));
         
         ClassBuilder clsBuilder = ClassBuilder.forConcreteClass(recipe).setVisibility(VisibilityType.PUBLIC).extendsClass(parent)
                 .buildConstructor().setVisibility(VisibilityType.PUBLIC)
@@ -150,7 +145,7 @@ public class BeanProcessor extends AbstractTendrilProccessor {
                     .addCode(ctorCode.toArray(new String[ctorCode.size()])).finish()
                 .buildMethod("setupDescriptor").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PUBLIC)
                     .buildParameter(descriptorClass, "descriptor").finish()
-                    .addCode(getBeanDescriptorContents("descriptor")).finish();
+                    .addCode(joinLines(getDescriptorLines(currentClass), "descriptor.", ";", "\n")).finish();
         if (annotateRegistry)
             clsBuilder.addAnnotation(JAnnotationFactory.create(Registry.class));
         JClass cls = clsBuilder.build();
@@ -172,9 +167,9 @@ public class BeanProcessor extends AbstractTendrilProccessor {
         }
         
         if (foundTypes.isEmpty())
-            throw new ProcessingException(getCurrentElement() + " must have a single life cycle indicated");
+            throw new ProcessingException(currentClassType.getFullyQualifiedName() + " must have a single life cycle indicated");
         if (foundTypes.size() > 1)
-            throw new ProcessingException(getCurrentElement() + "has multiple life cycles indicated [" + TendrilStringUtil.join(foundTypes) + "]");
+            throw new ProcessingException(currentClassType.getFullyQualifiedName() + "has multiple life cycles indicated [" + TendrilStringUtil.join(foundTypes) + "]");
         
         return recipeTypeMap.get(foundTypes.get(0));
     }
@@ -187,15 +182,11 @@ public class BeanProcessor extends AbstractTendrilProccessor {
      * @param ctorLines {@link List} of {@link String} lines that are already present in the recipe constructor
      * @param elements {@link List} of {@link Element}s that have been annotated as consumers
      */
-    private void generateFieldConsumers(Set<ClassType> externalImports, ClassType bean, List<String> ctorLines, List<Element> elements) {
-        if (elements == null)
-            return;
-        
-        for (Element e: elements) {
-            if (!(e instanceof VariableElement))
+    private void generateFieldConsumers(Set<ClassType> externalImports, List<String> ctorLines) {
+        for (JField<?> field: currentClass.getFields()) {
+            if (!field.hasAnnotation(Inject.class))
                 continue;
             
-            JField<?> field = loadFieldDetails((VariableElement) e).getValue();
             Type fieldType = field.getType();
             if (fieldType instanceof ClassType)
                 externalImports.add((ClassType) fieldType);
@@ -204,10 +195,10 @@ public class BeanProcessor extends AbstractTendrilProccessor {
             externalImports.add(new ClassType(Descriptor.class));
             
             ctorLines.add("registerDependency(" + getDependencyDescriptor(field) + ", new " +
-                    Applicator.class.getSimpleName() + "<" + bean.getSimpleName() + ", " + fieldType.getSimpleName() + ">() {");
+                    Applicator.class.getSimpleName() + "<" + currentClassType.getSimpleName() + ", " + fieldType.getSimpleName() + ">() {");
             ctorLines.add("    @Override");
-            ctorLines.add("    public void apply(" + bean.getSimpleName() + " consumer, " + fieldType.getSimpleName() + " bean) {");
-            ctorLines.add("        consumer." + e.getSimpleName() + " = bean;");
+            ctorLines.add("    public void apply(" + currentClassType.getSimpleName() + " consumer, " + fieldType.getSimpleName() + " bean) {");
+            ctorLines.add("        consumer." + field.getName() + " = bean;");
             ctorLines.add("    }");
             ctorLines.add("});");
         }
@@ -221,23 +212,19 @@ public class BeanProcessor extends AbstractTendrilProccessor {
      * @param ctorLines {@link List} of {@link String} lines that are already present in the recipe constructor
      * @param elements {@link List} of {@link Element}s that have been annotated as consumers
      */
-    private void generateMethodConsumers(Set<ClassType> externalImports, ClassType bean, List<String> ctorLines, List<Element> elements) {
-        if (elements == null)
-            return;
-        
+    private void generateMethodConsumers(Set<ClassType> externalImports, List<String> ctorLines) {
         externalImports.add(new ClassType(Injector.class));
-        for (Element e: elements) {
-            JMethod<?> method = loadMethodDetails((ExecutableElement) e).getValue();
+        for (JMethod<?> method: currentClass.getMethods()) {
             if (!method.getType().isVoid())
-                LOGGER.warning(getCurrentElement().getSimpleName() + "::" + method.getName() + " consumer has a non-void return type");
+                LOGGER.warning(currentClassType.getSimpleName() + "::" + method.getName() + " consumer has a non-void return type");
 
-            ctorLines.add("registerInjector(new Injector<" + bean.getSimpleName() + ">() {");
+            ctorLines.add("registerInjector(new Injector<" + currentClassType.getSimpleName() + ">() {");
             ctorLines.add("    @Override");
-            ctorLines.add("    public void inject(" + bean.getSimpleName() + " consumer, Engine engine) {");
+            ctorLines.add("    public void inject(" + currentClassType.getSimpleName() + " consumer, Engine engine) {");
             
             List<JParameter<?>> params = method.getParameters();
             if (params.isEmpty()) // TODO switching to using the @PostConstruct class directly once it is available
-                LOGGER.warning(bean + "::" + e + " has no parameters, this is a meaningless injection. Use @PostConstruct instead");
+                LOGGER.warning(currentClassType.getFullyQualifiedName() + "::" + method.getName() + " has no parameters, this is a meaningless injection. Use @PostConstruct instead");
             for(JParameter<?> p: method.getParameters()) {
                 ctorLines.add("        " + p.getType().getSimpleName() + p.getGenericsApplicationKeyword(true) + p.getName() + " = " +
                         "engine.getBean(" + getDependencyDescriptor(p) + ");");
@@ -298,35 +285,6 @@ public class BeanProcessor extends AbstractTendrilProccessor {
         }
         
         return lines;
-    }
-    
-    /**
-     * Get the code through which the name is applied to the Descriptor
-     * 
-     * @param e {@link Element} whose name it being determined
-     * @param names {@link List} of {@link Named} annotation that have been applied to the element
-     * @return {@link String} containing the code with the appropriate descriptor update
-     * @throws ProcessingException if more than one name is applied to the bean
-     */
-    private String getDescriptorName(Element e, List<Named> names) {
-        if (names.isEmpty())
-            return "";
-        if (names.size() > 1)
-            // This situation is prevented by the compiler
-            throw new ProcessingException(e + " cannot have more than one name");
-        
-        return "setName(\"" + names.get(0).value() + "\")";
-    }
-    
-    /**
-     * Get the code which applies the defined description of the bean to the descriptor under the specified variable name
-     * 
-     * @param varName {@link String} the variable name of the descriptor which is to be populated
-     * @return {@link String}[] containing all of the lines of code which apply the defined bean description
-     */
-    private String[] getBeanDescriptorContents(String varName) {
-        // TODO switch to using codegen elements, rather than relying on the getCurrentElement() - i.e.: simplify implementation by having only one approach
-        return new String[] {joinLines(Collections.singletonList(getDescriptorName(getCurrentElement(), getElementAnnotations(Named.class))), varName + ".", ";", "\n")};
     }
 
     /**

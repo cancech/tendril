@@ -24,46 +24,28 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import tendril.codegen.BaseBuilder;
-import tendril.codegen.VisibilityType;
+import tendril.codegen.JBase;
 import tendril.codegen.annotation.JAnnotation;
-import tendril.codegen.classes.FieldBuilder;
-import tendril.codegen.classes.ParameterBuilder;
-import tendril.codegen.classes.method.AnonymousMethod;
+import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
-import tendril.codegen.field.JField;
-import tendril.codegen.field.VisibileTypeBuilder;
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.Type;
-import tendril.codegen.field.type.TypeFactory;
-import tendril.codegen.field.value.JValue;
 
 /**
  * Abstract processor which takes care of all of the heavy lifting in terms of finding the annotated elements to process for the current round, loading their details and passing them to the
@@ -71,12 +53,15 @@ import tendril.codegen.field.value.JValue;
  * annotated element as either a Type (class) or method.
  */
 public abstract class AbstractTendrilProccessor extends AbstractProcessor {
-
+    /** The type of class that is currently being processed */
+    protected ClassType currentClassType;
+    /** The class that is currently being processed */
+    protected JClass currentClass;
     /** The environment for the current round of annotation processing */
     protected RoundEnvironment roundEnv = null;
-    /** The TypeElement that is currently being processed (i.e.: on which the annotation was discovered */
-    private TypeElement currentTypeElement = null;
-
+    /** Flag for whether the annotated element currently being processed is a method */
+    private boolean isProcessingMethod = false;
+    
     /**
      * CTOR
      */
@@ -128,12 +113,12 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
     protected Consumer<? super Element> defaultConsumer() {
         return element -> {
             if (element instanceof TypeElement) {
-                currentTypeElement = (TypeElement) element;
-                prepareAndProcessType();
-                currentTypeElement = null;
-            } else if (element instanceof ExecutableElement)
+                isProcessingMethod = false;
+                prepareAndProcessType((TypeElement) element);
+            } else if (element instanceof ExecutableElement) {
+                isProcessingMethod = true;
                 prepareAndProcessMethod((ExecutableElement) element);
-            else
+            } else
                 System.err.println("Unknown element type: " + element);
         };
     }
@@ -159,10 +144,34 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
 
     /**
      * Prepare the {@link TypeElement} as a Class and trigger its processing
+     * 
+     * @param element {@link TypeElement} that is to be processed
      */
-    private void prepareAndProcessType() {
-        validateType(currentTypeElement);
-        writeCode(processType(deriveClassData(currentTypeElement)));
+    private void prepareAndProcessType(TypeElement element) {
+        // Ensure that the element is supposed to be processed before doing anything else
+        validateType(element);
+        
+        // Load the full details of the element
+        currentClass = ElementLoader.loadClassDetails(element);
+        currentClassType = currentClass.getType();
+        
+        // Process it and save the generated code
+        writeCode(processType());
+        
+        // Reset for the next iteration
+        currentClass = null;
+        currentClassType = null;
+    }
+
+    /**
+     * Prepare the {@link ExecutableElement} as a method and trigger its processing
+     * 
+     * @param element {@link ExecutableElement} of the method
+     */
+    private void prepareAndProcessMethod(ExecutableElement element) {
+        // TODO This should load the full enclosing class
+        Pair<ClassType, JMethod<?>> methodDetails = ElementLoader.loadMethodDetails(element);
+        writeCode(processMethod(methodDetails.getLeft(), methodDetails.getRight()));
     }
 
     /**
@@ -180,6 +189,7 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * 
      * @param toCheck     {@link TypeElement} that is to be checked
      * @param desiredType {@link Class} that is to be in the type hierarchy
+     * 
      * @return boolean true if the desired type is extended or implemented by the {@link TypeElement}
      */
     protected boolean isTypeOf(TypeElement toCheck, Class<?> desiredType) {
@@ -191,63 +201,39 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * Get all instances of the desired annotation which are applied to the element which is currently being processed
      * 
      * @param <ANNOTATION> indicating the type of annotation that is desired
+     * 
      * @param annotation {@link Class} of the desired annotation
-     * @return {@link List} of all instances of the annotation which have been applied
+     * 
+     * @return {@link List} of {@link JAnnotation} representing all of the annotations that have been applied to the element being processed
      */
-    protected <ANNOTATION extends Annotation> List<ANNOTATION> getElementAnnotations(Class<ANNOTATION> annotation) {
-        if (currentTypeElement != null)
-            return getElementAnnotations(currentTypeElement, annotation);
+    protected <ANNOTATION extends Annotation> List<JAnnotation> getElementAnnotations(Class<ANNOTATION> annotation) {
+        if (!isProcessingMethod)
+            return getElementAnnotations(currentClass, annotation);
         
         return Collections.emptyList();
-    }
-    
-    /**
-     * Get the element which is currently being processed.
-     * 
-     * @return {@link Element}
-     */
-    protected Element getCurrentElement() {
-        if (currentTypeElement != null)
-            return currentTypeElement;
-        
-        return null;
     }
     
     /**
      * Get all instances of the desired annotation which are applied to the specified element
      * 
      * @param <ANNOTATION> indicating the type of annotation that is desired
-     * @param e {@link Element} on which to look for the annotation
+     * 
+     * @param element {@link JBase} on which to look for the annotation
      * @param annotation {@link Class} of the desired annotation
-     * @return {@link List} of all instances of the annotation which have been applied
-     */
-    protected <ANNOTATION extends Annotation> List<ANNOTATION> getElementAnnotations(Element e, Class<ANNOTATION> annotation) {
-        return Arrays.asList(e.getAnnotationsByType(annotation));
-    }
-
-    /**
-     * Get the elements contained within the current TypeElement, which are annotated with the specified annotation
      * 
-     * @param annotation {@link Class} of the {@link Annotation} to look for
-     * 
-     * @return {@link Map} of the {@link ElementKind} (type of element) to the {@link List} of {@link Element}s that were found
+     * @return {@link List} of {@link JAnnotation} representing all of the annotations that have been applied to the specified element
      */
-    protected Map<ElementKind, List<Element>> getEnclosedElements(Class<? extends Annotation> annotation) {
-        if (currentTypeElement == null)
-            return new HashMap<>();
-
-        Map<ElementKind, List<Element>> annotatedElements = new HashMap<>();
-        for (Element e : currentTypeElement.getEnclosedElements()) {
-            if (e.getAnnotation(annotation) != null) {
-                ElementKind kind = e.getKind();
-                if (!annotatedElements.containsKey(kind))
-                    annotatedElements.put(kind, new ArrayList<>());
-
-                annotatedElements.get(e.getKind()).add(e);
-            }
+    protected <ANNOTATION extends Annotation> List<JAnnotation> getElementAnnotations(JBase element, Class<ANNOTATION> annotation) {
+        ClassType annotationType = new ClassType(annotation);
+        
+        // Find all annotations on the element of this type
+        List<JAnnotation> instances = new ArrayList<>();
+        for (JAnnotation a: element.getAnnotations()) {
+            if (a.getType().equals(annotationType))
+                instances.add(a);
         }
-
-        return annotatedElements;
+        
+        return instances;
     }
 
     /**
@@ -267,132 +253,6 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Prepare the {@link ExecutableElement} as a method and trigger its processing
-     * 
-     * @param element {@link ExecutableElement} of the method
-     */
-    private void prepareAndProcessMethod(ExecutableElement element) {
-        Pair<ClassType, JMethod<?>> methodDetails = loadMethodDetails(element);
-        writeCode(processMethod(methodDetails.getLeft(), methodDetails.getRight()));
-    }
-
-    /**
-     * Load the details of the method from the element
-     * 
-     * @param element {@link ExecutableElement} containing the details of the method
-     * @return {@link Pair} of {@link ClassType} of the enclosing class and {@link JMethod} representing the full details of the method
-     * @throws ProcessingException if there is an issue loading the details of the method
-     */
-    protected Pair<ClassType, JMethod<?>> loadMethodDetails(ExecutableElement element) {
-        ClassType classData = deriveClassData((TypeElement) element.getEnclosingElement());
-        List<? extends TypeMirror> parameterTypes = ((ExecutableType) element.asType()).getParameterTypes();
-        List<? extends VariableElement> parameters = element.getParameters();
-        if (parameterTypes.size() != parameters.size())
-            throw new ProcessingException(element + " mismatch between number of parameters and parameter types");
-
-        JMethod<?> method = new AnonymousMethod<>(TypeFactory.create(element.getReturnType()), element.getSimpleName().toString());
-        for (int i = 0; i < parameters.size(); i++) {
-            VariableElement varElement = parameters.get(i);
-            ParameterBuilder<?, ?> paramBuilder = new ParameterBuilder<>(TypeFactory.create(parameterTypes.get(i)), varElement.getSimpleName().toString());
-            loadAnnotations(paramBuilder, varElement);
-
-            method.addParameter(paramBuilder.build());
-        }
-
-        return Pair.of(classData, method);
-    }
-    
-    /**
-     * Load the details of the field from the element
-     * 
-     * @param varElement {@link VariableElement} containing the details of the field
-     * @return {@link Pair} of {@link ClassType} of the enclosing class and the {@link JMethod} representing the full details of the field
-     */
-    protected Pair<ClassType, JField<?>> loadFieldDetails(VariableElement varElement) {
-        ClassType classData = deriveClassData((TypeElement) varElement.getEnclosingElement());
-        
-        FieldBuilder<Type> fieldBuilder = new FieldBuilder<>(varElement.getSimpleName().toString());
-        fieldBuilder.setType(TypeFactory.create(varElement.asType()));
-        
-        // Load the details of the field
-        loadElementFinality(fieldBuilder, varElement);
-        loadElementMods(fieldBuilder, varElement);
-        loadAnnotations(fieldBuilder, varElement);
-        
-        return Pair.of(classData, fieldBuilder.build());
-    }
-    
-    /**
-     * Load the final state of the element into the builder
-     * 
-     * @param builder {@link BaseBuilder} with which the representative element is being built
-     * @param element {@link Element} from which to load the details
-     */
-    private void loadElementFinality(BaseBuilder<?, ?> builder, Element element) {
-        builder.setFinal(element.getModifiers().contains(Modifier.FINAL));
-    }
-    
-    /**
-     * Load the visibility type modifiers of the element into the builder
-     * 
-     * @param builder {@link VisibileTypeBuilder} with which the representative element is being built
-     * @param element {@link Element} from which to load the details
-     */
-    private void loadElementMods(VisibileTypeBuilder<?, ?, ?> builder, Element element) {
-        Set<Modifier> mods = element.getModifiers();
-        builder.setStatic(mods.contains(Modifier.STATIC));
-        if (mods.contains(Modifier.PUBLIC))
-            builder.setVisibility(VisibilityType.PUBLIC);
-        else if (mods.contains(Modifier.PRIVATE))
-            builder.setVisibility(VisibilityType.PRIVATE);
-        else if (mods.contains(Modifier.PROTECTED))
-            builder.setVisibility(VisibilityType.PROTECTED);
-        else
-            builder.setVisibility(VisibilityType.PACKAGE_PRIVATE);
-    }
-    
-    /**
-     * Load annotations from the element into the builder
-     * 
-     * @param builder {@link BaseBuilder} with which the representative element is being built
-     * @param element {@link Element} from which to load the annotations
-     */
-    private void loadAnnotations(BaseBuilder<?, ?> builder, Element element) {
-        for (AnnotationMirror m : element.getAnnotationMirrors()) {
-            JAnnotation annonData = new JAnnotation(deriveClassData((TypeElement) m.getAnnotationType().asElement()));
-            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : m.getElementValues().entrySet()) {
-                Pair<ClassType, JMethod<?>> details = loadMethodDetails(entry.getKey());
-                JValue<?, ?> value = details.getRight().getType().asValue(entry.getValue().getValue());
-                annonData.addAttribute(details.getRight(), value);
-            }
-            builder.addAnnotation(annonData);
-        }
-    }
-
-    /**
-     * Determine the details of the class represented by the element
-     * 
-     * @param type {@link TypeElement} of the class
-     * @return {@link ClassType} with the class details
-     */
-    protected ClassType deriveClassData(TypeElement type) {
-        String typeName = type.getSimpleName().toString();
-        String packageName = StringUtils.removeEnd(StringUtils.removeEnd(type.getQualifiedName().toString(), typeName), ".");
-        return new ClassType(packageName, typeName);
-    }
-
-    /**
-     * Get the {@link Type} for the {@link VariableElement}
-     * 
-     * @param element {@link VariableElement}
-     * @return {@link Type}
-     */
-    protected Type variableType(VariableElement element) {
-        TypeElement type = (TypeElement) processingEnv.getTypeUtils().asElement(element.asType());
-        return deriveClassData(type);
     }
 
     /**
@@ -432,10 +292,9 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * Perform the necessary processing of the indicated class, which was found to have been annotated with the required annotation. An empty implementation is provided by default, leaving it up to
      * the subclass to provide the necessary concrete implementation.
      * 
-     * @param data {@link ClassType} representing the annotated class
      * @return {@link ClassDefinition} defining the generated type (null if nothing is to be generated)
      */
-    protected abstract ClassDefinition processType(ClassType data);
+    protected abstract ClassDefinition processType();
 
     /**
      * Perform the necessary processing of the indicated method, which was found to have been annotated with the required annotation. An empty implementation is provided by default, leaving it up to

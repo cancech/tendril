@@ -15,6 +15,7 @@
  */
 package tendril.codegen;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -97,6 +98,24 @@ public abstract class JBase extends JGeneric {
      */
     public List<JAnnotation> getAnnotations() {
         return annotations;
+    }
+    
+    /**
+     * Check if an annotation is placed on the item
+     * 
+     * @param annotation {@link Class} extending {@link Annotation} indicating which annotation to look for
+     * 
+     * @return boolean true if at least one instance of the annotation is found
+     */
+    public boolean hasAnnotation(Class<? extends Annotation> annotation) {
+        ClassType type = new ClassType(annotation);
+        
+        for (JAnnotation a: annotations) {
+            if (a.getType().equals(type))
+                return true;
+        }
+        
+        return false;
     }
 
     /**

@@ -27,15 +27,11 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.Name;
@@ -46,26 +42,22 @@ import javax.lang.model.element.RecordComponentElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.JavaFileObject;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
-import tendril.codegen.annotation.JAnnotationFactory;
-import tendril.codegen.classes.JParameter;
-import tendril.codegen.classes.ParameterBuilder;
-import tendril.codegen.classes.method.AnonymousMethod;
+import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.PrimitiveType;
-import tendril.codegen.field.value.JValueFactory;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -79,8 +71,8 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
     private class TestTendrilProcessor extends AbstractTendrilProccessor {
         // Flags for tracking the calls to the processing methods
         private int timesTypeCalled = 0;
-        private ClassType lastClassTypeData;
         private int timesMethodCalled = 0;
+        private ClassType lastClassTypeClassData;
         private ClassType lastMethodTypeClassData;
         private JMethod<?> lastMethodTypeMethodData;
 
@@ -94,10 +86,10 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
         /**
          * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType(tendril.codegen.field.type.ClassType)
          */
-        protected ClassDefinition processType(ClassType data) {
+        protected ClassDefinition processType() {
             timesTypeCalled++;
-            lastClassTypeData = data;
-            return mockGeneratedDefForClass;
+            lastClassTypeClassData = currentClassType;
+            return mockGeneratedDef;
         }
 
         /**
@@ -108,7 +100,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
          */
         private void verifyClassType(int expectedTimesCalled, ClassType expectedData) {
             Assertions.assertEquals(expectedTimesCalled, timesTypeCalled);
-            Assertions.assertEquals(expectedData, lastClassTypeData);
+            Assertions.assertEquals(expectedData, lastClassTypeClassData);
         }
 
         /**
@@ -118,7 +110,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
             timesMethodCalled++;
             lastMethodTypeClassData = classData;
             lastMethodTypeMethodData = methodData;
-            return mockGeneratedDefForMethod;
+            return mockGeneratedDef;
         }
 
         /**
@@ -132,19 +124,6 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
             Assertions.assertEquals(expectedTimesCalled, timesMethodCalled);
             Assertions.assertEquals(expectedClassData, lastMethodTypeClassData);
             Assertions.assertEquals(expectedMethodData, lastMethodTypeMethodData);
-
-            if (expectedMethodData == null)
-                return;
-
-            // Verify parameter annotations
-            List<JParameter<?>> expectedParams = expectedMethodData.getParameters();
-            List<JParameter<?>> actualParams = lastMethodTypeMethodData.getParameters();
-            Assertions.assertEquals(expectedParams.size(), actualParams.size());
-            for (int i = 0; i < expectedParams.size(); i++) {
-                JParameter<?> expectedParam = expectedParams.get(i);
-                JParameter<?> actualParam = actualParams.get(i);
-                Assertions.assertIterableEquals(expectedParam.getAnnotations(), actualParam.getAnnotations());
-            }
         }
     }
 
@@ -162,8 +141,6 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
     @Mock
     private ExecutableElement mockMethodElement;
     @Mock
-    private Name mockMethodName;
-    @Mock
     private TypeMirror mockTypeMirror;
     @Mock
     private ExecutableType mockMethodType;
@@ -172,47 +149,9 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
     @Mock
     private VariableElement mockParam1Var;
     @Mock
-    private Name mockParam1Name;
-    @Mock
     private TypeMirror mockParam2TypeMirror;
     @Mock
     private VariableElement mockParam2Var;
-    @Mock
-    private Name mockParam2Name;
-    @Mock
-    private AnnotationMirror mockParam2Annotation1;
-    @Mock
-    private DeclaredType mockParam2Annotation1Type;
-    @Mock
-    private TypeElement mockParam2Annotation1Element;
-    @Mock
-    private Name mockParam2Annotation1SimpleName;
-    @Mock
-    private Name mockParam2Annotation1QualifiedName;
-    @Mock
-    private ExecutableElement mockParam2Annotation1Method;
-    @Mock
-    private ExecutableType mockParam2Annotation1MethodType;
-    @Mock
-    private TypeMirror mockParam2Annotation1ReturnType;
-    @Mock
-    private Name mockParam2Annotation1MethodName;
-    @Mock
-    private AnnotationValue mockParam2Annotation1Value;
-    @Mock
-    private AnnotationMirror mockParam2Annotation2;
-    @Mock
-    private DeclaredType mockParam2Annotation2Type;
-    @Mock
-    private TypeElement mockParam2Annotation2Element;
-    @Mock
-    private Name mockParam2Annotation2SimpleName;
-    @Mock
-    private Name mockParam2Annotation2QualifiedName;
-    @Mock
-    private ExecutableElement mockParam2Annotation2Method;
-    @Mock
-    private Name mockParam2Annotation2MethodName;
     @Mock
     private ModuleElement mockModuleElement;
     @Mock
@@ -234,9 +173,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
     @Mock
     private ProcessingEnvironment mockProcessingEnv;
     @Mock
-    private ClassDefinition mockGeneratedDefForClass;
-    @Mock
-    private ClassDefinition mockGeneratedDefForMethod;
+    private ClassDefinition mockGeneratedDef;
     @Mock
     private ClassType mockGeneratedType;
     @Mock
@@ -245,6 +182,12 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
     private JavaFileObject mockFileObject;
     @Mock
     private Writer mockFileWriter;
+    @Mock
+    private JClass mockJClass;
+    @Mock
+    private ClassType mockClassType;
+    @Mock
+    private JMethod<?> mockJMethod;
 
     // Instance to test
     private TestTendrilProcessor processor;
@@ -315,30 +258,30 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
      */
     @Test
     public void testProcessClass() throws IOException {
-        when(mockTypeElement.getSimpleName()).thenReturn(mockSimpleName);
-        when(mockSimpleName.toString()).thenReturn("Qwerty");
-        when(mockTypeElement.getQualifiedName()).thenReturn(mockFullyQualifiedName);
-        when(mockFullyQualifiedName.toString()).thenReturn("a.b.c.d.Qwerty");
-        when(mockGeneratedDefForClass.getType()).thenReturn(mockGeneratedType);
-        when(mockGeneratedType.getFullyQualifiedName()).thenReturn("z.x.c.V");
-        when(mockGeneratedDefForClass.getCode()).thenReturn("classCode");
-        when(mockProcessingEnv.getFiler()).thenReturn(mockFiler);
-        when(mockFiler.createSourceFile("z.x.c.V")).thenReturn(mockFileObject);
-        when(mockFileObject.openWriter()).thenReturn(mockFileWriter);
-
-        // This mock format is required due to compilation error with "normal" method
-        doReturn(Set.of(mockTypeElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
-        Assertions.assertFalse(processor.process(Set.of(mockAnnotation), mockEnvironment));
-        verify(mockEnvironment).errorRaised();
-        verify(mockEnvironment).processingOver();
-        verify(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
-        verify(mockTypeElement).getSimpleName();
-        verify(mockTypeElement).getQualifiedName();
-        verify(mockFileWriter).write("classCode", 0, "classCode".length());
-        verify(mockFileWriter).close();
-
-        processor.verifyClassType(1, new ClassType("a.b.c.d.Qwerty"));
-        processor.verifyMethodType(0, null, null);
+        try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
+            mockLoader.when(() -> ElementLoader.loadClassDetails(mockTypeElement)).thenReturn(mockJClass);
+            when(mockJClass.getType()).thenReturn(mockClassType);
+            when(mockGeneratedType.getFullyQualifiedName()).thenReturn("z.x.c.V");
+            when(mockGeneratedDef.getType()).thenReturn(mockGeneratedType);
+            when(mockGeneratedDef.getCode()).thenReturn("classCode");
+            when(mockProcessingEnv.getFiler()).thenReturn(mockFiler);
+            when(mockFiler.createSourceFile("z.x.c.V")).thenReturn(mockFileObject);
+            when(mockFileObject.openWriter()).thenReturn(mockFileWriter);
+    
+            // This mock format is required due to compilation error with "normal" method
+            doReturn(Set.of(mockTypeElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
+            Assertions.assertFalse(processor.process(Set.of(mockAnnotation), mockEnvironment));
+            verify(mockEnvironment).errorRaised();
+            verify(mockEnvironment).processingOver();
+            verify(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
+            mockLoader.verify(() -> ElementLoader.loadClassDetails(mockTypeElement));
+            verify(mockGeneratedType).getFullyQualifiedName();
+            verify(mockFileWriter).write("classCode", 0, "classCode".length());
+            verify(mockFileWriter).close();
+    
+            processor.verifyClassType(1, mockClassType);
+            processor.verifyMethodType(0, null, null);
+        }
     }
 
     /**
@@ -347,93 +290,29 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
      */
     @Test
     public void testProcessMethod() throws IOException {
-        when(mockTypeElement.getSimpleName()).thenReturn(mockSimpleName);
-        when(mockSimpleName.toString()).thenReturn("Qwerty");
-        when(mockTypeElement.getQualifiedName()).thenReturn(mockFullyQualifiedName);
-        when(mockFullyQualifiedName.toString()).thenReturn("a.b.c.d.Qwerty");
+        try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
+            mockLoader.when(() -> ElementLoader.loadMethodDetails(mockMethodElement)).thenReturn(Pair.of(mockClassType, mockJMethod));
+            when(mockGeneratedType.getFullyQualifiedName()).thenReturn("z.x.c.V");
+            when(mockProcessingEnv.getFiler()).thenReturn(mockFiler);
+            when(mockGeneratedDef.getType()).thenReturn(mockGeneratedType);
+            when(mockGeneratedDef.getCode()).thenReturn("methodCode");
+            when(mockFiler.createSourceFile("z.x.c.V")).thenReturn(mockFileObject);
+            when(mockFileObject.openWriter()).thenReturn(mockFileWriter);
 
-        // This mock format is required due to compilation error with "normal" method
-        doReturn(Set.of(mockMethodElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
-        when(mockMethodElement.getEnclosingElement()).thenReturn(mockTypeElement);
-        when(mockMethodElement.getReturnType()).thenReturn(mockTypeMirror);
-        when(mockTypeMirror.getKind()).thenReturn(TypeKind.BOOLEAN);
-        when(mockMethodElement.asType()).thenReturn(mockMethodType);
-        doReturn(Arrays.asList(mockParam1TypeMirror, mockParam2TypeMirror)).when(mockMethodType).getParameterTypes();
-        when(mockParam1TypeMirror.getKind()).thenReturn(TypeKind.CHAR);
-        when(mockParam2TypeMirror.getKind()).thenReturn(TypeKind.DOUBLE);
-        doReturn(Arrays.asList(mockParam1Var, mockParam2Var)).when(mockMethodElement).getParameters();
-        when(mockParam1Var.getSimpleName()).thenReturn(mockParam1Name);
-        when(mockParam1Var.getAnnotationMirrors()).thenReturn(Collections.emptyList());
-        when(mockParam1Name.toString()).thenReturn("param1");
-        when(mockParam2Var.getSimpleName()).thenReturn(mockParam2Name);
-        when(mockParam2Name.toString()).thenReturn("param2");
-
-        doReturn(Arrays.asList(mockParam2Annotation1, mockParam2Annotation2)).when(mockParam2Var).getAnnotationMirrors();
-        when(mockParam2Annotation1.getAnnotationType()).thenReturn(mockParam2Annotation1Type);
-        when(mockParam2Annotation1Type.asElement()).thenReturn(mockParam2Annotation1Element);
-        when(mockParam2Annotation1Element.getSimpleName()).thenReturn(mockParam2Annotation1SimpleName);
-        when(mockParam2Annotation1Element.getQualifiedName()).thenReturn(mockParam2Annotation1QualifiedName);
-        when(mockParam2Annotation1SimpleName.toString()).thenReturn("D");
-        when(mockParam2Annotation1QualifiedName.toString()).thenReturn("a.b.c.D");
-        doReturn(Map.of(mockParam2Annotation1Method, mockParam2Annotation1Value)).when(mockParam2Annotation1).getElementValues();
-        when(mockParam2Annotation1Method.getEnclosingElement()).thenReturn(mockParam2Annotation1Element);
-        when(mockParam2Annotation1Method.asType()).thenReturn(mockParam2Annotation1MethodType);
-        when(mockParam2Annotation1MethodType.getParameterTypes()).thenReturn(Collections.emptyList());
-        when(mockParam2Annotation1Method.getParameters()).thenReturn(Collections.emptyList());
-        when(mockParam2Annotation1Method.getSimpleName()).thenReturn(mockParam2Annotation1MethodName);
-        when(mockParam2Annotation1Method.getReturnType()).thenReturn(mockParam2Annotation1ReturnType);
-        when(mockParam2Annotation1ReturnType.getKind()).thenReturn(TypeKind.DECLARED);
-        when(mockParam2Annotation1ReturnType.toString()).thenReturn(String.class.getName());
-        when(mockParam2Annotation1MethodName.toString()).thenReturn("value");
-        when(mockParam2Annotation1Value.getValue()).thenReturn("abc123");
-
-        when(mockParam2Annotation2.getAnnotationType()).thenReturn(mockParam2Annotation2Type);
-        when(mockParam2Annotation2Type.asElement()).thenReturn(mockParam2Annotation2Element);
-        when(mockParam2Annotation2Element.getSimpleName()).thenReturn(mockParam2Annotation2SimpleName);
-        when(mockParam2Annotation2Element.getQualifiedName()).thenReturn(mockParam2Annotation2QualifiedName);
-        when(mockParam2Annotation2SimpleName.toString()).thenReturn("Y");
-        when(mockParam2Annotation2QualifiedName.toString()).thenReturn("q.w.e.r.t.Y");
-        doReturn(Map.of()).when(mockParam2Annotation2).getElementValues();
-
-        when(mockMethodElement.getSimpleName()).thenReturn(mockMethodName);
-        when(mockMethodName.toString()).thenReturn("mockMethod");
-
-        when(mockGeneratedDefForMethod.getType()).thenReturn(mockGeneratedType);
-        when(mockGeneratedType.getFullyQualifiedName()).thenReturn("y.u.i.O");
-        when(mockGeneratedDefForMethod.getCode()).thenReturn("methodCode");
-        when(mockProcessingEnv.getFiler()).thenReturn(mockFiler);
-        when(mockFiler.createSourceFile("y.u.i.O")).thenReturn(mockFileObject);
-        when(mockFileObject.openWriter()).thenReturn(mockFileWriter);
-
-        Assertions.assertFalse(processor.process(Set.of(mockAnnotation), mockEnvironment));
-        verify(mockEnvironment).errorRaised();
-        verify(mockEnvironment).processingOver();
-        verify(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
-        verify(mockTypeElement).getSimpleName();
-        verify(mockTypeElement).getQualifiedName();
-        verify(mockMethodElement).getEnclosingElement();
-        verify(mockMethodElement).getReturnType();
-        verify(mockTypeMirror).getKind();
-        verify(mockMethodElement).asType();
-        verify(mockMethodType).getParameterTypes();
-        verify(mockMethodElement).getParameters();
-        verify(mockParam1TypeMirror).getKind();
-        verify(mockParam1Var).getSimpleName();
-        verify(mockParam1Var).getAnnotationMirrors();
-        verify(mockParam2TypeMirror).getKind();
-        verify(mockParam2Var).getSimpleName();
-        verify(mockParam2Var).getAnnotationMirrors();
-        verify(mockFileWriter).write("methodCode", 0, "methodCode".length());
-        verify(mockFileWriter).close();
-
-        AnonymousMethod<PrimitiveType> expectedMethod = new AnonymousMethod<>(PrimitiveType.BOOLEAN, "mockMethod");
-        expectedMethod.addParameter(new ParameterBuilder<>(PrimitiveType.CHAR, "param1").build());
-        expectedMethod
-                .addParameter(new ParameterBuilder<>(PrimitiveType.DOUBLE, "param2").addAnnotation(JAnnotationFactory.create("a.b.c.D", Map.of("value", JValueFactory.create("abc123"))))
-                        .addAnnotation(JAnnotationFactory.create("q.w.e.r.t.Y")).build());
-
-        processor.verifyClassType(0, null);
-        processor.verifyMethodType(1, new ClassType("a.b.c.d.Qwerty"), expectedMethod);
+            // This mock format is required due to compilation error with "normal" method
+            doReturn(Set.of(mockMethodElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
+            Assertions.assertFalse(processor.process(Set.of(mockAnnotation), mockEnvironment));
+            verify(mockEnvironment).errorRaised();
+            verify(mockEnvironment).processingOver();
+            verify(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
+            mockLoader.verify(() -> ElementLoader.loadMethodDetails(mockMethodElement));
+            verify(mockGeneratedType).getFullyQualifiedName();
+            verify(mockFileWriter).write("methodCode", 0, "methodCode".length());
+            verify(mockFileWriter).close();
+    
+            processor.verifyClassType(0, null);
+            processor.verifyMethodType(1, mockClassType, mockJMethod);
+        }
     }
 
     /**
