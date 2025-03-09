@@ -89,8 +89,8 @@ public class CreateAnnotationTest {
     @Test
     public void createAnnotatedAnnotation() {
         JClass annotation = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC).build();
-        annotation.addAnnotation(JAnnotationFactory.create(new ClassType("d.e.f", "G")));
-        annotation.addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class));
+        annotation.add(JAnnotationFactory.create(new ClassType("d.e.f", "G")));
+        annotation.add(JAnnotationFactory.create(TestMarkerAnnotation.class));
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package a.b.c;");

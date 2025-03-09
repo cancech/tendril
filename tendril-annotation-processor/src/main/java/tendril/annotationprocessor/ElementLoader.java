@@ -147,8 +147,9 @@ public abstract class ElementLoader {
             return ClassBuilder.forInterface(type);
         if (kind == ElementKind.ANNOTATION_TYPE)
             return ClassBuilder.forAnnotation(type);
-        if (kind == ElementKind.CLASS || kind == ElementKind.ENUM) {
-            // TODO have a separate Enum builder?
+        if (kind == ElementKind.ENUM)
+            return ClassBuilder.forEnum(type);
+        if (kind == ElementKind.CLASS) {
             if (element.getModifiers().contains(Modifier.ABSTRACT))
                 return ClassBuilder.forAbstractClass(type);
             

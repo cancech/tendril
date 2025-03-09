@@ -217,7 +217,7 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
         builder.indent();
 
         // Process elements within the class
-        processElements(builder, classImports, fields);
+        processFields(builder, classImports);
         processElements(builder, classImports, ctors);
         processElements(builder, classImports, methods);
 
@@ -314,5 +314,15 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
      */
     protected String interfaceExtensionKeyword() {
         return "implements ";
+    }
+    
+    /**
+     * Process the field portion of the class, and append the results to the {@link CodeBuilder}.
+     * 
+     * @param builder {@link CodeBuilder} where the overall class code is being assembled
+     * @param classImports {@link Set} of {@link ClassType}s representing the imports for the class
+     */
+    protected void processFields(CodeBuilder builder, Set<ClassType> classImports) {
+        processElements(builder, classImports, fields);
     }
 }

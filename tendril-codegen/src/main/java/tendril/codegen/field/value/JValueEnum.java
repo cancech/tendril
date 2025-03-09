@@ -23,6 +23,7 @@ import tendril.codegen.field.type.ClassType;
  * Value that contains a specific enum entry
  */
 public class JValueEnum extends JValue<ClassType, Enum<?>> {
+    // TODO this should also work with EnumerationEntry
 
     /**
      * CTOR

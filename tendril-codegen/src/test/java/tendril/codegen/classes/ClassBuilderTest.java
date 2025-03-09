@@ -23,12 +23,14 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import javax.annotation.processing.Generated;
+import javax.lang.model.type.TypeKind;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.classes.method.JConstructor;
@@ -113,6 +115,8 @@ public class ClassBuilderTest extends AbstractUnitTest {
     private JConstructor mockCtor2;
     @Mock
     private JConstructor mockCtor3;
+    @Mock
+    private EnumerationEntry mockEnumEntry;
     
     // Instance to test
     private TestClassBuilder builder;
@@ -142,6 +146,8 @@ public class ClassBuilderTest extends AbstractUnitTest {
         ClassAssert.assertInstance(InterfaceBuilder.class, ClassBuilder.forInterface(ClassBuilder.class));
         ClassAssert.assertInstance(AnnotationBuilder.class, ClassBuilder.forAnnotation(mockClassType));
         ClassAssert.assertInstance(AnnotationBuilder.class, ClassBuilder.forAnnotation(ClassBuilder.class));
+        ClassAssert.assertInstance(EnumClassBuilder.class, ClassBuilder.forEnum(mockClassType));
+        ClassAssert.assertInstance(EnumClassBuilder.class, ClassBuilder.forEnum(TypeKind.class));
     }
     
     /**
@@ -288,6 +294,17 @@ public class ClassBuilderTest extends AbstractUnitTest {
     }
     
     /**
+     * Verify that the enum entries generate exceptions by default
+     */
+    @Test
+    public void testEnumEntries() {
+        Assertions.assertThrows(DefinitionException.class, () -> builder.buildEnumeration("EnumName"));
+        verify(mockClassType).getFullyQualifiedName();
+        Assertions.assertThrows(DefinitionException.class, () -> builder.add(mockEnumEntry));
+        verify(mockClassType, times(2)).getFullyQualifiedName();
+    }
+    
+    /**
      * Perform the verification of common details that are always applied
      * 
      * @param expectedParent {@link ClassType} class the class is expected to extend
@@ -302,7 +319,7 @@ public class ClassBuilderTest extends AbstractUnitTest {
         verify(mockClass).setStatic(false);
         
         ArgumentCaptor<JAnnotation> captor = ArgumentCaptor.forClass(JAnnotation.class);
-        verify(mockClass).addAnnotation(captor.capture());
+        verify(mockClass).add(captor.capture());
         CollectionAssert.assertSize(1, captor.getAllValues());
         Assertions.assertEquals(new ClassType(Generated.class), captor.getValue().getType());
     }

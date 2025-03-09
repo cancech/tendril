@@ -99,7 +99,7 @@ public class JParameterTest extends AbstractUnitTest {
      */
     @Test
     public void testGenerateSelfSingleAnnotation() {
-        param.addAnnotation(mockAnnotation1);
+        param.add(mockAnnotation1);
         param.generate(mockBuilder, mockImports);
         verify(mockType).registerImport(mockImports);
         verify(mockType).getSimpleName();
@@ -112,9 +112,9 @@ public class JParameterTest extends AbstractUnitTest {
      */
     @Test
     public void testGenerateSelfMultipleAnnotations() {
-        param.addAnnotation(mockAnnotation1);
-        param.addAnnotation(mockAnnotation2);
-        param.addAnnotation(mockAnnotation3);
+        param.add(mockAnnotation1);
+        param.add(mockAnnotation2);
+        param.add(mockAnnotation3);
         param.generate(mockBuilder, mockImports);
         verify(mockType).registerImport(mockImports);
         verify(mockType).getSimpleName();

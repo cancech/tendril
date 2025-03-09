@@ -133,7 +133,7 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
         verify(mockClass).setVisibility(any());
         verify(mockClass).setStatic(anyBoolean());
         verify(mockClass).setFinal(anyBoolean());
-        verify(mockClass, times(1)).addAnnotation(any());
+        verify(mockClass, times(1)).add(any());
         verify(mockClass).addGeneric(mockGeneric1);
         verify(mockClass).addGeneric(mockGeneric2);
         verify(mockClass).addGeneric(mockGeneric3);

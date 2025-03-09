@@ -121,9 +121,9 @@ public class BaseBuilderTest extends AbstractUnitTest {
         
         Assertions.assertEquals(mockElement, builder.build());
         verify(mockElement).setFinal(true);
-        verify(mockElement).addAnnotation(mockAnnotation1);
-        verify(mockElement).addAnnotation(mockAnnotation2);
-        verify(mockElement).addAnnotation(mockAnnotation3);
+        verify(mockElement).add(mockAnnotation1);
+        verify(mockElement).add(mockAnnotation2);
+        verify(mockElement).add(mockAnnotation3);
         verify(mockElement).addGeneric(mockGeneric1);
         verify(mockElement).addGeneric(mockGeneric2);
         verify(mockElement).addGeneric(mockGeneric3);
@@ -141,7 +141,7 @@ public class BaseBuilderTest extends AbstractUnitTest {
         
         Assertions.assertEquals(mockElement, builder.build());
         verify(mockElement).setFinal(true);
-        verify(mockElement).addAnnotation(mockAnnotation2);
+        verify(mockElement).add(mockAnnotation2);
         verify(mockElement).addGeneric(mockGeneric1);
         builder.verifyInteractions(1, 1);
     }

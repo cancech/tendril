@@ -207,9 +207,9 @@ public class NestedClassMethodElementBuilderTest extends AbstractUnitTest {
             builder.addAnnotation(mockAnnotation3);
             builder.finish();
             mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("ElementName"));
-            verify(mockElement).addAnnotation(mockAnnotation1);
-            verify(mockElement).addAnnotation(mockAnnotation2);
-            verify(mockElement).addAnnotation(mockAnnotation3);
+            verify(mockElement).add(mockAnnotation1);
+            verify(mockElement).add(mockAnnotation2);
+            verify(mockElement).add(mockAnnotation3);
             verify(mockElement).setFinal(false);
             verify(mockElement).setStatic(false);
             verify(mockElement).setVisibility(VisibilityType.PACKAGE_PRIVATE);

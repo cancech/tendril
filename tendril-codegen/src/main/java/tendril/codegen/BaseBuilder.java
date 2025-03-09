@@ -120,7 +120,7 @@ public abstract class BaseBuilder<ELEMENT extends JBase, BUILDER extends BaseBui
      */
     protected ELEMENT applyDetails(ELEMENT element) {
         element.setFinal(isFinal);
-        annotations.forEach(a -> element.addAnnotation(a));
+        annotations.forEach(a -> element.add(a));
         generics.forEach(g -> element.addGeneric(g));
         return element;
     }

@@ -87,7 +87,7 @@ public abstract class JBase extends JGeneric {
      * 
      * @param annotation {@link JAnnotation} representing the annotation to apply
      */
-    public void addAnnotation(JAnnotation annotation) {
+    public void add(JAnnotation annotation) {
         annotations.add(annotation);
     }
 

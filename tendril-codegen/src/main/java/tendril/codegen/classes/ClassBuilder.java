@@ -21,6 +21,7 @@ import java.util.Map;
 
 import javax.annotation.processing.Generated;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.Utilities;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.method.JConstructor;
@@ -130,6 +131,26 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
     }
 
     /**
+     * Get the class builder for creating enums
+     * 
+     * @param type {@link ClassType} of the enum to build
+     * @return {@link ClassBuilder}
+     */
+    public static ClassBuilder forEnum(ClassType type) {
+        return new EnumClassBuilder(type);
+    }
+
+    /**
+     * Get the class builder for creating enums
+     * 
+     * @param type {@link Class} of the enum to build
+     * @return {@link ClassBuilder}
+     */
+    public static ClassBuilder forEnum(Class<?> type) {
+        return forEnum(new ClassType(type));
+    }
+
+    /**
      * CTOR
      * 
      * @param type {@link ClassType} which has the basic class description included
@@ -138,9 +159,9 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
         super(type.getSimpleName());
         setType(type);
         addAnnotation(JAnnotationFactory.create(Generated.class, Map.of("value", JValueFactory.create("tendril"), "date", JValueFactory.create(Utilities.iso8061TimeStamp()))));
-        
+
         // Add any generics that may have been applied to the type
-        for (GenericType g: type.getGenerics())
+        for (GenericType g : type.getGenerics())
             addGeneric(g);
     }
 
@@ -282,5 +303,26 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      */
     void add(JConstructor ctor) {
         ctors.add(ctor);
+    }
+
+    /**
+     * Allows for the creation of an enumerated item within an {@link Enum} class. Note that this will only work when defining an enumeration, with a {@link DefinitionException} thrown for all other
+     * class types.
+     * 
+     * @param name {@link String} the name of the enumeration entry to create
+     * @return {@link EnumerationBuilder} through which the entry is to be built
+     */
+    public EnumerationBuilder buildEnumeration(String name) {
+        throw new DefinitionException(type, "Only enums can have enumerations");
+    }
+
+    /**
+     * To be called by the {@link EnumerationBuilder} when the enumerated entry has been created and it is to be added to the enum class. Note that this will only work when defining an enumeration,
+     * with a {@link DefinitionException} thrown for all other class types.
+     * 
+     * @param enumEntry {@link EnumerationEntry} that is to be added
+     */
+    void add(EnumerationEntry enumEntry) {
+        throw new DefinitionException(type, "Only enums can have enumerations");
     }
 }

@@ -136,7 +136,7 @@ public class JBaseTest extends AbstractUnitTest {
         when(mockAnnotation1.getType()).thenReturn(new ClassType(Override.class));
         
         element.setFinal(true);
-        element.addAnnotation(mockAnnotation1);
+        element.add(mockAnnotation1);
         Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
 
         element.generate(mockCodeBuilder, mockImports);
@@ -160,11 +160,11 @@ public class JBaseTest extends AbstractUnitTest {
         when(mockAnnotation2.getType()).thenReturn(new ClassType(Deprecated.class));
         when(mockAnnotation3.getType()).thenReturn(new ClassType(Override.class));
         
-        element.addAnnotation(mockAnnotation1);
+        element.add(mockAnnotation1);
         Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
-        element.addAnnotation(mockAnnotation2);
+        element.add(mockAnnotation2);
         Assertions.assertIterableEquals(Arrays.asList(mockAnnotation1, mockAnnotation2), element.getAnnotations());
-        element.addAnnotation(mockAnnotation3);
+        element.add(mockAnnotation3);
         Assertions.assertIterableEquals(Arrays.asList(mockAnnotation1, mockAnnotation2, mockAnnotation3), element.getAnnotations());
 
         element.generate(mockCodeBuilder, mockImports);
