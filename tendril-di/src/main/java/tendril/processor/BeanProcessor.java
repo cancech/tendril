@@ -213,11 +213,17 @@ public class BeanProcessor extends AbstractTendrilProccessor {
      * @param elements {@link List} of {@link Element}s that have been annotated as consumers
      */
     private void generateMethodConsumers(Set<ClassType> externalImports, List<String> ctorLines) {
-        externalImports.add(new ClassType(Injector.class));
+        boolean isFirst = true;
         for (JMethod<?> method: currentClass.getMethods()) {
             if (!method.hasAnnotation(Inject.class))
                 continue;
-            
+
+            // Only include the import, if it's actually used
+            if (isFirst) {
+                externalImports.add(new ClassType(Injector.class));
+                isFirst = false;
+            }
+
             if (!method.getType().isVoid())
                 LOGGER.warning(currentClassType.getSimpleName() + "::" + method.getName() + " consumer has a non-void return type");
 
