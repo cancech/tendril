@@ -215,6 +215,9 @@ public class BeanProcessor extends AbstractTendrilProccessor {
     private void generateMethodConsumers(Set<ClassType> externalImports, List<String> ctorLines) {
         externalImports.add(new ClassType(Injector.class));
         for (JMethod<?> method: currentClass.getMethods()) {
+            if (!method.hasAnnotation(Inject.class))
+                continue;
+            
             if (!method.getType().isVoid())
                 LOGGER.warning(currentClassType.getSimpleName() + "::" + method.getName() + " consumer has a non-void return type");
 
