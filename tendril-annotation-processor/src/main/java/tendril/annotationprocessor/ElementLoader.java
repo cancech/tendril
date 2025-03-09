@@ -15,15 +15,16 @@
  */
 package tendril.annotationprocessor;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.processing.Generated;
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -210,22 +211,41 @@ public abstract class ElementLoader {
      * @param element {@link Element} from which to load the annotations
      */
     private static void loadAnnotations(BaseBuilder<?, ?> builder, Element element) {
+        // Track what annotations have been processed, to avoid duplicates
+        List<ClassType> processedTypes = new ArrayList<>();
+        
         for (AnnotationMirror m : element.getAnnotationMirrors()) {
+            // Determine the type of annotation applied and make sure it's not been processed already
             ClassType annonType = deriveClassData((TypeElement) m.getAnnotationType().asElement());
-            // TODO shouldn't need to skip Generated....
-            if (annonType.equals(new ClassType(Generated.class)))
+            if (processedTypes.contains(annonType))
                 continue;
             
-            JAnnotation annonData = new JAnnotation(annonType);
-            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : m.getElementValues().entrySet()) {
-                // Cannot rely on loadMethodDetails as some annotations annotate themselves (i.e.: @Retention, @Target)
-                ExecutableElement attribute = entry.getKey();
-                Type attributeType = TypeFactory.create(attribute.getReturnType());
-                String attributeName = attribute.getSimpleName().toString();
-                JValue<?, ?> value = attributeType.asValue(entry.getValue().getValue());
-                annonData.addAttribute(new AnonymousMethod<Type>(attributeType, attributeName), value);
+            processedTypes.add(annonType);
+            
+            try {
+                @SuppressWarnings("unchecked")
+                Class<? extends Annotation> annonClass = (Class<? extends Annotation>) Class.forName(((TypeElement)m.getAnnotationType().asElement()).getQualifiedName().toString());
+                
+                // Load all instances of the annotation type applied and determine their attributes
+                for (Annotation annon: element.getAnnotationsByType(annonClass)) {
+                    JAnnotation annonData = new JAnnotation(annonType);
+                    
+                    // Need to use reflection, as this appears to be the only "generic way" to retrieve array values
+                    for (Method method: annonClass.getDeclaredMethods()) {
+                        Type attributeType = TypeFactory.create(method.getReturnType());
+                        String attributeName = method.getName();
+                        try {
+                            JValue<?, ?> value = attributeType.asValue(method.invoke(annon));
+                            annonData.addAttribute(new AnonymousMethod<Type>(attributeType, attributeName), value);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    builder.addAnnotation(annonData);
+                }
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
-            builder.addAnnotation(annonData);
         }
     }
     

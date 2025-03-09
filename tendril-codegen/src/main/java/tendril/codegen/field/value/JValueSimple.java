@@ -77,4 +77,11 @@ public class JValueSimple<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<DAT
         return super.equals(obj) && prefix.equals(value.prefix) && suffix.equals(value.suffix);
     }
 
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "[" + getType().getSimpleName() + " = " + value + "]";
+    }
 }

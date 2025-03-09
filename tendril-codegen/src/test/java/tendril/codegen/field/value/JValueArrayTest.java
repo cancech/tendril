@@ -71,5 +71,11 @@ public class JValueArrayTest extends AbstractUnitTest {
         verify(mockValue2).generate(mockImports);
         verify(mockValue3).generate(mockImports);
     }
+    
+    /** Verify that the appropriate string is produces */
+    @Test
+    public void testToString() {
+        Assertions.assertEquals("Array [mockValue1, mockValue2, mockValue3]", value.toString());
+    }
 
 }

@@ -21,6 +21,7 @@ import java.util.Set;
 import tendril.codegen.field.type.ArrayType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
+import tendril.util.TendrilStringUtil;
 
 /**
  * Representation of an array value
@@ -54,5 +55,13 @@ public class JValueArray<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<Arra
         }
 
         return result + "}";
+    }
+    
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "Array [" + TendrilStringUtil.join(getValue()) + "]";
     }
 }
