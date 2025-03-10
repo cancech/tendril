@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -27,22 +28,56 @@ import tendril.util.TendrilStringUtil;
  * Representation of a single entry in an enumeration
  */
 public class EnumerationEntry {
-    /** The name of the entry (i.e.: how it is displayed)*/
+    /** The class in which the entry is contained */
+    private final ClassType enclosingClass;
+    /** The name of the entry (i.e.: how it is displayed) */
     private final String name;
     /** The parameters that it takes for its constructions */
     private final List<JValue<?, ?>> parameters;
-    
+
+    /**
+     * Create and entry from an existing enum entry
+     * 
+     * @param value {@link Enum} entry from an existing enumeration
+     * @return {@link EnumerationEntry}
+     */
+    public static EnumerationEntry from(Enum<?> value) {
+        return from(new ClassType(value.getClass()), value);
+    }
+
+    /**
+     * Create and entry from an existing enum entry
+     * 
+     * @param type  {@link ClassType} describing where the entry comes from
+     * @param value {@link Enum} entry from an existing enumeration
+     * @return {@link EnumerationEntry}
+     */
+    public static EnumerationEntry from(ClassType type, Enum<?> value) {
+        return new EnumerationEntry(type, value.name(), Collections.emptyList());
+    }
+
     /**
      * CTOR
      * 
-     * @param name {@link String} the name of the entry
-     * @param parameters {@link List} of {@link JValue}s representing what is passed to the constructor as parameters
+     * @param enclosingClass {@link ClassType} in which the entry is contained
+     * @param name           {@link String} the name of the entry
+     * @param parameters     {@link List} of {@link JValue}s representing what is passed to the constructor as parameters
      */
-    EnumerationEntry(String name, List<JValue<?, ?>> parameters) {
+    EnumerationEntry(ClassType enclosingClass, String name, List<JValue<?, ?>> parameters) {
+        this.enclosingClass = enclosingClass;
         this.name = name;
         this.parameters = parameters;
     }
-    
+
+    /**
+     * Get the class in which the entry is contained
+     *
+     * @return {@link ClassType}
+     */
+    public ClassType getEnclosingClass() {
+        return enclosingClass;
+    }
+
     /**
      * Get the name of the entry
      * 
@@ -51,7 +86,7 @@ public class EnumerationEntry {
     public String getName() {
         return name;
     }
-    
+
     /**
      * Get the parameters for the entry
      * 
@@ -64,14 +99,26 @@ public class EnumerationEntry {
     /**
      * Generate the text for representing the entry in code
      * 
-     * @param builder {@link CodeBuilder} where it is to be appended to
+     * @param builder      {@link CodeBuilder} where it is to be appended to
      * @param classImports {@link Set} of {@link ClassType} representing the imports for the code
-     * @param terminator {@link String} to apply as the terminator for the entry
+     * @param terminator   {@link String} to apply as the terminator for the entry
      */
     void generateSelf(CodeBuilder builder, Set<ClassType> classImports, String terminator) {
         String line = name;
-        if(!parameters.isEmpty())
+        if (!parameters.isEmpty())
             line += "(" + TendrilStringUtil.join(parameters, (p) -> p.generate(classImports)) + ")";
         builder.append(line + terminator);
+    }
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof EnumerationEntry))
+            return false;
+
+        EnumerationEntry other = (EnumerationEntry) obj;
+        return name.equals(other.name) && enclosingClass.equals(other.enclosingClass);
     }
 }

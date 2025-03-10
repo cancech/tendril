@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.CodeBuilder;
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
 
@@ -88,6 +90,14 @@ public class JClassEnumTest extends AbstractUnitTest {
     public void testNoEntries() {
         Assertions.assertIterableEquals(Collections.emptyList(), enumCls.getEnumerations());
         enumCls.processFields(mockCodeBuilder, mockImports);
+        
+        // None to retrieve by name
+        Assertions.assertThrows(DefinitionException.class, () -> enumCls.getEnumeration("abc"));
+        verify(mockType).getFullyQualifiedName();
+        Assertions.assertThrows(DefinitionException.class, () -> enumCls.getEnumeration("def"));
+        verify(mockType, times(2)).getFullyQualifiedName();
+        Assertions.assertThrows(DefinitionException.class, () -> enumCls.getEnumeration("ghi"));
+        verify(mockType, times(3)).getFullyQualifiedName();
     }
     
     /**
@@ -101,6 +111,14 @@ public class JClassEnumTest extends AbstractUnitTest {
         enumCls.processFields(mockCodeBuilder, mockImports);
         verify(mockEntry1).generateSelf(mockCodeBuilder, mockImports, ";");
         verify(mockCodeBuilder).blankLine();
+        
+        when(mockEntry1.getName()).thenReturn("abc");
+        // None to retrieve by name
+        Assertions.assertEquals(mockEntry1, enumCls.getEnumeration("abc"));
+        Assertions.assertThrows(DefinitionException.class, () -> enumCls.getEnumeration("def"));
+        verify(mockType, times(1)).getFullyQualifiedName();
+        Assertions.assertThrows(DefinitionException.class, () -> enumCls.getEnumeration("ghi"));
+        verify(mockType, times(2)).getFullyQualifiedName();
     }
     
     /**
@@ -118,5 +136,19 @@ public class JClassEnumTest extends AbstractUnitTest {
         verify(mockEntry2).generateSelf(mockCodeBuilder, mockImports, ",");
         verify(mockEntry3).generateSelf(mockCodeBuilder, mockImports, ";");
         verify(mockCodeBuilder).blankLine();
+
+        when(mockEntry1.getName()).thenReturn("abc");
+        when(mockEntry2.getName()).thenReturn("def");
+        when(mockEntry3.getName()).thenReturn("ghi");
+        // None to retrieve by name
+        Assertions.assertEquals(mockEntry1, enumCls.getEnumeration("abc"));
+        Assertions.assertEquals(mockEntry2, enumCls.getEnumeration("def"));
+        Assertions.assertEquals(mockEntry3, enumCls.getEnumeration("ghi"));
+        Assertions.assertThrows(DefinitionException.class, () -> enumCls.getEnumeration("qwerty"));
+        verify(mockType, times(1)).getFullyQualifiedName();
+        Assertions.assertThrows(DefinitionException.class, () -> enumCls.getEnumeration("asdfg"));
+        verify(mockType, times(2)).getFullyQualifiedName();
+        Assertions.assertThrows(DefinitionException.class, () -> enumCls.getEnumeration("zxcvb"));
+        verify(mockType, times(3)).getFullyQualifiedName();
     }
 }

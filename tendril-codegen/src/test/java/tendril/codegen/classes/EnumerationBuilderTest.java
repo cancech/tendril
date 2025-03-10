@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.value.JValue;
 import tendril.test.AbstractUnitTest;
 
@@ -37,6 +38,8 @@ public class EnumerationBuilderTest extends AbstractUnitTest {
     // Mocks to test
     @Mock
     private ClassBuilder mockClassBuilder;
+    @Mock
+    private ClassType mockType;
     @Mock
     private JValue<?, ?> mockValue1;
     @Mock
@@ -60,7 +63,7 @@ public class EnumerationBuilderTest extends AbstractUnitTest {
     @Override
     protected void prepareTest() {
         wasVerified = false;
-        builder = new EnumerationBuilder(mockClassBuilder, "EnumName");
+        builder = new EnumerationBuilder(mockClassBuilder, mockType, "EnumName");
         
         doAnswer((invocation) -> { 
             verifyEnumeration((EnumerationEntry) invocation.getArgument(0));
@@ -113,6 +116,7 @@ public class EnumerationBuilderTest extends AbstractUnitTest {
      * @param actual {@link EnumerationEntry} that was created
      */
     private void verifyEnumeration(EnumerationEntry actual) {
+        Assertions.assertEquals(mockType, actual.getEnclosingClass());
         Assertions.assertEquals("EnumName", actual.getName());
         Assertions.assertIterableEquals(expectedParams, actual.getParameters());
         wasVerified = true;

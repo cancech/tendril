@@ -19,12 +19,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
+import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.field.type.ClassType;
 import tendril.test.helper.TestEnum;
 
@@ -32,6 +35,12 @@ import tendril.test.helper.TestEnum;
  * Test case for {@link JValueFactory}
  */
 public class JValueFactoryTest extends SharedJValueTest {
+    
+    // Mocks to use for testing
+    @Mock
+    private EnumerationEntry mockEntry;
+    @Mock
+    private ClassType mockType;
 
     private int timesImported = 1;
     private ClassType lastImport = null;
@@ -75,6 +84,17 @@ public class JValueFactoryTest extends SharedJValueTest {
 
         lastImport = new ClassType(VisibilityType.class);
         assertCode("VisibilityType.PACKAGE_PRIVATE", JValueFactory.create(VisibilityType.PACKAGE_PRIVATE));
+        verifyMockImports();
+        
+        lastImport = mockType;
+        when(mockEntry.getEnclosingClass()).thenReturn(mockType);
+        when(mockEntry.getName()).thenReturn("ELSE");
+        when(mockType.getSimpleName()).thenReturn("SOMETHING");
+        assertCode("SOMETHING.ELSE", JValueFactory.create(mockEntry));
+        verify(mockEntry).getEnclosingClass();
+        verify(mockEntry).getName();
+        verify(mockType).getSimpleName();
+        verifyMockImports();
         
         Assertions.assertThrows(DefinitionException.class, () -> JValueFactory.create(new ClassType("a", "b")));
     }
@@ -97,5 +117,17 @@ public class JValueFactoryTest extends SharedJValueTest {
         lastImport = new ClassType(TestEnum.class);
         timesImported = 3;
         assertCode("{TestEnum.VALUE1, TestEnum.VALUE2, TestEnum.VALUE3}", JValueFactory.createArray(TestEnum.values()));
+        verifyMockImports();
+
+        lastImport = mockType;
+        when(mockEntry.getEnclosingClass()).thenReturn(mockType);
+        when(mockEntry.getName()).thenReturn("ELSE");
+        when(mockType.getSimpleName()).thenReturn("SOMETHING");
+        timesImported = 1;
+        assertCode("{SOMETHING.ELSE}", JValueFactory.createArray(mockEntry));
+        verify(mockEntry).getEnclosingClass();
+        verify(mockEntry).getName();
+        verify(mockType).getSimpleName();
+        verifyMockImports();
     }
 }

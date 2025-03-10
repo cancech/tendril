@@ -97,7 +97,7 @@ public class EnumClassBuilder extends ConcreteClassBuilder {
      */
     @Override
     public EnumerationBuilder buildEnumeration(String name) {
-        return new EnumerationBuilder(this, name);
+        return new EnumerationBuilder(this, type, name);
     }
     
     /**

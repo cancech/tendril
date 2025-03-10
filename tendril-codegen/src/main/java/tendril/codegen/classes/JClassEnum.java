@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
 
 /**
@@ -63,6 +64,22 @@ public class JClassEnum extends JClass {
      */
     public List<EnumerationEntry> getEnumerations() {
         return entries;
+    }
+    
+    /**
+     * Retrieve an enum entry by name
+     * 
+     * @param name {@link String} the name of the entry to retrieve
+     * @return {@link EnumerationEntry} with the desired name
+     * @throws DefinitionException if no entry with the desired name exists
+     */
+    public EnumerationEntry getEnumeration(String name) {
+        for (EnumerationEntry e: entries) {
+            if(e.getName().equals(name))
+                return e;
+        }
+        
+        throw new DefinitionException(type, "No enumeration entry " + name + " exists");
     }
     
     /**

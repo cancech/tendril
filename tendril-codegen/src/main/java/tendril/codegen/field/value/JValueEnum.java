@@ -17,13 +17,13 @@ package tendril.codegen.field.value;
 
 import java.util.Set;
 
+import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.field.type.ClassType;
 
 /**
  * Value that contains a specific enum entry
  */
-public class JValueEnum extends JValue<ClassType, Enum<?>> {
-    // TODO this should also work with EnumerationEntry
+public class JValueEnum extends JValue<ClassType, EnumerationEntry> {
 
     /**
      * CTOR
@@ -31,7 +31,7 @@ public class JValueEnum extends JValue<ClassType, Enum<?>> {
      * @param value {@link Enum} to store
      */
     JValueEnum(Enum<?> value) {
-        this(new ClassType(value.getClass()), value);
+        this(EnumerationEntry.from(value));
     }
 
     /**
@@ -41,7 +41,16 @@ public class JValueEnum extends JValue<ClassType, Enum<?>> {
      * @param value {@link Enum} to store
      */
     JValueEnum(ClassType classType, Enum<?> value) {
-        super(classType, value);
+        this(EnumerationEntry.from(classType, value));
+    }
+    
+    /**
+     * CTOR
+     * 
+     * @param entry {@link EnumerationEntry} to store
+     */
+    JValueEnum(EnumerationEntry entry) {
+        super(entry.getEnclosingClass(), entry);
     }
 
     /**
@@ -50,6 +59,6 @@ public class JValueEnum extends JValue<ClassType, Enum<?>> {
     @Override
     public String generate(Set<ClassType> classImports) {
         classImports.add(type);
-        return value.getClass().getSimpleName() + "." + value.name();
+        return type.getSimpleName() + "." + value.getName();
     }
 }

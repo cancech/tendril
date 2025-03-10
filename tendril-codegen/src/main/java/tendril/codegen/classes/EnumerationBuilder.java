@@ -18,12 +18,15 @@ package tendril.codegen.classes;
 import java.util.ArrayList;
 import java.util.List;
 
+import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.value.JValue;
 
 /**
  * Builder for creating {@link Enum} enumerations. Intended to be used hand-in-hand with {@link EnumClassBuilder}.
  */
 public class EnumerationBuilder {
+    /** The class to which the entry belong */
+    private final ClassType enclosingClass;
     /** The name of the enumeration */
     private final String name;
     /** List of parameters the enumeration is to take */
@@ -37,8 +40,9 @@ public class EnumerationBuilder {
      * @param classBuilder {@link ClassBuilder} for which the enumeration is being built
      * @param name {@link String} the name of the enumeration
      */
-    EnumerationBuilder(ClassBuilder classBuilder, String name) {
+    EnumerationBuilder(ClassBuilder classBuilder, ClassType enclosingClass, String name) {
         this.classBuilder = classBuilder;
+        this.enclosingClass = enclosingClass;
         this.name = name;
     }
     
@@ -60,7 +64,7 @@ public class EnumerationBuilder {
      * @return {@link ClassBuilder}
      */
     public ClassBuilder build() {
-        classBuilder.add(new EnumerationEntry(name, parameters));
+        classBuilder.add(new EnumerationEntry(enclosingClass, name, parameters));
         return classBuilder;
     }
 }

@@ -16,10 +16,13 @@
 package tendril.codegen.field.value;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import tendril.codegen.VisibilityType;
+import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.test.helper.TestEnum;
@@ -28,6 +31,12 @@ import tendril.test.helper.TestEnum;
  * Test case for {@link JValueEnum}
  */
 public class JValueEnumTest extends SharedJValueTest {
+    
+    // Mocks to use for testing
+    @Mock
+    private ClassType mockType;
+    @Mock
+    private EnumerationEntry mockEntry;
 
     /** Tracks which import should have been last registered */
     private ClassType currentImport = null;
@@ -36,10 +45,38 @@ public class JValueEnumTest extends SharedJValueTest {
      * Verify that the appropriate code is generated
      */
     @Test
-    public void testGenerate() {
+    public void testGenerateFromValue() {
         testEnum(VisibilityType.PROTECTED, VisibilityType.class);
         testEnum(PrimitiveType.DOUBLE, PrimitiveType.class);
         testEnum(TestEnum.VALUE3, TestEnum.class);
+    }
+    
+    /**
+     * Verify that the appropriate code is generated 
+     */
+    @Test
+    public void testGenerateFromValueAndType() {
+        when(mockType.getSimpleName()).thenReturn("SIMPLE");
+        currentImport = mockType;
+        
+        assertCode("SIMPLE.PUBLIC", new JValueEnum(mockType, VisibilityType.PUBLIC));
+        verify(mockType).getSimpleName();
+    }
+    
+    /**
+     * Verify that the appropriate code is generated
+     */
+    @Test
+    public void testGenerateFromEnumerationEntry() {
+        when(mockEntry.getEnclosingClass()).thenReturn(mockType);
+        when(mockEntry.getName()).thenReturn("ENTRY");
+        when(mockType.getSimpleName()).thenReturn("NAME");
+        currentImport = mockType;
+
+        assertCode("NAME.ENTRY", new JValueEnum(mockEntry));
+        verify(mockEntry).getEnclosingClass();
+        verify(mockEntry).getName();
+        verify(mockType).getSimpleName();
     }
 
     /**

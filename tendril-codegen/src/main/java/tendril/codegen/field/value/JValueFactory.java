@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tendril.codegen.DefinitionException;
+import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.field.type.ArrayType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
@@ -72,6 +73,8 @@ public class JValueFactory {
         JValue<?, ?> createdValue = null;
         if (cls.isEnum() || cls.equals(Enum.class))
             createdValue = create((Enum<?>) value);
+        else if (value instanceof EnumerationEntry)
+            createdValue = create((EnumerationEntry) value);
         else if (cls.equals(String.class))
             createdValue = create((String) value);
         else if (cls.equals(Boolean.class))
@@ -102,7 +105,17 @@ public class JValueFactory {
      * @param value {@link Enum} the specific value
      * @return {@link JValue}
      */
-    public static JValue<ClassType, Enum<?>> create(Enum<?> value) {
+    public static JValue<ClassType, EnumerationEntry> create(Enum<?> value) {
+        return new JValueEnum(value);
+    }
+
+    /**
+     * Create a {@link JValue} representing an Enum as defined in an {@link EnumerationEntry}
+     * 
+     * @param value {@link EnumerationEntry} describing the enum
+     * @return {@link JValue}
+     */
+    public static JValue<ClassType, EnumerationEntry> create(EnumerationEntry value) {
         return new JValueEnum(value);
     }
 

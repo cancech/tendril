@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.lang.model.type.TypeKind;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -42,6 +44,10 @@ public class EnumerationEntryTest extends AbstractUnitTest {
     @Mock
     private Set<ClassType> mockImports;
     @Mock
+    private ClassType mockType;
+    @Mock
+    private ClassType mockOtherType;
+    @Mock
     private JValue<?, ?> mockValue1;
     @Mock
     private JValue<?, ?> mockValue2;
@@ -61,7 +67,8 @@ public class EnumerationEntryTest extends AbstractUnitTest {
      */
     @Test
     public void testEntryWithNoParameters() {
-        EnumerationEntry entry = new EnumerationEntry("NoName", Collections.emptyList());
+        EnumerationEntry entry = new EnumerationEntry(mockType, "NoName", Collections.emptyList());
+        Assertions.assertEquals(mockType, entry.getEnclosingClass());
         Assertions.assertEquals("NoName", entry.getName());
         Assertions.assertIterableEquals(Collections.emptyList(), entry.getParameters());
         
@@ -76,7 +83,8 @@ public class EnumerationEntryTest extends AbstractUnitTest {
     public void testEntryWithSingleParameter() {
         when(mockValue1.generate(mockImports)).thenReturn("blah");
         
-        EnumerationEntry entry = new EnumerationEntry("MyName", Collections.singletonList(mockValue1));
+        EnumerationEntry entry = new EnumerationEntry(mockType, "MyName", Collections.singletonList(mockValue1));
+        Assertions.assertEquals(mockType, entry.getEnclosingClass());
         Assertions.assertEquals("MyName", entry.getName());
         Assertions.assertIterableEquals(Collections.singletonList(mockValue1), entry.getParameters());
         
@@ -94,12 +102,48 @@ public class EnumerationEntryTest extends AbstractUnitTest {
         when(mockValue2.generate(mockImports)).thenReturn("2");
         when(mockValue3.generate(mockImports)).thenReturn("3");
         
-        EnumerationEntry entry = new EnumerationEntry("Entry", Arrays.asList(mockValue1, mockValue2, mockValue3));
+        EnumerationEntry entry = new EnumerationEntry(mockType, "Entry", Arrays.asList(mockValue1, mockValue2, mockValue3));
+        Assertions.assertEquals(mockType, entry.getEnclosingClass());
         Assertions.assertEquals("Entry", entry.getName());
         Assertions.assertIterableEquals(Arrays.asList(mockValue1, mockValue2, mockValue3), entry.getParameters());
         
         entry.generateSelf(mockCodeBuilder, mockImports, "-`-");
         verify(mockCodeBuilder).append("Entry(1, 2, 3)-`-");
         verify(mockValue1).generate(mockImports);
+    }
+    
+    /**
+     * Verify that equality is properly determined
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void testEquals() {
+        EnumerationEntry entry = new EnumerationEntry(mockType, "name", Arrays.asList(mockValue1, mockValue2));
+        
+        // Failures
+        Assertions.assertFalse(entry.equals(new String("abc123")));
+        Assertions.assertFalse(entry.equals(new EnumerationEntry(mockOtherType, "name", Collections.emptyList())));
+        Assertions.assertFalse(entry.equals(new EnumerationEntry(mockType, "DifferentName", Collections.emptyList())));
+        
+        // Passes
+        Assertions.assertTrue(entry.equals(new EnumerationEntry(mockType, "name", Collections.emptyList())));
+    }
+    
+    /**
+     * Verify the conversion from "real" enums is done properly
+     */
+    @Test
+    public void testFrom() {
+        // When ClassType is derived
+        EnumerationEntry entry = EnumerationEntry.from(TypeKind.BYTE);
+        Assertions.assertEquals(new ClassType(TypeKind.class), entry.getEnclosingClass());
+        Assertions.assertEquals(TypeKind.BYTE.name(), entry.getName());
+        Assertions.assertIterableEquals(Collections.emptyList(), entry.getParameters());
+
+        // When ClassType is explicitly specified
+        entry = EnumerationEntry.from(mockType, TypeKind.DECLARED);
+        Assertions.assertEquals(mockType, entry.getEnclosingClass());
+        Assertions.assertEquals(TypeKind.DECLARED.name(), entry.getName());
+        Assertions.assertIterableEquals(Collections.emptyList(), entry.getParameters());
     }
 }
