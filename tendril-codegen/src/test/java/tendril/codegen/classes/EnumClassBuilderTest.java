@@ -88,10 +88,10 @@ public class EnumClassBuilderTest extends AbstractUnitTest {
         builder.validate();
         
         // Cannot be final
-        builder.setFinal(true);
+        builder.setFinal(false);
         Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
         verify(mockType, times(2)).getFullyQualifiedName();
-        builder.setFinal(false);
+        builder.setFinal(true);
         builder.validate();
         
         // Cannot have a parent

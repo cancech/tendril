@@ -36,6 +36,7 @@ public class JClassEnum extends JClass {
      */
     protected JClassEnum(ClassType data) {
         super(data);
+        setFinal(true);
     }
 
     /**
@@ -62,6 +63,23 @@ public class JClassEnum extends JClass {
      */
     public List<EnumerationEntry> getEnumerations() {
         return entries;
+    }
+    
+    /**
+     * @see tendril.codegen.JBase#setFinal(boolean)
+     */
+    @Override
+    public void setFinal(boolean isFinal) {
+        super.setFinal(true);
+    }
+    
+    /**
+     * @see tendril.codegen.JBase#getFinalKeyword()
+     */
+    @Override
+    public String getFinalKeyword() {
+        // Though enum must be final, it is not presented
+        return "";
     }
     
     /**

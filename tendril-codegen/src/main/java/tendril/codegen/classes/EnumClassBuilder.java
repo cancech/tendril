@@ -38,6 +38,7 @@ public class EnumClassBuilder extends ConcreteClassBuilder {
      */
     EnumClassBuilder(ClassType type) {
         super(type);
+        setFinal(true);
     }
 
     /**
@@ -50,8 +51,8 @@ public class EnumClassBuilder extends ConcreteClassBuilder {
         // Verify the Enum characteristics
         if (isStatic)
             throwException("Enum cannot be static");
-        if (isFinal)
-            throwException("Enum cannot be final");
+        if (!isFinal)
+            throwException("Enum must be final");
         if (parent != null)
             throwException("Enum cannot have any explicit parent class");
         

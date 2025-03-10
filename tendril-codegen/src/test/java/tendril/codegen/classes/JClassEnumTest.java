@@ -71,6 +71,14 @@ public class JClassEnumTest extends AbstractUnitTest {
     @Test
     public void testCoreElements() {
         Assertions.assertEquals("enum ", enumCls.getClassKeyword());
+        
+        // Must be final
+        enumCls.setFinal(true);
+        Assertions.assertTrue(enumCls.isFinal());
+        Assertions.assertEquals("", enumCls.getFinalKeyword());
+        enumCls.setFinal(false);
+        Assertions.assertTrue(enumCls.isFinal());
+        Assertions.assertEquals("", enumCls.getFinalKeyword());
     }
     
     /**
