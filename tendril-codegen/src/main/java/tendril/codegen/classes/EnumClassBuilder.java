@@ -62,6 +62,15 @@ public class EnumClassBuilder extends ConcreteClassBuilder {
             if (ctorVis != VisibilityType.PACKAGE_PRIVATE && ctorVis != VisibilityType.PRIVATE)
                 throwException("Enum Constructors must be either private or package private");
         }
+        
+        // Ensure that each enumeration has a unique name
+        for (int i = 0; i < entries.size() - 1; i++) {
+            String lhs = entries.get(i).getName();
+            for (int j = i+1; j < entries.size(); j++) {
+                if (lhs.equals(entries.get(j).getName()))
+                    throwException("Enum entries must have unique names, multiple " + lhs + " are present");
+            }
+        }
     }
     
     /**

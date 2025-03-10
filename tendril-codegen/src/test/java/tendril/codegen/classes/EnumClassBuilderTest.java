@@ -101,6 +101,28 @@ public class EnumClassBuilderTest extends AbstractUnitTest {
         builder.extendsClass(null);
         builder.validate();
         
+        // There cannot be any duplicate entries
+        builder.add(mockEnum1);
+        builder.add(mockEnum2);
+        builder.add(mockEnum3);
+
+        when(mockEnum1.getName()).thenReturn("a");
+        when(mockEnum2.getName()).thenReturn("b");
+        when(mockEnum3.getName()).thenReturn("a");
+        Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
+        when(mockEnum1.getName()).thenReturn("b");
+        when(mockEnum2.getName()).thenReturn("b");
+        when(mockEnum3.getName()).thenReturn("a");
+        Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
+        when(mockEnum1.getName()).thenReturn("b");
+        when(mockEnum2.getName()).thenReturn("a");
+        when(mockEnum3.getName()).thenReturn("a");
+        Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
+        when(mockEnum1.getName()).thenReturn("a");
+        when(mockEnum2.getName()).thenReturn("b");
+        when(mockEnum3.getName()).thenReturn("c");
+        builder.validate();
+        
         // All ctors must be private or package private
         builder.add(mockCtor1);
         builder.add(mockCtor2);
@@ -109,14 +131,12 @@ public class EnumClassBuilderTest extends AbstractUnitTest {
         when(mockCtor1.getVisibility()).thenReturn(VisibilityType.PUBLIC);
         Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
         verify(mockCtor1, times(1)).getVisibility();
-        verify(mockType, times(4)).getFullyQualifiedName();
         
         when(mockCtor1.getVisibility()).thenReturn(VisibilityType.PRIVATE);
         when(mockCtor2.getVisibility()).thenReturn(VisibilityType.PROTECTED);
         Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
         verify(mockCtor1, times(2)).getVisibility();
         verify(mockCtor2, times(1)).getVisibility();
-        verify(mockType, times(5)).getFullyQualifiedName();
         
         when(mockCtor1.getVisibility()).thenReturn(VisibilityType.PRIVATE);
         when(mockCtor2.getVisibility()).thenReturn(VisibilityType.PACKAGE_PRIVATE);
@@ -125,7 +145,6 @@ public class EnumClassBuilderTest extends AbstractUnitTest {
         verify(mockCtor1, times(3)).getVisibility();
         verify(mockCtor2, times(2)).getVisibility();
         verify(mockCtor3, times(1)).getVisibility();
-        verify(mockType, times(6)).getFullyQualifiedName();
         
         when(mockCtor1.getVisibility()).thenReturn(VisibilityType.PRIVATE);
         when(mockCtor2.getVisibility()).thenReturn(VisibilityType.PACKAGE_PRIVATE);
