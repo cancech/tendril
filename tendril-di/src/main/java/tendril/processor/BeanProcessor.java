@@ -40,6 +40,7 @@ import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.Bean;
 import tendril.bean.Factory;
 import tendril.bean.Inject;
+import tendril.bean.PostConstruct;
 import tendril.bean.Singleton;
 import tendril.bean.qualifier.Named;
 import tendril.bean.recipe.AbstractRecipe;
@@ -74,20 +75,20 @@ import tendril.util.TendrilStringUtil;
 public class BeanProcessor extends AbstractTendrilProccessor {
     /** Logger for the processor */
     private static final Logger LOGGER = Logger.getLogger(BeanProcessor.class.getSimpleName());
-    
+
     /** Flag for whether the generated recipe is to be annotated with @{@link Registry} */
     private final boolean annotateRegistry;
     /** Mapping of the types of life cycle annotations that are supported to the recipe that implements it */
     @SuppressWarnings("rawtypes")
     protected final Map<Class<? extends Annotation>, Class<? extends AbstractRecipe>> recipeTypeMap = new HashMap<>();
-    
+
     /**
      * CTOR - will be annotated as a {@link Registry}
      */
     public BeanProcessor() {
         this(true);
     }
-    
+
     /**
      * CTOR
      * 
@@ -97,10 +98,9 @@ public class BeanProcessor extends AbstractTendrilProccessor {
         this.annotateRegistry = annotateRegistry;
         registerAvailableRecipeTypes();
     }
-    
+
     /**
-     * Register the life cycle annotations that are to be supported, to the type of recipe that is to be used when it is employed. By default Singleton and Factory are registered
-     * and supported.
+     * Register the life cycle annotations that are to be supported, to the type of recipe that is to be used when it is employed. By default Singleton and Factory are registered and supported.
      */
     protected void registerAvailableRecipeTypes() {
         recipeTypeMap.put(Singleton.class, SingletonRecipe.class);
@@ -120,38 +120,38 @@ public class BeanProcessor extends AbstractTendrilProccessor {
      * Generate the code for the recipe that is to act as the provider for the bean
      * 
      * @param recipe {@link ClassType} for the recipe that is to be generated
-     * @param bean {@link ClassType} for the bean that is to be provided
+     * @param bean   {@link ClassType} for the bean that is to be provided
      * @return {@link String} containing the code for the recipe
      */
     private String generateCode(ClassType recipe) {
         Set<ClassType> externalImports = new HashSet<>();
-        
+
         // The parent class
         JClass parent = ClassBuilder.forConcreteClass(getRecipeClass()).addGeneric(GenericFactory.create(currentClass)).build();
-        
+
         // CTOR contents
         List<String> ctorCode = new ArrayList<>();
         ctorCode.add("super(engine, " + currentClassType.getSimpleName() + ".class);");
         generateFieldConsumers(externalImports, ctorCode);
         generateMethodConsumers(externalImports, ctorCode);
-        
+
         // Bean descriptor
         ClassType descriptorClass = new ClassType(Descriptor.class);
         descriptorClass.addGeneric(GenericFactory.create(currentClass));
-        
+
         ClassBuilder clsBuilder = ClassBuilder.forConcreteClass(recipe).setVisibility(VisibilityType.PUBLIC).extendsClass(parent)
                 .buildConstructor().setVisibility(VisibilityType.PUBLIC)
                     .buildParameter(new ClassType(Engine.class), "engine").finish()
                     .addCode(ctorCode.toArray(new String[ctorCode.size()])).finish()
                 .buildMethod("setupDescriptor").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PUBLIC)
                     .buildParameter(descriptorClass, "descriptor").finish()
-                    .addCode(joinLines(getDescriptorLines(currentClass), "descriptor.", ";", "\n")).finish();
+                .addCode(joinLines(getDescriptorLines(currentClass), "descriptor.", ";", "\n")).finish();
         if (annotateRegistry)
             clsBuilder.addAnnotation(JAnnotationFactory.create(Registry.class));
-        JClass cls = clsBuilder.build();
-        return cls.generateCode(externalImports);
+        processPostConstruct(clsBuilder);
+        return clsBuilder.build().generateCode(externalImports);
     }
-    
+
     /**
      * Get the recipe class that is to be employed for the indicated bean.
      * 
@@ -160,42 +160,39 @@ public class BeanProcessor extends AbstractTendrilProccessor {
     @SuppressWarnings("rawtypes")
     protected Class<? extends AbstractRecipe> getRecipeClass() {
         List<Class<? extends Annotation>> foundTypes = new ArrayList<>();
-        
-        for(Class<? extends Annotation> annonClass: recipeTypeMap.keySet()) {
+
+        for (Class<? extends Annotation> annonClass : recipeTypeMap.keySet()) {
             if (!getElementAnnotations(annonClass).isEmpty())
                 foundTypes.add(annonClass);
         }
-        
+
         if (foundTypes.isEmpty())
             throw new ProcessingException(currentClassType.getFullyQualifiedName() + " must have a single life cycle indicated");
         if (foundTypes.size() > 1)
             throw new ProcessingException(currentClassType.getFullyQualifiedName() + "has multiple life cycles indicated [" + TendrilStringUtil.join(foundTypes) + "]");
-        
+
         return recipeTypeMap.get(foundTypes.get(0));
     }
-    
+
     /**
      * Generate the appropriate code for consumers that are fields within the bean.
      * 
      * @param externalImports {@link Set} where the {@link ClassType}s to be imported by the generated recipe class are stored
-     * @param bean {@link ClassType} of the bean which contains the destination consumers
-     * @param ctorLines {@link List} of {@link String} lines that are already present in the recipe constructor
-     * @param elements {@link List} of {@link Element}s that have been annotated as consumers
+     * @param bean            {@link ClassType} of the bean which contains the destination consumers
+     * @param ctorLines       {@link List} of {@link String} lines that are already present in the recipe constructor
+     * @param elements        {@link List} of {@link Element}s that have been annotated as consumers
      */
     private void generateFieldConsumers(Set<ClassType> externalImports, List<String> ctorLines) {
-        for (JField<?> field: currentClass.getFields()) {
-            if (!field.hasAnnotation(Inject.class))
-                continue;
-            
+        for (JField<?> field : currentClass.getFields(Inject.class)) {
             Type fieldType = field.getType();
             if (fieldType instanceof ClassType)
                 externalImports.add((ClassType) fieldType);
-            
+
             externalImports.add(new ClassType(Applicator.class));
             externalImports.add(new ClassType(Descriptor.class));
-            
-            ctorLines.add("registerDependency(" + getDependencyDescriptor(field) + ", new " +
-                    Applicator.class.getSimpleName() + "<" + currentClassType.getSimpleName() + ", " + fieldType.getSimpleName() + ">() {");
+
+            ctorLines.add("registerDependency(" + getDependencyDescriptor(field) + ", new " + Applicator.class.getSimpleName() + "<" + currentClassType.getSimpleName() + ", "
+                    + fieldType.getSimpleName() + ">() {");
             ctorLines.add("    @Override");
             ctorLines.add("    public void apply(" + currentClassType.getSimpleName() + " consumer, " + fieldType.getSimpleName() + " bean) {");
             ctorLines.add("        consumer." + field.getName() + " = bean;");
@@ -203,21 +200,18 @@ public class BeanProcessor extends AbstractTendrilProccessor {
             ctorLines.add("});");
         }
     }
-    
+
     /**
      * Generate the appropriate code for consumers that are methods within the bean.
      * 
      * @param externalImports {@link Set} where the {@link ClassType}s to be imported by the generated recipe class are stored
-     * @param bean {@link ClassType} of the bean which contains the destination consumers
-     * @param ctorLines {@link List} of {@link String} lines that are already present in the recipe constructor
-     * @param elements {@link List} of {@link Element}s that have been annotated as consumers
+     * @param bean            {@link ClassType} of the bean which contains the destination consumers
+     * @param ctorLines       {@link List} of {@link String} lines that are already present in the recipe constructor
+     * @param elements        {@link List} of {@link Element}s that have been annotated as consumers
      */
     private void generateMethodConsumers(Set<ClassType> externalImports, List<String> ctorLines) {
         boolean isFirst = true;
-        for (JMethod<?> method: currentClass.getMethods()) {
-            if (!method.hasAnnotation(Inject.class))
-                continue;
-
+        for (JMethod<?> method : currentClass.getMethods(Inject.class)) {
             // Only include the import, if it's actually used
             if (isFirst) {
                 externalImports.add(new ClassType(Injector.class));
@@ -230,13 +224,13 @@ public class BeanProcessor extends AbstractTendrilProccessor {
             ctorLines.add("registerInjector(new Injector<" + currentClassType.getSimpleName() + ">() {");
             ctorLines.add("    @Override");
             ctorLines.add("    public void inject(" + currentClassType.getSimpleName() + " consumer, Engine engine) {");
-            
+
             List<JParameter<?>> params = method.getParameters();
-            if (params.isEmpty()) // TODO switching to using the @PostConstruct class directly once it is available
-                LOGGER.warning(currentClassType.getFullyQualifiedName() + "::" + method.getName() + " has no parameters, this is a meaningless injection. Use @PostConstruct instead");
-            for(JParameter<?> p: method.getParameters()) {
-                ctorLines.add("        " + p.getType().getSimpleName() + p.getGenericsApplicationKeyword(true) + p.getName() + " = " +
-                        "engine.getBean(" + getDependencyDescriptor(p) + ");");
+            if (params.isEmpty())
+                LOGGER.warning(currentClassType.getFullyQualifiedName() + "::" + method.getName() + " has no parameters, this is a meaningless injection. Use @" + PostConstruct.class.getSimpleName()
+                        + " instead");
+            for (JParameter<?> p : method.getParameters()) {
+                ctorLines.add("        " + p.getType().getSimpleName() + p.getGenericsApplicationKeyword(true) + p.getName() + " = " + "engine.getBean(" + getDependencyDescriptor(p) + ");");
             }
             ctorLines.add("        consumer." + method.getName() + "(" + TendrilStringUtil.join(method.getParameters(), ", ", p -> p.getName()) + ");");
             ctorLines.add("    }");
@@ -244,6 +238,57 @@ public class BeanProcessor extends AbstractTendrilProccessor {
         }
     }
     
+    /**
+     * Process the {@link PostConstruct} methods that are in the bean. If at least one is present, the override the postConstruct() method from {@link AbstractRecipe}
+     * and add a call of bean.method(), where method() has the {@link PostConstruct} annotation applied to it. The method must however follow a few rules:
+     * <ol>
+     *      <li>The method must not take any parameters</li>
+     *      <li>The method must be void</li>
+     *      <li>The method must not be private</li>
+     * </ol>
+     * 
+     * A {@link ProcessingException} is thrown if one of the above is violated
+     * 
+     * @param builder {@link ClassBuilder} where the recipe for the bean is being defined
+     * @throws ProcessingException if one of the {@link PostConstruct} annotated method violates {@link PostConstruct} rules
+     */
+    private void processPostConstruct(ClassBuilder builder) {
+        List<JMethod<?>> postConstructs = currentClass.getMethods(PostConstruct.class);
+        // Don't do anything if there aren't any
+        if (postConstructs.isEmpty())
+            return;
+        
+        // Generate the code for calling the PostConstruct annotated methods
+        List<String> code = new ArrayList<>();
+        for (JMethod<?> m: postConstructs) {
+            if (m.getVisibility() == VisibilityType.PRIVATE)
+                throwPostConstructError(m, " cannot be private");
+            if (!m.getType().isVoid())
+                throwPostConstructError(m, " must be void");
+            if (!m.getParameters().isEmpty())
+                throwPostConstructError(m, " cannot take any parameters");
+            
+            code.add("bean." + m.getName() + "();");
+        }
+        
+        // Add the method to the recipe
+        builder.buildMethod("postConstruct").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PROTECTED)
+            .buildParameter(currentClass.getType(), "bean").finish()
+            .addCode(code.toArray(new String[code.size()])).finish();
+    }
+    
+    /**
+     * Helper which generates an error message to be reported by {@link ProcessingException}, triggered by {@link PostConstruct} processing.
+     * 
+     * @param method {@link JMethod} where {@link PostConstruct} failed
+     * @param reason {@link String} the cause of the failure
+     * @throws ProcessingException indicating why {@link PostConstruct} processing failed
+     */
+    private void throwPostConstructError(JMethod<?> method, String reason) {
+        throw new ProcessingException("@" + PostConstruct.class.getSimpleName() + " method " + currentClass.getType().getFullyQualifiedName() + "::" + 
+                method.getName() + "() " + reason);
+    }
+
     /**
      * Get the code for the descriptor that is to be applied to a dependency of the bean defined by this recipe.
      * 
@@ -254,20 +299,20 @@ public class BeanProcessor extends AbstractTendrilProccessor {
         String desc = "new " + Descriptor.class.getSimpleName() + "<>(" + field.getType().getSimpleName() + ".class)";
         return desc + joinLines(getDescriptorLines(field), ".", "", "\n            ");
     }
-    
+
     /**
-     * Helper which converts the text to append to the appropriate in-line code 
+     * Helper which converts the text to append to the appropriate in-line code
      * 
-     * @param lines {@link String} which are to be joined
-     * @param prefix {@link String} which is to be placed before each element to be appended
-     * @param suffix {@link String} which is to be placed after each element to be appended
+     * @param lines     {@link String} which are to be joined
+     * @param prefix    {@link String} which is to be placed before each element to be appended
+     * @param suffix    {@link String} which is to be placed after each element to be appended
      * @param delimiter {@link String} which is to be placed between two consecutive elements
      * @return {@link List} of {@link String}s that is to be appended
      */
     private String joinLines(List<String> lines, String prefix, String suffix, String delimiter) {
         List<String> converted = new ArrayList<>();
         // Each line with the appropriate indentation spacing
-        for(String s: lines) {
+        for (String s : lines) {
             if (s.isBlank())
                 continue;
             converted.add(prefix + s + suffix);
@@ -275,24 +320,24 @@ public class BeanProcessor extends AbstractTendrilProccessor {
 
         return TendrilStringUtil.join(converted, delimiter);
     }
-    
+
     /**
      * Get the code through which the name is applied to the Descriptor
      * 
      * @param element {@link JBase} whose name it being determined
-     * @param names {@link List} of {@link Named} annotation that have been applied to the element
+     * @param names   {@link List} of {@link Named} annotation that have been applied to the element
      * @return {@link List} of {@link String}s containing the code with the appropriate descriptor update
      * @throws ProcessingException if more than one name is applied to the bean
      */
     private List<String> getDescriptorLines(JBase element) {
         List<String> lines = new ArrayList<>();
-        
-        for (JAnnotation a: element.getAnnotations()) {
+
+        for (JAnnotation a : element.getAnnotations()) {
             if (a.getType().equals(new ClassType(Named.class))) {
                 lines.add("setName(\"" + a.getValue(a.getAttributes().get(0)).getValue() + "\")");
             }
         }
-        
+
         return lines;
     }
 

@@ -43,6 +43,8 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     private class TestRecipe<BEAN_TYPE> extends AbstractRecipe<BEAN_TYPE> {
 
         private boolean isDescriptorSetup;
+        private int timesPostConstructCalled = 0;
+        private BEAN_TYPE postConstructBean = null;
         
         protected TestRecipe(Class<BEAN_TYPE> beanClass) {
             super(mockEngine, beanClass);
@@ -66,6 +68,19 @@ public class AbstractRecipeTest extends AbstractUnitTest {
             Assertions.assertTrue(isDescriptorSetup);
         }
         
+        /**
+         * @see tendril.bean.recipe.AbstractRecipe#postConstruct(java.lang.Object)
+         */
+        @Override
+        protected void postConstruct(BEAN_TYPE bean) {
+            timesPostConstructCalled++;
+            postConstructBean = bean;
+        }
+        
+        public void assertTimesPostConstructCalled(int timesExpected, BEAN_TYPE expectedBean) {
+            Assertions.assertEquals(timesExpected, timesPostConstructCalled);
+            Assertions.assertEquals(expectedBean, postConstructBean);
+        }
     }
     
     // Mocks to use for testing
@@ -118,7 +133,9 @@ public class AbstractRecipeTest extends AbstractUnitTest {
      */
     @Test
     public void testBuildNoDependencies() {
-        Assertions.assertNotNull(recipe.buildBean());
+        SingleCtorBean instance = recipe.buildBean();
+        Assertions.assertNotNull(instance);
+        recipe.assertTimesPostConstructCalled(1, instance);
     }
     
     /**
@@ -132,6 +149,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         when(mockEngine.getBean(mockStringDescriptor)).thenReturn("abc123");
         SingleCtorBean instance = recipe.buildBean();
         Assertions.assertNotNull(instance);
+        recipe.assertTimesPostConstructCalled(1, instance);
         verify(mockEngine).getBean(mockStringDescriptor);
         verify(mockStringApplicator).apply(instance, "abc123");
     }
@@ -150,6 +168,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         when(mockEngine.getBean(mockIntDescriptor)).thenReturn(123);
         when(mockEngine.getBean(mockDoubleDescriptor)).thenReturn(1.23);
         SingleCtorBean instance = recipe.buildBean();
+        recipe.assertTimesPostConstructCalled(1, instance);
         Assertions.assertNotNull(instance);
         verify(mockEngine).getBean(mockStringDescriptor);
         verify(mockEngine).getBean(mockIntDescriptor);
@@ -168,6 +187,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         verifyAllChecked();
         
         SingleCtorBean instance = recipe.buildBean();
+        recipe.assertTimesPostConstructCalled(1, instance);
         Assertions.assertNotNull(instance);
         verify(mockInjector1).inject(instance, mockEngine);
     }
@@ -183,6 +203,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         verifyAllChecked();
         
         SingleCtorBean instance = recipe.buildBean();
+        recipe.assertTimesPostConstructCalled(1, instance);
         Assertions.assertNotNull(instance);
         verify(mockInjector1).inject(instance, mockEngine);
         verify(mockInjector2).inject(instance, mockEngine);
@@ -206,6 +227,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         when(mockEngine.getBean(mockIntDescriptor)).thenReturn(123);
         when(mockEngine.getBean(mockDoubleDescriptor)).thenReturn(1.23);
         SingleCtorBean instance = recipe.buildBean();
+        recipe.assertTimesPostConstructCalled(1, instance);
         Assertions.assertNotNull(instance);
         verify(mockEngine).getBean(mockStringDescriptor);
         verify(mockEngine).getBean(mockIntDescriptor);

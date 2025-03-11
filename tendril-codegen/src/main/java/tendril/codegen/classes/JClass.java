@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -107,6 +108,34 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
     }
     
     /**
+     * Get all fields which have the indicated annotation
+     * 
+     * @param annotatedWith {@link Annotation} {@link Class} that is desired
+     * @return {@link List} of {@link JField}s with the desired annotation
+     */
+    public List<JField<?>> getFields(Class<? extends Annotation> annotatedWith) {
+        return getAnnotatedItems(fields, annotatedWith);
+    }
+    
+    /**
+     * Helper for finding annotated items within a list
+     * 
+     * @param <T> extending {@link JBase} indicating the type to search through
+     * @param from {@link List} of T in which to search
+     * @param annotatedWith {@link Annotation} {@link Class} that is desired
+     * @return {@link List} of items that have the annotation
+     */
+    private <T extends JBase> List<T> getAnnotatedItems(List<T> from, Class<? extends Annotation> annotatedWith) {
+        List<T> found = new ArrayList<>();
+        for (T item: from) {
+            if (item.hasAnnotation(annotatedWith))
+                found.add(item);
+        }
+        
+        return found;
+    }
+    
+    /**
      * Add a constructor to the class
      * 
      * @param ctor {@link JConstructor} to add
@@ -131,6 +160,16 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
      */
     public List<JMethod<?>> getMethods() {
         return methods;
+    }
+    
+    /**
+     * Get all methods which have the indicated annotation
+     * 
+     * @param annotatedWith {@link Annotation} {@link Class} that is desired
+     * @return {@link List} of {@link JMethod}s with the desired annotation
+     */
+    public List<JMethod<?>> getMethods(Class<? extends Annotation> annotatedWith) {
+        return getAnnotatedItems(methods, annotatedWith);
     }
     
     /**

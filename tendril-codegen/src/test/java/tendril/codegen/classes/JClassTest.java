@@ -102,6 +102,8 @@ public class JClassTest extends AbstractUnitTest {
     @Mock
     private JField<Type> mockField2;
     @Mock
+    private JField<Type> mockField3;
+    @Mock
     private ClassType mockField1Type;
     @Mock
     private ClassType mockField2Type;
@@ -643,6 +645,98 @@ public class JClassTest extends AbstractUnitTest {
         verify(mockGeneric2).registerImport(anySet());
         verify(mockGeneric3).registerImport(anySet());
         verify(mockClassType, atLeastOnce()).getFullyQualifiedName();
+    }
+    
+    /**
+     * Verify that fields can be retrieved by annotation
+     */
+    @Test
+    public void testGetFieldByAnnotation() {
+        jclass.addField(mockField1);
+        jclass.addField(mockField2);
+        jclass.addField(mockField3);
+        
+        // Annotation is not present on any
+        when(mockField1.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockField2.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockField3.hasAnnotation(Override.class)).thenReturn(false);
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getFields(Override.class));
+        verify(mockField1).hasAnnotation(Override.class);
+        verify(mockField2).hasAnnotation(Override.class);
+        verify(mockField3).hasAnnotation(Override.class);
+
+        // Annotation is present on one
+        when(mockField1.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockField2.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockField3.hasAnnotation(Override.class)).thenReturn(false);
+        Assertions.assertIterableEquals(Collections.singletonList(mockField2), jclass.getFields(Override.class));
+        verify(mockField1, times(2)).hasAnnotation(Override.class);
+        verify(mockField2, times(2)).hasAnnotation(Override.class);
+        verify(mockField3, times(2)).hasAnnotation(Override.class);
+
+        // Annotation is present on two
+        when(mockField1.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockField2.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockField3.hasAnnotation(Override.class)).thenReturn(true);
+        Assertions.assertIterableEquals(Arrays.asList(mockField1, mockField3), jclass.getFields(Override.class));
+        verify(mockField1, times(3)).hasAnnotation(Override.class);
+        verify(mockField2, times(3)).hasAnnotation(Override.class);
+        verify(mockField3, times(3)).hasAnnotation(Override.class);
+
+        // Annotation is present on all
+        when(mockField1.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockField2.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockField3.hasAnnotation(Override.class)).thenReturn(true);
+        Assertions.assertIterableEquals(Arrays.asList(mockField1, mockField2, mockField3), jclass.getFields(Override.class));
+        verify(mockField1, times(4)).hasAnnotation(Override.class);
+        verify(mockField2, times(4)).hasAnnotation(Override.class);
+        verify(mockField3, times(4)).hasAnnotation(Override.class);
+    }
+    
+    /**
+     * Verify that methods can be retrieved by annotation
+     */
+    @Test
+    public void testGetMethodByAnnotation() {
+        jclass.addMethod(mockVoidMethod);
+        jclass.addMethod(mockPrimitiveMethod);
+        jclass.addMethod(mockClassMethod);
+        
+        // Annotation is not present on any
+        when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockPrimitiveMethod.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockClassMethod.hasAnnotation(Override.class)).thenReturn(false);
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getMethods(Override.class));
+        verify(mockVoidMethod).hasAnnotation(Override.class);
+        verify(mockPrimitiveMethod).hasAnnotation(Override.class);
+        verify(mockClassMethod).hasAnnotation(Override.class);
+        
+        // Annotation is present on one
+        when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockPrimitiveMethod.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockClassMethod.hasAnnotation(Override.class)).thenReturn(true);
+        Assertions.assertIterableEquals(Collections.singletonList(mockClassMethod), jclass.getMethods(Override.class));
+        verify(mockVoidMethod, times(2)).hasAnnotation(Override.class);
+        verify(mockPrimitiveMethod, times(2)).hasAnnotation(Override.class);
+        verify(mockClassMethod, times(2)).hasAnnotation(Override.class);
+        
+        // Annotation is present on two
+        when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockPrimitiveMethod.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockClassMethod.hasAnnotation(Override.class)).thenReturn(false);
+        Assertions.assertIterableEquals(Arrays.asList(mockVoidMethod, mockPrimitiveMethod), jclass.getMethods(Override.class));
+        verify(mockVoidMethod, times(3)).hasAnnotation(Override.class);
+        verify(mockPrimitiveMethod, times(3)).hasAnnotation(Override.class);
+        verify(mockClassMethod, times(3)).hasAnnotation(Override.class);
+        
+        // Annotation is present on all
+        when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockPrimitiveMethod.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockClassMethod.hasAnnotation(Override.class)).thenReturn(true);
+        Assertions.assertIterableEquals(Arrays.asList(mockVoidMethod, mockPrimitiveMethod, mockClassMethod), jclass.getMethods(Override.class));
+        verify(mockVoidMethod, times(4)).hasAnnotation(Override.class);
+        verify(mockPrimitiveMethod, times(4)).hasAnnotation(Override.class);
+        verify(mockClassMethod, times(4)).hasAnnotation(Override.class);
     }
 
     /**

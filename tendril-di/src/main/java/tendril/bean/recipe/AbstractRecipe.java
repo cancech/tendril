@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tendril.BeanCreationException;
+import tendril.bean.PostConstruct;
 import tendril.context.Engine;
 
 /**
@@ -117,7 +118,7 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
     protected BEAN_TYPE buildBean() {
         Constructor<?>[] ctors = beanClass.getDeclaredConstructors();
 
-        // Create the instance
+        // Make sure that this actually has a constructor
         if (ctors.length == 0)
             throw new BeanCreationException(descriptor, "Bean has no constructors defined (is this an interface?)");
         
@@ -125,13 +126,26 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
         if (ctors.length > 1)
             throw new BeanCreationException(descriptor, "Multiple constructors are available, ambiguous as to which to call");
         
-        // Apply all dependencies
+        // Create the instance
         try {
+            // Create the instance
             BEAN_TYPE bean = (BEAN_TYPE) ctors[0].newInstance();
+            // Apply dependencies
             consumers.forEach(c -> c.inject(bean, engine));
+            // Trigger post construct
+            postConstruct(bean);
             return bean;
         } catch (Exception e) {
             throw new BeanCreationException(descriptor, e);
         }
+    }
+    
+    /**
+     * Called after the bean has been initialized, to allow all {@link PostConstruct} annotated methods to be called
+     * 
+     * @param bean BEAN_TYPE that the recipe is building
+     */
+    protected void postConstruct(BEAN_TYPE bean) {
+        // Intentionally left blank, concrete recipe to trigger the appropriate @PostConstruct called
     }
 }
