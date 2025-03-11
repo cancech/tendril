@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
  * created one first retrieval, and each subsequent retrieval will receive that same instance. The idea is that the singleton instance will be managed by the recipe, without the
  * underlying bean class being itself a singleton. 
  */
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Singleton {
 

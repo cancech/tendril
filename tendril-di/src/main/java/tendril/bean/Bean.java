@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * class.
  * <p>Note that a Provider method must return something, and can be considered analogous to a factory method.</p>
  */
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Bean {
 

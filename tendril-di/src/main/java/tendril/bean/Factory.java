@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
  * Annotation which is used to mark a bean that a bean provider provides as one where each bean retrieval will produce a new copy or instance. This means, that there is no shared bean,
  * rather each bean is considered unique and "throw-away" (i.e.: not managed or tracked by the recipe).
  */
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Factory {
 

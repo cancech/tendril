@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  *  
  * <p>Note that an injected (consumer) method is expected to be void as any return will be "lost", and can be considered analogous to a method annotated with PostConstruct.</p>
  */
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 @Target({ ElementType.METHOD, ElementType.FIELD })
 public @interface Inject {
 
