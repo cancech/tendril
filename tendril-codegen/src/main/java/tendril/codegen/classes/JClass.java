@@ -143,6 +143,25 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
     public void addConstructor(JConstructor ctor) {
         ctors.add(ctor);
     }
+    
+    /**
+     * Get all constructors that are present on the class
+     * 
+     * @return {@link List} of {@link JConstructor} representing the constructors
+     */
+    public List<JConstructor> getConstructors() {
+        return ctors;
+    }
+
+    /**
+     * Get all constructors that are present on the class with the specified annotation
+     * 
+     * @param annotatedWith {@link Class} extending {@link Annotation} that is desired
+     * @return {@link List} of {@link JConstructor} representing the constructors
+     */
+    public List<JConstructor> getConstructors(Class<? extends Annotation> annotatedWith) {
+        return getAnnotatedItems(ctors, annotatedWith);
+    }
 
     /**
      * Add a new method to the class. It is intended for this to be used by the {@link MethodBuilder}.

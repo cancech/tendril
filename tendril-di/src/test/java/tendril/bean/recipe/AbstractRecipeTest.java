@@ -26,8 +26,6 @@ import org.mockito.Mock;
 import tendril.BeanCreationException;
 import tendril.context.Engine;
 import tendril.test.AbstractUnitTest;
-import tendril.test.bean.HiddenCtorBean;
-import tendril.test.bean.MultipleCtorBean;
 import tendril.test.bean.SingleCtorBean;
 
 /**
@@ -37,47 +35,66 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     
     /**
      * Concrete implementation of the {@link AbstractRecipe} to use for testing
-     * 
-     * @param <BEAN_TYPE> the type of bean that the recipe is to produce
      */
-    private class TestRecipe<BEAN_TYPE> extends AbstractRecipe<BEAN_TYPE> {
+    private class TestRecipe extends AbstractRecipe<SingleCtorBean> {
 
         private boolean isDescriptorSetup;
+        private int timesCreateInstanceCalled = 0;
         private int timesPostConstructCalled = 0;
-        private BEAN_TYPE postConstructBean = null;
+        private SingleCtorBean postConstructBean = null;
+
+        private boolean createInstanceThrows = false;
+        private boolean postConstructThrows = false;
         
-        protected TestRecipe(Class<BEAN_TYPE> beanClass) {
-            super(mockEngine, beanClass);
+        protected TestRecipe() {
+            super(mockEngine, SingleCtorBean.class);
         }
 
         /**
          * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.recipe.Descriptor)
          */
         @Override
-        protected void setupDescriptor(Descriptor<BEAN_TYPE> descriptor) {
+        protected void setupDescriptor(Descriptor<SingleCtorBean> descriptor) {
             Assertions.assertFalse(isDescriptorSetup);
             isDescriptorSetup = true;
         }
 
         @Override
-        public BEAN_TYPE get() {
+        public SingleCtorBean get() {
             throw new NotImplementedException("Not required for testing");
         }
         
         public void assertDescriptorSetup() {
             Assertions.assertTrue(isDescriptorSetup);
         }
+
+        /**
+         * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
+         */
+        @Override
+        protected SingleCtorBean createInstance(Engine engine) {
+            if (createInstanceThrows)
+                throw new NullPointerException();
+            timesCreateInstanceCalled++;
+            return new SingleCtorBean();
+        }
+        
+        public void assertTimesCreateInstanceCalled(int timesExpected) {
+            Assertions.assertEquals(timesExpected, timesCreateInstanceCalled);
+        }
         
         /**
          * @see tendril.bean.recipe.AbstractRecipe#postConstruct(java.lang.Object)
          */
         @Override
-        protected void postConstruct(BEAN_TYPE bean) {
+        protected void postConstruct(SingleCtorBean bean) {
+            if (postConstructThrows)
+                throw new NullPointerException();
             timesPostConstructCalled++;
             postConstructBean = bean;
         }
         
-        public void assertTimesPostConstructCalled(int timesExpected, BEAN_TYPE expectedBean) {
+        public void assertTimesPostConstructCalled(int timesExpected, SingleCtorBean expectedBean) {
             Assertions.assertEquals(timesExpected, timesPostConstructCalled);
             Assertions.assertEquals(expectedBean, postConstructBean);
         }
@@ -106,26 +123,43 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     private Injector<SingleCtorBean> mockInjector3;
     
     // Instance to test
-    private TestRecipe<SingleCtorBean> recipe;
+    private TestRecipe recipe;
 
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {
-        recipe = new TestRecipe<>(SingleCtorBean.class);
+        recipe = new TestRecipe();
         recipe.assertDescriptorSetup();
         Assertions.assertEquals(SingleCtorBean.class, recipe.getDescription().getBeanClass());
     }
     
     /**
-     * Verify that attempting to create a recipe without the appropriate constructors fails
+     * Verify that an exception is thrown if an exception is encountered during the bean creation
      */
     @Test
-    public void testInvalidCtors() {
-        Assertions.assertThrows(BeanCreationException.class, () -> new TestRecipe<>(Runnable.class).buildBean());
-        Assertions.assertThrows(BeanCreationException.class, () -> new TestRecipe<>(MultipleCtorBean.class).buildBean());
-        Assertions.assertThrows(BeanCreationException.class, () -> new TestRecipe<>(HiddenCtorBean.class).buildBean());
+    public void testBuildBeanExceptionThrown() {
+        // If createInstance generate an exception
+        recipe.createInstanceThrows = true;
+        Assertions.assertThrows(BeanCreationException.class, () -> recipe.buildBean());
+        recipe.assertTimesCreateInstanceCalled(0);
+        recipe.assertTimesPostConstructCalled(0, null);
+        
+        // If postConstruct generate an exception
+        recipe.createInstanceThrows = false;
+        recipe.postConstructThrows = true;
+        Assertions.assertThrows(BeanCreationException.class, () -> recipe.buildBean());
+        recipe.assertTimesCreateInstanceCalled(1);
+        recipe.assertTimesPostConstructCalled(0, null);
+        
+        // If injection generate an exception
+        recipe.createInstanceThrows = false;
+        recipe.postConstructThrows = false;
+        recipe.registerInjector((consumer, engine) -> { throw new IllegalArgumentException(); });
+        Assertions.assertThrows(BeanCreationException.class, () -> recipe.buildBean());
+        recipe.assertTimesCreateInstanceCalled(2);
+        recipe.assertTimesPostConstructCalled(0, null);
     }
     
     /**
@@ -135,6 +169,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     public void testBuildNoDependencies() {
         SingleCtorBean instance = recipe.buildBean();
         Assertions.assertNotNull(instance);
+        recipe.assertTimesCreateInstanceCalled(1);
         recipe.assertTimesPostConstructCalled(1, instance);
     }
     
@@ -149,6 +184,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         when(mockEngine.getBean(mockStringDescriptor)).thenReturn("abc123");
         SingleCtorBean instance = recipe.buildBean();
         Assertions.assertNotNull(instance);
+        recipe.assertTimesCreateInstanceCalled(1);
         recipe.assertTimesPostConstructCalled(1, instance);
         verify(mockEngine).getBean(mockStringDescriptor);
         verify(mockStringApplicator).apply(instance, "abc123");
@@ -168,6 +204,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         when(mockEngine.getBean(mockIntDescriptor)).thenReturn(123);
         when(mockEngine.getBean(mockDoubleDescriptor)).thenReturn(1.23);
         SingleCtorBean instance = recipe.buildBean();
+        recipe.assertTimesCreateInstanceCalled(1);
         recipe.assertTimesPostConstructCalled(1, instance);
         Assertions.assertNotNull(instance);
         verify(mockEngine).getBean(mockStringDescriptor);
@@ -187,6 +224,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         verifyAllChecked();
         
         SingleCtorBean instance = recipe.buildBean();
+        recipe.assertTimesCreateInstanceCalled(1);
         recipe.assertTimesPostConstructCalled(1, instance);
         Assertions.assertNotNull(instance);
         verify(mockInjector1).inject(instance, mockEngine);
@@ -203,6 +241,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         verifyAllChecked();
         
         SingleCtorBean instance = recipe.buildBean();
+        recipe.assertTimesCreateInstanceCalled(1);
         recipe.assertTimesPostConstructCalled(1, instance);
         Assertions.assertNotNull(instance);
         verify(mockInjector1).inject(instance, mockEngine);
@@ -227,6 +266,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         when(mockEngine.getBean(mockIntDescriptor)).thenReturn(123);
         when(mockEngine.getBean(mockDoubleDescriptor)).thenReturn(1.23);
         SingleCtorBean instance = recipe.buildBean();
+        recipe.assertTimesCreateInstanceCalled(1);
         recipe.assertTimesPostConstructCalled(1, instance);
         Assertions.assertNotNull(instance);
         verify(mockEngine).getBean(mockStringDescriptor);

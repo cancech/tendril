@@ -49,4 +49,12 @@ public class TestTendrilRunnerRecipe extends AbstractRecipe<TestTendrilRunner> {
         return new TestTendrilRunner();
     }
 
+    /**
+     * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
+     */
+    @Override
+    protected TestTendrilRunner createInstance(Engine engine) {
+        return new TestTendrilRunner();
+    }
+
 }

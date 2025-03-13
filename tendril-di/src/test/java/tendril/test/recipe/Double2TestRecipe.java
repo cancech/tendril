@@ -54,4 +54,12 @@ public class Double2TestRecipe extends AbstractRecipe<Double> {
         return VALUE;
     }
 
+    /**
+     * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
+     */
+    @Override
+    protected Double createInstance(Engine engine) {
+        return VALUE;
+    }
+
 }

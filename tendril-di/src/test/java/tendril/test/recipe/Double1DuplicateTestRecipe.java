@@ -54,4 +54,9 @@ public class Double1DuplicateTestRecipe extends AbstractRecipe<Double> {
         return VALUE;
     }
 
+    @Override
+    protected Double createInstance(Engine engine) {
+        return VALUE;
+    }
+
 }

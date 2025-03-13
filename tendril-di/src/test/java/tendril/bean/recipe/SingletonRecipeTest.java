@@ -44,7 +44,13 @@ public class SingletonRecipeTest extends AbstractUnitTest {
 
             @Override
             protected void setupDescriptor(Descriptor<SingleCtorBean> descriptor) {
-            }};
+            }
+
+            @Override
+            protected SingleCtorBean createInstance(Engine engine) {
+                return new SingleCtorBean();
+            }
+        };
     }
 
     /**

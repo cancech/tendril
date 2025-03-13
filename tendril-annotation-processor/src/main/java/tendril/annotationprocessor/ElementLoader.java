@@ -45,6 +45,7 @@ import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.FieldBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.MethodBuilder;
+import tendril.codegen.classes.NestedClassMethodElementBuilder;
 import tendril.codegen.classes.ParameterBuilder;
 import tendril.codegen.classes.method.AnonymousMethod;
 import tendril.codegen.classes.method.JMethod;
@@ -99,7 +100,10 @@ public abstract class ElementLoader {
                 // Load all methods that are present
                 ExecutableElement m = (ExecutableElement) e;
                 MethodBuilder<?> methodBuilder = builder.buildMethod(TypeFactory.create(m.getReturnType()), e.getSimpleName().toString());
-                loadMethodDetails(methodBuilder, m);
+                loadExecutableElementDetails(methodBuilder, m);
+            } else if (kind == ElementKind.CONSTRUCTOR) {
+                // Load all constructors that are present
+                loadExecutableElementDetails(builder.buildConstructor(), (ExecutableElement) e);
             }
             
         }
@@ -161,12 +165,12 @@ public abstract class ElementLoader {
     }
     
     /**
-     * Load the details of the method from the element and into the specified builder.
+     * Load the details of the method/constructor from the executable element and into the specified builder.
      * 
-     * @param builder {@link MethodBuilder} that is used to create the method
+     * @param builder {@link NestedClassMethodElementBuilder} that is used to create the method/constructor
      * @param element {@link Executable}
      */
-    private static void loadMethodDetails(MethodBuilder<?> builder, ExecutableElement element) {
+    private static void loadExecutableElementDetails(NestedClassMethodElementBuilder<?, ?, ?> builder, ExecutableElement element) {
         // Load the general information
         loadElementFinality(builder, element);
         loadElementMods(builder, element);

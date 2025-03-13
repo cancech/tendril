@@ -419,9 +419,13 @@ public class JClassTest extends AbstractUnitTest {
         endDefinition();
 
         // Add the additional features
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getConstructors());
         jclass.addConstructor(mockCtor1);
+        Assertions.assertIterableEquals(Collections.singletonList(mockCtor1), jclass.getConstructors());
         jclass.addConstructor(mockCtor2);
+        Assertions.assertIterableEquals(Arrays.asList(mockCtor1, mockCtor2), jclass.getConstructors());
         jclass.addConstructor(mockCtor3);
+        Assertions.assertIterableEquals(Arrays.asList(mockCtor1, mockCtor2, mockCtor3), jclass.getConstructors());
         
         // Verify that it matches
         assertGeneratedCode();
@@ -737,6 +741,52 @@ public class JClassTest extends AbstractUnitTest {
         verify(mockVoidMethod, times(4)).hasAnnotation(Override.class);
         verify(mockPrimitiveMethod, times(4)).hasAnnotation(Override.class);
         verify(mockClassMethod, times(4)).hasAnnotation(Override.class);
+    }
+    
+    /**
+     * Verify that constructors can be retrieved by annotation
+     */
+    @Test
+    public void testGetCtorByAnnotation() {
+        jclass.addConstructor(mockCtor1);
+        jclass.addConstructor(mockCtor2);
+        jclass.addConstructor(mockCtor3);
+        
+        // Annotation is not present on any
+        when(mockCtor1.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockCtor2.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockCtor3.hasAnnotation(Override.class)).thenReturn(false);
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getConstructors(Override.class));
+        verify(mockCtor1).hasAnnotation(Override.class);
+        verify(mockCtor2).hasAnnotation(Override.class);
+        verify(mockCtor3).hasAnnotation(Override.class);
+        
+        // Annotation is present on one
+        when(mockCtor1.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockCtor2.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockCtor3.hasAnnotation(Override.class)).thenReturn(false);
+        Assertions.assertIterableEquals(Collections.singletonList(mockCtor1), jclass.getConstructors(Override.class));
+        verify(mockCtor1, times(2)).hasAnnotation(Override.class);
+        verify(mockCtor2, times(2)).hasAnnotation(Override.class);
+        verify(mockCtor3, times(2)).hasAnnotation(Override.class);
+        
+        // Annotation is present on two
+        when(mockCtor1.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockCtor2.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockCtor3.hasAnnotation(Override.class)).thenReturn(true);
+        Assertions.assertIterableEquals(Arrays.asList(mockCtor1, mockCtor3), jclass.getConstructors(Override.class));
+        verify(mockCtor1, times(3)).hasAnnotation(Override.class);
+        verify(mockCtor2, times(3)).hasAnnotation(Override.class);
+        verify(mockCtor3, times(3)).hasAnnotation(Override.class);
+        
+        // Annotation is present on all
+        when(mockCtor1.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockCtor2.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockCtor3.hasAnnotation(Override.class)).thenReturn(true);
+        Assertions.assertIterableEquals(Arrays.asList(mockCtor1, mockCtor2, mockCtor3), jclass.getConstructors(Override.class));
+        verify(mockCtor1, times(4)).hasAnnotation(Override.class);
+        verify(mockCtor2, times(4)).hasAnnotation(Override.class);
+        verify(mockCtor3, times(4)).hasAnnotation(Override.class);
     }
 
     /**

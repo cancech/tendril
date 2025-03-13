@@ -28,7 +28,6 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
 
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -57,6 +56,7 @@ import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JParameter;
+import tendril.codegen.classes.method.JConstructor;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.JType;
@@ -81,6 +81,12 @@ public class BeanProcessor extends AbstractTendrilProccessor {
     /** Mapping of the types of life cycle annotations that are supported to the recipe that implements it */
     @SuppressWarnings("rawtypes")
     protected final Map<Class<? extends Annotation>, Class<? extends AbstractRecipe>> recipeTypeMap = new HashMap<>();
+    /** 
+     * {@link Set} of the {@link ClassType}s that the class being generated needs to import in order to compile.
+     * Items only need to be added if they are being added within the code of generated methods and not if they are
+     * part of the class/method/field signature.
+     */
+    protected final Set<ClassType> externalImports = new HashSet<>();
 
     /**
      * CTOR - will be annotated as a {@link Registry}
@@ -124,30 +130,21 @@ public class BeanProcessor extends AbstractTendrilProccessor {
      * @return {@link String} containing the code for the recipe
      */
     private String generateCode(ClassType recipe) {
-        Set<ClassType> externalImports = new HashSet<>();
-
+        // Reset to have a clean slate
+        externalImports.clear();
+        
         // The parent class
         JClass parent = ClassBuilder.forConcreteClass(getRecipeClass()).addGeneric(GenericFactory.create(currentClass)).build();
 
-        // CTOR contents
-        List<String> ctorCode = new ArrayList<>();
-        ctorCode.add("super(engine, " + currentClassType.getSimpleName() + ".class);");
-        generateFieldConsumers(externalImports, ctorCode);
-        generateMethodConsumers(externalImports, ctorCode);
-
-        // Bean descriptor
-        ClassType descriptorClass = new ClassType(Descriptor.class);
-        descriptorClass.addGeneric(GenericFactory.create(currentClass));
-
-        ClassBuilder clsBuilder = ClassBuilder.forConcreteClass(recipe).setVisibility(VisibilityType.PUBLIC).extendsClass(parent)
-                .buildConstructor().setVisibility(VisibilityType.PUBLIC)
-                    .buildParameter(new ClassType(Engine.class), "engine").finish()
-                    .addCode(ctorCode.toArray(new String[ctorCode.size()])).finish()
-                .buildMethod("setupDescriptor").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PUBLIC)
-                    .buildParameter(descriptorClass, "descriptor").finish()
-                .addCode(joinLines(getDescriptorLines(currentClass), "descriptor.", ";", "\n")).finish();
+        // Configure the basic information about the recipe
+        ClassBuilder clsBuilder = ClassBuilder.forConcreteClass(recipe).setVisibility(VisibilityType.PUBLIC).extendsClass(parent);
         if (annotateRegistry)
             clsBuilder.addAnnotation(JAnnotationFactory.create(Registry.class));
+        
+        // Build up the contents of the recipe
+        generateConstructor(clsBuilder);
+        generateRecipeDescriptor(clsBuilder);
+        generateCreateInstance(clsBuilder);
         processPostConstruct(clsBuilder);
         return clsBuilder.build().generateCode(externalImports);
     }
@@ -173,16 +170,31 @@ public class BeanProcessor extends AbstractTendrilProccessor {
 
         return recipeTypeMap.get(foundTypes.get(0));
     }
+    
+    /**
+     * Generate the constructor for the recipe
+     * 
+     * @param builder {@link ClassBuilder} where the recipe class is being defined
+     */
+    private void generateConstructor(ClassBuilder builder) {
+        // CTOR contents
+        List<String> ctorCode = new ArrayList<>();
+        ctorCode.add("super(engine, " + currentClassType.getSimpleName() + ".class);");
+        generateFieldConsumers(ctorCode);
+        generateMethodConsumers(ctorCode);
+        
+        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC)
+            .buildParameter(new ClassType(Engine.class), "engine").finish()
+            .addCode(ctorCode.toArray(new String[ctorCode.size()]))
+            .finish();
+    }
 
     /**
      * Generate the appropriate code for consumers that are fields within the bean.
      * 
-     * @param externalImports {@link Set} where the {@link ClassType}s to be imported by the generated recipe class are stored
-     * @param bean            {@link ClassType} of the bean which contains the destination consumers
      * @param ctorLines       {@link List} of {@link String} lines that are already present in the recipe constructor
-     * @param elements        {@link List} of {@link Element}s that have been annotated as consumers
      */
-    private void generateFieldConsumers(Set<ClassType> externalImports, List<String> ctorLines) {
+    private void generateFieldConsumers(List<String> ctorLines) {
         for (JField<?> field : currentClass.getFields(Inject.class)) {
             Type fieldType = field.getType();
             if (fieldType instanceof ClassType)
@@ -204,12 +216,9 @@ public class BeanProcessor extends AbstractTendrilProccessor {
     /**
      * Generate the appropriate code for consumers that are methods within the bean.
      * 
-     * @param externalImports {@link Set} where the {@link ClassType}s to be imported by the generated recipe class are stored
-     * @param bean            {@link ClassType} of the bean which contains the destination consumers
      * @param ctorLines       {@link List} of {@link String} lines that are already present in the recipe constructor
-     * @param elements        {@link List} of {@link Element}s that have been annotated as consumers
      */
-    private void generateMethodConsumers(Set<ClassType> externalImports, List<String> ctorLines) {
+    private void generateMethodConsumers(List<String> ctorLines) {
         boolean isFirst = true;
         for (JMethod<?> method : currentClass.getMethods(Inject.class)) {
             // Only include the import, if it's actually used
@@ -229,13 +238,108 @@ public class BeanProcessor extends AbstractTendrilProccessor {
             if (params.isEmpty())
                 LOGGER.warning(currentClassType.getFullyQualifiedName() + "::" + method.getName() + " has no parameters, this is a meaningless injection. Use @" + PostConstruct.class.getSimpleName()
                         + " instead");
-            for (JParameter<?> p : method.getParameters()) {
-                ctorLines.add("        " + p.getType().getSimpleName() + p.getGenericsApplicationKeyword(true) + p.getName() + " = " + "engine.getBean(" + getDependencyDescriptor(p) + ");");
-            }
-            ctorLines.add("        consumer." + method.getName() + "(" + TendrilStringUtil.join(method.getParameters(), ", ", p -> p.getName()) + ");");
+
+            addParameterInjection(ctorLines, method.getParameters(), "        ", "        consumer." + method.getName());
             ctorLines.add("    }");
             ctorLines.add("});");
         }
+    }
+    
+    /**
+     * Generate the necessary code to load the parameters to be injected into separate variables and pass them into the injectee (i.e.: method or constructor).
+     * 
+     * @param code {@link List} of {@link String}s where the generated code is to be placed
+     * @param params {@link List} of {@link JParameter}s that are to be processed
+     * @param retrievePrefix {@link String} prefix to place before each line of dependency retrieval (i.e.: indentation)
+     * @param applyPrefix {@link String} prefix to apply before the parameters (i.e.: the generated application is "applyPrefix(params);")
+     */
+    private void addParameterInjection(List<String> code, List<JParameter<?>> params, String retrievePrefix, String applyPrefix) {
+        for (JParameter<?> p : params) {
+            Type pType = p.getType();
+            if (pType instanceof ClassType)
+                externalImports.add((ClassType)pType);
+            code.add(retrievePrefix + pType.getSimpleName() + p.getGenericsApplicationKeyword(true) + p.getName() + " = " + "engine.getBean(" + getDependencyDescriptor(p) + ");");
+        }
+        code.add(applyPrefix + "(" + TendrilStringUtil.join(params, ", ", p -> p.getName()) + ");");
+    }
+    
+    /**
+     * Generate the descriptor for the recipe
+     * 
+     * @param builder {@link ClassBuilder} where the recipe is being defined
+     */
+    private void generateRecipeDescriptor(ClassBuilder builder) {
+        ClassType descriptorClass = new ClassType(Descriptor.class);
+        descriptorClass.addGeneric(GenericFactory.create(currentClass));
+        
+        builder.buildMethod("setupDescriptor").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PUBLIC)
+            .buildParameter(descriptorClass, "descriptor").finish()
+            .addCode(joinLines(getDescriptorLines(currentClass), "descriptor.", ";", "\n"))
+            .finish();
+    }
+    
+    /**
+     * Generate the createInstance(Engine engine) method where the recipe create the instance for the recipe to provide after it has been processed.
+     * 
+     * @param builder {@link ClassBuilder} where the recipe is being defined
+     */
+    private void generateCreateInstance(ClassBuilder builder) {
+        // First check if there are any @Inject annotated constructors
+        if (!attemptGenerateCreateInstance(builder, currentClass.getConstructors(Inject.class), " annotated with @" + Inject.class.getSimpleName())) {
+            // If not, then check any non-annotated constructors
+            if (!attemptGenerateCreateInstance(builder, currentClass.getConstructors(), ", the one to be used must be annotated with @" + Inject.class.getSimpleName()))
+                    // Still not, therefore there are no viable constructors
+                    throw new ProcessingException(currentClass.getType().getFullyQualifiedName() + " has no viable constructors. At least one must be available (and not private).");
+        }
+    }
+    
+    /**
+     * Attempts to generate the createInstance(Engine engine) method using the list of constructors available. For this to be successful there must be exactly one viable
+     * constructor in the list. A viable constructor is considered to be one, which is not private. There can be any number of private constructors, so long as there is
+     * exactly one which is not.
+     * 
+     * @param builder {@link ClassBuilder} in which the recipe is being defined
+     * @param ctors {@link List} of {@link JConstructor} to try and make use of
+     * @param errorMessageDetail {@link String} additional error message details to provide in the exception if multiple constructor are deemed viable
+     * 
+     * @throws ProcessingException if there is more than just a single viable constructor
+     * @return boolean true if a proper constructor was found and the code was generated (false if no constructor and no code generated)
+     */
+    private boolean attemptGenerateCreateInstance(ClassBuilder builder, List<JConstructor> ctors, String errorMessageDetail) {
+        // Determine which constructors can actually be used
+        List<JConstructor> viable = new ArrayList<>();
+        for (JConstructor c: ctors) {
+            if (c.getVisibility() != VisibilityType.PRIVATE)
+                viable.add(c);
+        }
+        
+        // If there are too many, throw an exception
+        if (viable.size() > 1)
+            throw new ProcessingException(currentClassType.getFullyQualifiedName() + " has " + ctors.size() + " constructors (" + viable.size() + " viable)" + errorMessageDetail);
+        else if (viable.size() == 1) {
+            // If there is only one viable, then make use of it
+            generateCreateInstance(builder, viable.get(0));
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Generates the createInstance(Engine engine) method using the specified constructor
+     * 
+     * @param builder {@link ClassBuilder} where the recipe is being defined
+     * @param ctor {@link JConstructor} which is to be used to create the instance
+     */
+    private void generateCreateInstance(ClassBuilder builder, JConstructor ctor) {
+        // Build the internals of the method
+        List<String> lines = new ArrayList<>();
+        addParameterInjection(lines, ctor.getParameters(), "", "return new " + currentClassType.getSimpleName());
+        
+        // Add the method to the recipe
+        builder.buildMethod(currentClassType, "createInstance").setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
+            .buildParameter(new ClassType(Engine.class), "engine").finish()
+            .addCode(lines.toArray(new String[lines.size()])).finish();
     }
     
     /**

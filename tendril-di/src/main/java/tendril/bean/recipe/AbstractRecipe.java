@@ -15,7 +15,6 @@
  */
 package tendril.bean.recipe;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +32,6 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
 
     /** The {@link Engine} which drives the overall dependency injection */
     private final Engine engine;
-    /** The {@link Class} indicating the type of bean the recipe creates */
-    private final Class<BEAN_TYPE> beanClass;
     /** The description of this bean */
     private final Descriptor<BEAN_TYPE> descriptor;
     
@@ -49,7 +46,6 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
      */
     protected AbstractRecipe(Engine engine, Class<BEAN_TYPE> beanClass) {
         this.engine = engine;
-        this.beanClass = beanClass;
         this.descriptor = new Descriptor<>(beanClass);
         
         setupDescriptor(descriptor);
@@ -114,22 +110,11 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
      * @return The (an) instance of the bean that the recipe is to create
      * @throws BeanCreationException if there is an issue creating the bean
      */
-    @SuppressWarnings("unchecked")
     protected BEAN_TYPE buildBean() {
-        Constructor<?>[] ctors = beanClass.getDeclaredConstructors();
-
-        // Make sure that this actually has a constructor
-        if (ctors.length == 0)
-            throw new BeanCreationException(descriptor, "Bean has no constructors defined (is this an interface?)");
-        
-        // TODO allow @inject to identify which exact constructor to use
-        if (ctors.length > 1)
-            throw new BeanCreationException(descriptor, "Multiple constructors are available, ambiguous as to which to call");
-        
         // Create the instance
         try {
             // Create the instance
-            BEAN_TYPE bean = (BEAN_TYPE) ctors[0].newInstance();
+            BEAN_TYPE bean = createInstance(engine);
             // Apply dependencies
             consumers.forEach(c -> c.inject(bean, engine));
             // Trigger post construct
@@ -139,6 +124,14 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
             throw new BeanCreationException(descriptor, e);
         }
     }
+    
+    /**
+     * Create the bean. Must be implemented by the concrete recipe to ensure that the bean object is properly created.
+     * 
+     * @param engine {@link Engine} from which dependencies for the constructor are to be pulled
+     * @return BEAN_TYPE
+     */
+    protected abstract BEAN_TYPE createInstance(Engine engine);
     
     /**
      * Called after the bean has been initialized, to allow all {@link PostConstruct} annotated methods to be called

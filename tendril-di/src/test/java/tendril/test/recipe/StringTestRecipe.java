@@ -52,4 +52,12 @@ public class StringTestRecipe extends AbstractRecipe<String> {
         return VALUE;
     }
 
+    /**
+     * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
+     */
+    @Override
+    protected String createInstance(Engine engine) {
+        return VALUE;
+    }
+
 }
