@@ -29,14 +29,13 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 
-import org.apache.commons.lang3.NotImplementedException;
-
 import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.AbstractTendrilProccessor;
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.Bean;
+import tendril.bean.Configuration;
 import tendril.bean.Factory;
 import tendril.bean.Inject;
 import tendril.bean.PostConstruct;
@@ -471,11 +470,15 @@ public class BeanProcessor extends AbstractTendrilProccessor {
     }
 
     /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.classes.JClass, tendril.codegen.classes.method.JMethod)
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
      */
     @Override
-    protected ClassDefinition processMethod(JClass enclosingType, JMethod<?> methodData) {
-        // TODO allow for the creation of configuration/factory classes
-        throw new NotImplementedException();
+    protected ClassDefinition processMethod() {
+        // A separate processor handles configurations, this "merely" acts to ensure that there isn't a Bean method that is outside of a configuration
+        if (currentClass.hasAnnotation(Configuration.class))
+            return null;
+        
+        throw new ProcessingException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() + 
+                "() - Bean methods cannot be outside of a configuration");
     }
 }

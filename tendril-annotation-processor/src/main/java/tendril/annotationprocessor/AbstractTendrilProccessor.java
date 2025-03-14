@@ -57,6 +57,8 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
     protected ClassType currentClassType;
     /** The class that is currently being processed */
     protected JClass currentClass;
+    /** The method that is currently being processed */
+    protected JMethod<?> currentMethod;
     /** The environment for the current round of annotation processing */
     protected RoundEnvironment roundEnv = null;
     /** Flag for whether the annotated element currently being processed is a method */
@@ -170,8 +172,20 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * @param element {@link ExecutableElement} of the method
      */
     private void prepareAndProcessMethod(ExecutableElement element) {
+        // Load the full details of the element
         Pair<JClass, JMethod<?>> methodDetails = ElementLoader.loadMethodDetails(element);
-        writeCode(processMethod(methodDetails.getLeft(), methodDetails.getRight()));
+        currentClass = methodDetails.getLeft();
+        currentClassType = currentClass.getType();
+        currentMethod = methodDetails.getRight();
+        validateMethod();
+
+        // Process it and save the generated code
+        writeCode(processMethod());
+        
+        // Reset for the next iteration
+        currentClass = null;
+        currentClassType = null;
+        currentMethod = null;
     }
 
     /**
@@ -191,6 +205,16 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * Note that for validation the currentClass instance field should be used.
      */
     protected void validateClass() {
+        // Do nothing by default
+    }
+
+    /**
+     * Validate that the {@link JMethod} to which the annotation is applied is appropriate for the annotation. By default no check is performed (all {@link JMethod}s can be used),
+     * override to perform whichever checks are appropriate. Throw an appropriate exception if validation fails.
+     * 
+     * Note that for validation the currentMethod instance field should be used (currentClass represents the class containing the method)
+     */
+    protected void validateMethod() {
         // Do nothing by default
     }
 
@@ -310,9 +334,7 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * Perform the necessary processing of the indicated method, which was found to have been annotated with the required annotation. An empty implementation is provided by default, leaving it up to
      * the subclass to provide the necessary concrete implementation.
      * 
-     * @param enclosingClass  {@link JClass} representing class in which the method is located
-     * @param methodData {@link JMethod} containing the details of the method
      * @return {@link ClassDefinition} defining the generated type (null if nothing is to be generated)
      */
-    protected abstract ClassDefinition processMethod(JClass enclosingClass, JMethod<?> methodData);
+    protected abstract ClassDefinition processMethod();
 }

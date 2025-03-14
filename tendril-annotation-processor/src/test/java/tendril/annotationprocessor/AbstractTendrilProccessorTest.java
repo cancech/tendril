@@ -105,10 +105,10 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
         /**
          * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod(tendril.codegen.field.type.ClassType, tendril.codegen.classes.method.JMethod)
          */
-        protected ClassDefinition processMethod(JClass enclosingClass, JMethod<?> methodData) {
+        protected ClassDefinition processMethod() {
             timesMethodCalled++;
-            lastMethodTypeClass = enclosingClass;
-            lastMethodTypeMethodData = methodData;
+            lastMethodTypeClass = currentClass;
+            lastMethodTypeMethodData = currentMethod;
             return mockGeneratedDef;
         }
 
@@ -305,6 +305,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
             verify(mockEnvironment).processingOver();
             verify(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
             mockLoader.verify(() -> ElementLoader.loadMethodDetails(mockMethodElement));
+            verify(mockJClass).getType();
             verify(mockGeneratedType).getFullyQualifiedName();
             verify(mockFileWriter).write("methodCode", 0, "methodCode".length());
             verify(mockFileWriter).close();

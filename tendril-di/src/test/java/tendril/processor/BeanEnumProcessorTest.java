@@ -63,7 +63,8 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
         private BeanEnumProcessorForTest() {
             super();
             this.processingEnv = mockProcessingEnv;
-            this.currentClassType = mockAnnotatedClass; 
+            this.currentClassType = mockAnnotatedClass;
+            this.currentMethod = mockAnnotatedMethod;
         }
     }
 
@@ -156,7 +157,8 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
     @Test
     public void testProcessMethod() {
         when(mockAnnotatedMethod.getName()).thenReturn("mockMethod");
-        Assertions.assertThrows(ProcessingException.class, () -> processor.processMethod(mockClass, mockAnnotatedMethod));
+        Assertions.assertThrows(ProcessingException.class, () -> processor.processMethod());
+        verify(mockAnnotatedClass).getFullyQualifiedName();
         verify(mockAnnotatedMethod).getName();
     }
 
