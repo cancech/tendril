@@ -53,6 +53,8 @@ public class JClassInterfaceTest extends AbstractUnitTest {
 		cls = new JClassInterface(mockClassType);
 		verify(mockClassType).getPackageName();
 		verify(mockClassType).getClassName();
+		Assertions.assertTrue(cls.isAbstract());
+		Assertions.assertTrue(cls.isInterface());
 	}
 
 	/**

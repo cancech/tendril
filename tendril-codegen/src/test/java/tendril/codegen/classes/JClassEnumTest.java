@@ -65,6 +65,8 @@ public class JClassEnumTest extends AbstractUnitTest {
         enumCls = new JClassEnum(mockType);
         verify(mockType).getClassName();
         verify(mockType).getPackageName();
+        Assertions.assertFalse(enumCls.isAbstract());
+        Assertions.assertFalse(enumCls.isInterface());
     }
 
     /**

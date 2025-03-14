@@ -112,6 +112,31 @@ public class BeanProcessor extends AbstractTendrilProccessor {
         recipeTypeMap.put(Singleton.class, SingletonRecipe.class);
         recipeTypeMap.put(Factory.class, FactoryRecipe.class);
     }
+    
+    /**
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateClass()
+     */
+    @Override
+    protected void validateClass() {
+        // This can't actually happen, but just to be sure
+        if (currentClass.isStatic())
+            throwValidationException("static");
+        
+        // Valid states that still shouldn't be allowed happen
+        if (currentClass.isAbstract())
+            throwValidationException("abstract");
+        if (currentClass.isInterface())
+            throwValidationException("interface");
+    }
+    
+    /**
+     * Helper to throw an exception if class validation fails
+     * 
+     * @param reason {@link String} cause of the failure
+     */
+    private void throwValidationException(String reason) {
+        throw new ProcessingException(currentClassType.getFullyQualifiedName() + " cannot be a bean because it is " + reason);
+    }
 
     /**
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()

@@ -31,6 +31,22 @@ public class JClassInterface extends JClass {
     protected JClassInterface(ClassType data) {
         super(data);
     }
+    
+    /**
+     * @see tendril.codegen.classes.JClass#isAbstract()
+     */
+    @Override
+    public boolean isAbstract() {
+        return true;
+    }
+    
+    /**
+     * @see tendril.codegen.classes.JClass#isInterface()
+     */
+    @Override
+    public boolean isInterface() {
+        return true;
+    }
 
     /**
      * @see tendril.codegen.classes.JClass#getClassKeyword()

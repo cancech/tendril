@@ -30,6 +30,14 @@ public class JClassAbstract extends JClassDefault {
 	protected JClassAbstract(ClassType data) {
 		super(data);
 	}
+	
+	/**
+	 * @see tendril.codegen.classes.JClass#isAbstract()
+	 */
+	@Override
+	public boolean isAbstract() {
+	    return true;
+	}
 
 	/**
 	 * @see tendril.codegen.classes.JClassDefault#getClassKeyword()

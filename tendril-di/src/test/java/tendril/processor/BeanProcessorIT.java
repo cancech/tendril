@@ -49,7 +49,7 @@ public class BeanProcessorIT {
      * Failure should be indicated if not just one recipe type is indicated
      */
     @Test
-    public void testMustHaveOneRecipeType() {
+    public void testMustHaveOneRecipeType_Fails() {
         ClassType type = new ClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type);
         
@@ -62,10 +62,43 @@ public class BeanProcessorIT {
     }
     
     /**
+     * Failure should be indicated if the class is abstract
+     */
+    @Test
+    public void testClassMustNotAbstract_Fails() {
+        ClassType type = new ClassType("q.w.e.Rty");
+        ClassBuilder builder = ClassBuilder.forAbstractClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
+        
+        Assertions.assertThrows(ProcessingException.class, () -> new TestBeanProcessor(type, builder.build()).processType());
+    }
+    
+    /**
+     * Failure should be indicated if the class is an interface
+     */
+    @Test
+    public void testClassMustNotInterface_Fails() {
+        ClassType type = new ClassType("q.w.e.Rty");
+        ClassBuilder builder = ClassBuilder.forInterface(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
+        
+        Assertions.assertThrows(ProcessingException.class, () -> new TestBeanProcessor(type, builder.build()).processType());
+    }
+    
+    /**
+     * Failure should be indicated if the class is an annotation
+     */
+    @Test
+    public void testClassMustNotAnnotation_Fails() {
+        ClassType type = new ClassType("q.w.e.Rty");
+        ClassBuilder builder = ClassBuilder.forAnnotation(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
+        
+        Assertions.assertThrows(ProcessingException.class, () -> new TestBeanProcessor(type, builder.build()).processType());
+    }
+    
+    /**
      * Failure should be indicated if there is not exactly one (viable) constructor
      */
     @Test
-    public void testMustHaveOnlyOneNonAnnotatedConstructor() {
+    public void testMustHaveOnlyOneNonAnnotatedConstructor_Fails() {
         ClassType type = new ClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
@@ -87,7 +120,7 @@ public class BeanProcessorIT {
      * Failure should be indicated if there is not exactly one (viable) constructor
      */
     @Test
-    public void testMustHaveOnlyOneInjectAnnotatedConstructor() {
+    public void testMustHaveOnlyOneInjectAnnotatedConstructor_Fails() {
         ClassType type = new ClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
@@ -109,7 +142,7 @@ public class BeanProcessorIT {
      * Failure should be indicated if a PostContruct method is private
      */
     @Test
-    public void testPostConstructMustNotBePrivate() {
+    public void testPostConstructMustNotBePrivate_Fails() {
         ClassType type = new ClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
@@ -124,7 +157,7 @@ public class BeanProcessorIT {
      * Failure should be indicated if a PostContruct method is not void
      */
     @Test
-    public void testPostConstructMustNotBeVoid() {
+    public void testPostConstructMustNotBeVoid_Fails() {
         ClassType type = new ClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).emptyImplementation().finish();
@@ -139,7 +172,7 @@ public class BeanProcessorIT {
      * Failure should be indicated if a PostContruct method must not take a parameter
      */
     @Test
-    public void testPostConstructMustNotTakeAnyParameter() {
+    public void testPostConstructMustNotTakeAnyParameter_Fails() {
         ClassType type = new ClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
@@ -149,5 +182,63 @@ public class BeanProcessorIT {
         builder.buildMethod("method1").setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(PostConstruct.class))
             .buildParameter(PrimitiveType.LONG, "param").finish().emptyImplementation().finish();
         Assertions.assertThrows(ProcessingException.class, () -> new TestBeanProcessor(type, builder.build()).processType());
+    }
+    
+    /**
+     * Can generate if there is a single Inject constructor (with other viables not annotated), and no PostConstruct method is present
+     */
+    @Test
+    public void testSingleAnnotatedConstructorNoPostConstruct_Passes() {
+        ClassType type = new ClassType("q.w.e.Rty");
+        ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
+        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
+        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
+        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
+        
+        Assertions.assertFalse(new TestBeanProcessor(type, builder.build()).processType().getCode().isBlank());
+    }
+    
+    /**
+     * Can generate if there is a single Inject constructor (with other viables not annotated), and the PostContruct method is valid
+     */
+    @Test
+    public void testSingleAnnotatedConstructorValidPostConstruct_Passes() {
+        ClassType type = new ClassType("q.w.e.Rty");
+        ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
+        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
+        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
+        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
+        
+        builder.buildMethod("method1").setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(PostConstruct.class)).emptyImplementation().finish();
+        Assertions.assertFalse(new TestBeanProcessor(type, builder.build()).processType().getCode().isBlank());
+    }
+    
+    /**
+     * Can generate if there is a single viable constructor (even if not annotated), and no PostContruct method is present
+     */
+    @Test
+    public void testSingleViableConstructorNoPostConstruct_Passes() {
+        ClassType type = new ClassType("q.w.e.Rty");
+        ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
+        builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
+        builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
+        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
+        
+        Assertions.assertFalse(new TestBeanProcessor(type, builder.build()).processType().getCode().isBlank());
+    }
+    
+    /**
+     * Can generate if there is a single viable constructor (even if not annotated), and the PostContruct method is valid
+     */
+    @Test
+    public void testSingleViableConstructorValidPostConstruct_Passes() {
+        ClassType type = new ClassType("q.w.e.Rty");
+        ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
+        builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
+        builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
+        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
+        
+        builder.buildMethod("method1").setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(PostConstruct.class)).emptyImplementation().finish();
+        Assertions.assertFalse(new TestBeanProcessor(type, builder.build()).processType().getCode().isBlank());
     }
 }

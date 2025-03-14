@@ -47,6 +47,8 @@ public class JClassAbstractTest extends AbstractUnitTest {
 		cls = new JClassAbstract(mockClassType);
 		verify(mockClassType).getPackageName();
 		verify(mockClassType).getClassName();
+		Assertions.assertTrue(cls.isAbstract());
+		Assertions.assertFalse(cls.isInterface());
 	}
 	
 	/**

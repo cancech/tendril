@@ -216,6 +216,8 @@ public class JClassTest extends AbstractUnitTest {
         verify(mockClassType).getClassName();
 
         Assertions.assertEquals("ClassName", jclass.getName());
+        Assertions.assertFalse(jclass.isAbstract());
+        Assertions.assertFalse(jclass.isInterface());
     }
     
     /**

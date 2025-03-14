@@ -154,6 +154,7 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
         // Load the full details of the element
         currentClass = ElementLoader.loadClassDetails(element);
         currentClassType = currentClass.getType();
+        validateClass();
         
         // Process it and save the generated code
         writeCode(processType());
@@ -180,6 +181,16 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * @param type {@link TypeElement} on which the annotation was applied
      */
     protected void validateType(TypeElement type) {
+        // Do nothing by default
+    }
+
+    /**
+     * Validate that the {@link JClass} to which the annotation is applied is appropriate for the annotation. By default no check is performed (all {@link JClass}es can be used),
+     * override to perform whichever checks are appropriate. Throw an appropriate exception if validation fails.
+     * 
+     * Note that for validation the currentClass instance field should be used.
+     */
+    protected void validateClass() {
         // Do nothing by default
     }
 

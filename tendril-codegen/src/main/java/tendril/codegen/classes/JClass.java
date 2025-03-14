@@ -61,6 +61,24 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
     }
     
     /**
+     * Check to see if the class is abstract
+     * 
+     * @return true if it is
+     */
+    public boolean isAbstract() {
+        return false;
+    }
+    
+    /**
+     * Check to see if the class is an iterface
+     * 
+     * @return true if it is
+     */
+    public boolean isInterface() {
+        return false;
+    }
+    
+    /**
      * @see tendril.codegen.field.JVisibleType#setStatic(boolean)
      */
     @Override

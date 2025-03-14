@@ -53,6 +53,8 @@ public class JClassAnnotationTest extends AbstractUnitTest {
         cls = new JClassAnnotation(mockClassType);
         verify(mockClassType).getPackageName();
         verify(mockClassType).getClassName();
+        Assertions.assertTrue(cls.isAbstract());
+        Assertions.assertTrue(cls.isInterface());
     }
 
     /**
