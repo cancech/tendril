@@ -15,6 +15,7 @@
  */
 package tendril.codegen.field.type;
 
+import java.lang.reflect.Array;
 import java.util.Set;
 
 import tendril.codegen.DefinitionException;
@@ -117,4 +118,13 @@ public class ArrayType<DATA_TYPE extends Type> implements Type {
         
         return containedType.equals(((ArrayType<?>) obj).containedType);
     }
+
+    /**
+     * @see tendril.codegen.field.type.Type#asClassType()
+     */
+    @Override
+    public ClassType asClassType() {
+        return new ClassType(Array.class);
+    }
+    
 }

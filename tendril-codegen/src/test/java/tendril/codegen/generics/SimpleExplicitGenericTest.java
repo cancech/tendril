@@ -156,4 +156,12 @@ class SimpleExplicitGenericTest extends AbstractUnitTest {
         Assertions.assertEquals(JValueFactory.create(PrimitiveType.BYTE), gen.asValue(PrimitiveType.BYTE));
         verify(mockClassType, times(8)).isTypeOf(any());
     }
+    
+    /**
+     * Verify that the ClassType is properly retrieved
+     */
+    @Test
+    public void testAsClassType() {
+        Assertions.assertEquals(mockClassType, gen.asClassType());
+    }
 }

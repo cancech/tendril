@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Jaroslav Bosak
+ * Copyright 2025 Jaroslav Bosak
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,31 +25,28 @@ import com.google.auto.service.AutoService;
 import tendril.annotationprocessor.AbstractTendrilProccessor;
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.ProcessingException;
-import tendril.bean.Bean;
 import tendril.bean.Configuration;
-import tendril.bean.recipe.Registry;
 import tendril.processor.recipe.RecipeGenerator;
 
 /**
- * Processor for the {@link Bean} annotation, which will generate the appropriate Recipe for the specified Provider
+ * Processor for the {@link Configuration} annotation, which will generate an appropriate recipe for each of the beans the annotated configuration produces.
  */
-@SupportedAnnotationTypes("tendril.bean.Bean")
+@SupportedAnnotationTypes("tendril.bean.Configuration")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class BeanProcessor extends AbstractTendrilProccessor {
+public class ConfigurationProcessor extends AbstractTendrilProccessor {
 
     /**
-     * CTOR - will be annotated as a {@link Registry}
+     * CTOR
      */
-    public BeanProcessor() {
-    }
-
+    public ConfigurationProcessor() {}
+    
     /**
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
      */
     @Override
     protected ClassDefinition processType() {
-        return RecipeGenerator.generate(currentClassType, currentClass);
+        return RecipeGenerator.generateConfiguration(currentClassType, currentClass);
     }
 
     /**
@@ -57,11 +54,8 @@ public class BeanProcessor extends AbstractTendrilProccessor {
      */
     @Override
     protected ClassDefinition processMethod() {
-        // A separate processor handles configurations, this "merely" generates the recipe for the bean that the method is producing
-        if (!currentClass.hasAnnotation(Configuration.class))
-            throw new ProcessingException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() + 
-                    "() - Bean methods cannot be outside of a configuration");
-
-        return RecipeGenerator.generate(currentClassType, currentMethod);
+        throw new ProcessingException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
+                " - Configuration cannot be a method");
     }
+
 }

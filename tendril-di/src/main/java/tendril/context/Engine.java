@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 import tendril.BeanRetrievalException;
 import tendril.bean.recipe.AbstractRecipe;
+import tendril.bean.recipe.ConfigurationRecipe;
 import tendril.bean.recipe.Descriptor;
 import tendril.processor.registration.RegistryFile;
 
@@ -52,8 +53,10 @@ public class Engine {
         try {
             for (String recipe : RegistryFile.read()) {
                 try {
-                    recipes.add((AbstractRecipe<?>) Class.forName(recipe).getDeclaredConstructor(Engine.class).newInstance(this));
-                    LOGGER.fine("Loaded recipe " + recipe);
+                    // Add the recipe from the registry file
+                    Object instance = Class.forName(recipe).getDeclaredConstructor(Engine.class).newInstance(this);
+                    if (!tryAddConfiguration(recipe, instance))
+                        tryAddRecipe(recipe, instance);
                 } catch (ClassCastException e) {
                     LOGGER.severe(recipe + " is not a proper recipe (does not extend " + AbstractRecipe.class.getName() + ")");
                 } catch (ClassNotFoundException e) {
@@ -67,6 +70,34 @@ public class Engine {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    /**
+     * Try to add the recipe as though it were a configuration
+     * 
+     * @param recipe {@link String} the fully qualified name of the recipe
+     * @param object {@link Object} recipe instance
+     * @return boolean true if the recipe was for a configuration and it was processed (false if not configuration and not processed)
+     */
+    private boolean tryAddConfiguration(String recipe, Object object) {
+        if (!(object instanceof ConfigurationRecipe))
+                return false;
+        
+        ConfigurationRecipe<?> config = (ConfigurationRecipe<?>) object;
+        LOGGER.fine("Loading configuration " + recipe);
+        config.getNestedRecipes().forEach((name, r) -> tryAddRecipe(recipe + "::" + name, r));
+        return true;
+    }
+
+    /**
+     * Try to add the recipe as though it were a recipe for an individual bean
+     * 
+     * @param recipe {@link String} the fully qualified name of the recipe
+     * @param object {@link Object} recipe instance
+     */
+    private void tryAddRecipe(String recipe, Object object) {
+        recipes.add((AbstractRecipe<?>) object);
+        LOGGER.fine("Loaded recipe " + recipe);
     }
 
     /**

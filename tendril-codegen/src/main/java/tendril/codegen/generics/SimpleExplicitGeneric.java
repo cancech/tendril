@@ -85,4 +85,12 @@ class SimpleExplicitGeneric extends GenericType {
         return JValueFactory.create(value);
     }
 
+    /**
+     * @see tendril.codegen.field.type.Type#asClassType()
+     */
+    @Override
+    public ClassType asClassType() {
+        return classType;
+    }
+
 }

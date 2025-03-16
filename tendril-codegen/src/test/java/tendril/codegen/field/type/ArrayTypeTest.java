@@ -21,6 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Array;
 import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
@@ -57,6 +58,14 @@ public class ArrayTypeTest extends AbstractUnitTest {
     @Override
     protected void prepareTest() {
         type = new ArrayType<>(mockType);
+    }
+    
+    /**
+     * Verify that the contained data type is properly reported
+     */
+    @Test
+    public void testContainedDataType() {
+        Assertions.assertEquals(mockType, type.getContainedType());
     }
     
 
@@ -166,5 +175,13 @@ public class ArrayTypeTest extends AbstractUnitTest {
         Assertions.assertThrows(DefinitionException.class, () -> type.asValue(new String[] {"a", "b", "c"}));
         verify(mockType).isAssignableFrom(any());
         verify(mockType, times(2)).getSimpleName();
+    }
+    
+    /**
+     * Verify that the proper class type is reported
+     */
+    @Test
+    public void testAsClassType() {
+        Assertions.assertEquals(new ClassType(Array.class), type.asClassType());
     }
 }

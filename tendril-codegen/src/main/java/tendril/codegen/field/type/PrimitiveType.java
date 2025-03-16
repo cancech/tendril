@@ -159,4 +159,12 @@ public enum PrimitiveType implements Type {
 
         return JValueFactory.create(value);
     }
+
+    /**
+     * @see tendril.codegen.field.type.Type#asClassType()
+     */
+    @Override
+    public ClassType asClassType() {
+        return new ClassType(objectClass);
+    }
 }

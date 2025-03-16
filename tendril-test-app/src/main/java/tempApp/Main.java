@@ -38,6 +38,9 @@ public class Main implements TendrilRunner {
     FactoryClass factoryBean3;
     @Inject
     FactoryClass factoryBean4;
+    @Inject
+    @Named("TempString")
+    String tempString;
     private FactoryClass factoryBean5;
     
     @Inject
@@ -74,6 +77,7 @@ public class Main implements TendrilRunner {
         System.out.println(factoryBean3);
         System.out.println(factoryBean4);
         System.out.println(factoryBean5);
+        System.out.println(tempString);
         assert(factoryBean1 != factoryBean2);
         assert(factoryBean1 != factoryBean3);
         assert(factoryBean1 != factoryBean4);

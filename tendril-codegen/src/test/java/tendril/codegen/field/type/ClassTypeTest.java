@@ -25,6 +25,7 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.field.JType;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
+import tendril.test.AbstractUnitTest;
 import tendril.test.helper.assertions.TendrilAssert;
 
 /**
@@ -222,5 +223,30 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
         Assertions.assertTrue(lhs.equals(new ClassType(JType.class)));
         Assertions.assertTrue(lhs.equals(new ClassType(JType.class.getName())));
         Assertions.assertTrue(lhs.equals(new ClassType(JType.class.getPackageName(), JType.class.getSimpleName())));
+    }
+    
+    /**
+     * Verify that the correct Class is retrieved
+     */
+    @Test
+    public void testGetDefinedClass() {
+        // For a valid class... no exception is to be thrown
+        try {
+            Assertions.assertEquals(ClassType.class, new ClassType(ClassType.class).getDefinedClass());
+            Assertions.assertEquals(Integer.class, new ClassType(Integer.class).getDefinedClass());
+            Assertions.assertEquals(Type.class, new ClassType(Type.class).getDefinedClass());
+            Assertions.assertEquals(Override.class, new ClassType(Override.class).getDefinedClass());
+            Assertions.assertEquals(AbstractUnitTest.class, new ClassType(AbstractUnitTest.class).getDefinedClass());
+        } catch (ClassNotFoundException e) {
+            Assertions.fail(e);
+        }
+    }
+    
+    /**
+     * Verify that the asClassType simply returns itself
+     */
+    @Test
+    public void testAsClassType() {
+        Assertions.assertTrue(type == type.asClassType());
     }
 }

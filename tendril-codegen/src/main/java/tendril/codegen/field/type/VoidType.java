@@ -100,4 +100,12 @@ public class VoidType implements Type {
     public JValue<?, ?> asValue(Object value) {
         throw new DefinitionException("A void type cannot hold any value");
     }
+
+    /**
+     * @see tendril.codegen.field.type.Type#asClassType()
+     */
+    @Override
+    public ClassType asClassType() {
+        throw new DefinitionException("A void type cannot be represented as a class");
+    }
 }

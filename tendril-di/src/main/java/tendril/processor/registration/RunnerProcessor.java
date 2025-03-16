@@ -23,13 +23,12 @@ import javax.lang.model.element.TypeElement;
 
 import com.google.auto.service.AutoService;
 
+import tendril.annotationprocessor.AbstractTendrilProccessor;
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.ProcessingException;
-import tendril.bean.recipe.AbstractRecipe;
-import tendril.bean.recipe.SingletonRecipe;
 import tendril.context.launch.Runner;
 import tendril.context.launch.TendrilRunner;
-import tendril.processor.BeanProcessor;
+import tendril.processor.recipe.RecipeGenerator;
 
 /**
  * Annotation processor for the {@link Runner} annotation
@@ -37,7 +36,7 @@ import tendril.processor.BeanProcessor;
 @SupportedAnnotationTypes("tendril.context.launch.Runner")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class RunnerProcessor extends BeanProcessor {
+public class RunnerProcessor extends AbstractTendrilProccessor {
 
     /** The class that is the recipe for the runner */
     private String mainRunner = null;
@@ -46,7 +45,6 @@ public class RunnerProcessor extends BeanProcessor {
      * CTOR
      */
     public RunnerProcessor() {
-        super(false);
     }
     
     /**
@@ -70,18 +68,9 @@ public class RunnerProcessor extends BeanProcessor {
         if (mainRunner != null)
             throw new ProcessingException("There can only be a single runner specified");
         
-        ClassDefinition generatedDef = super.processType();
+        ClassDefinition generatedDef = RecipeGenerator.generate(currentClassType, currentClass, false);
         mainRunner = generatedDef.getType().getFullyQualifiedName();
         return generatedDef;
-    }
-    
-    /**
-     * @see tendril.processor.BeanProcessor#getRecipeClass()
-     */
-    @SuppressWarnings("rawtypes")
-    @Override
-    protected Class<? extends AbstractRecipe> getRecipeClass() {
-        return SingletonRecipe.class;
     }
 
     /**
@@ -90,7 +79,8 @@ public class RunnerProcessor extends BeanProcessor {
      */
     @Override
     protected ClassDefinition processMethod() {
-        throw new ProcessingException("Runner cannot be a method");
+        throw new ProcessingException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
+                " - Runner cannot be a method");
     }
 
     /**

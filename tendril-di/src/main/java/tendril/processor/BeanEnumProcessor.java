@@ -115,7 +115,7 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
      */
     @Override
     protected ClassDefinition processMethod() {
-        throw new ProcessingException(BeanId.class.getName() + " cannot be applied to any method [" + currentClassType.getFullyQualifiedName() + 
-                "::" + currentMethod.getName() + "]");
+        throw new ProcessingException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
+                " - BeanIdEnum cannot be a method");
     }
 }

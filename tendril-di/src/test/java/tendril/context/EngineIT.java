@@ -32,12 +32,13 @@ import tendril.test.recipe.Double1TestRecipe;
 import tendril.test.recipe.Double2TestRecipe;
 import tendril.test.recipe.IntTestRecipe;
 import tendril.test.recipe.StringTestRecipe;
+import tendril.test.recipe.TestConfigRecipe;
 
 /**
  * Test case for the {@link Engine}
  */
 public class EngineIT extends AbstractUnitTest {
-    
+
     // Instance to test
     private Engine engine;
 
@@ -58,7 +59,7 @@ public class EngineIT extends AbstractUnitTest {
             registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), Double1DuplicateTestRecipe.class.getName())));
             engine.init();
         }
-        
+
         Assertions.assertEquals(2, engine.getBeanCount());
         Assertions.assertThrows(BeanRetrievalException.class, () -> engine.getBean(new Descriptor<>(Double.class)));
         Assertions.assertThrows(BeanRetrievalException.class, () -> engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
@@ -70,21 +71,21 @@ public class EngineIT extends AbstractUnitTest {
     @Test
     public void testInitAllUnique() {
         try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
-            registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), Double2TestRecipe.class.getName(),
-                    IntTestRecipe.class.getName(), StringTestRecipe.class.getName())));
+            registry.when(RegistryFile::read)
+                    .thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), Double2TestRecipe.class.getName(), IntTestRecipe.class.getName(), StringTestRecipe.class.getName())));
             engine.init();
         }
-        
+
         Assertions.assertEquals(4, engine.getBeanCount());
     }
-    
+
     /**
      * Verify that beans can be retrieved
      */
     @Test
     public void testGetBean() {
         testInitAllUnique();
-        
+
         // Not available
         Assertions.assertThrows(BeanRetrievalException.class, () -> engine.getBean(new Descriptor<>(Long.class)));
         // Too vague
@@ -95,4 +96,35 @@ public class EngineIT extends AbstractUnitTest {
         Assertions.assertEquals(StringTestRecipe.VALUE, engine.getBean(new Descriptor<>(String.class)));
     }
 
+    /**
+     * Verify that beans can be retrieved from a configuration
+     */
+    @Test
+    public void testConfiguration() {
+        try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
+            registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(TestConfigRecipe.class.getName())));
+            engine.init();
+        }
+
+        Assertions.assertEquals(2, engine.getBeanCount());
+        Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
+        Assertions.assertEquals(Double2TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double2TestRecipe.NAME)));
+    }
+
+    /**
+     * Verify that beans can be retrieved from a configuration as well as from beans directly
+     */
+    @Test
+    public void testMixedConfiguration() {
+        try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
+            registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(TestConfigRecipe.class.getName(), IntTestRecipe.class.getName(), StringTestRecipe.class.getName())));
+            engine.init();
+        }
+
+        Assertions.assertEquals(4, engine.getBeanCount());
+        Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
+        Assertions.assertEquals(Double2TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double2TestRecipe.NAME)));
+        Assertions.assertEquals(IntTestRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class)));
+        Assertions.assertEquals(StringTestRecipe.VALUE, engine.getBean(new Descriptor<>(String.class)));
+    }
 }

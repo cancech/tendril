@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
@@ -109,5 +110,13 @@ class SimpleGenericTest extends AbstractUnitTest {
         Assertions.assertEquals(JValueFactory.create("abc123"), gen.asValue("abc123"));
         Assertions.assertEquals(JValueFactory.create(123), gen.asValue(123));
         Assertions.assertEquals(JValueFactory.create(PrimitiveType.BYTE), gen.asValue(PrimitiveType.BYTE));
+    }
+    
+    /**
+     * Verify that asClassType does nothing
+     */
+    @Test
+    public void testAsClassType() {
+        Assertions.assertThrows(DefinitionException.class, () -> gen.asClassType());
     }
 }

@@ -31,7 +31,7 @@ import tendril.context.Engine;
 public abstract class AbstractRecipe<BEAN_TYPE> {
 
     /** The {@link Engine} which drives the overall dependency injection */
-    private final Engine engine;
+    protected final Engine engine;
     /** The description of this bean */
     private final Descriptor<BEAN_TYPE> descriptor;
     

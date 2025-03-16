@@ -59,4 +59,11 @@ public interface Type extends Importable {
      * @return {@link JValue}
      */
     JValue<?, ?> asValue(Object value);
+    
+    /**
+     * Get the {@link ClassType} representation of the type (if such a thing is possible).
+     * 
+     * @return {@link ClassType}
+     */
+    ClassType asClassType();
 }

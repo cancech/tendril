@@ -15,7 +15,10 @@
  */
 package tendril.codegen.field.type;
 
+import static org.mockito.Mockito.verifyNoInteractions;
+
 import java.lang.reflect.Constructor;
+import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -33,11 +36,35 @@ public class VoidTypeTest extends SharedTypeTest<VoidType> {
     private Type mockType;
     @Mock
     private Object mockObject;
+    @Mock
+    private Set<ClassType> mockImports;
     
     @Override
     protected void prepareTest() {
         type = VoidType.INSTANCE;
         verifyDataState("void", true);
+    }
+    
+    /**
+     * Void cannot have any type of it
+     */
+    @Test
+    public void testIsTypeOf() {
+        Assertions.assertFalse(type.isTypeOf(mockObject));
+        Assertions.assertFalse(type.isTypeOf(null));
+        Assertions.assertFalse(type.isTypeOf(mockType));
+        Assertions.assertFalse(type.isTypeOf("abc"));
+        Assertions.assertFalse(type.isTypeOf(Integer.valueOf(123)));
+        Assertions.assertFalse(type.isTypeOf(this));
+    }
+    
+    /**
+     * Verify that it has nothing to import
+     */
+    @Test
+    public void testRegisterImport() {
+        type.registerImport(mockImports);
+        verifyNoInteractions(mockImports);
     }
     
     /**
@@ -80,5 +107,13 @@ public class VoidTypeTest extends SharedTypeTest<VoidType> {
     @Test
     public void testAsValueThrowsException() {
         Assertions.assertThrows(DefinitionException.class, () -> type.asValue(mockObject));
+    }
+    
+    /**
+     * Verify that it is not possible to represent void as a {@link ClassType}
+     */
+    @Test
+    public void testAsClassType() {
+        Assertions.assertThrows(DefinitionException.class, () -> type.asClassType());
     }
 }

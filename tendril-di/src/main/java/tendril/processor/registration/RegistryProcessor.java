@@ -27,6 +27,7 @@ import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.AbstractTendrilProccessor;
 import tendril.annotationprocessor.ClassDefinition;
+import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.recipe.Registry;
 
 /**
@@ -59,8 +60,8 @@ public class RegistryProcessor extends AbstractTendrilProccessor {
      */
     @Override
     protected ClassDefinition processMethod() {
-        registers.add(currentClass.getType().getFullyQualifiedName() + "::" + currentMethod.getName());
-        return null;
+        throw new ProcessingException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
+                " - Registry cannot be a method");
     }
 
     /**

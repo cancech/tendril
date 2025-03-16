@@ -195,4 +195,12 @@ public class ClassType extends JGeneric implements Type {
     public String toString() {
         return getFullyQualifiedName();
     }
+
+    /**
+     * @see tendril.codegen.field.type.Type#asClassType()
+     */
+    @Override
+    public ClassType asClassType() {
+        return this;
+    }
 }

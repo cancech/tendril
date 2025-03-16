@@ -76,6 +76,14 @@ public class GenericTypeTest extends AbstractUnitTest {
         public JValue<?, ?> asValue(Object value) {
             throw new NotImplementedException("This is not part of the test, and hence not implemented");
         }
+
+        /**
+         * @see tendril.codegen.field.type.Type#asClassType()
+         */
+        @Override
+        public ClassType asClassType() {
+            throw new NotImplementedException("This is not part of the test, and hence not implemented");
+        }
         
     }
     

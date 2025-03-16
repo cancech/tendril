@@ -15,6 +15,8 @@
  */
 package tendril.codegen.generics;
 
+import tendril.codegen.DefinitionException;
+import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
@@ -55,5 +57,13 @@ class SimpleGeneric extends GenericType {
     @Override
     public JValue<?, ?> asValue(Object value) {
         return JValueFactory.create(value);
+    }
+
+    /**
+     * @see tendril.codegen.field.type.Type#asClassType()
+     */
+    @Override
+    public ClassType asClassType() {
+        throw new DefinitionException("Cannot derive a ClassType for the generic");
     }
 }
