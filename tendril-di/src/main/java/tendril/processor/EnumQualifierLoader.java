@@ -41,7 +41,9 @@ import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JClassAnnotation;
+import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
 
@@ -87,17 +89,24 @@ public class EnumQualifierLoader extends AbstractTendrilProccessor implements Ge
         if (!(klass instanceof JClassAnnotation))
             return null;
 
-        // Load the attributes that are applied to the instance
-        Map<String, JValue<?, ?>> attributes = new HashMap<>();
-        processingEnv.getElementUtils().getElementValuesWithDefaults(mirror).forEach((element, annonValue) -> {
-            VariableElement attrValue = (VariableElement) annonValue.getValue();
-            EnumerationEntry entry = EnumerationEntry.from(new ClassType(attrValue.asType().toString()), attrValue.getSimpleName().toString());
-            attributes.put(element.getSimpleName().toString(), JValueFactory.create(entry));
-        });
-        
-        // Put it all together
+        JAnnotation instance = createInstance(type, (JClassAnnotation) klass, mirror);
+        for (JAnnotation a: klass.getAnnotations())
+            instance.add(a);
+        return instance;
+    }
+    
+    /**
+     * Create the JAnnotation instance with the appropriate attributes
+     * 
+     * @param type {@link ClassType} indicating the class of the annotation instance to be loaded
+     * @param definition {@link JClassAnnotation} which defines the annotation
+     * @param mirror {@link AnnotationMirror} containing the details of the instance
+     * @return {@link JAnnotation} instance with the appropriate attributes
+     */
+    private JAnnotation createInstance(ClassType type, JClassAnnotation definition, AnnotationMirror mirror) {
+        Map<String, JValue<?, ?>> attributes = processAttributes(definition, mirror);
+
         JAnnotation instance = null;
-        // TODO Should this be dictated by the JClass or attributes?
         if (attributes.isEmpty())
             instance = JAnnotationFactory.create(type);
         else if (attributes.size() == 1 && attributes.containsKey("value"))
@@ -106,10 +115,55 @@ public class EnumQualifierLoader extends AbstractTendrilProccessor implements Ge
             instance = JAnnotationFactory.create(type, attributes);
         }
         
-        // Make sure that the annotations from the definition are applied to the instance as well
-        for (JAnnotation a: klass.getAnnotations())
-            instance.add(a);
         return instance;
+    }
+    
+    /**
+     * Process the attributes placed on an annotation, loading them from the {@link AnnotationMirror} describing the instance and correlating it with the
+     * {@link JClassAnnotation} definition.
+     * 
+     * @param definition {@link JClassAnnotation} which defined the annotation class
+     * @param mirror {@link AnnotationMirror} with the details of the annotation instance
+     * @return {@link Map} of {@link String} attribute names to their assigned {@link JValue}s
+     */
+    private Map<String, JValue<?, ?>> processAttributes(JClassAnnotation definition, AnnotationMirror mirror) {
+        // Get a mapping of all attributes that are expected
+        Map<String, JMethod<?>> attributes = new HashMap<>();
+        definition.getMethods().forEach(m -> attributes.put(m.getName(), m));
+        
+        Map<String, JValue<?, ?>> attributeValues = new HashMap<>();
+        mirror.getElementValues().forEach((element, value) -> {
+            String name = element.getSimpleName().toString();
+            // Make sure that the attribute exists in the annotation
+            if (!attributes.containsKey(name))
+                throw new ProcessingException(definition.getType().getFullyQualifiedName() + " does not contain an attribute " + name);
+            
+            attributeValues.put(name, createValue(attributes.get(name).getType(), value.getValue()));
+        });
+        return attributeValues;
+    }
+    
+    /**
+     * Convert the assigned "real" value to its representative {@link JValue}
+     * 
+     * @param desiredType {@link Type} indicating what type is expected by the attribute
+     * @param value {@link Object} containing the "real" value
+     * @return {@link JValue} representation
+     */
+    private JValue<?,?> createValue(Type desiredType, Object value) {
+        // Enums are not seen as the instance, but rather just described
+        if (value instanceof VariableElement) {
+            VariableElement varValue = (VariableElement) value;
+            ClassType valueType = new ClassType(varValue.asType().toString());
+            if (!desiredType.equals(valueType)) {
+                String expectedType = (desiredType instanceof ClassType) ? ((ClassType)desiredType).getFullyQualifiedName() : desiredType.getSimpleName();
+                throw new ProcessingException("Invalid type, expected " + expectedType + " but received " + valueType.getFullyQualifiedName());
+            }
+            EnumerationEntry entry = EnumerationEntry.from(valueType, varValue.getSimpleName().toString());
+            return JValueFactory.create(entry);
+        }
+        
+        return desiredType.asValue(value);
     }
     
     /**
