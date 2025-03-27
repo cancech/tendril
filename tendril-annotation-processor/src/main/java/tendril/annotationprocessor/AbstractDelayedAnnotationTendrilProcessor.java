@@ -23,6 +23,9 @@ import java.util.Map;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
+import tendril.annotationprocessor.element.ElementLoader;
+import tendril.annotationprocessor.exception.MissingAnnotationException;
+import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.codegen.field.type.ClassType;
 
 /**

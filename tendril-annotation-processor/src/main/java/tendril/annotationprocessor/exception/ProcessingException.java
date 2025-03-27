@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.annotationprocessor;
+package tendril.annotationprocessor.exception;
 
 /**
  * Exception to be thrown when there is an during annotation processing

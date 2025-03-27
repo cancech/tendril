@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.processing.Messager;
 
-import tendril.annotationprocessor.ProcessingException;
+import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.bean.Inject;
 import tendril.bean.PostConstruct;
 import tendril.bean.recipe.AbstractRecipe;

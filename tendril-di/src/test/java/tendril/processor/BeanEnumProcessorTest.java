@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.annotationprocessor.ClassDefinition;
-import tendril.annotationprocessor.ProcessingException;
+import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.bean.qualifier.EnumQualifier;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;

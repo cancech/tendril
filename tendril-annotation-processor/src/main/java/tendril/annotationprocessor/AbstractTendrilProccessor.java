@@ -39,6 +39,9 @@ import javax.tools.StandardLocation;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import tendril.annotationprocessor.element.ElementLoader;
+import tendril.annotationprocessor.exception.MissingAnnotationException;
+import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;

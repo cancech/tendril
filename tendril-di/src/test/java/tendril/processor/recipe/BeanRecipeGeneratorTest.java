@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.annotationprocessor.ProcessingException;
+import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.bean.Factory;
 import tendril.bean.Inject;
 import tendril.bean.PostConstruct;

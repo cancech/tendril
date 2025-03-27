@@ -51,6 +51,9 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+import tendril.annotationprocessor.element.ElementLoader;
+import tendril.annotationprocessor.exception.MissingAnnotationException;
+import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;

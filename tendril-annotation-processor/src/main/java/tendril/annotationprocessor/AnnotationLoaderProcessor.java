@@ -23,6 +23,8 @@ import java.util.Map;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.VariableElement;
 
+import tendril.annotationprocessor.element.ElementLoader;
+import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.EnumerationEntry;

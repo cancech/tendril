@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.annotationprocessor;
+package tendril.annotationprocessor.exception;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.type.DeclaredType;

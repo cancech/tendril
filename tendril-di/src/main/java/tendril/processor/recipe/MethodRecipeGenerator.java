@@ -17,7 +17,7 @@ package tendril.processor.recipe;
 
 import javax.annotation.processing.Messager;
 
-import tendril.annotationprocessor.ProcessingException;
+import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.bean.recipe.ConfigurationRecipe;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.ClassBuilder;

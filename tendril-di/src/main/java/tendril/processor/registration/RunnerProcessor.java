@@ -25,7 +25,7 @@ import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.AbstractDelayedAnnotationTendrilProcessor;
 import tendril.annotationprocessor.ClassDefinition;
-import tendril.annotationprocessor.ProcessingException;
+import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.context.launch.Runner;
 import tendril.context.launch.TendrilRunner;
 import tendril.processor.recipe.RecipeGenerator;

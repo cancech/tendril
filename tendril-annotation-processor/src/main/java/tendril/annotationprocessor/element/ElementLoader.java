@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.annotationprocessor;
+package tendril.annotationprocessor.element;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -36,6 +36,10 @@ import javax.lang.model.type.TypeMirror;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import tendril.annotationprocessor.AnnotationGeneratedListener;
+import tendril.annotationprocessor.GeneratedAnnotationLoader;
+import tendril.annotationprocessor.exception.MissingAnnotationException;
+import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.codegen.BaseBuilder;
 import tendril.codegen.DefinitionException;
 import tendril.codegen.JBase;

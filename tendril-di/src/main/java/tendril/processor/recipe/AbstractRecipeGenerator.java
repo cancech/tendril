@@ -25,7 +25,7 @@ import java.util.Set;
 import javax.annotation.processing.Messager;
 
 import tendril.annotationprocessor.ClassDefinition;
-import tendril.annotationprocessor.ProcessingException;
+import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.bean.Configuration;
 import tendril.bean.Factory;
 import tendril.bean.Singleton;
