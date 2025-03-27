@@ -31,6 +31,8 @@ import tendril.codegen.field.JField;
  * Middle-man through which to retrieve codegen representations of class (elements)
  */
 public class ElementLoader {
+    /** The handler for generated annotations */
+    private static GeneratedAnnotationHandler annotationHandler = new GeneratedAnnotationHandler();
     /** The singleton instance of the cache */
     private static ElementCache cache = null;
 
@@ -40,7 +42,7 @@ public class ElementLoader {
     private ElementLoader() {
         // Not to be used
     }
-    
+
     /**
      * Get the singleton instance of the cache
      * 
@@ -48,9 +50,18 @@ public class ElementLoader {
      */
     private static ElementCache getInstance() {
         if (cache == null)
-            cache = new ElementCache(new ClassConverter());
-        
+            cache = new ElementCache(new ClassConverter(annotationHandler));
+
         return cache;
+    }
+
+    /**
+     * Get the active instance of the handler for generated annotations
+     * 
+     * @return {@link GeneratedAnnotationHandler}
+     */
+    public static GeneratedAnnotationHandler getGeneratedAnnotationHandler() {
+        return annotationHandler;
     }
 
     /**

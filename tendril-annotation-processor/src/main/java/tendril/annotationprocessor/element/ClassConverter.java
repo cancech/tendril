@@ -33,8 +33,6 @@ import javax.lang.model.type.TypeMirror;
 
 import org.apache.commons.lang3.StringUtils;
 
-import tendril.annotationprocessor.AnnotationGeneratedListener;
-import tendril.annotationprocessor.GeneratedAnnotationLoader;
 import tendril.annotationprocessor.exception.MissingAnnotationException;
 import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.codegen.BaseBuilder;
@@ -59,39 +57,19 @@ import tendril.codegen.field.value.JValue;
  * Handles the conversion of items from the Annotation Processing {@link Element}s into {@link JBase} representations
  */
 public class ClassConverter {
-    // TODO move the loader into a separate class
-    /** List of loaders for generated annotations */
-    private static final List<GeneratedAnnotationLoader> generatedAnnotationLoaders = new ArrayList<>();
-    /** List of listeners to notify when an annotation has been generated */
-    private static final List<AnnotationGeneratedListener> generatedAnnotationListeners = new ArrayList<>();
-    
-    /**
-     * Add a new annotation loader
-     * 
-     * @param loader {@link GeneratedAnnotationLoader} to add
-     */
-    public static void addGeneratedAnnotationLoader(GeneratedAnnotationLoader loader) {
-        generatedAnnotationLoaders.add(loader);
-        generatedAnnotationListeners.forEach(listener -> loader.addListener(listener));
-    }
-    
-    /**
-     * Add a listener to be notified when an annotation has been generated
-     * 
-     * @param listener {@link AnnotationGeneratedListener} to add
-     */
-    public static void addListener(AnnotationGeneratedListener listener) {
-        generatedAnnotationListeners.add(listener);
-        generatedAnnotationLoaders.forEach(loader -> loader.addListener(listener));
-    }
-    
+
     /** The cache where loaded elements are to be stored */
     private ElementCache cache;
+    /** The handler for generated annotations */
+    private final GeneratedAnnotationHandler annotationHandler;
     
     /**
      * CTOR
+     * 
+     * @param annotationHandler {@link GeneratedAnnotationHandler} for finding annotation generated during annotation processing
      */
-    ClassConverter() {
+    ClassConverter(GeneratedAnnotationHandler annotationHandler) {
+        this.annotationHandler = annotationHandler;
     }
     
     /**
@@ -308,15 +286,11 @@ public class ClassConverter {
      * @throws MissingAnnotationException if attempting to load a class which is making use of an annotation that does not (yet) exist
      */
     private void applyGeneratedAnnotation(BaseBuilder<?, ?> builder, ClassType annonType, AnnotationMirror annonMirror, Element appliedTo) throws MissingAnnotationException {
-        for (GeneratedAnnotationLoader l: generatedAnnotationLoaders) {
-            JAnnotation annon = l.getAnnotationInstance(annonType, annonMirror);
-            if (annon != null) {
-                builder.addAnnotation(annon);
-                return;
-            }
-        }
-        
-        throw new MissingAnnotationException(annonMirror.getAnnotationType(), appliedTo);
+        JAnnotation annon = annotationHandler.getAnnotationInstance(annonType, annonMirror);
+        if (annon == null)
+            throw new MissingAnnotationException(annonMirror.getAnnotationType(), appliedTo);
+
+        builder.addAnnotation(annon);
     }
     
     /**

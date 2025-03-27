@@ -24,6 +24,7 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.VariableElement;
 
 import tendril.annotationprocessor.element.ClassConverter;
+import tendril.annotationprocessor.element.ElementLoader;
 import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.annotation.JAnnotationFactory;
@@ -59,7 +60,7 @@ public abstract class AnnotationLoaderProcessor extends AbstractTendrilProccesso
      * CTOR
      */
     public AnnotationLoaderProcessor() {
-        ClassConverter.addGeneratedAnnotationLoader(this);
+        ElementLoader.getGeneratedAnnotationHandler().registerLoader(this);
     }
     
     /**
