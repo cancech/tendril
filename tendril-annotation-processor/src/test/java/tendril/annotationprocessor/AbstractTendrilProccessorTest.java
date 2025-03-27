@@ -247,11 +247,12 @@ public class AbstractTendrilProccessorTest extends CommonProcessorTest {
     /**
      * Verify that a class element is properly processed
      * @throws IOException 
+     * @throws MissingAnnotationException 
      */
     @Test
-    public void testProcessClass() throws IOException {
-        try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
-            mockLoader.when(() -> ElementLoader.loadClassDetails(mockTypeElement)).thenReturn(mockJClass);
+    public void testProcessClass() throws IOException, MissingAnnotationException {
+        try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
+            loader.when(() -> ElementLoader.retrieveClass(mockTypeElement)).thenReturn(mockJClass);
             when(mockJClass.getType()).thenReturn(mockClassType);
             setupMocksForWriting();
     
@@ -261,7 +262,7 @@ public class AbstractTendrilProccessorTest extends CommonProcessorTest {
             verify(mockEnvironment).errorRaised();
             verify(mockEnvironment).processingOver();
             verify(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
-            mockLoader.verify(() -> ElementLoader.loadClassDetails(mockTypeElement));
+            loader.verify(() -> ElementLoader.retrieveClass(mockTypeElement));
             verifyFileWritten();
     
             processor.verifyClassType(1, mockClassType);
@@ -272,13 +273,15 @@ public class AbstractTendrilProccessorTest extends CommonProcessorTest {
     /**
      * Verify that an exception is thrown if an annotation is missing
      * @throws IOException 
+     * @throws MissingAnnotationException 
      */
     @Test
-    public void testProcessClassMissingException() throws IOException {
-        try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
-            mockLoader.when(() -> ElementLoader.loadClassDetails(mockTypeElement)).thenThrow(mockAnnotationException);
+    public void testProcessClassMissingException() throws IOException, MissingAnnotationException {
+        try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
+            loader.when(() -> ElementLoader.retrieveClass(mockTypeElement)).thenThrow(mockAnnotationException);
             doReturn(Set.of(mockTypeElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
             Assertions.assertThrows(ProcessingException.class, () -> processor.process(Set.of(mockAnnotation), mockEnvironment));
+            loader.verify(() -> ElementLoader.retrieveClass(mockTypeElement));
             verify(mockEnvironment).errorRaised();
             verify(mockEnvironment).processingOver();
         }
@@ -287,11 +290,12 @@ public class AbstractTendrilProccessorTest extends CommonProcessorTest {
     /**
      * Verify that a method is properly processed
      * @throws IOException 
+     * @throws MissingAnnotationException 
      */
     @Test
-    public void testProcessMethod() throws IOException {
-        try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
-            mockLoader.when(() -> ElementLoader.loadMethodDetails(mockMethodElement)).thenReturn(Pair.of(mockJClass, mockJMethod));
+    public void testProcessMethod() throws IOException, MissingAnnotationException {
+        try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
+            loader.when(() -> ElementLoader.retrieveMethod(mockMethodElement)).thenReturn(Pair.of(mockJClass, mockJMethod));
             setupMocksForWriting();
 
             // This mock format is required due to compilation error with "normal" method
@@ -300,7 +304,7 @@ public class AbstractTendrilProccessorTest extends CommonProcessorTest {
             verify(mockEnvironment).errorRaised();
             verify(mockEnvironment).processingOver();
             verify(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
-            mockLoader.verify(() -> ElementLoader.loadMethodDetails(mockMethodElement));
+            loader.verify(() -> ElementLoader.retrieveMethod(mockMethodElement));
             verify(mockJClass).getType();
             verifyFileWritten();
     
@@ -312,13 +316,15 @@ public class AbstractTendrilProccessorTest extends CommonProcessorTest {
     /**
      * Verify that an exception is thrown if an annotation is missing
      * @throws IOException 
+     * @throws MissingAnnotationException 
      */
     @Test
-    public void testProcessMethodMissingException() throws IOException {
-        try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
-            mockLoader.when(() -> ElementLoader.loadMethodDetails(mockMethodElement)).thenThrow(mockAnnotationException);
+    public void testProcessMethodMissingException() throws IOException, MissingAnnotationException {
+        try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
+            loader.when(() -> ElementLoader.retrieveMethod(mockMethodElement)).thenThrow(mockAnnotationException);
             doReturn(Set.of(mockMethodElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
             Assertions.assertThrows(ProcessingException.class, () -> processor.process(Set.of(mockAnnotation), mockEnvironment));
+            loader.verify(() -> ElementLoader.retrieveMethod(mockMethodElement));
             verify(mockEnvironment).errorRaised();
             verify(mockEnvironment).processingOver();
         }

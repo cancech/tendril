@@ -15,7 +15,6 @@
  */
 package tendril.annotationprocessor;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -108,23 +107,24 @@ public class AbstractDelayedAnnotationTendrilProcessorTest extends CommonProcess
     @Test
     public void testProcessingClassDelayed() throws MissingAnnotationException, IOException {
         // First the attempt fails due to missing exception
-        try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
+        try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
             when(mockException.getMissingAnnotationName()).thenReturn("abc");
-            mockLoader.when(() -> ElementLoader.loadClassDetails(any())).thenThrow(mockException);
+            loader.when(() -> ElementLoader.retrieveClass(mockClassElement)).thenThrow(mockException);
             
             processor.processElement(mockAnnotation, mockClassElement);
-            
+            loader.verify(() -> ElementLoader.retrieveClass(mockClassElement));
             verify(mockException).getMissingAnnotationName();
         }
         
         // Then once it is generated, processing can pass
-        try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
+        try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
             when(mockClass.getType()).thenReturn(mockType);
-            mockLoader.when(() -> ElementLoader.loadClassDetails(any())).thenReturn(mockClass);
+            loader.when(() -> ElementLoader.retrieveClass(mockClassElement)).thenReturn(mockClass);
 
             setupMocksForWriting();
             when(mockWaitingAnnotationType.getSimpleName()).thenReturn("abc");
             processor.annotationGenerated(mockWaitingAnnotationType);
+            loader.verify(() -> ElementLoader.retrieveClass(mockClassElement));
             verify(mockWaitingAnnotationType).getSimpleName();
             verifyFileWritten();
         }
@@ -139,23 +139,24 @@ public class AbstractDelayedAnnotationTendrilProcessorTest extends CommonProcess
     @Test
     public void testProcessingMethodDelayed() throws MissingAnnotationException, IOException {
         // First the attempt fails due to missing exception
-        try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
+        try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
             when(mockException.getMissingAnnotationName()).thenReturn("abc");
-            mockLoader.when(() -> ElementLoader.loadMethodDetails(any())).thenThrow(mockException);
+            loader.when(() -> ElementLoader.retrieveMethod(mockMethodElement)).thenThrow(mockException);
             
             processor.processElement(mockAnnotation, mockMethodElement);
-            
+            loader.verify(() -> ElementLoader.retrieveMethod(mockMethodElement));
             verify(mockException).getMissingAnnotationName();
         }
         
         // Then once it is generated, processing can pass
-        try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
+        try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
             when(mockClass.getType()).thenReturn(mockType);
-            mockLoader.when(() -> ElementLoader.loadMethodDetails(any())).thenReturn(Pair.of(mockClass, mockMethod));
+            loader.when(() -> ElementLoader.retrieveMethod(mockMethodElement)).thenReturn(Pair.of(mockClass, mockMethod));
 
             setupMocksForWriting();
             when(mockWaitingAnnotationType.getSimpleName()).thenReturn("abc");
             processor.annotationGenerated(mockWaitingAnnotationType);
+            loader.verify(() -> ElementLoader.retrieveMethod(mockMethodElement));
             verify(mockWaitingAnnotationType).getSimpleName();
             verifyFileWritten();
         }

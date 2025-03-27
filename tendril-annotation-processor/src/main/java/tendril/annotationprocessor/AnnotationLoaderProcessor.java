@@ -23,7 +23,7 @@ import java.util.Map;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.VariableElement;
 
-import tendril.annotationprocessor.element.ElementLoader;
+import tendril.annotationprocessor.element.ClassConverter;
 import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.annotation.JAnnotationFactory;
@@ -43,7 +43,7 @@ import tendril.codegen.field.value.JValueFactory;
  * ahead.
  * 
  * Thus, the concrete processor (extending this) is to process the annotation which is applied to the generated annotation. The details of the annotation are
- * then loaded and can be accessed via {@code getAnnotationInstance()}. {@link ElementLoader} will make this call automatically, when there is an annotation
+ * then loaded and can be accessed via {@code getAnnotationInstance()}. {@link ClassConverter} will make this call automatically, when there is an annotation
  * which cannot be understood (i.e.: it has no immediate implementation). It will assume that any unknown annotation will be generated later, with a concrete
  * AnnotationLoaderProcessor at hand to handle the generated annotation.
  */
@@ -59,7 +59,7 @@ public abstract class AnnotationLoaderProcessor extends AbstractTendrilProccesso
      * CTOR
      */
     public AnnotationLoaderProcessor() {
-        ElementLoader.addGeneratedAnnotationLoader(this);
+        ClassConverter.addGeneratedAnnotationLoader(this);
     }
     
     /**
