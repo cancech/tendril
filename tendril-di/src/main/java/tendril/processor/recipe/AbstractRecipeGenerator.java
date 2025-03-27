@@ -22,11 +22,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.processing.Messager;
+
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.Configuration;
 import tendril.bean.Factory;
 import tendril.bean.Singleton;
+import tendril.bean.qualifier.EnumQualifier;
 import tendril.bean.qualifier.Named;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.ConfigurationRecipe;
@@ -39,6 +42,7 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
+import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JParameter;
 import tendril.codegen.classes.method.JMethod;
@@ -70,6 +74,8 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
     protected final ClassType creatorType;
     /** The element which is triggering the creation of the bean */
     protected final CREATOR creator;
+    /** Messager through which to provide "proper" feedback */
+    protected final Messager messager;
     
     /** 
      * {@link Set} of the {@link ClassType}s that the class being generated needs to import in order to compile.
@@ -83,10 +89,12 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * 
      * @param creatorType {@link ClassType} which is triggering the creation
      * @param creator {@link JBase} which is performing the creation
+     * @param messager {@link Messager} that is used by the annotation processor
      */
-    AbstractRecipeGenerator(ClassType creatorType, CREATOR creator) {
+    AbstractRecipeGenerator(ClassType creatorType, CREATOR creator, Messager messager) {
         this.creatorType = creatorType;
         this.creator = creator;
+        this.messager = messager;
     }
     
     /**
@@ -175,8 +183,24 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
         
         builder.buildMethod("setupDescriptor").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PUBLIC)
             .buildParameter(descriptorClass, "descriptor").finish()
-            .addCode(joinLines(getDescriptorLines(creator), "descriptor.", ";", "\n"))
+            .addCode(wrapLines(getDescriptorLines(creator), "descriptor.", ";"))
             .finish();
+    }
+    
+    /**
+     * Wrap the provided lines with the specified prefix and suffix
+     * 
+     * @param lines {@link List} of {@link String} indicating the lines to be wrapped
+     * @param prefix {@link String} to place before each line
+     * @param suffix {@link String} to place after each line
+     * 
+     * @return {@link String}[] containing each of the wrapped lines
+     */
+    private String[] wrapLines(List<String> lines, String prefix, String suffix) {
+        String[] updated = new String[lines.size()];
+        for (int i = 0; i < lines.size(); i++)
+            updated[i] = prefix + lines.get(i) + suffix;
+        return updated;
     }
     
     /**
@@ -243,6 +267,10 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
         for (JAnnotation a : element.getAnnotations()) {
             if (a.getType().equals(new ClassType(Named.class))) {
                 lines.add("setName(\"" + a.getValue(a.getAttributes().get(0)).getValue() + "\")");
+            } else if (a.hasAnnotation(EnumQualifier.class)) {
+                EnumerationEntry entry = (EnumerationEntry) a.getValue(a.getAttributes().get(0)).getValue();
+                externalImports.add(entry.getEnclosingClass());
+                lines.add("addEnumQualifier(" + entry.getEnclosingClass().getClassName() + "." + entry.getName() + ")");
             }
         }
 

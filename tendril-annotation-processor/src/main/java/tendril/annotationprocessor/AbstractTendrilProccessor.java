@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -41,8 +39,6 @@ import javax.tools.StandardLocation;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import tendril.codegen.JBase;
-import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
@@ -53,6 +49,8 @@ import tendril.codegen.field.type.ClassType;
  * annotated element as either a Type (class) or method.
  */
 public abstract class AbstractTendrilProccessor extends AbstractProcessor {
+    /** The annotation that has triggered the current iteration of processing */
+    protected TypeElement currentAnnotation = null;
     /** The type of class that is currently being processed */
     protected ClassType currentClassType;
     /** The class that is currently being processed */
@@ -61,8 +59,6 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
     protected JMethod<?> currentMethod;
     /** The environment for the current round of annotation processing */
     protected RoundEnvironment roundEnv = null;
-    /** Flag for whether the annotated element currently being processed is a method */
-    private boolean isProcessingMethod = false;
     
     /**
      * CTOR
@@ -107,31 +103,18 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
     }
 
     /**
-     * Creates the consumer which triggers the processing of an element based on what type of element it is. This will either call prepareAndProcessType() or prepareAndProcessMethod() depending on
-     * whether the annotation was placed on a {@link TypeElement} (i.e. class or field) or a method.
-     * 
-     * @return {@link Consumer} of {@link Element}s
-     */
-    protected Consumer<? super Element> defaultConsumer() {
-        return element -> {
-            if (element instanceof TypeElement) {
-                isProcessingMethod = false;
-                prepareAndProcessType((TypeElement) element);
-            } else if (element instanceof ExecutableElement) {
-                isProcessingMethod = true;
-                prepareAndProcessMethod((ExecutableElement) element);
-            } else
-                System.err.println("Unknown element type: " + element);
-        };
-    }
-
-    /**
      * Finds and processing found elements through the {@code defaultConsumer()}.
      * 
      * @param annotation {@link TypeElement} representing the annotation that is being processed
      */
     protected void findAndProcessElements(TypeElement annotation) {
-        findAndProcessElements(annotation, defaultConsumer());
+        findAndProcessElements(annotation, element -> { 
+            try {
+                processElement(annotation, element);
+            } catch (MissingAnnotationException e) {
+                throw new ProcessingException("Failure to process " + element + " with annotation " + annotation, e);
+            }
+        });
     }
 
     /**
@@ -143,13 +126,47 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
     protected void findAndProcessElements(TypeElement annotation, Consumer<? super Element> consume) {
         roundEnv.getElementsAnnotatedWith(annotation).forEach(consume);
     }
+    
+    /**
+     * Process the current element. This will ultimately trigger one of:
+     * <ol>
+     *      <li><b>Class</b>
+     *          <ul>
+     *              <li>validateType()</li>
+     *              <li>validateClass()</li>
+     *              <li>processType()</li>
+     *          </ul>
+     *      </li>
+     *      <li><b>Method</b>
+     *          <ul>
+     *              <li>validateMethod()</li>
+     *              <li>processMethod()</li>
+     *          </ul>
+     *      </li>
+     * </ol>
+     * 
+     * @param annotation {@link TypeElement} which triggered this iteration of processing
+     * @param element {@link Element} which is being processed
+     * @throws MissingAnnotationException if the element has an annotation applied which is not know (at this time)
+     */
+    protected void processElement(TypeElement annotation, Element element) throws MissingAnnotationException {
+        currentAnnotation = annotation;
+        
+        if (element instanceof TypeElement) {
+            prepareAndProcessType((TypeElement) element);
+        } else if (element instanceof ExecutableElement) {
+            prepareAndProcessMethod((ExecutableElement) element);
+        } else
+            processingEnv.getMessager().printError("Unknown element type: " + element);
+    }
 
     /**
      * Prepare the {@link TypeElement} as a Class and trigger its processing
      * 
      * @param element {@link TypeElement} that is to be processed
+     * @throws MissingAnnotationException if the element has an annotation applied which is not know (at this time)
      */
-    private void prepareAndProcessType(TypeElement element) {
+    private void prepareAndProcessType(TypeElement element) throws MissingAnnotationException {
         // Ensure that the element is supposed to be processed before doing anything else
         validateType(element);
         
@@ -170,8 +187,9 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * Prepare the {@link ExecutableElement} as a method and trigger its processing
      * 
      * @param element {@link ExecutableElement} of the method
+     * @throws MissingAnnotationException if the element has an annotation applied which is not know (at this time)
      */
-    private void prepareAndProcessMethod(ExecutableElement element) {
+    private void prepareAndProcessMethod(ExecutableElement element) throws MissingAnnotationException {
         // Load the full details of the element
         Pair<JClass, JMethod<?>> methodDetails = ElementLoader.loadMethodDetails(element);
         currentClass = methodDetails.getLeft();
@@ -229,45 +247,6 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
     protected boolean isTypeOf(TypeElement toCheck, Class<?> desiredType) {
         TypeMirror desired = processingEnv.getElementUtils().getTypeElement(desiredType.getName()).asType();
         return processingEnv.getTypeUtils().isAssignable(toCheck.asType(), desired);
-    }
-    
-    /**
-     * Get all instances of the desired annotation which are applied to the element which is currently being processed
-     * 
-     * @param <ANNOTATION> indicating the type of annotation that is desired
-     * 
-     * @param annotation {@link Class} of the desired annotation
-     * 
-     * @return {@link List} of {@link JAnnotation} representing all of the annotations that have been applied to the element being processed
-     */
-    protected <ANNOTATION extends Annotation> List<JAnnotation> getElementAnnotations(Class<ANNOTATION> annotation) {
-        if (!isProcessingMethod)
-            return getElementAnnotations(currentClass, annotation);
-        
-        return Collections.emptyList();
-    }
-    
-    /**
-     * Get all instances of the desired annotation which are applied to the specified element
-     * 
-     * @param <ANNOTATION> indicating the type of annotation that is desired
-     * 
-     * @param element {@link JBase} on which to look for the annotation
-     * @param annotation {@link Class} of the desired annotation
-     * 
-     * @return {@link List} of {@link JAnnotation} representing all of the annotations that have been applied to the specified element
-     */
-    protected <ANNOTATION extends Annotation> List<JAnnotation> getElementAnnotations(JBase element, Class<ANNOTATION> annotation) {
-        ClassType annotationType = new ClassType(annotation);
-        
-        // Find all annotations on the element of this type
-        List<JAnnotation> instances = new ArrayList<>();
-        for (JAnnotation a: element.getAnnotations()) {
-            if (a.getType().equals(annotationType))
-                instances.add(a);
-        }
-        
-        return instances;
     }
 
     /**

@@ -1,5 +1,7 @@
 package tempApp;
 
+import tempApp.id.MyType;
+import tempApp.id.MyTypeId;
 import tendril.bean.Bean;
 import tendril.bean.Configuration;
 import tendril.bean.Inject;
@@ -21,6 +23,7 @@ public class TempManager {
 	@Bean
 	@Singleton
 	@Named("TempString")
+	@MyTypeId(MyType.VAL1)
 	public String doSomething(SingletonClass sgClass, FactoryClass fClass) {
 		return "Singleton = " + sgClass.toString() + ", Factory Field = " + cls.toString() + ", Factory Param = " + fClass.toString();
 	}

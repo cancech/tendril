@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.annotation.processing.Messager;
+
 import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.Inject;
 import tendril.bean.PostConstruct;
@@ -50,9 +52,10 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * 
      * @param beanType {@link ClassType} of the bean
      * @param creator {@link JClass} which defined and creates the bean
+     * @param messager {@link Messager} that is used by the annotation processor
      */
-    ClassRecipeGenerator(ClassType beanType, JClass creator) {
-        super(beanType, creator);
+    ClassRecipeGenerator(ClassType beanType, JClass creator, Messager messager) {
+        super(beanType, creator, messager);
     }
     
     /**
@@ -144,8 +147,8 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
 
             List<JParameter<?>> params = method.getParameters();
             if (params.isEmpty())
-                LOGGER.warning(creatorType.getFullyQualifiedName() + "::" + method.getName() + " has no parameters, this is a meaningless injection. Use @" + PostConstruct.class.getSimpleName()
-                        + " instead");
+                messager.printWarning(creatorType.getFullyQualifiedName() + "::" + method.getName() + " has no parameters, this is a meaningless injection. Use @" + 
+                        PostConstruct.class.getSimpleName() + " instead");
 
             addParameterInjection(ctorLines, method.getParameters(), "        ", "        consumer." + method.getName());
             ctorLines.add("    }");

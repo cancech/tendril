@@ -145,5 +145,11 @@ public class EnumerationEntryTest extends AbstractUnitTest {
         Assertions.assertEquals(mockType, entry.getEnclosingClass());
         Assertions.assertEquals(TypeKind.DECLARED.name(), entry.getName());
         Assertions.assertIterableEquals(Collections.emptyList(), entry.getParameters());
+
+        // When the details are inferred
+        entry = EnumerationEntry.from(mockType, "SOME_ENUM_VALUE");
+        Assertions.assertEquals(mockType, entry.getEnclosingClass());
+        Assertions.assertEquals("SOME_ENUM_VALUE", entry.getName());
+        Assertions.assertIterableEquals(Collections.emptyList(), entry.getParameters());
     }
 }

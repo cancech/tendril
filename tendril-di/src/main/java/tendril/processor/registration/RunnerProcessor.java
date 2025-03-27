@@ -23,7 +23,7 @@ import javax.lang.model.element.TypeElement;
 
 import com.google.auto.service.AutoService;
 
-import tendril.annotationprocessor.AbstractTendrilProccessor;
+import tendril.annotationprocessor.AbstractDelayedAnnotationTendrilProcessor;
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.ProcessingException;
 import tendril.context.launch.Runner;
@@ -36,7 +36,7 @@ import tendril.processor.recipe.RecipeGenerator;
 @SupportedAnnotationTypes("tendril.context.launch.Runner")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class RunnerProcessor extends AbstractTendrilProccessor {
+public class RunnerProcessor extends AbstractDelayedAnnotationTendrilProcessor {
 
     /** The class that is the recipe for the runner */
     private String mainRunner = null;
@@ -68,7 +68,7 @@ public class RunnerProcessor extends AbstractTendrilProccessor {
         if (mainRunner != null)
             throw new ProcessingException("There can only be a single runner specified");
         
-        ClassDefinition generatedDef = RecipeGenerator.generate(currentClassType, currentClass, false);
+        ClassDefinition generatedDef = RecipeGenerator.generate(currentClassType, currentClass, processingEnv.getMessager(), false);
         mainRunner = generatedDef.getType().getFullyQualifiedName();
         return generatedDef;
     }

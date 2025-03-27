@@ -22,7 +22,7 @@ import javax.lang.model.SourceVersion;
 
 import com.google.auto.service.AutoService;
 
-import tendril.annotationprocessor.AbstractTendrilProccessor;
+import tendril.annotationprocessor.AbstractDelayedAnnotationTendrilProcessor;
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.Bean;
@@ -36,20 +36,21 @@ import tendril.processor.recipe.RecipeGenerator;
 @SupportedAnnotationTypes("tendril.bean.Bean")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class BeanProcessor extends AbstractTendrilProccessor {
+public class BeanProcessor extends AbstractDelayedAnnotationTendrilProcessor {
+
 
     /**
      * CTOR - will be annotated as a {@link Registry}
      */
     public BeanProcessor() {
     }
-
+    
     /**
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
      */
     @Override
     protected ClassDefinition processType() {
-        return RecipeGenerator.generate(currentClassType, currentClass);
+        return RecipeGenerator.generate(currentClassType, currentClass, processingEnv.getMessager());
     }
 
     /**
@@ -62,6 +63,6 @@ public class BeanProcessor extends AbstractTendrilProccessor {
             throw new ProcessingException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() + 
                     "() - Bean methods cannot be outside of a configuration");
 
-        return RecipeGenerator.generate(currentClassType, currentMethod);
+        return RecipeGenerator.generate(currentClassType, currentMethod, processingEnv.getMessager());
     }
 }

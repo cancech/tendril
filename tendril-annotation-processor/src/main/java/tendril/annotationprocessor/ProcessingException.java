@@ -30,4 +30,14 @@ public class ProcessingException extends RuntimeException {
     public ProcessingException(String reason) {
         super(reason);
     }
+    
+    /**
+     * CTOR
+     * 
+     * @param reason {@link String} indicating the reason of the failure
+     * @param cause {@link Exception} which triggered the exception
+     */
+    public ProcessingException(String reason, Exception cause) {
+        super(reason, cause);
+    }
 }

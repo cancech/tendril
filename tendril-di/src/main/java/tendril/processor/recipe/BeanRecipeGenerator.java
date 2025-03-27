@@ -15,6 +15,8 @@
  */
 package tendril.processor.recipe;
 
+import javax.annotation.processing.Messager;
+
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
@@ -29,9 +31,10 @@ class BeanRecipeGenerator extends ClassRecipeGenerator {
      * 
      * @param beanType {@link ClassType} indicating the type of the bean
      * @param bean {@link JClass} where the bean is defined
+     * @param messager {@link Messager} that is used by the annotation processor
      */
-    BeanRecipeGenerator(ClassType beanType, JClass bean) {
-        super(beanType, bean);
+    BeanRecipeGenerator(ClassType beanType, JClass bean, Messager messager) {
+        super(beanType, bean, messager);
     }
 
     /**

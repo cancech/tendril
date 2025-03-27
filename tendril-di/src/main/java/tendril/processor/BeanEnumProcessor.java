@@ -32,7 +32,6 @@ import com.google.auto.service.AutoService;
 import tendril.annotationprocessor.AbstractTendrilProccessor;
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.ProcessingException;
-import tendril.bean.qualifier.BeanId;
 import tendril.bean.qualifier.BeanIdEnum;
 import tendril.bean.qualifier.EnumQualifier;
 import tendril.codegen.VisibilityType;
@@ -58,18 +57,16 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
     }
 
     /**
-     * The annotated {@link TypeElement} must be an {@link Enum} and it must implement the {@link BeanId} interface
+     * The annotated {@link TypeElement} must be an {@link Enum}
      * 
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
      * 
-     * @throws ProcessingException if the annotated element is not an {@link Enum} or does not implement the {@link BeanId} interface 
+     * @throws ProcessingException if the annotated element is not an {@link Enum} 
      */
     @Override
     protected void validateType(TypeElement type) {
         if (type.getKind() != ElementKind.ENUM)
             throwValidationException(type, "Must be an enum");
-        if (!isTypeOf(type, BeanId.class))
-            throwValidationException(type, "Must implement the " + BeanId.class.getName() + " interface");
     }
 
     /**

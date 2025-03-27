@@ -15,6 +15,8 @@
  */
 package tendril.processor.recipe;
 
+import javax.annotation.processing.Messager;
+
 import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.recipe.ConfigurationRecipe;
 import tendril.codegen.VisibilityType;
@@ -40,9 +42,10 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
      * @param configType {@link ClassType} indicating the configuration class
      * @param beanType {@link ClassType} of the bean which is to be produced
      * @param beanCreator {@link JMethod} which is to produce the bean
+     * @param messager {@link Messager} that is used by the annotation processor
      */
-    MethodRecipeGenerator(ClassType configType, ClassType beanType, JMethod<?> beanCreator) {
-        super(beanType, beanCreator);
+    MethodRecipeGenerator(ClassType configType, ClassType beanType, JMethod<?> beanCreator, Messager messager) {
+        super(beanType, beanCreator, messager);
         this.configType = configType;
         this.beanCreator = beanCreator;
     }

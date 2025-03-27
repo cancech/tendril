@@ -16,7 +16,6 @@
 package tendril.processor;
 
 import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,7 +33,6 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 import org.junit.jupiter.api.Assertions;
@@ -43,7 +41,6 @@ import org.mockito.Mock;
 
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.ProcessingException;
-import tendril.bean.qualifier.BeanId;
 import tendril.bean.qualifier.EnumQualifier;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
@@ -74,15 +71,11 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
     @Mock
     private Name mockName;
     @Mock
-    private Elements mockElementUtils;
-    @Mock
     private Types mockTypeUtils;
     @Mock
     private ProcessingEnvironment mockProcessingEnv;
     @Mock
     private TypeElement mockBeanIdElement;
-    @Mock
-    private TypeMirror mockBeanIdMirror;
     @Mock
     private TypeMirror mockTypeMirror;
     @Mock
@@ -125,30 +118,8 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
         }
 
         when(mockType.getKind()).thenReturn(ElementKind.ENUM);
-        when(mockProcessingEnv.getElementUtils()).thenReturn(mockElementUtils);
-        when(mockElementUtils.getTypeElement(BeanId.class.getCanonicalName())).thenReturn(mockBeanIdElement);
-        when(mockBeanIdElement.asType()).thenReturn(mockBeanIdMirror);
-        when(mockProcessingEnv.getTypeUtils()).thenReturn(mockTypeUtils);
-        when(mockType.asType()).thenReturn(mockTypeMirror);
-
-        when(mockTypeUtils.isAssignable(mockTypeMirror, mockBeanIdMirror)).thenReturn(false);
-        Assertions.assertThrows(ProcessingException.class, () -> processor.validateType(mockType));
-        verify(mockType, times(++timesGetKind)).getKind();
-        verify(mockType, times(++timesGetQualifiedName)).getQualifiedName();
-        verify(mockType).asType();
-        verify(mockProcessingEnv).getElementUtils();
-        verify(mockElementUtils).getTypeElement(anyString());
-        verify(mockProcessingEnv).getTypeUtils();
-        verify(mockTypeUtils).isAssignable(mockTypeMirror, mockBeanIdMirror);
-
-        when(mockTypeUtils.isAssignable(mockTypeMirror, mockBeanIdMirror)).thenReturn(true);
         processor.validateType(mockType);
         verify(mockType, times(++timesGetKind)).getKind();
-        verify(mockType, times(2)).asType();
-        verify(mockProcessingEnv, times(2)).getElementUtils();
-        verify(mockElementUtils, times(2)).getTypeElement(anyString());
-        verify(mockProcessingEnv, times(2)).getTypeUtils();
-        verify(mockTypeUtils, times(2)).isAssignable(mockTypeMirror, mockBeanIdMirror);
     }
 
     /**

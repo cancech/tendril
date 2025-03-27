@@ -36,7 +36,7 @@ public class EnumerationEntry {
     private final List<JValue<?, ?>> parameters;
 
     /**
-     * Create and entry from an existing enum entry
+     * Create an entry from an existing enum entry
      * 
      * @param value {@link Enum} entry from an existing enumeration
      * @return {@link EnumerationEntry}
@@ -46,14 +46,25 @@ public class EnumerationEntry {
     }
 
     /**
-     * Create and entry from an existing enum entry
+     * Create an entry from an existing enum entry
      * 
      * @param type  {@link ClassType} describing where the entry comes from
      * @param value {@link Enum} entry from an existing enumeration
      * @return {@link EnumerationEntry}
      */
     public static EnumerationEntry from(ClassType type, Enum<?> value) {
-        return new EnumerationEntry(type, value.name(), Collections.emptyList());
+        return from(type, value.name());
+    }
+
+    /**
+     * Create an entry for the specified type and name
+     * 
+     * @param type {@link ClassType} describing where the entry comes from
+     * @param name {@link String} containing the desired name of the enum value
+     * @return {@link EnumerationEntry}
+     */
+    public static EnumerationEntry from(ClassType type, String name) {
+        return new EnumerationEntry(type, name, Collections.emptyList());
     }
 
     /**

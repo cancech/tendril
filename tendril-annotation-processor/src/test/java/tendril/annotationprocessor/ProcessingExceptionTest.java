@@ -17,6 +17,7 @@ package tendril.annotationprocessor;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import tendril.test.AbstractUnitTest;
 
@@ -24,6 +25,10 @@ import tendril.test.AbstractUnitTest;
  * Test case for the {@link ProcessingException}
  */
 public class ProcessingExceptionTest extends AbstractUnitTest {
+    
+    // Mocks to use for testing
+    @Mock
+    private Exception mockException;
 
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
@@ -40,5 +45,16 @@ public class ProcessingExceptionTest extends AbstractUnitTest {
     public void testMessage() {
         ProcessingException ex = new ProcessingException("Message");
         Assertions.assertEquals("Message", ex.getMessage());
+        Assertions.assertEquals(null, ex.getCause());
+    }
+    
+    /**
+     * Verify that the exception has the proper cause
+     */
+    @Test
+    public void testCause() {
+        ProcessingException ex = new ProcessingException("Another message", mockException);
+        Assertions.assertEquals("Another message", ex.getMessage());
+        Assertions.assertEquals(mockException, ex.getCause());
     }
 }

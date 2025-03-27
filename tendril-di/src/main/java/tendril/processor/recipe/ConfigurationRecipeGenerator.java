@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.processing.Messager;
+
 import tendril.bean.Bean;
 import tendril.bean.Configuration;
 import tendril.bean.recipe.AbstractRecipe;
@@ -41,9 +43,10 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
      * 
      * @param configType {@link ClassType} of the configuration
      * @param config     {@link JClass} of the configuration
+     * @param messager {@link Messager} that is used by the annotation processor
      */
-    ConfigurationRecipeGenerator(ClassType configType, JClass config) {
-        super(configType, config);
+    ConfigurationRecipeGenerator(ClassType configType, JClass config, Messager messager) {
+        super(configType, config, messager);
     }
 
     /**

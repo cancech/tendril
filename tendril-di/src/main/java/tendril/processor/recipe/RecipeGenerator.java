@@ -15,6 +15,8 @@
  */
 package tendril.processor.recipe;
 
+import javax.annotation.processing.Messager;
+
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.bean.Configuration;
 import tendril.codegen.classes.JClass;
@@ -35,10 +37,11 @@ public final class RecipeGenerator {
      * Generate the {@link ClassDefinition} for a {@link JClass} which defines and is the bean
      * 
      * @param creator {@link JClass} defining the bean
+     * @param messager {@link Messager} that is used by the annotation processor
      * @return {@link ClassDefinition}
      */
-    public static ClassDefinition generate(JClass creator) {
-        return generate(creator.getType(), creator, true);
+    public static ClassDefinition generate(JClass creator, Messager messager) {
+        return generate(creator.getType(), creator, messager, true);
     }
 
     /**
@@ -46,10 +49,11 @@ public final class RecipeGenerator {
      * 
      * @param beanType {@link ClassType} indicating the type of the bean
      * @param creator {@link JClass} defining the bean
+     * @param messager {@link Messager} that is used by the annotation processor
      * @return {@link ClassDefinition}
      */
-    public static ClassDefinition generate(ClassType beanType, JClass creator) {
-        return generate(beanType, creator, true);
+    public static ClassDefinition generate(ClassType beanType, JClass creator, Messager messager) {
+        return generate(beanType, creator, messager, true);
     }
 
     /**
@@ -57,11 +61,12 @@ public final class RecipeGenerator {
      * 
      * @param beanType {@link ClassType} indicating the type of the bean
      * @param creator {@link JClass} defining the bean
+     * @param messager {@link Messager} that is used by the annotation processor
      * @param annotateRegistry boolean true if the recipe is to be added to the generated registry (false will create the recipe but not register it)
      * @return {@link ClassDefinition}
      */
-    public static ClassDefinition generate(ClassType beanType, JClass creator, boolean annotateRegistry) {
-        return new BeanRecipeGenerator(beanType, creator).generate(getRecipeType(beanType), annotateRegistry);
+    public static ClassDefinition generate(ClassType beanType, JClass creator, Messager messager, boolean annotateRegistry) {
+        return new BeanRecipeGenerator(beanType, creator, messager).generate(getRecipeType(beanType), annotateRegistry);
     }
     
     /**
@@ -69,10 +74,11 @@ public final class RecipeGenerator {
      * 
      * @param configType {@link ClassType} of the configuration (i.e.: contains the method)
      * @param creator {@link JMethod} which creates the bean
+     * @param messager {@link Messager} that is used by the annotation processor
      * @return {@link ClassDefinition}
      */
-    public static ClassDefinition generate(ClassType configType, JMethod<?> creator) {
-        MethodRecipeGenerator generator = new MethodRecipeGenerator(configType, creator.getType().asClassType(), creator);
+    public static ClassDefinition generate(ClassType configType, JMethod<?> creator, Messager messager) {
+        MethodRecipeGenerator generator = new MethodRecipeGenerator(configType, creator.getType().asClassType(), creator, messager);
         return generator.generate(getRecipeType(configType, creator), false);
     }
     
@@ -80,10 +86,11 @@ public final class RecipeGenerator {
      * Generate the recipe for a {@link Configuration}
      * 
      * @param config {@link JClass} containing the configuration
+     * @param messager {@link Messager} that is used by the annotation processor
      * @return {@link ClassDefinition}
      */
-    public static ClassDefinition generateConfiguration(JClass config) {
-        return generateConfiguration(config.getType(), config);
+    public static ClassDefinition generateConfiguration(JClass config, Messager messager) {
+        return generateConfiguration(config.getType(), config, messager);
     }
 
     /**
@@ -91,10 +98,11 @@ public final class RecipeGenerator {
      * 
      * @param configType {@link ClassType} of the configuration
      * @param config {@link JClass} containing the configuration
+     * @param messager {@link Messager} that is used by the annotation processor
      * @return {@link ClassDefinition}
      */
-    public static ClassDefinition generateConfiguration(ClassType configType, JClass config) {
-        return new ConfigurationRecipeGenerator(configType, config).generate(getRecipeType(configType), true);
+    public static ClassDefinition generateConfiguration(ClassType configType, JClass config, Messager messager) {
+        return new ConfigurationRecipeGenerator(configType, config, messager).generate(getRecipeType(configType), true);
     }
     
     /**

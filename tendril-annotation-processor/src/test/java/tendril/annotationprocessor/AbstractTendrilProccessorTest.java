@@ -24,12 +24,10 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.annotation.processing.Filer;
-import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.Messager;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.ModuleElement;
@@ -45,7 +43,6 @@ import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.JavaFileObject;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
@@ -57,12 +54,11 @@ import org.mockito.Mockito;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
-import tendril.test.AbstractUnitTest;
 
 /**
  * Test case for {@link AbstractTendrilProccessor}
  */
-public class AbstractTendrilProccessorTest extends AbstractUnitTest {
+public class AbstractTendrilProccessorTest extends CommonProcessorTest {
 
     /**
      * Concrete implementation to use for testing
@@ -170,23 +166,15 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
     @Mock
     private Types mockTypeUtils;
     @Mock
-    private ProcessingEnvironment mockProcessingEnv;
-    @Mock
-    private ClassDefinition mockGeneratedDef;
-    @Mock
-    private ClassType mockGeneratedType;
-    @Mock
-    private Filer mockFiler;
-    @Mock
-    private JavaFileObject mockFileObject;
-    @Mock
-    private Writer mockFileWriter;
-    @Mock
     private JClass mockJClass;
     @Mock
     private ClassType mockClassType;
     @Mock
     private JMethod<?> mockJMethod;
+    @Mock
+    private Messager mockMessager;
+    @Mock
+    private MissingAnnotationException mockAnnotationException;
 
     // Instance to test
     private TestTendrilProcessor processor;
@@ -240,12 +228,14 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
      */
     @Test
     public void testDoNotProcessUndesiredTypes() {
+        when(mockProcessingEnv.getMessager()).thenReturn(mockMessager);
         doReturn(Set.of(mockModuleElement, mockPackageElement, mockParameterizableElement, mockQualifiedNameableElement, mockRecordComponentElement, mockParameterElement, mockVariableElement))
                 .when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
         processor.process(Set.of(mockAnnotation), mockEnvironment);
         verify(mockEnvironment).errorRaised();
         verify(mockEnvironment).processingOver();
         verify(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
+        verify(mockMessager, times(7)).printError(anyString());
 
         processor.verifyClassType(0, null);
         processor.verifyMethodType(0, null, null);
@@ -260,12 +250,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
         try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
             mockLoader.when(() -> ElementLoader.loadClassDetails(mockTypeElement)).thenReturn(mockJClass);
             when(mockJClass.getType()).thenReturn(mockClassType);
-            when(mockGeneratedType.getFullyQualifiedName()).thenReturn("z.x.c.V");
-            when(mockGeneratedDef.getType()).thenReturn(mockGeneratedType);
-            when(mockGeneratedDef.getCode()).thenReturn("classCode");
-            when(mockProcessingEnv.getFiler()).thenReturn(mockFiler);
-            when(mockFiler.createSourceFile("z.x.c.V")).thenReturn(mockFileObject);
-            when(mockFileObject.openWriter()).thenReturn(mockFileWriter);
+            setupMocksForWriting();
     
             // This mock format is required due to compilation error with "normal" method
             doReturn(Set.of(mockTypeElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
@@ -274,12 +259,25 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
             verify(mockEnvironment).processingOver();
             verify(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
             mockLoader.verify(() -> ElementLoader.loadClassDetails(mockTypeElement));
-            verify(mockGeneratedType).getFullyQualifiedName();
-            verify(mockFileWriter).write("classCode", 0, "classCode".length());
-            verify(mockFileWriter).close();
+            verifyFileWritten();
     
             processor.verifyClassType(1, mockClassType);
             processor.verifyMethodType(0, null, null);
+        }
+    }
+
+    /**
+     * Verify that an exception is thrown if an annotation is missing
+     * @throws IOException 
+     */
+    @Test
+    public void testProcessClassMissingException() throws IOException {
+        try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
+            mockLoader.when(() -> ElementLoader.loadClassDetails(mockTypeElement)).thenThrow(mockAnnotationException);
+            doReturn(Set.of(mockTypeElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
+            Assertions.assertThrows(ProcessingException.class, () -> processor.process(Set.of(mockAnnotation), mockEnvironment));
+            verify(mockEnvironment).errorRaised();
+            verify(mockEnvironment).processingOver();
         }
     }
 
@@ -291,12 +289,7 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
     public void testProcessMethod() throws IOException {
         try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
             mockLoader.when(() -> ElementLoader.loadMethodDetails(mockMethodElement)).thenReturn(Pair.of(mockJClass, mockJMethod));
-            when(mockGeneratedType.getFullyQualifiedName()).thenReturn("z.x.c.V");
-            when(mockProcessingEnv.getFiler()).thenReturn(mockFiler);
-            when(mockGeneratedDef.getType()).thenReturn(mockGeneratedType);
-            when(mockGeneratedDef.getCode()).thenReturn("methodCode");
-            when(mockFiler.createSourceFile("z.x.c.V")).thenReturn(mockFileObject);
-            when(mockFileObject.openWriter()).thenReturn(mockFileWriter);
+            setupMocksForWriting();
 
             // This mock format is required due to compilation error with "normal" method
             doReturn(Set.of(mockMethodElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
@@ -306,12 +299,25 @@ public class AbstractTendrilProccessorTest extends AbstractUnitTest {
             verify(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
             mockLoader.verify(() -> ElementLoader.loadMethodDetails(mockMethodElement));
             verify(mockJClass).getType();
-            verify(mockGeneratedType).getFullyQualifiedName();
-            verify(mockFileWriter).write("methodCode", 0, "methodCode".length());
-            verify(mockFileWriter).close();
+            verifyFileWritten();
     
             processor.verifyClassType(0, null);
             processor.verifyMethodType(1, mockJClass, mockJMethod);
+        }
+    }
+
+    /**
+     * Verify that an exception is thrown if an annotation is missing
+     * @throws IOException 
+     */
+    @Test
+    public void testProcessMethodMissingException() throws IOException {
+        try (MockedStatic<ElementLoader> mockLoader = Mockito.mockStatic(ElementLoader.class)) {
+            mockLoader.when(() -> ElementLoader.loadMethodDetails(mockMethodElement)).thenThrow(mockAnnotationException);
+            doReturn(Set.of(mockMethodElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
+            Assertions.assertThrows(ProcessingException.class, () -> processor.process(Set.of(mockAnnotation), mockEnvironment));
+            verify(mockEnvironment).errorRaised();
+            verify(mockEnvironment).processingOver();
         }
     }
 

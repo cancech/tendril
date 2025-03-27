@@ -15,8 +15,12 @@
  */
 package tendril.bean.recipe;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import tendril.context.ApplicationContext;
 import tendril.context.Engine;
+import tendril.util.TendrilStringUtil;
 
 /**
  * Description of a bean that is (expected to be) available within the {@link ApplicationContext} and accessible via its {@link Engine}.
@@ -29,6 +33,8 @@ public class Descriptor<BEAN_TYPE> {
     private final Class<BEAN_TYPE> beanClass;
     /** The name of the bean */
     private String name = "";
+    /** List of enums that have been applied as qualifiers on the bean */
+    private Set<Enum<?>> enumQualifiers = new HashSet<>();
     
     /**
      * CTOR
@@ -65,8 +71,27 @@ public class Descriptor<BEAN_TYPE> {
      * 
      * @return {@link String} name of the bean
      */
-    public String getName() {
+    String getName() {
         return name;
+    }
+    
+    /**
+     * Add a qualifying Enum to the bean
+     * 
+     * @param qualifier {@link Enum} which is used to describe/find the bean
+     * @return {@link Descriptor} describing the bean
+     */
+    public Descriptor<BEAN_TYPE> addEnumQualifier(Enum<?> qualifier) {
+        this.enumQualifiers.add(qualifier);
+        return this;
+    }
+    
+    /**
+     * Get all qualifying {@link Enum}s for the bean
+     * @return {@link Set} of {@link Enum}s which describe/qualify a bean
+     */
+    Set<Enum<?>> getEnumQualifiers() {
+        return enumQualifiers;
     }
     
     /**
@@ -81,7 +106,8 @@ public class Descriptor<BEAN_TYPE> {
 
         Descriptor<?> other = (Descriptor<?>) obj;
         
-        return other.beanClass.isAssignableFrom(beanClass) && other.name.equals(name);
+        return other.beanClass.isAssignableFrom(beanClass) && other.name.equals(name) && other.enumQualifiers.size() == enumQualifiers.size() &&
+                enumQualifiers.containsAll(other.enumQualifiers);
     }
 
     /**
@@ -100,6 +126,9 @@ public class Descriptor<BEAN_TYPE> {
         if (!other.name.isBlank() && !other.name.equals(name))
             return false;
         
+        if (!other.enumQualifiers.isEmpty() && !enumQualifiers.containsAll(other.enumQualifiers))
+            return false;
+        
         return true;
     }
     
@@ -112,6 +141,11 @@ public class Descriptor<BEAN_TYPE> {
         
         if (!name.isEmpty())
             str.append(" named \"" + name + "\"");
+        if (!enumQualifiers.isEmpty()) {
+            str.append(" Enum Qualifiers[");
+            str.append(TendrilStringUtil.join(enumQualifiers, e -> e.getClass().getSimpleName() + "." + e.name()));
+            str.append("]");
+        }
         
         return str.toString();
     }

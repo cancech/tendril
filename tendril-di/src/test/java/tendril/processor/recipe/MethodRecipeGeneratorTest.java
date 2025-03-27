@@ -15,8 +15,11 @@
  */
 package tendril.processor.recipe;
 
+import javax.annotation.processing.Messager;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.Singleton;
@@ -27,13 +30,26 @@ import tendril.codegen.classes.method.ConcreteMethodBuilder;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
+import tendril.test.AbstractUnitTest;
 
 /**
  * Integration test for verifying that the {@link MethodRecipeGenerator} produces the proper results.
  * 
  * Note this test case is only checking for failures, as the successes are far more easily tested in the test-app
  */
-public class MethodRecipeGeneratorTest {
+public class MethodRecipeGeneratorTest extends AbstractUnitTest {
+    
+    // Mocks to use for testing
+    @Mock
+    private Messager mockMessager;
+
+    /**
+     * @see tendril.test.AbstractUnitTest#prepareTest()
+     */
+    @Override
+    protected void prepareTest() {
+        // Not required
+    }
 
     /**
      * Cannot process the method if it is static
@@ -45,7 +61,7 @@ public class MethodRecipeGeneratorTest {
                 .addAnnotation(JAnnotationFactory.create(Singleton.class)).emptyImplementation();
         builder.setStatic(true);
         
-        Assertions.assertThrows(ProcessingException.class, () -> RecipeGenerator.generate(configType, builder.build()));
+        Assertions.assertThrows(ProcessingException.class, () -> RecipeGenerator.generate(configType, builder.build(), mockMessager));
     }
 
     /**
@@ -58,7 +74,7 @@ public class MethodRecipeGeneratorTest {
                 .addAnnotation(JAnnotationFactory.create(Singleton.class)).emptyImplementation();
         builder.setVisibility(VisibilityType.PRIVATE);
         
-        Assertions.assertThrows(ProcessingException.class, () -> RecipeGenerator.generate(configType, builder.build()));
+        Assertions.assertThrows(ProcessingException.class, () -> RecipeGenerator.generate(configType, builder.build(), mockMessager));
     }
 
     /**
@@ -70,6 +86,6 @@ public class MethodRecipeGeneratorTest {
         MethodBuilder<Type> builder = new ConcreteMethodBuilder<>(null, "method").setType(PrimitiveType.INT)
                 .addAnnotation(JAnnotationFactory.create(Singleton.class)).emptyImplementation();
         
-        Assertions.assertFalse(RecipeGenerator.generate(configType, builder.build()).getCode().isBlank());
+        Assertions.assertFalse(RecipeGenerator.generate(configType, builder.build(), mockMessager).getCode().isBlank());
     }
 }

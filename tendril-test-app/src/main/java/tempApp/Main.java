@@ -15,6 +15,8 @@
  */
 package tempApp;
 
+import tempApp.id.MyType;
+import tempApp.id.MyTypeId;
 import tendril.bean.Inject;
 import tendril.bean.qualifier.Named;
 import tendril.context.launch.Runner;
@@ -40,7 +42,10 @@ public class Main implements TendrilRunner {
     FactoryClass factoryBean4;
     @Inject
     @Named("TempString")
-    String tempString;
+    String tempString1;
+    @Inject
+    @MyTypeId(MyType.VAL1)
+    String tempString2;
     private FactoryClass factoryBean5;
     
     @Inject
@@ -68,6 +73,11 @@ public class Main implements TendrilRunner {
     void doNothing() {
         System.out.println("doNothing()");
     }
+    
+    @Inject
+    void enumInjector(@MyTypeId(MyType.VAL1) String str) {
+        System.out.println("INJECTED VIA ENUM: " + str);
+    }
 
     @Override
     public void run() {
@@ -77,7 +87,9 @@ public class Main implements TendrilRunner {
         System.out.println(factoryBean3);
         System.out.println(factoryBean4);
         System.out.println(factoryBean5);
-        System.out.println(tempString);
+        System.out.println(tempString1);
+        System.out.println(tempString2);
+        assert(tempString1.equals(tempString2));
         assert(factoryBean1 != factoryBean2);
         assert(factoryBean1 != factoryBean3);
         assert(factoryBean1 != factoryBean4);

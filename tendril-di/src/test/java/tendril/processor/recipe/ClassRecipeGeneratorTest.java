@@ -15,8 +15,11 @@
  */
 package tendril.processor.recipe;
 
+import javax.annotation.processing.Messager;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import tendril.annotationprocessor.ProcessingException;
 import tendril.bean.Singleton;
@@ -24,13 +27,14 @@ import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
+import tendril.test.AbstractUnitTest;
 
 /**
  * Integration test for verifying that the {@link ClassRecipeGenerator} produces the proper results.
  * 
  * Note this test case is only checking for failures, as the successes are far more easily tested in the test-app
  */
-public class ClassRecipeGeneratorTest {
+public class ClassRecipeGeneratorTest extends AbstractUnitTest {
     
     private class TestClassRecipeGenerator extends ClassRecipeGenerator {
         
@@ -41,7 +45,7 @@ public class ClassRecipeGeneratorTest {
          * @param creator
          */
         TestClassRecipeGenerator(ClassType beanType, JClass creator) {
-            super(beanType, creator);
+            super(beanType, creator, mockMessager);
         }
 
         /**
@@ -52,6 +56,18 @@ public class ClassRecipeGeneratorTest {
             populateCalled = true;
         }
         
+    }
+    
+    // Mocks to use for testing
+    @Mock
+    private Messager mockMessager;
+
+    /**
+     * @see tendril.test.AbstractUnitTest#prepareTest()
+     */
+    @Override
+    protected void prepareTest() {
+        // Not required
     }
 
     /**
