@@ -88,6 +88,8 @@ public class RunnerProcessor extends AbstractDelayedAnnotationTendrilProcessor {
      */
     @Override
     protected void processingOver() {
+        if (mainRunner == null)
+            throw new ProcessingException("No runner has been detected. There must be exactly one running present in the application");
         writeResourceFile(RunnerFile.PATH, mainRunner);
     }
 }
