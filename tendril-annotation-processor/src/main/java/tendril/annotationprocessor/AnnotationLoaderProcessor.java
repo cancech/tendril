@@ -49,10 +49,8 @@ import tendril.codegen.field.value.JValueFactory;
  * AnnotationLoaderProcessor at hand to handle the generated annotation.
  */
 public abstract class AnnotationLoaderProcessor extends AbstractTendrilProccessor implements GeneratedAnnotationLoader {
-    // TODO is this necessary? couldn't the act of generating the annotation act as the trigger directly, without relying on this?
-    
     /** Mapping of the annotated classes that have been generated/detected */
-    private final Map<ClassType, JClass> annotatedEnums = new HashMap<>();
+    private final Map<ClassType, JClass> foundClasses = new HashMap<>();
     /** Listeners to notify when an annotation has been generated */
     private final List<AnnotationGeneratedListener> listeners = new ArrayList<>();
 
@@ -68,7 +66,7 @@ public abstract class AnnotationLoaderProcessor extends AbstractTendrilProccesso
      */
     @Override
     protected ClassDefinition processType() {
-        annotatedEnums.put(currentClassType, currentClass);
+        foundClasses.put(currentClassType, currentClass);
         listeners.forEach(listener -> listener.annotationGenerated(currentClassType));
         return null;
     }
@@ -96,7 +94,7 @@ public abstract class AnnotationLoaderProcessor extends AbstractTendrilProccesso
     @Override
     public JAnnotation getAnnotationInstance(ClassType type, AnnotationMirror mirror) {
         // Make sure that the annotation is actually present
-        JClass klass = annotatedEnums.get(type);
+        JClass klass = foundClasses.get(type);
         if (klass == null)
             return null;
         if (!(klass instanceof JClassAnnotation))
