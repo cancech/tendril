@@ -77,6 +77,7 @@ public class RegistryProcessor extends AbstractTendrilProccessor {
      */
     @Override
     protected void processingOver() {
+        super.processingOver();
         writeResourceFile(RegistryFile.PATH, registers);
     }
 }

@@ -24,6 +24,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -31,6 +32,7 @@ import org.mockito.Mockito;
 
 import tendril.annotationprocessor.element.ElementLoader;
 import tendril.annotationprocessor.exception.MissingAnnotationException;
+import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
@@ -116,6 +118,9 @@ public class AbstractDelayedAnnotationTendrilProcessorTest extends CommonProcess
             verify(mockException).getMissingAnnotationName();
         }
         
+        // While still waiting, processingOver will throw an exception
+        Assertions.assertThrows(ProcessingException.class, () -> processor.processingOver());
+        
         // Then once it is generated, processing can pass
         try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
             when(mockClass.getType()).thenReturn(mockType);
@@ -128,6 +133,9 @@ public class AbstractDelayedAnnotationTendrilProcessorTest extends CommonProcess
             verify(mockWaitingAnnotationType).getSimpleName();
             verifyFileWritten();
         }
+        
+        // While still waiting, processingOver will throw an exception
+        Assertions.assertDoesNotThrow(() -> processor.processingOver());
     }
 
     /**
@@ -148,6 +156,9 @@ public class AbstractDelayedAnnotationTendrilProcessorTest extends CommonProcess
             verify(mockException).getMissingAnnotationName();
         }
         
+        // While still waiting, processingOver will throw an exception
+        Assertions.assertThrows(ProcessingException.class, () -> processor.processingOver());
+        
         // Then once it is generated, processing can pass
         try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
             when(mockClass.getType()).thenReturn(mockType);
@@ -160,6 +171,9 @@ public class AbstractDelayedAnnotationTendrilProcessorTest extends CommonProcess
             verify(mockWaitingAnnotationType).getSimpleName();
             verifyFileWritten();
         }
+        
+        // While still waiting, processingOver will throw an exception
+        Assertions.assertDoesNotThrow(() -> processor.processingOver());
     }
     
     /**

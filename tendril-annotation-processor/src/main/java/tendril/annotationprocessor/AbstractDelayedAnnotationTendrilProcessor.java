@@ -27,6 +27,7 @@ import tendril.annotationprocessor.element.ElementLoader;
 import tendril.annotationprocessor.exception.MissingAnnotationException;
 import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.codegen.field.type.ClassType;
+import tendril.util.TendrilStringUtil;
 
 /**
  * Annotation processor which acts upon annotation which are generated as a part of the annotation processing. This processing must be delayed until
@@ -80,6 +81,17 @@ public abstract class AbstractDelayedAnnotationTendrilProcessor extends Abstract
             if (!delayedElements.containsKey(missingAnnotation))
                 delayedElements.put(missingAnnotation, new ArrayList<>());
             delayedElements.get(missingAnnotation).add(new WaitingElement(annotation, element));
+        }
+    }
+    
+    /**
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processingOver()
+     */
+    @Override
+    protected void processingOver() {
+        if (!delayedElements.isEmpty()) {
+            String missing = TendrilStringUtil.join(delayedElements, (k, v) -> TendrilStringUtil.join(v, i -> "[" + i.waitingElement.toString() + "]") + " all waiting on @" + k); 
+            throw new ProcessingException("Processing not complete: " + missing);
         }
     }
 
