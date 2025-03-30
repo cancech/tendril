@@ -16,11 +16,14 @@
 package tendril.util;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * A collection of {@link String} Utilities to facilitate {@link String} manipulation required, and which are not available elsewhere.
  */
 public abstract class TendrilStringUtil {
+    /** The delimiter to be employed if none is explicitely specified by the user */
+    private static final String DEFAULT_DELIMITER = ", ";
 
     /**
      * Hidden CTOR
@@ -49,7 +52,7 @@ public abstract class TendrilStringUtil {
      * @return {@link String} resulting from joining the items.
      */
     public static <T> String join(Collection<T> items, StringConverter<T> converter) {
-        return join(items, ", ", converter);
+        return join(items, DEFAULT_DELIMITER, converter);
     }
 
     /**
@@ -88,5 +91,92 @@ public abstract class TendrilStringUtil {
         }
 
         return builder.toString();
+    }
+    
+    /**
+     * Joins the elements in a {@link Map} such that a comma delimited "key = value" pairing of all elements is returned. Both keys and values are converted to {@link String} by way of their
+     * respective {@code toString()} methods.
+     * 
+     * @param <K> type of key that is employed in the map
+     * @param <V> type of value that is employed in the map
+     * @param items {@link Map} to be joined into a single {@link String}
+     * @return {@link String} representation of the map
+     */
+    public static <K, V> String join(Map<K, V> items) {
+        return join(items, DEFAULT_DELIMITER);
+    }
+
+    /**
+     * Joins the elements in a {@link Map} such that a delimited "key = value" pairing of all elements is returned, with the delimiter specified by the client code.  Both keys and values
+     * are converted to {@link String} by way of their respective {@code toString()} methods.
+     * 
+     * @param <K> type of key that is employed in the map
+     * @param <V> type of value that is employed in the map
+     * @param items {@link Map} to be joined into a single {@link String}
+     * @param delimiter {@link String} to be placed between every "key = value" pair
+     * @return {@link String} representation of the map
+     */
+    public static <K, V> String join(Map<K, V> items, String delimiter) {
+        return join(items, delimiter, key -> key.toString(), value -> value.toString());
+    }
+
+    /**
+     * Joins the elements in a {@link Map} such that a comma delimited "key = value" pairing of all elements is returned. A separate converter is required for both the key and value, which
+     * is then used to convert both to a {@link String} representation
+     * 
+     * @param <K> type of key that is employed in the map
+     * @param <V> type of value that is employed in the map
+     * @param items {@link Map} to be joined into a single {@link String}
+     * @param keyConverter {@link StringConverter} for converting the key to a {@link String}
+     * @param valueConverter {@link StringConverter} for converting the value to a {@link String}
+     * @return {@link String} representation of the map
+     */
+    public static <K, V> String join(Map<K, V> items, StringConverter<K> keyConverter, StringConverter<V> valueConverter) {
+        return join(items, DEFAULT_DELIMITER, keyConverter, valueConverter);
+    }
+
+    /**
+     * Joins the elements in a {@link Map} such that a delimited "key = value" pairing of all elements is returned, with the delimiter specified by the client code. A separate converter
+     * is required for both the key and value, which is then used to convert both to a {@link String} representation
+     * 
+     * @param <K> type of key that is employed in the map
+     * @param <V> type of value that is employed in the map
+     * @param items {@link Map} to be joined into a single {@link String}
+     * @param delimiter {@link String} to be placed between every "key = value" pair
+     * @param keyConverter {@link StringConverter} for converting the key to a {@link String}
+     * @param valueConverter {@link StringConverter} for converting the value to a {@link String}
+     * @return {@link String} representation of the map
+     */
+    public static <K, V> String join(Map<K, V> items, String delimiter, StringConverter<K> keyConverter, StringConverter<V> valueConverter) {
+        return join(items, delimiter, (key, value) -> keyConverter.convert(key) + " = " + valueConverter.convert(items.get(key)));
+    }
+
+    /**
+     * Joins the elements in a {@link Map} such that a comma delimited pairing of all elements is returned. The specified converter is employed to combine both elements (key, value) into
+     * a single {@link String} at the same time.
+     * 
+     * @param <K> type of key that is employed in the map
+     * @param <V> type of value that is employed in the map
+     * @param items {@link Map} to be joined into a single {@link String}
+     * @param converter {@link BinaryStringConverter} for converting the key/value pair to a {@link String}
+     * @return {@link String} representation of the map
+     */
+    public static <K, V> String join(Map<K, V> items, BinaryStringConverter<K, V> converter) {
+        return join(items, DEFAULT_DELIMITER, converter);
+    }
+
+    /**
+     * Joins the elements in a {@link Map} such that a delimited pairing of all elements is returned, with the delimiter specified by the client code. The specified converter is employed
+     * to combine both elements (key, value) into a single {@link String} at the same time.
+     * 
+     * @param <K> type of key that is employed in the map
+     * @param <V> type of value that is employed in the map
+     * @param items {@link Map} to be joined into a single {@link String}
+     * @param delimiter {@link String} to be placed between every "key = value" pair
+     * @param converter {@link BinaryStringConverter} for converting the key/value pair to a {@link String}
+     * @return {@link String} representation of the map
+     */
+    public static <K, V> String join(Map<K, V> items,  String delimiter, BinaryStringConverter<K, V> converter) {
+        return join(items.keySet(), delimiter, key -> converter.convert(key, items.get(key)));
     }
 }

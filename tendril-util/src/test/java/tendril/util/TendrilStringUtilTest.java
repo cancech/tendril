@@ -17,6 +17,8 @@ package tendril.util;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -67,7 +69,7 @@ public class TendrilStringUtilTest {
     private RandomTestObject mockObj4 = new RandomTestObject("mockObj4");
 
     /**
-     * Verify that the {@link TendrilStringUtil} with all defaults works as expected
+     * Verify that the join collection with all defaults works as expected
      */
     @Test
     public void testJoinWithJustCollection() {
@@ -76,7 +78,7 @@ public class TendrilStringUtilTest {
     }
 
     /**
-     * Verify that the {@link TendrilStringUtil} with custom delimiter works as expected
+     * Verify that the join collection with custom delimiter works as expected
      */
     @Test
     public void testJoinWithCollectionAndDelimiter() {
@@ -85,7 +87,7 @@ public class TendrilStringUtilTest {
     }
 
     /**
-     * Verify that the {@link TendrilStringUtil} with custom {@link StringConverter} works as expected
+     * Verify that the join collection with custom {@link StringConverter} works as expected
      */
     @Test
     public void testJoinWithCollectionAndConverter() {
@@ -94,12 +96,85 @@ public class TendrilStringUtilTest {
     }
 
     /**
-     * Verify that the {@link TendrilStringUtil} with custom delimiter and {@link StringConverter} works as expected
+     * Verify that the join collection with custom delimiter and {@link StringConverter} works as expected
      */
     @Test
     public void testJoinWithCollectionConverterAndDelimiter() {
         Collection<RandomTestObject> collection = Arrays.asList(mockObj1, mockObj2, mockObj3, mockObj4);
         Assertions.assertEquals("_MOCKOBJ1_-mockObj1~:~_MOCKOBJ2_-mockObj2~:~_MOCKOBJ3_-mockObj3~:~_MOCKOBJ4_-mockObj4",
                 TendrilStringUtil.join(collection, "~:~", obj -> obj.otherMethod() + "-" + obj.toString()));
+    }
+    
+    /**
+     * Verify that the join map with all defaults works as expected
+     */
+    @Test
+    public void testJoinWithJustMap() {
+        Map<RandomTestObject, RandomTestObject> map = buildMap(mockObj1, mockObj2, mockObj3, mockObj4);
+        Assertions.assertEquals("mockObj1 = mockObj2, mockObj2 = mockObj3, mockObj3 = mockObj4, mockObj4 = mockObj1", TendrilStringUtil.join(map));
+    }
+    
+    /**
+     * Verify that the join map with explicit delimiter works as expected
+     */
+    @Test
+    public void testJoinWithMapAndDelimiter() {
+        Map<RandomTestObject, RandomTestObject> map = buildMap(mockObj1, mockObj2, mockObj3, mockObj4);
+        Assertions.assertEquals("mockObj1 = mockObj2<-->mockObj2 = mockObj3<-->mockObj3 = mockObj4<-->mockObj4 = mockObj1", TendrilStringUtil.join(map, "<-->"));
+    }
+    
+    /**
+     * Verify that the join map with custom converter works as expected
+     */
+    @Test
+    public void testJoinWithMapAndCustomConverter() {
+        Map<RandomTestObject, RandomTestObject> map = buildMap(mockObj1, mockObj2, mockObj3, mockObj4);
+        Assertions.assertEquals("_MOCKOBJ1_ = _MOCKOBJ2_, _MOCKOBJ2_ = _MOCKOBJ3_, _MOCKOBJ3_ = _MOCKOBJ4_, _MOCKOBJ4_ = _MOCKOBJ1_",
+                TendrilStringUtil.join(map, k -> k.otherMethod(), v -> v.otherMethod()));
+    }
+    
+    /**
+     * Verify that the join map with custom converter and delimiter works as expected
+     */
+    @Test
+    public void testJoinWithMapAndCustomConverterAndDelimiter() {
+        Map<RandomTestObject, RandomTestObject> map = buildMap(mockObj1, mockObj2, mockObj3, mockObj4);
+        Assertions.assertEquals("_MOCKOBJ1_ = _MOCKOBJ2_(^v^)_MOCKOBJ2_ = _MOCKOBJ3_(^v^)_MOCKOBJ3_ = _MOCKOBJ4_(^v^)_MOCKOBJ4_ = _MOCKOBJ1_",
+                TendrilStringUtil.join(map, "(^v^)", k -> k.otherMethod(), v -> v.otherMethod()));
+    }
+    
+    /**
+     * Verify that the join map with a custom binary converter works as expected
+     */
+    @Test
+    public void testJoinWithMapAndBinaryConverter() {
+        Map<RandomTestObject, RandomTestObject> map = buildMap(mockObj1, mockObj2, mockObj3, mockObj4);
+        Assertions.assertEquals("mockObj1<_MOCKOBJ2_>, mockObj2<_MOCKOBJ3_>, mockObj3<_MOCKOBJ4_>, mockObj4<_MOCKOBJ1_>", TendrilStringUtil.join(map,
+                (key, value) -> key + "<" + value.otherMethod() + ">"));
+    }
+    
+    /**
+     * Verify that the join map with a custom binary converter and delimiter works as expected
+     */
+    @Test
+    public void testJoinWithMapAndBinaryConverterAndDelimiter() {
+        Map<RandomTestObject, RandomTestObject> map = buildMap(mockObj1, mockObj2, mockObj3, mockObj4);
+        Assertions.assertEquals("_MOCKOBJ1_<mockObj2>///_MOCKOBJ2_<mockObj3>///_MOCKOBJ3_<mockObj4>///_MOCKOBJ4_<mockObj1>", TendrilStringUtil.join(map, "///",
+                (key, value) -> key.otherMethod() + "<" + value + ">"));
+    }
+    
+    /**
+     * Helper to build a map of elements, such that obj1 = obj2,..., objN = obj1
+     * 
+     * @param objs {@link RandomTestObject}... to populate the map with
+     * @return {@link Map} such that the order of keys is maintained
+     */
+    private Map<RandomTestObject, RandomTestObject> buildMap(RandomTestObject...objs) {
+        Map<RandomTestObject, RandomTestObject> map = new LinkedHashMap<>();
+        for (int i = 0; i < objs.length; i++) {
+            int valueIndex = (i + 1) % objs.length;
+            map.put(objs[i], objs[valueIndex]);
+        }
+        return map;
     }
 }
