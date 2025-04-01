@@ -46,7 +46,7 @@ public abstract class NestedClassElementBuilder<DATA_TYPE extends Type, ELEMENT 
     /**
      * @see tendril.codegen.BaseBuilder#build()
      * 
-     * This is ultimately responsible for creating the element. If a {@link ClassBuilder} is present, the method is added to the class prior to returning. 
+     * This is ultimately responsible for creating the element. If a ClassBuilder is present, the method is added to the class prior to returning. 
      */
     @Override
     public ELEMENT build() {
