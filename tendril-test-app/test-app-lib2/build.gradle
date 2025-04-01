@@ -1,5 +1,5 @@
 plugins {
-	id "application"
+	id "java-library"
 	id "java"
 }
 
@@ -15,10 +15,8 @@ repositories {
 dependencies {
     implementation project(':tendril-di')
     annotationProcessor project(':tendril-di')
-}
-
-application {
-	mainClass = "tempApp.AppMain"
+    
+    implementation project(':tendril-test-app:test-app-lib1')
 }
 
 sourceSets {

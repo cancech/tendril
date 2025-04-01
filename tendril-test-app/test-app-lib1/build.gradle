@@ -1,0 +1,31 @@
+plugins {
+	id "java-library"
+	id "java"
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+	mavenLocal()
+    mavenCentral()
+}
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+    implementation project(':tendril-di')
+    annotationProcessor project(':tendril-di')
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += ["build/generated/sources/annotationProcessor/java/main"]
+        }
+    }
+}
+
+compileJava {
+    options.compilerArgs << '-XprintProcessorInfo'
+    options.compilerArgs << '-XprintRounds'
+}

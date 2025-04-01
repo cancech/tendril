@@ -8,4 +8,6 @@ include 'tendril-di'
 include 'tendril-test'
 
 // Tools/utilities for internal use only
-include 'tendril-test-app'
+include 'tendril-test-app:test-app-lib1'
+include 'tendril-test-app:test-app-lib2'
+include 'tendril-test-app:test-app-main'
