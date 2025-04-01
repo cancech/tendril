@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
  * Annotation to denote a generated annotation which is to be used for the purpose of using an enum as a bean qualifier. This is not intended to by used by any client code
  * directly, rather applied to any qualifier annotation that was generated from an enum annotated with @{@link BeanIdEnum}.
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 public @interface EnumQualifier {
 }

@@ -80,7 +80,7 @@ public class ArrayType<DATA_TYPE extends Type> implements Type {
     @Override
     public boolean isTypeOf(Object value) {
         Class<?> valueClass = value.getClass();
-        if (!value.getClass().isArray())
+        if (!valueClass.isArray())
             return false;
 
         return containedType.isAssignableFrom(TypeFactory.create(valueClass.getComponentType()));
@@ -102,10 +102,10 @@ public class ArrayType<DATA_TYPE extends Type> implements Type {
      */
     @Override
     public JValue<?, ?> asValue(Object value) {
-        if (!isTypeOf(value))
-            throw new DefinitionException(containedType, "Incompatible value, expected " + getSimpleName() + " but received " + value);
-
-        return JValueFactory.createArray(ArrayConverter.toObjectArray(value));
+        if (isTypeOf(value))
+            return JValueFactory.createArray(ArrayConverter.toObjectArray(value));
+        
+        throw new DefinitionException(containedType, "Incompatible value, expected " + getSimpleName() + " but received " + value);
     }
 
     /**

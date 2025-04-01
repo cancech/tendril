@@ -15,13 +15,15 @@
  */
 package tendril.annotationprocessor.element;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -33,6 +35,8 @@ import javax.lang.model.type.TypeMirror;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.auto.common.AnnotationValues;
+
 import tendril.annotationprocessor.exception.MissingAnnotationException;
 import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.codegen.BaseBuilder;
@@ -40,18 +44,21 @@ import tendril.codegen.DefinitionException;
 import tendril.codegen.JBase;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotation;
+import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
+import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.classes.FieldBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.MethodBuilder;
 import tendril.codegen.classes.NestedClassMethodElementBuilder;
 import tendril.codegen.classes.ParameterBuilder;
-import tendril.codegen.classes.method.AnonymousMethod;
 import tendril.codegen.field.VisibileTypeBuilder;
+import tendril.codegen.field.type.ArrayType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValue;
+import tendril.codegen.field.value.JValueFactory;
 
 /**
  * Handles the conversion of items from the Annotation Processing {@link Element}s into {@link JBase} representations
@@ -60,16 +67,11 @@ public class ClassConverter {
 
     /** The cache where loaded elements are to be stored */
     private ElementCache cache;
-    /** The handler for generated annotations */
-    private final GeneratedAnnotationHandler annotationHandler;
     
     /**
      * CTOR
-     * 
-     * @param annotationHandler {@link GeneratedAnnotationHandler} for finding annotation generated during annotation processing
      */
-    ClassConverter(GeneratedAnnotationHandler annotationHandler) {
-        this.annotationHandler = annotationHandler;
+    ClassConverter() {
     }
     
     /**
@@ -216,81 +218,124 @@ public class ClassConverter {
      * @throws MissingAnnotationException if attempting to load a class which is making use of an annotation that does not (yet) exist
      */
     private void loadAnnotations(BaseBuilder<?, ?> builder, Element element) throws MissingAnnotationException {
-        // Track what annotations have been processed, to avoid duplicates
-        List<ClassType> processedTypes = new ArrayList<>();
-        
         for (AnnotationMirror m : element.getAnnotationMirrors()) {
-            // Determine the type of annotation applied and make sure it's not been processed already
-            ClassType annonType = null;
+            TypeElement annonElement = (TypeElement) m.getAnnotationType().asElement();
             try {
-                annonType = deriveClassData((TypeElement) m.getAnnotationType().asElement());
+                builder.addAnnotation(buildAnnotation(deriveClassData(annonElement), m, annonElement, new ArrayList<>()));
             } catch (DefinitionException ex) {
                 throw new MissingAnnotationException(m.getAnnotationType(), element);
             }
-            
-            if (processedTypes.contains(annonType))
-                continue;
-            
-            processedTypes.add(annonType);
-            try {
-                // First try to load the annotation the "normal" way. This is the better way to load it, provided that the class is not generated during annotation processing
-                applyAnnotatonByClass(builder, annonType, (TypeElement)m.getAnnotationType().asElement(), element);
-            } catch (ClassNotFoundException e) {
-                // If the class is not found, that means that the annotation was generated and so, it should be loaded in a separate manner
-                applyGeneratedAnnotation(builder, annonType, m, element);
-            }
         }
     }
     
     /**
-     * Try to apply the specified annotation by loading the annotation as an instance. This requires the class of the annotation to be processed to be known.
-     * 
-     * @param builder {@link BaseBuilder} where the class for the element being loaded is assembled
-     * @param annonType {@link ClassType} indicating the type of the annotation being loaded
-     * @param annotationElement {@link TypeElement} representing the annotation
-     * @param appliedTo {@link Element} to which the annotation being loaded is applied
-     * 
-     * @throws ClassNotFoundException if the class of the annotation is not known and cannot be loaded
+     * Build the annotation instance from the specified information. This is a recursive mechanism which build the specified annotation, as well as all annotations which are
+     * applied to it.
+     *  
+     * @param annonType {@link ClassType} representing the type of annotation
+     * @param mirror {@link AnnotationMirror} representing the current instance of the annotation
+     * @param element {@link TypeElement} representing the definition of the annotation
+     * @param hierarchy {@link List} of {@link ClassType}s that have already been encountered during this iterative build process
+     * @return {@link JAnnotation} representing the annotation instance
      */
-    private void applyAnnotatonByClass(BaseBuilder<?, ?> builder, ClassType annonType, TypeElement annotationElement, Element appliedTo) throws ClassNotFoundException {
-        @SuppressWarnings("unchecked")
-        Class<? extends Annotation> annonClass = (Class<? extends Annotation>) Class.forName(annotationElement.getQualifiedName().toString());
+    private JAnnotation buildAnnotation(ClassType annonType, AnnotationMirror mirror, TypeElement element, List<ClassType> hierarchy) {
+        hierarchy.add(annonType);
         
-        // Load all instances of the annotation type applied and determine their attributes
-        for (Annotation annon: appliedTo.getAnnotationsByType(annonClass)) {
-            JAnnotation annonData = new JAnnotation(annonType);
-            
-            // Need to use reflection, as this appears to be the only "generic way" to retrieve array values
-            for (Method method: annonClass.getDeclaredMethods()) {
-                Type attributeType = TypeFactory.create(method.getReturnType());
-                String attributeName = method.getName();
-                try {
-                    JValue<?, ?> value = attributeType.asValue(method.invoke(annon));
-                    annonData.addAttribute(new AnonymousMethod<Type>(attributeType, attributeName), value);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            builder.addAnnotation(annonData);
+        // Process all values
+        Map<String, JValue<?, ?>> attributes = new HashMap<>();
+        mirror.getElementValues().forEach((attr, value) -> {
+            JValue<?, ?> jvalue = createValue(TypeFactory.create(attr.getReturnType()), value.getValue());
+            attributes.put(attr.getSimpleName().toString(), jvalue);
+        });
+        
+        // Create the annotation
+        JAnnotation annon = null;
+        if (attributes.isEmpty())
+            annon = JAnnotationFactory.create(annonType);
+        else if (attributes.size() == 1 && attributes.containsKey("value"))
+            annon = JAnnotationFactory.create(annonType, attributes.get("value"));
+        else {
+            annon = JAnnotationFactory.create(annonType, attributes);
         }
+        
+        // Apply all annotations
+        for (AnnotationMirror m: element.getAnnotationMirrors()) {
+            TypeElement annonElement = (TypeElement)m.getAnnotationType().asElement();
+            ClassType appliedAnnonType = deriveClassData(annonElement);
+            if (!hierarchy.contains(appliedAnnonType))
+                annon.add(buildAnnotation(appliedAnnonType, m, annonElement, hierarchy));
+        }
+        
+        return annon;
     }
     
     /**
-     * Try to apply the specified annotation by loading the definition of the annotation from a loader of generated annotation. This should only be used when the annotation in question
-     * is generated during annotation processing and cannot be loaded through other means.
+     * Convert the assigned "real" value to its representative {@link JValue}
      * 
-     * @param builder {@link BaseBuilder} where the class for the element being loaded is assembled
-     * @param annonType {@link ClassType} indicating the type of the annotation being loaded
-     * @param annonMirror {@link AnnotationMirror} containing the details of the annotation that is applied to the element
-     * @param appliedTo {@link Element} to which the annotation being loaded is applied
-     * @throws MissingAnnotationException if attempting to load a class which is making use of an annotation that does not (yet) exist
+     * @param desiredType {@link Type} indicating what type is expected by the attribute
+     * @param value {@link Object} containing the "real" value
+     * @return {@link JValue} representation
      */
-    private void applyGeneratedAnnotation(BaseBuilder<?, ?> builder, ClassType annonType, AnnotationMirror annonMirror, Element appliedTo) throws MissingAnnotationException {
-        JAnnotation annon = annotationHandler.getAnnotationInstance(annonType, annonMirror);
-        if (annon == null)
-            throw new MissingAnnotationException(annonMirror.getAnnotationType(), appliedTo);
+    private JValue<?,?> createValue(Type desiredType, Object value) {
+        // Enums are not seen as the instance, but rather just described. As such they must be treated separately
+        if (value instanceof VariableElement)
+            return JValueFactory.create(createEnumEntry(desiredType, (VariableElement) value));
+        
+        Object valueToUse = value;
+        if (value instanceof List) {
+            if (!(desiredType instanceof ArrayType))
+                throw new ProcessingException("Received array value when " + desiredType.getSimpleName() + " expected");
+            
+            @SuppressWarnings("unchecked")
+            List<AnnotationValue> listVal = (List<AnnotationValue>) value;
+            Object av = ((AnnotationValue) listVal.get(0)).getValue();
+            
+            // Enum is a special case
+            if (av instanceof VariableElement) {
+                EnumerationEntry[] entries = new EnumerationEntry[listVal.size()];
+                for (int i = 0; i < entries.length; i++)
+                    entries[i] = createEnumEntry(((ArrayType<?>) desiredType).getContainedType(), (VariableElement) (listVal.get(i)).getValue());
+                return JValueFactory.createArray(entries);
+            }
+            
+            // Otherwise just perform a direct cast
+            valueToUse = annotationValueAsBaseType(listVal, av.getClass());
+        }
 
-        builder.addAnnotation(annon);
+        return desiredType.asValue(valueToUse);
+    }
+    
+    /**
+     * Convert the list of annotation values to an array of the indicated type. The conversion to the indicated type is done via casting.
+     * 
+     * @param <T> the value that is contained within the {@link AnnotationValue} {@link List}
+     * @param values {@link List} of {@link AnnotationValues} which were applied to the annotation
+     * @param type {@link Class} of what is contained within the value list
+     * @return T[] conversion of the {@link AnnotationValue}s
+     */
+    @SuppressWarnings("unchecked")
+    private <T> T[] annotationValueAsBaseType(List<AnnotationValue> values, Class<T> type) {
+        T[] entries = (T[]) Array.newInstance(type, values.size());
+        for (int i = 0; i < entries.length; i++)
+            entries[i] = (T) ((AnnotationValue)values.get(i)).getValue();
+        return entries;
+    }
+    
+    /**
+     * Create an {@link EnumerationEntry} representation of an enum that is defined by a {@link VariableElement}. Verification is performed to ensure that the element
+     * matches the desired type, with a {@link ProcessingException} thrown is that is not the case.
+     * 
+     * @param desiredType {@link Type} indicating the type of enum which is desired/expected
+     * @param value {@link VariableElement} representing the specific enum entry
+     * @return {@link EnumerationEntry} for the enum
+     */
+    private EnumerationEntry createEnumEntry(Type desiredType, VariableElement value) {
+        ClassType valueType = new ClassType(value.asType().toString());
+        if (!desiredType.equals(valueType)) {
+            String expectedType = (desiredType instanceof ClassType) ? ((ClassType)desiredType).getFullyQualifiedName() : desiredType.getSimpleName();
+            throw new ProcessingException("Invalid type, expected " + expectedType + " but received " + valueType.getFullyQualifiedName());
+        }
+        return EnumerationEntry.from(valueType, value.getSimpleName().toString());
     }
     
     /**

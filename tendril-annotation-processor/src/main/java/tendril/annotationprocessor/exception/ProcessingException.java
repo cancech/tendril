@@ -19,6 +19,7 @@ package tendril.annotationprocessor.exception;
  * Exception to be thrown when there is an during annotation processing
  */
 public class ProcessingException extends RuntimeException {
+    // TODO make not Runtime?
     /** Serial ID */
     private static final long serialVersionUID = -2996805748124184514L;
 

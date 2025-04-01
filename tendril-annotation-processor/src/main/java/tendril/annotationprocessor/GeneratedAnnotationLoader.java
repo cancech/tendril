@@ -16,10 +16,6 @@
 package tendril.annotationprocessor;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.lang.model.element.AnnotationMirror;
-
-import tendril.codegen.annotation.JAnnotation;
-import tendril.codegen.field.type.ClassType;
 
 /**
  * A loader (presumably in the form of an {@link AbstractProcessor}) which loads (new) annotations. This provides the means to both
@@ -27,17 +23,6 @@ import tendril.codegen.field.type.ClassType;
  * processing) and allow for the notification of listeners when an annotation is generated. 
  */
 public interface GeneratedAnnotationLoader {
-    /**
-     * Try to get an annotation instance of the specified type, which derives from the {@link AnnotationMirror}. In this manner
-     * the {@link ClassType} can be used to determine what form/shape the {@link JAnnotation} should take and the {@link AnnotationMirror}
-     * the fields and like that are to be present.
-     * 
-     * @param type {@link ClassType} indicating the class of the annotation instance to be loaded
-     * @param mirror {@link AnnotationMirror} containing the details of the instance
-     * @return {@link JAnnotation} containing the full details of the annotation instance
-     */
-    JAnnotation getAnnotationInstance(ClassType type, AnnotationMirror mirror);
-    
     /**
      * Add a listener to be notified when an annotation is generated
      * 

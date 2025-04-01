@@ -16,18 +16,12 @@
 package tendril.annotationprocessor.element;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import javax.lang.model.element.AnnotationMirror;
-
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.annotationprocessor.AnnotationGeneratedListener;
 import tendril.annotationprocessor.GeneratedAnnotationLoader;
-import tendril.codegen.annotation.JAnnotation;
-import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -48,12 +42,6 @@ public class GeneratedAnnotationHandlerTest extends AbstractUnitTest {
     private AnnotationGeneratedListener mockListener2;
     @Mock
     private AnnotationGeneratedListener mockListener3;
-    @Mock
-    private ClassType mockClassType;
-    @Mock
-    private AnnotationMirror mockMirror;
-    @Mock
-    private JAnnotation mockAnnotation;
     
     // Instance to test
     private GeneratedAnnotationHandler handler;
@@ -91,80 +79,5 @@ public class GeneratedAnnotationHandlerTest extends AbstractUnitTest {
         verify(mockLoader3).addListener(mockListener1);
         verify(mockLoader3).addListener(mockListener2);
         verify(mockLoader3).addListener(mockListener3);
-    }
-    
-    /**
-     * Verify that no annotation is produced if there is no loader
-     */
-    @Test
-    public void testGetInstanceNoLoader() {
-        Assertions.assertNull(handler.getAnnotationInstance(mockClassType, mockMirror));
-    }
-    
-    /**
-     * Verify that no annotation is produced if no loader provides one
-     */
-    @Test
-    public void testGetInstanceNoLoaderProvides() {
-        handler.registerLoader(mockLoader1);
-        handler.registerLoader(mockLoader2);
-        handler.registerLoader(mockLoader3);
-        
-        when(mockLoader1.getAnnotationInstance(mockClassType, mockMirror)).thenReturn(null);
-        when(mockLoader2.getAnnotationInstance(mockClassType, mockMirror)).thenReturn(null);
-        when(mockLoader3.getAnnotationInstance(mockClassType, mockMirror)).thenReturn(null);
-        
-        Assertions.assertNull(handler.getAnnotationInstance(mockClassType, mockMirror));
-        verify(mockLoader1).getAnnotationInstance(mockClassType, mockMirror);
-        verify(mockLoader2).getAnnotationInstance(mockClassType, mockMirror);
-        verify(mockLoader3).getAnnotationInstance(mockClassType, mockMirror);
-    }
-    
-    /**
-     * Verify that an annotation is produced if one loader provides
-     */
-    @Test
-    public void testGetInstanceLoader1Provides() {
-        handler.registerLoader(mockLoader1);
-        handler.registerLoader(mockLoader2);
-        handler.registerLoader(mockLoader3);
-        
-        when(mockLoader1.getAnnotationInstance(mockClassType, mockMirror)).thenReturn(mockAnnotation);
-        Assertions.assertEquals(mockAnnotation, handler.getAnnotationInstance(mockClassType, mockMirror));
-        verify(mockLoader1).getAnnotationInstance(mockClassType, mockMirror);
-    }
-    
-    /**
-     * Verify that an annotation is produced if one loader provides
-     */
-    @Test
-    public void testGetInstanceLoader2Provides() {
-        handler.registerLoader(mockLoader1);
-        handler.registerLoader(mockLoader2);
-        handler.registerLoader(mockLoader3);
-
-        when(mockLoader1.getAnnotationInstance(mockClassType, mockMirror)).thenReturn(null);
-        when(mockLoader2.getAnnotationInstance(mockClassType, mockMirror)).thenReturn(mockAnnotation);
-        Assertions.assertEquals(mockAnnotation, handler.getAnnotationInstance(mockClassType, mockMirror));
-        verify(mockLoader1).getAnnotationInstance(mockClassType, mockMirror);
-        verify(mockLoader2).getAnnotationInstance(mockClassType, mockMirror);
-    }
-    
-    /**
-     * Verify that an annotation is produced if one loader provides
-     */
-    @Test
-    public void testGetInstanceLoader3Provides() {
-        handler.registerLoader(mockLoader1);
-        handler.registerLoader(mockLoader2);
-        handler.registerLoader(mockLoader3);
-
-        when(mockLoader1.getAnnotationInstance(mockClassType, mockMirror)).thenReturn(null);
-        when(mockLoader2.getAnnotationInstance(mockClassType, mockMirror)).thenReturn(null);
-        when(mockLoader3.getAnnotationInstance(mockClassType, mockMirror)).thenReturn(mockAnnotation);
-        Assertions.assertEquals(mockAnnotation, handler.getAnnotationInstance(mockClassType, mockMirror));
-        verify(mockLoader1).getAnnotationInstance(mockClassType, mockMirror);
-        verify(mockLoader2).getAnnotationInstance(mockClassType, mockMirror);
-        verify(mockLoader3).getAnnotationInstance(mockClassType, mockMirror);
     }
 }

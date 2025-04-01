@@ -50,7 +50,7 @@ public class ElementLoader {
      */
     private static ElementCache getInstance() {
         if (cache == null)
-            cache = new ElementCache(new ClassConverter(annotationHandler));
+            cache = new ElementCache(new ClassConverter());
 
         return cache;
     }
