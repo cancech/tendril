@@ -9,6 +9,8 @@ dependencies {
     
     implementation project(':tendril-test-app:test-app-lib1')
     implementation project(':tendril-test-app:test-app-lib2')
+    
+    testImplementation project(':tendril-test')
 }
 
 application {

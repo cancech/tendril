@@ -40,7 +40,7 @@ public class RunnerFile {
      */
     public static String read() throws IOException {
         String runner = null;
-        
+        // TODO perform verification to ensure that exactly one runner was found
         Enumeration<URL> resEnum = Engine.class.getClassLoader().getResources(PATH);
         for (URL url : Collections.list(resEnum)) {
             try (InputStream ios = url.openStream(); InputStreamReader iosReader = new InputStreamReader(ios); BufferedReader reader = new BufferedReader(iosReader)) {
