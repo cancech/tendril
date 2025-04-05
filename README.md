@@ -137,6 +137,47 @@ public class MyConfiguration {
 }
 ```
 
+#### Injecting Across Configuration Beans
+If there are Beans defined within a single `Configuration` which depend on each other, they cannot call each other directly. Doing so will cause the creation of the Bean outside of the `Tendril` mechanism, with potentially unintended side-effects. If the Bean is question is a `@Factory` this side-effect may be ultimately inconsequential, however for `@Singleton` this will result in an additional instance of the Bean being created.
+```java
+@Configuration
+public class MyConfiguration {
+
+  @Bean
+  @Singleton
+  MyClass createMyClass() {
+    return new MyClass();
+  }
+
+  @Bean
+  @Singleton
+  MyOtherClass createMyOtherClass() {
+    // Calling createMyClass() directly results in an instance of MyClass being created
+    // outside of the Tendril dependency injection mechanism
+    return new MyOtherClass(createMyClass());
+  }
+}
+```
+In this situation, it is necessary to rely on proper dependency injection methods.
+```java
+@Configuration
+public class MyConfiguration {
+
+  @Bean
+  @Singleton
+  MyClass createMyClass() {
+    return new MyClass();
+  }
+
+  @Bean
+  @Singleton
+  MyOtherClass createMyOtherClass(MyClass myClass) {
+    // MyClass is now provided as a Bean, with the appropriate protections in place
+    return new MyOtherClass(myClass);
+  }
+}
+```
+
 Some things to note:
 * as mentioned at the start, no injected element can be `private`
 * per above, the `@Inject` annotation on a constructor is only necesseray if there are multiple valid constructors on a class. It is still recommended to always apply the annotation regardless to make it explicitely clear (both to `Tendril` as well as anyone looking at the code in the future).
@@ -185,3 +226,39 @@ public class MyBeanClass {
 ```
 
 ### Bean Destruction
+There is no explicit mechanism for destroying a Bean, with appropriate Java garbage collection mechanisms employed for each instance depending on the `quantifier` employed. For the various options, the following approaches are taken.
+
+|Annotation|Destruction|
+|---       | ---       |
+|`@Singleton`| The single instance is maintained for the entire application lifecycle - this instance is created the first time it is accessed and kept until the application shuts down. There is no mechanism through which to trigger its destruction prematurely.|
+|`@Factory`| Since a new instance is created for access to the Bean, the lifecycle of each instance it not controlled by `Tendril`. Rather it is up to the consumer to control when/if the instance is destroyed (i.e.: it is only destroyed once it is no longer referenced).|
+
+## Qualify Beans
+Everything thus far has described the mechanics of how Beans work, additionally a means is required to identify one Bean from another. This is of particular importance once multiple Beans of the same type (either directly or through their inheritance hierarchy) are to be employed. This is where `qualifiers` come into the picture, acting as descriptors (i.e.: metadata) for each Bean allowing fine-grained differenciation of one Bean from another. The most basic differentiator is the type (i.e.: class) of the Bean, dictated by either:
+* The class for a `Class Bean`
+* The return type of a `Configuration Bean`
+This type, or something from its inheritance hierarchy, must be used for the purpose of retrieving the Bean. Beyond this most basic `qualifier` additional options are available through which to provide additional information to distinguish one Bean from another.
+
+Note that none of these `qualifiers` (including Bean Type) are not unique, as in each can be applied to any number of Beans. Uniqueness is not guaranteed by any individual `qualifier` and it is up to the user to either enforce uniqueness manually when building beans if such is required, or to employ a combination of `qualifiers` which together uniquely identify a specific Bean.
+
+### Enum ID
+To be continued...
+
+### @Named
+Using the `@Named` annotation allows for applying a `String` name to a Bean. There is no restriction placed on what can be contained within the `String`.
+```java
+@Bean
+@Singleton
+@Named("qwerty")
+public class MyClass {
+}
+
+@Bean
+@Singleton
+public class MyOtherClass {
+
+  @Inject
+  @Named("qwerty")
+  MyClass myClass;
+}
+```
