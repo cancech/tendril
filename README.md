@@ -15,10 +15,12 @@ Some of these may be clear, some not, but for sake of completeness terms are def
 |--- | ---      |
 |Bean|An object instance which is passed around via Dependency Injection|
 |Configuration|A class which performs the steps to create and provide one or more Beans that are separate from the Configuration class itself.|
+|Context|The logical bounds of the running application.|
 |Dependency Injection|A mechanism for passing object from producers to consumers, such that consumers can obtain their necessary dependencies without needing to be concerned with where said dependencies come from.|
 |Qualifier|Annotation applied to a Bean to add descriptive information to the Bean, to make it possible/easier to find specific Beans (akin to metadata).|
 |Quantifier|Annotation applied to a Bean to indicate how many copies of the Bean are to be produced.|
 |Recipe|Generated class which contains the steps necessary to build a Bean within the `Tendril` framework.|
+|Runner|Main entry point for a `Tendril` application.|
 
 ## Creating a Bean
 The bean is the key ingredient in any Dependency Injection scheme, and `Tendril` is no different. There are two ways in which to define beans:
@@ -242,7 +244,29 @@ This type, or something from its inheritance hierarchy, must be used for the pur
 Note that none of these `qualifiers` (including Bean Type) are not unique, as in each can be applied to any number of Beans. Uniqueness is not guaranteed by any individual `qualifier` and it is up to the user to either enforce uniqueness manually when building beans if such is required, or to employ a combination of `qualifiers` which together uniquely identify a specific Bean.
 
 ### Enum ID
-To be continued...
+It is possible to employ an `Enum` as an ID on a bean using a two-step process. First, the `Enum` itself must be annotated with `@BeanIdEnum` which tells `Tendril` to generate an annotation `@<Enum>Id` which can then be applied to beans. This generated annotation takes a value from the `@BeanIdEnum` annotated `Enum`, which is then applied as a `qualifier` to the Bean.
+```java
+@BeanIdEnum
+public enum MyEnum {
+  VALUE1, VALUE2;
+}
+
+@Bean
+@Singleton
+@MyEnumId(MyEnum.VALUE1)
+public class MyClass {
+}
+
+@Bean
+@Singleton
+public class MyOtherClass {
+
+  @Inject
+  @MyEnumId(MyEnum.VALUE1)
+  MyClass myClassBean;
+}
+```
+The generated `@<Enum>Id` is collocated in the same `package` as the `@BeanIdEnum` annotated enumeration.
 
 ### @Named
 Using the `@Named` annotation allows for applying a `String` name to a Bean. There is no restriction placed on what can be contained within the `String`.
@@ -262,3 +286,57 @@ public class MyOtherClass {
   MyClass myClass;
 }
 ```
+## Creating an Application
+The ability to pass Beans is crucial, however in of itself is insufficient for the purpose of driving an application. In order to be able to create a `Tendril` application, two additional pieces are required.
+
+### Define a Runner
+Much like `public static void main(String[] args)` is the entry point into an application, a `Runner` must be defined as the entry point into a `Tendril` application. The `Runner` is a class which must fulfill two exact criteria:
+1. It must implement the `TendrilRunner` interface
+2. It must be annotated with `@Runner`
+
+It is from this `Runner` that the `Tendril` application execution/processing starts, and it is this `Runner` which triggers the start of dependency injection with the application. Conceptually the `Runner` is equivalent to a `Bean Class` (everything that has been written about `Bean Classes` applies to `Runners` as well) other than the annotations which are employed. In practice, the only difference from the `Bean Class` is that upon completing the assembly of the `Runner`, rather than injecting it as a dependency, the `run()` method is called. Once `run()` returns, the application as a whole is considered "done".
+
+```java
+@Runner
+public class Main implements TendrilRunner {
+
+  @Inject
+  String stringBean
+
+  @Inject
+  Main(MyClass myClassBean) {
+  }
+
+  @PostConstruct
+  void performSetup() {
+  }
+
+  @Override
+  public void run() {
+    // Run your application
+  }
+}
+```
+The application must have exactly **one** `Runner` defined.
+
+### Create the Application Context
+The dependency injection takes place within a `Context`, which must be created and started. This is done via `ApplicationContext`, which is to be created and started in the global application `main()` or equivalent.
+
+```java
+public static void main(String[] args) {
+  ApplicationContext ctx = new ApplicationContext();
+  ctx.start();
+}
+```
+`ApplicationContext::start()` will find and `run()` the `Runner` that is defined, triggering assembly and execution of the `Tendril` application.
+
+## Supporting Libraries
+`Tendril` is divided into a number of supporting libraries, each with a specific role to fulfill in order to achieve the functionality and capability defined here-in. All of these libraries are available for use outside of a `Tendril` application as described here and can be used to extend/expand the capabilities provided by `Tendril` or for other unrelated purposes. Refer to each library for additional information for how it works and how it operates. This can also be seen as a "peak behind the hood" of how `Tendril` works.
+
+|Library|Description|
+|---    | ---       |
+|[tendril-annotation-processor](./tendril-annotation-processor)|Core functionality driving the annotation processing capabilities|
+|[tendril-codegen](./tendril-codegen)|Library facilitating code generation via factories and builders, to simplify the process of generating code.|
+|[tendril-di](./tendril-di)|The user facing Dependency Injection capability, with the annotation processor to generated the necessary code for `Tendril` to work.|
+|[tendril-test](./tendril-test)|Automated/Unit test library, to facilitate and simplify the creation of JUnit tests.|
+|[tendril-test-app](./tendril-test-app)|A sample application which employs `Tendril`, primarily for the purpose of providing a test bed in which the various capabilities can be tested and verified.|
