@@ -2,7 +2,17 @@
 This library serves a dual purpose, one to create a representation of Java classes and contained elements, and two to generate code from said representation. It is this representation which is employed by `tendril-annotation-processor` and consequently `tendril-di` when "understanding" the elements which the annotation processor is processing, as well as by `tendril-di` for the purpose of defining and generating the resulting code of such processing. This library provides a variety of factories and builders, through which the representation of Java classes can be achieved, and once this representation is created it can "generate itself" into proper Java code.
 
 ## Representing Types
+The `Type` interface is used to represent all supported types, which can be one of the following:
+* `ArrayType` - array of `Type`
+* `ClassType` - representing a class (package and class name)
+* `GenericType` - representing a generic
+* `PrimitiveType` - enumeration of the various Java primitives
+* `VoidType` - representation of `void` (primarily for the purpose of depictive `void` return types)
 
+These are then used throughout to represent all manner of types, including (but not limited to):
+* variables (fields/parameters)
+* method return
+* classes
 
 ## Building a Class
 When building a class it is easiest to start from the `ClassBuilder` and leverage one of the static methods indicative of the type of class to be built:
@@ -23,3 +33,101 @@ Annotations are a bit of an exception to the overall paradigm, as they can exist
 
 ### Add a Value
 Values can be added to some elements, such as fields and annotations. Values are represented by `JValue` and can be created in a variety of ways. If the `Type` of the value is known, the simplest is to simply call `Type.asValue()`. The concrete `Type` will attempt to convert the provided `Object` to a `JValue` of the `Type`. Another option is to use `JValueFactory`, which can "convert" an `Object` value to a `JValue` for arrays, enums, and primitives.
+
+### Example
+A comprehensive example is the following
+```java
+GenericType genericT = GenericFactory.create("T");
+GenericType genericU = GenericFactory.createExtends("U", new ClassType("a", "B"));
+GenericType superType = GenericFactory.createSuper(new ClassType("z.x.c", "V"));
+ClassType listClass = new ClassType(List.class);
+listClass.addGeneric(superType);
+
+JClass parentCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
+JClass ifaceYCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
+JClass ifaceFCls = ClassBuilder.forConcreteClass(new ClassType("a.b.c.d", "F")).build();
+JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+  .extendsClass(parentCls)
+  .implementsInterface(ifaceYCls).implementsInterface(ifaceFCls)
+  .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED)
+      .buildParameter(new ClassType(String.class), "strParam").finish().emptyImplementation().finish()
+  .addAnnotation(JAnnotationFactory.create(Deprecated.class, Map.of("since", JValueFactory.create("yesterday"), "forRemoval", JValueFactory.create(true))))
+  .buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
+      .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
+  .addAnnotation(JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", JValueFactory.create("qwerty"), "valInt", JValueFactory.create(789))))
+  .buildField(PrimitiveType.BOOLEAN, "booleanField").setVisibility(VisibilityType.PUBLIC).setValue(JValueFactory.create(false)).finish()
+  .buildField(VisibilityType.class, "enumField").setVisibility(VisibilityType.PRIVATE).setValue(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)).finish()
+  .buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().finish()
+  .buildConstructor().addGeneric(genericU).setVisibility(VisibilityType.PROTECTED)
+      .buildParameter(new ClassType(String.class), "strParam").finish()
+      .buildParameter(genericU, "u").finish()
+      .addCode("a", "b", "c", "d").finish()
+  .buildConstructor().setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
+      .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
+  .buildMethod("abc123").addGeneric(genericT).addGeneric(genericU).buildParameter(genericT, "t").finish().buildParameter(genericU, "u").finish()
+      .buildParameter(listClass, "list").finish().addCode().finish()
+  .buildField(genericT, "tField").finish()
+  .buildField(listClass, "listField").finish()
+  .build();
+```
+which describes the following class:
+```java
+package z.x.c.v;
+
+import a.B;
+import a.b.c.d.F;
+import java.util.List;
+import javax.annotation.processing.Generated;
+import q.w.e.r.t.Y;
+import tendril.codegen.VisibilityType;
+import tendril.test.helper.annotation.TestMultiAttrsAnnotation;
+import tendril.test.helper.annotation.TestNonDefaultAttrAnnotation;
+import z.x.c.V;
+
+@Generated(date = "2025-04-06T14:37:12.531893122", value = "tendril")
+@Deprecated(forRemoval = true, since = "yesterday")
+@TestMultiAttrsAnnotation(valInt = 789, valStr = "qwerty")
+protected class B extends Y implements Y, F {
+  public boolean booleanField = false;
+
+  private VisibilityType enumField = VisibilityType.PACKAGE_PRIVATE;
+
+  T tField;
+
+  List<? super V> listField;
+
+  public B() {
+  }
+
+  protected <U extends B> B(String strParam, U u) {
+      a
+      b
+      c
+      d
+  }
+
+  @TestNonDefaultAttrAnnotation(myString = "qazwsx")
+  private B() {
+      abc
+      123
+      qwerty
+  }
+
+  protected char charMethod(String strParam) {
+  }
+
+  @TestNonDefaultAttrAnnotation(myString = "qazwsx")
+  private long longMethod() {
+      abc
+      123
+      qwerty
+  }
+
+  <T, U extends B> void abc123(T t, U u, List<? super V> list) {
+  }
+}
+```
+Additional examples of this in action can be seen in various places in the code, primarily in the `tendril-codegen` unit tests as well as `tendril-di` for the purpose of loading and generating code.
+
+## Generating Code
+Once a `JClass` is defined and built, generating its code is as simple as calling `JClass.generateCode()`. This produces a multi-line `String` containing the entire code for the `JClass`. It is possible to generate the code of individual elements (rather than the entire class) by calling `generateSelf()` on the element in question.
