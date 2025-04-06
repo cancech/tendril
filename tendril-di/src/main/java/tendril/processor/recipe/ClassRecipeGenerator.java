@@ -162,6 +162,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * @param builder {@link ClassBuilder} where the recipe is being defined
      */
     protected void generateCreateInstance(ClassBuilder builder) {
+        // TODO warning if any private @Inject constructors are encountered
         // First check if there are any @Inject annotated constructors
         if (!attemptGenerateCreateInstanceFromConstructor(builder, creator.getConstructors(Inject.class), " annotated with @" + Inject.class.getSimpleName())) {
             // If not, then check any non-annotated constructors
