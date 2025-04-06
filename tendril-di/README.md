@@ -1,0 +1,40 @@
+# Tendril Dependency Injection
+This library performs the bulk of handling and performing the dependecy injection for `Tendril`. This is where most everything of greatest importance to the client code will take place, though of course this is ultimately built on top of the other capabilities and features provided by the other libraries. It is ultimately broken down into three main areas of packages interest:
+
+| Package | Description |
+| ---     | ---         |
+| `tendril.bean` | This includes everything that is necessary for annotating and essentially creating Beans, and as such will be of primary interest to all using `Tendril`. This is where the various annotations for Bean definition are defined, as well as the supporting classes for the purpose of allowing for the creation of Beans.|
+| `tendril.context` | Here-in are the classes and supporting logic which allows for an Application Context to be defined, initialized, and launched.|
+|`tendril.processor`| Provides the means for the necessary annotation processing and generation of the supporting code to allow `Tendril` to perform its work within a client code base. Through here the necessary glue is created, which allows `Tendril` to function.|
+
+## High Level Architecture
+From a high level, there are three main pieces at play within `Tendril` which work together to perform Dependency Injection:
+1. [ApplicationContext](./tendril-di/src/main/java/tendril/context/ApplicationContext.java) is the main entry point from the client code and encompasses the execution and dependency injection context as a whole
+2. [Engine](./tendril-di/src/main/java/tendril/context/Engine.java) is responsible for performing the dependency injection itself, mainly focusing on tracking all available Beans and allowing for their retrieval.
+3. [Recipes](./tendril-di/src/main/java/tendril/bean/recipe/AbstractRecipe.java) provide the instruction for how a Bean is to be created and initialized.
+
+Client code creates the `ApplicationContext`, which in turn creates the `Engine`. When `start()` is called on the `ApplicationContext`, this triggers the initialization of the `Engine` and the discovery of all available Beans. Once the `Engine` has a full listing of available Beans. The `ApplicationContext` finds the `Runner` for the application, assembles it and executes it by calling its `run()` method. Once `run()` returns, `start()` returns and the application as a whole is deemed *done*. It is of course up to the client code what happens at this point. The `ApplicationContext` is not technically running anymore, however it is still fully intact as are all of the Beans that were created as a result of `runner.run()` being called. However, there is no additional entry point into the `ApplicationContext` outside of `start()`, meaning that the options at this point are rather limited in terms of how to proceed.
+
+### Creating Beans
+The creation of Beans is handled via `Recipes`. These `Recipes` provide the necessary information for how to build a Bean (such as what dependencies it has and how to fulfill them) as well as all `qualifiers` which are applied to the Bean (and of course its depedencies). The supplied `quantifier` is reflected in which exact `Recipe` is employed. `AbstractRecipe` is the base `Recipe` class, with the `SingletonRecipe` to be used for `@Singleton` Beans and `FactoryRecipe` for `@Factory` Beans. Each specific Bean must have its own concrete `Recipe` (which for expediency should extend from either `SingletonRecipe` or `FactoryRecipe`). While these abstract base `Recipe` classes take both `Engine` as `Class<BEAN_TYPE>` as constructor parameters, concrete recipes can only take `Engine` as a parameter and must themselves provide the `Class<BEAN_TYPE>` directly. It is this concrete `Recipe` which is generated for every `@Bean` annotated Bean.
+
+The only exception to this would be `Configuration` classes, for which a base `ConfigurationRecipe` classes exists. Unlike specific Bean `Recipes`, the `ConfigurationRecipe` is a *recipe of recipes*, meaning that it provides concrete `Recipes` for each of the `@Bean` methods within it. It is the `ConfigurationRecipe` which is loaded by the `Engine` and it retrieves the individual `Recipes` from it. The `Recipes` nested within a `ConfigurationRecipe` take an additional `ConfigurationRecipe` as a parameter and build the Bean via the main `ConfigurationRecipe`. Thus when fulfilling a nested Bean, the nested `Recipe` uses the parent `ConfigurationRecipe` to get an instance of the `Configuration` and then called the appropriate method within the `Configuration` to generate the desired Bean. The `ConfigurationRecipe` handles the dependencies at the `Configuration` level, with the nested `Recipe` only responsible for the dependencies explicitely identified on the nested `Recipe` (i.e.: method parameters). The `ConfigurationRecipe` does not have any `qualifiers` of its own and it is always treated as if `@Singleton` annotated.
+
+It is possible, though not recommended, to manually create `Recipe` classes. There is little to no benefit in doing so, however if this is something which is desired, it can be achieved by manually extending `AbstractRecipe` (or better yet `SingletonRecipe` or `FactoryRecipe`) and filling in the necessary pieces. Just note, that in order for a `Recipe` to be detected and loaded by the `Engine` it must be annotated with `@Registry`.
+
+### Qualifying Beans
+The various `qualifiers` (such as `@Named`) that are applied to Beans (or `@Inject` dependencies) are reflected in the `Recipe` for every Bean. Both to indicate the `qualifiers` applied to the Bean itself, as well as the `qualifiers` for all of its dependnecies. These `qualifiers` are represented using a `Descriptor` which must be supplied with every registered Bean, and are how dependencies are located for injection. `AbstractRecipe` has a dedicated `setupDescriptor()` method which takes the `Descriptor` of the `Recipe` as a parameter, and it is up to the concrete `Recipe` to update this `Descriptor` with the various `qualifiers` applied to the `Recipe`. When retrieving Beans from the `Engine` (as part of dependency injection), a `Descriptor` for the desired Bean is used to locate it.
+
+## Annotation Processing
+While the mechanism employed is simple enough, it does translate into a fair bit of boilerplate code. To avoid needing the end user to produce said code, annotation processing is employed to generate all of the require code. This is primarily focused on, though not limited to, the generation of `Recipes`. The following annotations are directly processed:
+
+|Annotation|Generates|Description|
+|---       |---      |---        |
+|`@Bean` | `Recipe` class for the Bean|`Quantifiers`, `qualifiers`, and `@Inject` are processed to determine the details of the `Recipe`|
+|`@BeanIdEnum`| `<Enum>Id` annotation| Takes a single value, which the an `Enum` instance, and is annotated with `@EnumQualifier` such that is can be used as a `qualifier`|
+|`@Configuration`|`Recipe` class for the `Configuration` as well as `Recipes` for each `@Bean` annotated method|Performs largely the same steps as the `@Bean` processor, within the context of a `Configuration`|
+|`@EnumQualifier`|N/A|As the `<Enum>Id` is generated, this tracks when such a `qualifier` is generated, allowing `Recipes` that rely on it to be generated|
+|`@Registry`|`META-INF/tendril/registry`|All known `Recipes` are registered in the `META-INF` such that the `Engine` can find and load all of them|
+|`@Runner`|`META-INF/tendril/runner`|The found `Runner` is registered in the `META-INF` so that the `ApplicationContext` can find it|
+
+The `@EnumQualifier` annotation processor is a bit of an outlier, as it does not generate anything directly. Rather it determines when a `@EnumQualifer` annotated `<Enum>Id` is generated, as processing of any recipe which makes use of `<Enum>Id` cannot proceed until the annotation has been generated. As such, the generation of `Recipes` which make use of `<Enum>Id` is delayed until the required `<Enum>Id` is generated and made available.
