@@ -11,6 +11,6 @@ sourceSets {
 }
 
 compileJava {
-    options.compilerArgs << '-XprintProcessorInfo'
-    options.compilerArgs << '-XprintRounds'
+    //options.compilerArgs << '-XprintProcessorInfo'
+    //options.compilerArgs << '-XprintRounds'
 }
