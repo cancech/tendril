@@ -32,6 +32,13 @@ public class FactoryClass {
         index = numClasses++;
     }
     
+    @Inject
+    private FactoryClass(@Named("TempName") SingletonClass singleton, @Named("TempName") SingletonClass singleton2) {
+        this(singleton);
+        // This should NOT be called
+        assert(false);
+    }
+    
     public FactoryClass(String name) {
         this((SingletonClass)null);
     }

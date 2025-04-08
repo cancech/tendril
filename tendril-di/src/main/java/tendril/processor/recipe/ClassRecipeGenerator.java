@@ -162,11 +162,10 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * @param builder {@link ClassBuilder} where the recipe is being defined
      */
     protected void generateCreateInstance(ClassBuilder builder) {
-        // TODO warning if any private @Inject constructors are encountered
         // First check if there are any @Inject annotated constructors
-        if (!attemptGenerateCreateInstanceFromConstructor(builder, creator.getConstructors(Inject.class), " annotated with @" + Inject.class.getSimpleName())) {
+        if (!attemptGenerateCreateInstanceFromConstructor(builder, creator.getConstructors(Inject.class), " annotated with @" + Inject.class.getSimpleName(), true)) {
             // If not, then check any non-annotated constructors
-            if (!attemptGenerateCreateInstanceFromConstructor(builder, creator.getConstructors(), ", the one to be used must be annotated with @" + Inject.class.getSimpleName()))
+            if (!attemptGenerateCreateInstanceFromConstructor(builder, creator.getConstructors(), ", the one to be used must be annotated with @" + Inject.class.getSimpleName(), false))
                     // Still not, therefore there are no viable constructors
                     throw new ProcessingException(creatorType.getFullyQualifiedName() + " has no viable constructors. At least one must be available (and not private).");
         }
@@ -180,16 +179,19 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * @param builder {@link ClassBuilder} in which the recipe is being defined
      * @param ctors {@link List} of {@link JConstructor} to try and make use of
      * @param errorMessageDetail {@link String} additional error message details to provide in the exception if multiple constructor are deemed viable
+     * @param printWarning boolean true if a warning is to be printed when detecting a private @Inject constructor
      * 
      * @throws ProcessingException if there is more than just a single viable constructor
      * @return boolean true if a proper constructor was found and the code was generated (false if no constructor and no code generated)
      */
-    private boolean attemptGenerateCreateInstanceFromConstructor(ClassBuilder builder, List<JConstructor> ctors, String errorMessageDetail) {
+    private boolean attemptGenerateCreateInstanceFromConstructor(ClassBuilder builder, List<JConstructor> ctors, String errorMessageDetail, boolean printWarning) {
         // Determine which constructors can actually be used
         List<JConstructor> viable = new ArrayList<>();
         for (JConstructor c: ctors) {
             if (c.getVisibility() != VisibilityType.PRIVATE)
                 viable.add(c);
+            else if (printWarning && c.hasAnnotation(Inject.class))
+                messager.printWarning(c.getType().getFullyQualifiedName() + " has a private @" + Inject.class.getSimpleName() + " constructor");
         }
         
         // If there are too many, throw an exception

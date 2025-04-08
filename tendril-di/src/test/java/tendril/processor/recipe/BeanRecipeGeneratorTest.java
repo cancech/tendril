@@ -15,6 +15,9 @@
  */
 package tendril.processor.recipe;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import javax.annotation.processing.Messager;
 
 import org.junit.jupiter.api.Assertions;
@@ -136,11 +139,13 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
         Assertions.assertThrows(ProcessingException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        verify(mockMessager, times(2)).printWarning("q.w.e.Rty has a private @Inject constructor");
         
         // More than one constructor
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.DOUBLE, "param").finish().finish();
         Assertions.assertThrows(ProcessingException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        verify(mockMessager, times(4)).printWarning("q.w.e.Rty has a private @Inject constructor");
     }
     
     /**
@@ -156,6 +161,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         
         builder.buildMethod("method1").setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(PostConstruct.class)).emptyImplementation().finish();
         Assertions.assertThrows(ProcessingException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        verify(mockMessager, times(2)).printWarning("q.w.e.Rty has a private @Inject constructor");
     }
     
     /**
@@ -187,6 +193,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         builder.buildMethod("method1").setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(PostConstruct.class))
             .buildParameter(PrimitiveType.LONG, "param").finish().emptyImplementation().finish();
         Assertions.assertThrows(ProcessingException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        verify(mockMessager, times(2)).printWarning("q.w.e.Rty has a private @Inject constructor");
     }
     
     /**
@@ -230,6 +237,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
         
         Assertions.assertFalse(RecipeGenerator.generate(type, builder.build(), mockMessager).getCode().isBlank());
+        verify(mockMessager, times(2)).printWarning("q.w.e.Rty has a private @Inject constructor");
     }
     
     /**
@@ -245,5 +253,6 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         
         builder.buildMethod("method1").setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(PostConstruct.class)).emptyImplementation().finish();
         Assertions.assertFalse(RecipeGenerator.generate(type, builder.build(), mockMessager).getCode().isBlank());
+        verify(mockMessager, times(2)).printWarning("q.w.e.Rty has a private @Inject constructor");
     }
 }
