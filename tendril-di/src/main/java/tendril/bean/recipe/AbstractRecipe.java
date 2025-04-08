@@ -128,6 +128,7 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
             postConstruct(bean);
             return bean;
         } catch (Exception e) {
+            isUnderConstruction = false;
             throw new BeanCreationException(descriptor, e);
         }
     }
