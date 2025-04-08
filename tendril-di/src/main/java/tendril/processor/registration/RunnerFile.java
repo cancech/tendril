@@ -20,10 +20,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
+import tendril.TendrilStartupException;
 import tendril.context.Engine;
+import tendril.util.TendrilStringUtil;
 
 /**
  * Helper file for finding and processing the runner metadata file, containing the recipe which is to create the application runner
@@ -39,20 +43,25 @@ public class RunnerFile {
      * @throws IOException if there are issues reading the file
      */
     public static String read() throws IOException {
-        String runner = null;
-        // TODO perform verification to ensure that exactly one runner was found
+        List<String> runners = new ArrayList<>();
         Enumeration<URL> resEnum = Engine.class.getClassLoader().getResources(PATH);
         for (URL url : Collections.list(resEnum)) {
             try (InputStream ios = url.openStream(); InputStreamReader iosReader = new InputStreamReader(ios); BufferedReader reader = new BufferedReader(iosReader)) {
                 for (String line = ""; line != null; line = reader.readLine()) {
                     line = line.trim();
-                    if (!line.isEmpty())
-                        runner = line;
+                    if (!line.isEmpty()) {
+                        runners.add(line);
+                    }
                 }
             }
         }
 
-        return runner;
+        // Make sure that exactly one was found
+        if (runners.isEmpty())
+            throw new TendrilStartupException("No runner is available in the application");
+        else if (runners.size() > 1)
+            throw new TendrilStartupException("Multiple runners are available: " + TendrilStringUtil.join(runners));
+        return runners.get(0);
     }
 
     /**
