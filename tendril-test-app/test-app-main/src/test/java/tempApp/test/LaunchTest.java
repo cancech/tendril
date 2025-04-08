@@ -15,18 +15,37 @@
  */
 package tempApp.test;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import tempApp.AppRunner;
+import tempApp.FactoryClass;
+import tempApp.SingletonClass;
+import tempApp.TempManager;
 import tendril.context.ApplicationContext;
 
 /**
  * Test which launches the application, allowing for it to be used as part of a unit test suite
  */
 public class LaunchTest {
+    
+    @AfterEach
+    public void reset() {
+        SingletonClass.reset();
+        FactoryClass.reset();
+        TempManager.reset();
+        AppRunner.reset();
+    }
 
     @Test
     public void test() {
         ApplicationContext ctx = new ApplicationContext();
         ctx.start();
+        
+        // Ensure everything created the expected number of times
+        SingletonClass.assertSingleton();
+        FactoryClass.assertFactory();
+        TempManager.assertSingleton();
+        AppRunner.assertSingleton();
     }
 }
