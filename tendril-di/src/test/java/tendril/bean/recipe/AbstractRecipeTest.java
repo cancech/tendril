@@ -279,5 +279,15 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         verify(mockInjector2).inject(instance, mockEngine);
         verify(mockInjector3).inject(instance, mockEngine);
     }
+    
+    /**
+     * Verify that a dependency cycle will trigger an exception
+     */
+    @Test
+    public void testDependencyCycleThrowsException() {
+        // Imitate a cycle
+        recipe.registerInjector((bean, engine) -> recipe.buildBean());
+        Assertions.assertThrows(BeanCreationException.class, () -> recipe.buildBean());
+    }
 
 }
