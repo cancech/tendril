@@ -36,11 +36,6 @@ public class TempManager {
 
 	private final FactoryClass cls;
 	
-	// TODO Check for cycles
-//	@Inject
-//	@MyTypeId(MyType.VAL2)
-//	Object obj;
-	
 	@Inject
 	public TempManager(FactoryClass cls) {
 	    numInstances++;

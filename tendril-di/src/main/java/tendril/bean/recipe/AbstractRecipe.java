@@ -37,6 +37,8 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
     
     /** List of the dependencies that the bean must receive */
     private final List<Injector<BEAN_TYPE>> consumers = new ArrayList<>();
+    /** Flag to mark whether the bean is being constructed - used to detect dependency cycles */
+    private boolean isUnderConstruction = false;
     
     /**
      * CTOR
@@ -111,12 +113,17 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
      * @throws BeanCreationException if there is an issue creating the bean
      */
     protected BEAN_TYPE buildBean() {
+        if (isUnderConstruction)
+            throw new BeanCreationException(descriptor, "Cycle detected");
+        
         // Create the instance
         try {
             // Create the instance
+            isUnderConstruction = true;
             BEAN_TYPE bean = createInstance(engine);
             // Apply dependencies
             consumers.forEach(c -> c.inject(bean, engine));
+            isUnderConstruction = false;
             // Trigger post construct
             postConstruct(bean);
             return bean;
