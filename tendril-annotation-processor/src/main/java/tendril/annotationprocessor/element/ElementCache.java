@@ -26,7 +26,7 @@ import javax.lang.model.element.VariableElement;
 import org.apache.commons.lang3.tuple.Pair;
 
 import tendril.annotationprocessor.exception.MissingAnnotationException;
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.codegen.JBase;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
@@ -57,8 +57,9 @@ class ElementCache {
      * 
      * @return {@link JClass} representing the element
      * @throws MissingAnnotationException if attempting to load a class which is making use of an annotation that does not (yet) exist
+     * @throws TendrilException if an issue is encountered retrieving the class details
      */
-    JClass retrieveClass(TypeElement element) throws MissingAnnotationException {
+    JClass retrieveClass(TypeElement element) throws MissingAnnotationException, TendrilException {
         // First check if it's not a previously loaded element
         String elementName = classNameKey(element);
         if (!cache.containsKey(elementName))
@@ -73,9 +74,9 @@ class ElementCache {
      * @param element {@link ExecutableElement} containing the details of the method
      * @return {@link Pair} of {@link JClass} of the enclosing class and {@link JMethod} representing the full details of the method
      * @throws MissingAnnotationException if attempting to load a class which is making use of an annotation that does not (yet) exist
-     * @throws ProcessingException        if there is an issue loading the details of the method
+     * @throws TendrilException if an issue is encountered retrieving the method details
      */
-    Pair<JClass, JMethod<?>> retrieveMethod(ExecutableElement element) throws MissingAnnotationException {
+    Pair<JClass, JMethod<?>> retrieveMethod(ExecutableElement element) throws MissingAnnotationException, TendrilException {
         TypeElement enclosingClass = (TypeElement) element.getEnclosingElement();
         return Pair.of(retrieveClass(enclosingClass), (JMethod<?>) cache.get(nestedName(enclosingClass, element)));
     }
@@ -86,9 +87,9 @@ class ElementCache {
      * @param element {@link VariableElement} containing the details of the field
      * @return {@link Pair} of {@link JClass} of the enclosing class and {@link JField} representing the full details of the field
      * @throws MissingAnnotationException if attempting to load a class which is making use of an annotation that does not (yet) exist
-     * @throws ProcessingException        if there is an issue loading the details of the method
+     * @throws TendrilException if an issue is encountered retrieving the field details
      */
-    Pair<JClass, JField<?>> retrieveField(VariableElement element) throws MissingAnnotationException {
+    Pair<JClass, JField<?>> retrieveField(VariableElement element) throws MissingAnnotationException, TendrilException {
         TypeElement enclosingClass = (TypeElement) element.getEnclosingElement();
         return Pair.of(retrieveClass(enclosingClass), (JField<?>) cache.get(nestedName(enclosingClass, element)));
     }

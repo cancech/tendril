@@ -150,4 +150,12 @@ public class GenericTypeTest extends AbstractUnitTest {
         gen.registerImport(mockImports);
         verify(mockImports, never()).add(any());
     }
+    
+    /**
+     * Verify that toString works as expected
+     */
+    @Test
+    public void testToString() {
+        Assertions.assertEquals("<TestGenericName>", gen.toString());
+    }
 }

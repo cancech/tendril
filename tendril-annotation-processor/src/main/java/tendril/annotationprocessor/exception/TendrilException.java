@@ -18,7 +18,7 @@ package tendril.annotationprocessor.exception;
 /**
  * Exception to be thrown when there is an during annotation processing
  */
-public class ProcessingException extends RuntimeException {
+public class TendrilException extends Exception {
     /** Serial ID */
     private static final long serialVersionUID = -2996805748124184514L;
 
@@ -27,7 +27,7 @@ public class ProcessingException extends RuntimeException {
      * 
      * @param reason {@link String} indicating the reason of the failure
      */
-    public ProcessingException(String reason) {
+    public TendrilException(String reason) {
         super(reason);
     }
     
@@ -37,7 +37,7 @@ public class ProcessingException extends RuntimeException {
      * @param reason {@link String} indicating the reason of the failure
      * @param cause {@link Exception} which triggered the exception
      */
-    public ProcessingException(String reason, Exception cause) {
+    public TendrilException(String reason, Exception cause) {
         super(reason, cause);
     }
 }

@@ -18,6 +18,7 @@ package tendril.processor.recipe;
 import javax.annotation.processing.Messager;
 
 import tendril.annotationprocessor.ClassDefinition;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Configuration;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
@@ -39,8 +40,9 @@ public final class RecipeGenerator {
      * @param creator {@link JClass} defining the bean
      * @param messager {@link Messager} that is used by the annotation processor
      * @return {@link ClassDefinition}
+     * @throws TendrilException
      */
-    public static ClassDefinition generate(JClass creator, Messager messager) {
+    public static ClassDefinition generate(JClass creator, Messager messager) throws TendrilException {
         return generate(creator.getType(), creator, messager, true);
     }
 
@@ -51,8 +53,9 @@ public final class RecipeGenerator {
      * @param creator {@link JClass} defining the bean
      * @param messager {@link Messager} that is used by the annotation processor
      * @return {@link ClassDefinition}
+     * @throws TendrilException
      */
-    public static ClassDefinition generate(ClassType beanType, JClass creator, Messager messager) {
+    public static ClassDefinition generate(ClassType beanType, JClass creator, Messager messager) throws TendrilException {
         return generate(beanType, creator, messager, true);
     }
 
@@ -64,8 +67,9 @@ public final class RecipeGenerator {
      * @param messager {@link Messager} that is used by the annotation processor
      * @param annotateRegistry boolean true if the recipe is to be added to the generated registry (false will create the recipe but not register it)
      * @return {@link ClassDefinition}
+     * @throws TendrilException
      */
-    public static ClassDefinition generate(ClassType beanType, JClass creator, Messager messager, boolean annotateRegistry) {
+    public static ClassDefinition generate(ClassType beanType, JClass creator, Messager messager, boolean annotateRegistry) throws TendrilException {
         return new BeanRecipeGenerator(beanType, creator, messager).generate(getRecipeType(beanType), annotateRegistry);
     }
     
@@ -76,8 +80,9 @@ public final class RecipeGenerator {
      * @param creator {@link JMethod} which creates the bean
      * @param messager {@link Messager} that is used by the annotation processor
      * @return {@link ClassDefinition}
+     * @throws TendrilException
      */
-    public static ClassDefinition generate(ClassType configType, JMethod<?> creator, Messager messager) {
+    public static ClassDefinition generate(ClassType configType, JMethod<?> creator, Messager messager) throws TendrilException {
         MethodRecipeGenerator generator = new MethodRecipeGenerator(configType, creator.getType().asClassType(), creator, messager);
         return generator.generate(getRecipeType(configType, creator), false);
     }
@@ -88,8 +93,9 @@ public final class RecipeGenerator {
      * @param config {@link JClass} containing the configuration
      * @param messager {@link Messager} that is used by the annotation processor
      * @return {@link ClassDefinition}
+     * @throws TendrilException
      */
-    public static ClassDefinition generateConfiguration(JClass config, Messager messager) {
+    public static ClassDefinition generateConfiguration(JClass config, Messager messager) throws TendrilException {
         return generateConfiguration(config.getType(), config, messager);
     }
 
@@ -100,8 +106,9 @@ public final class RecipeGenerator {
      * @param config {@link JClass} containing the configuration
      * @param messager {@link Messager} that is used by the annotation processor
      * @return {@link ClassDefinition}
+     * @throws TendrilException
      */
-    public static ClassDefinition generateConfiguration(ClassType configType, JClass config, Messager messager) {
+    public static ClassDefinition generateConfiguration(ClassType configType, JClass config, Messager messager) throws TendrilException {
         return new ConfigurationRecipeGenerator(configType, config, messager).generate(getRecipeType(configType), true);
     }
     

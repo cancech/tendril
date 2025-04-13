@@ -25,7 +25,8 @@ import java.util.Set;
 import javax.annotation.processing.Messager;
 
 import tendril.annotationprocessor.ClassDefinition;
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.InvalidConfigurationException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Configuration;
 import tendril.bean.Factory;
 import tendril.bean.Singleton;
@@ -103,8 +104,9 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @param recipeType {@link ClassType} which is to become the recipe
      * @param annotateRegistry boolean true if the recipe is to be annotated for registration
      * @return {@link ClassDefinition} of the recipe
+     * @throws TendrilException if an issue is encountered
      */
-    ClassDefinition generate(ClassType recipeType, boolean annotateRegistry) {
+    ClassDefinition generate(ClassType recipeType, boolean annotateRegistry) throws TendrilException {
         validateCreator();
         
         // The parent class
@@ -121,24 +123,28 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
     
     /**
      * Validate the creator, to make sure that it can actually be used by/for the recipe
+     * 
+     * @throws TendrilException if an issues is encountered during validation
      */
-    protected abstract void validateCreator();
+    protected abstract void validateCreator() throws TendrilException;
     
     /**
      * Populate the builder with the specifics of what the recipe requires. The details of the class will be applied to the builder before this is called,
      * so this only needs to focus on the internals of the recipe.
      * 
      * @param builder {@link ClassBuilder} where the recipe is being defined
+     * @throws TendrilException if an issue is encountered
      */
-    protected abstract void populateBuilder(ClassBuilder builder);
+    protected abstract void populateBuilder(ClassBuilder builder) throws TendrilException;
     
     /**
      * Get the recipe class that is to be employed for the indicated bean.
      * 
      * @return {@link Class} extending {@link AbstractRecipe} representing the concrete recipe that is to be used for the bean
+     * @throws InvalidConfigurationException 
      */
     @SuppressWarnings("rawtypes")
-    private Class<? extends AbstractRecipe> getRecipeClass() {
+    private Class<? extends AbstractRecipe> getRecipeClass() throws InvalidConfigurationException {
         List<Class<? extends Annotation>> foundTypes = new ArrayList<>();
 
         for (Class<? extends Annotation> annonClass : recipeTypeMap.keySet()) {
@@ -147,9 +153,9 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
         }
 
         if (foundTypes.isEmpty())
-            throw new ProcessingException(creatorType.getFullyQualifiedName() + " must have a single life cycle indicated");
+            throw new InvalidConfigurationException(creatorType.getFullyQualifiedName() + " must have a single life cycle indicated");
         if (foundTypes.size() > 1)
-            throw new ProcessingException(creatorType.getFullyQualifiedName() + "has multiple life cycles indicated [" + TendrilStringUtil.join(foundTypes) + "]");
+            throw new InvalidConfigurationException(creatorType.getFullyQualifiedName() + "has multiple life cycles indicated [" + TendrilStringUtil.join(foundTypes) + "]");
 
         return recipeTypeMap.get(foundTypes.get(0));
     }
@@ -259,7 +265,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @param element {@link JBase} whose name it being determined
      * @param names   {@link List} of {@link Named} annotation that have been applied to the element
      * @return {@link List} of {@link String}s containing the code with the appropriate descriptor update
-     * @throws ProcessingException if more than one name is applied to the bean
+     * @throws TendrilException if more than one name is applied to the bean
      */
     private List<String> getDescriptorLines(JBase element) {
         List<String> lines = new ArrayList<>();

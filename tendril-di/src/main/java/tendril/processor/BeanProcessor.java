@@ -24,7 +24,8 @@ import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.AbstractDelayedAnnotationTendrilProcessor;
 import tendril.annotationprocessor.ClassDefinition;
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.InvalidConfigurationException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Bean;
 import tendril.bean.Configuration;
 import tendril.bean.recipe.Registry;
@@ -49,7 +50,7 @@ public class BeanProcessor extends AbstractDelayedAnnotationTendrilProcessor {
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
      */
     @Override
-    protected ClassDefinition processType() {
+    protected ClassDefinition processType() throws TendrilException {
         return RecipeGenerator.generate(currentClassType, currentClass, processingEnv.getMessager());
     }
 
@@ -57,10 +58,10 @@ public class BeanProcessor extends AbstractDelayedAnnotationTendrilProcessor {
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
      */
     @Override
-    protected ClassDefinition processMethod() {
+    protected ClassDefinition processMethod() throws TendrilException {
         // A separate processor handles configurations, this "merely" generates the recipe for the bean that the method is producing
         if (!currentClass.hasAnnotation(Configuration.class))
-            throw new ProcessingException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() + 
+            throw new InvalidConfigurationException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() + 
                     "() - Bean methods cannot be outside of a configuration");
 
         return RecipeGenerator.generate(currentClassType, currentMethod, processingEnv.getMessager());

@@ -33,6 +33,7 @@ import org.mockito.Mockito;
 import tendril.annotationprocessor.element.ElementLoader;
 import tendril.annotationprocessor.exception.MissingAnnotationException;
 import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
@@ -105,9 +106,10 @@ public class AbstractDelayedAnnotationTendrilProcessorTest extends CommonProcess
      * 
      * @throws MissingAnnotationException
      * @throws IOException
+     * @throws TendrilException 
      */
     @Test
-    public void testProcessingClassDelayed() throws MissingAnnotationException, IOException {
+    public void testProcessingClassDelayed() throws MissingAnnotationException, IOException, TendrilException {
         // First the attempt fails due to missing exception
         try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
             when(mockException.getMissingAnnotationName()).thenReturn("abc");
@@ -143,9 +145,10 @@ public class AbstractDelayedAnnotationTendrilProcessorTest extends CommonProcess
      * 
      * @throws MissingAnnotationException
      * @throws IOException
+     * @throws TendrilException 
      */
     @Test
-    public void testProcessingMethodDelayed() throws MissingAnnotationException, IOException {
+    public void testProcessingMethodDelayed() throws MissingAnnotationException, IOException, TendrilException {
         // First the attempt fails due to missing exception
         try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
             when(mockException.getMissingAnnotationName()).thenReturn("abc");

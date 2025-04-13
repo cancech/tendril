@@ -26,6 +26,7 @@ import javax.lang.model.element.TypeElement;
 import tendril.annotationprocessor.element.ElementLoader;
 import tendril.annotationprocessor.exception.MissingAnnotationException;
 import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.codegen.field.type.ClassType;
 import tendril.util.TendrilStringUtil;
 
@@ -61,7 +62,7 @@ public abstract class AbstractDelayedAnnotationTendrilProcessor extends Abstract
         for (WaitingElement delayed: canProcessNow) {
             try {
                 processElement(delayed.waitingAnnotation, delayed.waitingElement);
-            } catch (MissingAnnotationException ex) {
+            } catch (Exception ex) {
                 // This should never be reached...
                 throw new ProcessingException("Fatal error encountered", ex);
             }
@@ -69,10 +70,11 @@ public abstract class AbstractDelayedAnnotationTendrilProcessor extends Abstract
     }
     
     /**
+     * @throws TendrilException 
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processElement(javax.lang.model.element.TypeElement, javax.lang.model.element.Element)
      */
     @Override
-    protected void processElement(TypeElement annotation, Element element) throws MissingAnnotationException {
+    protected void processElement(TypeElement annotation, Element element) throws MissingAnnotationException, TendrilException {
         try {
             super.processElement(annotation, element);
         } catch (MissingAnnotationException ex) {

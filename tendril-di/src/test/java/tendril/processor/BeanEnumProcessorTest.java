@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.annotationprocessor.ClassDefinition;
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.qualifier.EnumQualifier;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
@@ -100,9 +100,10 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
 
     /**
      * Verify that the type validation is performed properly
+     * @throws TendrilException 
      */
     @Test
-    public void testValidateType() {
+    public void testValidateType() throws TendrilException {
         int timesGetKind = 0;
         int timesGetQualifiedName = 0;
         when(mockType.getQualifiedName()).thenReturn(mockName);
@@ -112,7 +113,7 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
             if (kind == ElementKind.ENUM)
                 continue;
             when(mockType.getKind()).thenReturn(kind);
-            Assertions.assertThrows(ProcessingException.class, () -> processor.validateType(mockType));
+            Assertions.assertThrows(TendrilException.class, () -> processor.validateType(mockType));
             verify(mockType, times(++timesGetKind)).getKind();
             verify(mockType, times(++timesGetQualifiedName)).getQualifiedName();
         }
@@ -128,16 +129,17 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
     @Test
     public void testProcessMethod() {
         when(mockAnnotatedMethod.getName()).thenReturn("mockMethod");
-        Assertions.assertThrows(ProcessingException.class, () -> processor.processMethod());
+        Assertions.assertThrows(TendrilException.class, () -> processor.processMethod());
         verify(mockAnnotatedClass).getFullyQualifiedName();
         verify(mockAnnotatedMethod).getName();
     }
 
     /**
      * Verify that a class is properly processed
+     * @throws TendrilException 
      */
     @Test
-    public void testProcessType() {
+    public void testProcessType() throws TendrilException {
         when(mockAnnotatedClass.generateFromClassSuffix("Id")).thenReturn(mockClassToGenerate);
         when(mockAnnotatedClass.isVoid()).thenReturn(false);
         when(mockAnnotatedClass.getSimpleName()).thenReturn("MockEnum");

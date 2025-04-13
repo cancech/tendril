@@ -24,7 +24,8 @@ import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.AbstractDelayedAnnotationTendrilProcessor;
 import tendril.annotationprocessor.ClassDefinition;
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.InvalidConfigurationException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Configuration;
 import tendril.processor.recipe.RecipeGenerator;
 
@@ -46,7 +47,7 @@ public class ConfigurationProcessor extends AbstractDelayedAnnotationTendrilProc
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
      */
     @Override
-    protected ClassDefinition processType() {
+    protected ClassDefinition processType() throws TendrilException {
         return RecipeGenerator.generateConfiguration(currentClassType, currentClass, processingEnv.getMessager());
     }
 
@@ -54,8 +55,8 @@ public class ConfigurationProcessor extends AbstractDelayedAnnotationTendrilProc
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
      */
     @Override
-    protected ClassDefinition processMethod() {
-        throw new ProcessingException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
+    protected ClassDefinition processMethod() throws TendrilException {
+        throw new InvalidConfigurationException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
                 " - Configuration cannot be a method");
     }
 }

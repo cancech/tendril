@@ -96,4 +96,12 @@ public abstract class GenericType implements Type {
     public String getSimpleName() {
         return name;
     }
+    
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "<" + getSimpleName() + ">";
+    }
 }

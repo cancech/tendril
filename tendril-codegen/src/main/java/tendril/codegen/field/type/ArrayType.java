@@ -127,4 +127,11 @@ public class ArrayType<DATA_TYPE extends Type> implements Type {
         return new ClassType(Array.class);
     }
     
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return containedType.toString() + "[]";
+    }
 }

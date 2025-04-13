@@ -17,7 +17,8 @@ package tendril.processor.recipe;
 
 import javax.annotation.processing.Messager;
 
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.InvalidConfigurationException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.recipe.ConfigurationRecipe;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.ClassBuilder;
@@ -54,7 +55,7 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
      * @see tendril.processor.recipe.AbstractRecipeGenerator#validateCreator()
      */
     @Override
-    protected void validateCreator() {
+    protected void validateCreator() throws TendrilException {
         if (beanCreator.isStatic())
             throwValidationException("static");
         if (beanCreator.getVisibility() == VisibilityType.PRIVATE)
@@ -65,9 +66,10 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
      * Helper to throw an exception if class validation fails
      * 
      * @param reason {@link String} cause of the failure
+     * @throws InvalidConfigurationException 
      */
-    private void throwValidationException(String reason) {
-        throw new ProcessingException(configType.getFullyQualifiedName() + "::" + beanCreator.getName() +
+    private void throwValidationException(String reason) throws InvalidConfigurationException {
+        throw new InvalidConfigurationException(configType.getFullyQualifiedName() + "::" + beanCreator.getName() +
                 " cannot be be used to create a bean because it is " + reason);
     }
 

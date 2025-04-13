@@ -31,7 +31,9 @@ import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.AbstractTendrilProccessor;
 import tendril.annotationprocessor.ClassDefinition;
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.InvalidConfigurationException;
+import tendril.annotationprocessor.exception.InvalidTypeException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.qualifier.BeanIdEnum;
 import tendril.bean.qualifier.EnumQualifier;
 import tendril.codegen.VisibilityType;
@@ -60,30 +62,18 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
      * The annotated {@link TypeElement} must be an {@link Enum}
      * 
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
-     * 
-     * @throws ProcessingException if the annotated element is not an {@link Enum} 
      */
     @Override
-    protected void validateType(TypeElement type) {
+    protected void validateType(TypeElement type) throws TendrilException {
         if (type.getKind() != ElementKind.ENUM)
-            throwValidationException(type, "Must be an enum");
-    }
-
-    /**
-     * Generates an exception based on the {@link TypeElement} being validated and the concrete reason.
-     * 
-     * @param type {@link TypeElement} whose processing is generating the exception
-     * @param reason {@link String} the reason why the exception is being produced
-     */
-    private void throwValidationException(TypeElement type, String reason) {
-        throw new ProcessingException("Unable to use " + type.getQualifiedName() + " - " + reason);
+            throw new InvalidTypeException("Unable to use " + type.getQualifiedName() + " - Must be an enum");
     }
 
     /**
      * Process the annotated class, generating the appropriate {@link EnumQualifier} for the {@link Enum}
      */
     @Override
-    public ClassDefinition processType() {
+    public ClassDefinition processType() throws TendrilException {
         ClassType providerClass = currentClassType.generateFromClassSuffix("Id");
         return new ClassDefinition(providerClass, generateCode(providerClass));
     }
@@ -104,15 +94,14 @@ public class BeanEnumProcessor extends AbstractTendrilProccessor {
                 .buildMethod(currentClassType, "value").setVisibility(VisibilityType.PUBLIC).finish().build();
         return cls.generateCode();
     }
-
+    
     /**
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
-     * 
-     * @throws ProcessingException if the annotation is applied to a method
      */
     @Override
-    protected ClassDefinition processMethod() {
-        throw new ProcessingException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
-                " - BeanIdEnum cannot be a method");
+    protected ClassDefinition processMethod() throws TendrilException {
+        throw new InvalidConfigurationException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
+                " - BeanIdEnum cannot be applied to a method");
     }
+    
 }

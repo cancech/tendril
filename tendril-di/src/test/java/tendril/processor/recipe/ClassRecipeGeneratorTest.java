@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Singleton;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
@@ -79,7 +79,7 @@ public class ClassRecipeGeneratorTest extends AbstractUnitTest {
         ClassBuilder builder = ClassBuilder.forAbstractClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         TestClassRecipeGenerator generator = new TestClassRecipeGenerator(type, builder.build());
-        Assertions.assertThrows(ProcessingException.class, () -> generator.generate(new ClassType("a.b.c.D"), false));
+        Assertions.assertThrows(TendrilException.class, () -> generator.generate(new ClassType("a.b.c.D"), false));
         Assertions.assertFalse(generator.populateCalled);
     }
 
@@ -92,7 +92,7 @@ public class ClassRecipeGeneratorTest extends AbstractUnitTest {
         ClassBuilder builder = ClassBuilder.forInterface(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         TestClassRecipeGenerator generator = new TestClassRecipeGenerator(type, builder.build());
-        Assertions.assertThrows(ProcessingException.class, () -> generator.generate(new ClassType("a.b.c.D"), false));
+        Assertions.assertThrows(TendrilException.class, () -> generator.generate(new ClassType("a.b.c.D"), false));
         Assertions.assertFalse(generator.populateCalled);
     }
 
@@ -105,15 +105,16 @@ public class ClassRecipeGeneratorTest extends AbstractUnitTest {
         ClassBuilder builder = ClassBuilder.forAnnotation(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         TestClassRecipeGenerator generator = new TestClassRecipeGenerator(type, builder.build());
-        Assertions.assertThrows(ProcessingException.class, () -> generator.generate(new ClassType("a.b.c.D"), false));
+        Assertions.assertThrows(TendrilException.class, () -> generator.generate(new ClassType("a.b.c.D"), false));
         Assertions.assertFalse(generator.populateCalled);
     }
 
     /**
      * Can process the class if it is a concrete class
+     * @throws TendrilException 
      */
     @Test
-    public void testMustBeConcrete() {
+    public void testMustBeConcrete() throws TendrilException {
         ClassType type = new ClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         

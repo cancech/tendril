@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.annotation.processing.Messager;
 
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Bean;
 import tendril.bean.Configuration;
 import tendril.bean.recipe.AbstractRecipe;
@@ -53,7 +54,7 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
      * @see tendril.processor.recipe.RecipeGenerator#populateBuilder(tendril.codegen.classes.ClassBuilder)
      */
     @Override
-    protected void populateBuilder(ClassBuilder builder) {
+    protected void populateBuilder(ClassBuilder builder) throws TendrilException {
         // Build up the contents of the recipe
         generateConstructor(builder);
         generateCreateInstance(builder);

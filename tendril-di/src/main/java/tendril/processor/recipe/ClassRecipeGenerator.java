@@ -21,7 +21,8 @@ import java.util.logging.Logger;
 
 import javax.annotation.processing.Messager;
 
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.InvalidConfigurationException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Inject;
 import tendril.bean.PostConstruct;
 import tendril.bean.recipe.AbstractRecipe;
@@ -61,7 +62,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     /**
      * @see tendril.processor.recipe.RecipeGenerator#validateCreator()
      */
-    protected void validateCreator() {
+    protected void validateCreator() throws InvalidConfigurationException {
         // This can't actually happen, but just to be sure
         if (creator.isStatic())
             throwValidationException("static");
@@ -77,9 +78,10 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * Helper to throw an exception if class validation fails
      * 
      * @param reason {@link String} cause of the failure
+     * @throws InvalidConfigurationException 
      */
-    private void throwValidationException(String reason) {
-        throw new ProcessingException(creatorType.getFullyQualifiedName() + " cannot be a bean because it is " + reason);
+    private void throwValidationException(String reason) throws InvalidConfigurationException {
+        throw new InvalidConfigurationException(creatorType.getFullyQualifiedName() + " cannot be a bean because it is " + reason);
     }
     
     /**
@@ -160,14 +162,15 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * Generate the createInstance(Engine engine) method where the recipe create the instance for the recipe to provide after it has been processed.
      * 
      * @param builder {@link ClassBuilder} where the recipe is being defined
+     * @throws InvalidConfigurationException 
      */
-    protected void generateCreateInstance(ClassBuilder builder) {
+    protected void generateCreateInstance(ClassBuilder builder) throws TendrilException {
         // First check if there are any @Inject annotated constructors
         if (!attemptGenerateCreateInstanceFromConstructor(builder, creator.getConstructors(Inject.class), " annotated with @" + Inject.class.getSimpleName(), true)) {
             // If not, then check any non-annotated constructors
             if (!attemptGenerateCreateInstanceFromConstructor(builder, creator.getConstructors(), ", the one to be used must be annotated with @" + Inject.class.getSimpleName(), false))
                     // Still not, therefore there are no viable constructors
-                    throw new ProcessingException(creatorType.getFullyQualifiedName() + " has no viable constructors. At least one must be available (and not private).");
+                    throw new InvalidConfigurationException(creatorType.getFullyQualifiedName() + " has no viable constructors. At least one must be available (and not private).");
         }
     }
     
@@ -181,10 +184,10 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * @param errorMessageDetail {@link String} additional error message details to provide in the exception if multiple constructor are deemed viable
      * @param printWarning boolean true if a warning is to be printed when detecting a private @Inject constructor
      * 
-     * @throws ProcessingException if there is more than just a single viable constructor
      * @return boolean true if a proper constructor was found and the code was generated (false if no constructor and no code generated)
+     * @throws InvalidConfigurationException if there is more than just a single viable constructor
      */
-    private boolean attemptGenerateCreateInstanceFromConstructor(ClassBuilder builder, List<JConstructor> ctors, String errorMessageDetail, boolean printWarning) {
+    private boolean attemptGenerateCreateInstanceFromConstructor(ClassBuilder builder, List<JConstructor> ctors, String errorMessageDetail, boolean printWarning) throws InvalidConfigurationException {
         // Determine which constructors can actually be used
         List<JConstructor> viable = new ArrayList<>();
         for (JConstructor c: ctors) {
@@ -196,7 +199,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
         
         // If there are too many, throw an exception
         if (viable.size() > 1)
-            throw new ProcessingException(creatorType.getFullyQualifiedName() + " has " + ctors.size() + " constructors (" + viable.size() + " viable)" + errorMessageDetail);
+            throw new InvalidConfigurationException(creatorType.getFullyQualifiedName() + " has " + ctors.size() + " constructors (" + viable.size() + " viable)" + errorMessageDetail);
         else if (viable.size() == 1) {
             // If there is only one viable, then make use of it
             generateCreateInstanceFromConstructor(builder, viable.get(0));
@@ -232,12 +235,12 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      *      <li>The method must not be private</li>
      * </ol>
      * 
-     * A {@link ProcessingException} is thrown if one of the above is violated
+     * A {@link TendrilException} is thrown if one of the above is violated
      * 
      * @param builder {@link ClassBuilder} where the recipe for the bean is being defined
-     * @throws ProcessingException if one of the {@link PostConstruct} annotated method violates {@link PostConstruct} rules
+     * @throws InvalidConfigurationException if one of the {@link PostConstruct} annotated method violates {@link PostConstruct} rules
      */
-    protected void processPostConstruct(ClassBuilder builder) {
+    protected void processPostConstruct(ClassBuilder builder) throws InvalidConfigurationException {
         List<JMethod<?>> postConstructs = creator.getMethods(PostConstruct.class);
         // Don't do anything if there aren't any
         if (postConstructs.isEmpty())
@@ -263,14 +266,14 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     }
     
     /**
-     * Helper which generates an error message to be reported by {@link ProcessingException}, triggered by {@link PostConstruct} processing.
+     * Helper which generates an error message to be reported by {@link TendrilException}, triggered by {@link PostConstruct} processing.
      * 
      * @param method {@link JMethod} where {@link PostConstruct} failed
      * @param reason {@link String} the cause of the failure
-     * @throws ProcessingException indicating why {@link PostConstruct} processing failed
+     * @throws InvalidConfigurationException indicating why {@link PostConstruct} processing failed
      */
-    private void throwPostConstructError(JMethod<?> method, String reason) {
-        throw new ProcessingException("@" + PostConstruct.class.getSimpleName() + " method " + creatorType.getFullyQualifiedName() + "::" + 
+    private void throwPostConstructError(JMethod<?> method, String reason) throws InvalidConfigurationException {
+        throw new InvalidConfigurationException("@" + PostConstruct.class.getSimpleName() + " method " + creatorType.getFullyQualifiedName() + "::" + 
                 method.getName() + "() " + reason);
     }
 

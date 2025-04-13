@@ -16,28 +16,19 @@
 package tendril.annotationprocessor.exception;
 
 /**
- * Exception to be thrown when there is an during annotation processing
+ * Exception to be thrown when an invalid type is encountered
  */
-public class ProcessingException extends RuntimeException {
+public class InvalidTypeException extends TendrilException{
     /** Serial ID */
-    private static final long serialVersionUID = -2996805748124184514L;
+    private static final long serialVersionUID = -3513542401048886484L;
 
     /**
      * CTOR
      * 
-     * @param reason {@link String} indicating the reason of the failure
+     * @param reason {@link String} causing the exception
      */
-    public ProcessingException(String reason) {
+    public InvalidTypeException(String reason) {
         super(reason);
     }
-    
-    /**
-     * CTOR
-     * 
-     * @param reason {@link String} indicating the reason of the failure
-     * @param cause {@link Exception} which triggered the exception
-     */
-    public ProcessingException(String reason, Exception cause) {
-        super(reason, cause);
-    }
+
 }

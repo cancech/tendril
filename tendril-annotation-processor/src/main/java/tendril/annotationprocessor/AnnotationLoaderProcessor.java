@@ -20,7 +20,8 @@ import java.util.List;
 
 import tendril.annotationprocessor.element.ClassConverter;
 import tendril.annotationprocessor.element.ElementLoader;
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.InvalidConfigurationException;
+import tendril.annotationprocessor.exception.TendrilException;
 
 /**
  * A processor whose role is not to generate any code, but to load details of annotations which have been generated elsewhere within the processor.
@@ -43,22 +44,22 @@ public abstract class AnnotationLoaderProcessor extends AbstractTendrilProccesso
     public AnnotationLoaderProcessor() {
         ElementLoader.getGeneratedAnnotationHandler().registerLoader(this);
     }
-    
+
     /**
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
      */
     @Override
-    protected ClassDefinition processType() {
+    protected ClassDefinition processType() throws TendrilException {
         listeners.forEach(listener -> listener.annotationGenerated(currentClassType));
         return null;
     }
-
+    
     /**
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
      */
     @Override
-    protected ClassDefinition processMethod() {
-        throw new ProcessingException("An annotation cannot be a method");
+    protected ClassDefinition processMethod() throws TendrilException {
+        throw new InvalidConfigurationException("An annotation cannot be a method");
     }
 
     /**

@@ -42,6 +42,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import tendril.annotationprocessor.element.ElementLoader;
 import tendril.annotationprocessor.exception.MissingAnnotationException;
 import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
@@ -114,7 +115,7 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
         findAndProcessElements(annotation, element -> { 
             try {
                 processElement(annotation, element);
-            } catch (MissingAnnotationException e) {
+            } catch (Exception e) {
                 throw new ProcessingException("Failure to process " + element + " with annotation " + annotation, e);
             }
         });
@@ -151,8 +152,9 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * @param annotation {@link TypeElement} which triggered this iteration of processing
      * @param element {@link Element} which is being processed
      * @throws MissingAnnotationException if the element has an annotation applied which is not know (at this time)
+     * @throws TendrilException if an issue is encountered during processing
      */
-    protected void processElement(TypeElement annotation, Element element) throws MissingAnnotationException {
+    protected void processElement(TypeElement annotation, Element element) throws MissingAnnotationException, TendrilException {
         currentAnnotation = annotation;
         
         if (element instanceof TypeElement) {
@@ -168,8 +170,9 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * 
      * @param element {@link TypeElement} that is to be processed
      * @throws MissingAnnotationException if the element has an annotation applied which is not know (at this time)
+     * @throws TendrilException if an issue is encountered during processing
      */
-    private void prepareAndProcessType(TypeElement element) throws MissingAnnotationException {
+    private void prepareAndProcessType(TypeElement element) throws MissingAnnotationException, TendrilException {
         // Ensure that the element is supposed to be processed before doing anything else
         validateType(element);
         
@@ -191,8 +194,9 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * 
      * @param element {@link ExecutableElement} of the method
      * @throws MissingAnnotationException if the element has an annotation applied which is not know (at this time)
+     * @throws TendrilException if an issue is encountered during processing
      */
-    private void prepareAndProcessMethod(ExecutableElement element) throws MissingAnnotationException {
+    private void prepareAndProcessMethod(ExecutableElement element) throws MissingAnnotationException, TendrilException {
         // Load the full details of the element
         Pair<JClass, JMethod<?>> methodDetails = ElementLoader.retrieveMethod(element);
         currentClass = methodDetails.getLeft();
@@ -214,8 +218,9 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * perform whichever checks are appropriate. Throw an appropriate exception if validation fails.
      * 
      * @param type {@link TypeElement} on which the annotation was applied
+     * @throws TendrilException if there is an issue with validation
      */
-    protected void validateType(TypeElement type) {
+    protected void validateType(TypeElement type) throws TendrilException {
         // Do nothing by default
     }
 
@@ -224,8 +229,9 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * override to perform whichever checks are appropriate. Throw an appropriate exception if validation fails.
      * 
      * Note that for validation the currentClass instance field should be used.
+     * @throws TendrilException if there is an issue with validation
      */
-    protected void validateClass() {
+    protected void validateClass() throws TendrilException {
         // Do nothing by default
     }
 
@@ -309,14 +315,16 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * the subclass to provide the necessary concrete implementation.
      * 
      * @return {@link ClassDefinition} defining the generated type (null if nothing is to be generated)
+     * @throws TendrilException if an issue is encountered during processing
      */
-    protected abstract ClassDefinition processType();
+    protected abstract ClassDefinition processType() throws TendrilException;
 
     /**
      * Perform the necessary processing of the indicated method, which was found to have been annotated with the required annotation. An empty implementation is provided by default, leaving it up to
      * the subclass to provide the necessary concrete implementation.
      * 
      * @return {@link ClassDefinition} defining the generated type (null if nothing is to be generated)
+     * @throws TendrilException if an issue is encountered during processing
      */
-    protected abstract ClassDefinition processMethod();
+    protected abstract ClassDefinition processMethod() throws TendrilException;
 }

@@ -25,7 +25,8 @@ import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.AbstractDelayedAnnotationTendrilProcessor;
 import tendril.annotationprocessor.ClassDefinition;
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.InvalidConfigurationException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.context.launch.Runner;
 import tendril.context.launch.TendrilRunner;
 import tendril.processor.recipe.RecipeGenerator;
@@ -50,23 +51,23 @@ public class RunnerProcessor extends AbstractDelayedAnnotationTendrilProcessor {
     /**
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
      * 
-     * @throws ProcessingException if the annotated type does not implement the {@link TendrilRunner} interface
+     * @throws TendrilException if the annotated type does not implement the {@link TendrilRunner} interface
      */
     @Override
-    protected void validateType(TypeElement type) {
+    protected void validateType(TypeElement type) throws TendrilException {
         if (!isTypeOf(type, TendrilRunner.class))
-            throw new ProcessingException(type.getQualifiedName() + " must implement the " + TendrilRunner.class.getSimpleName() + " interface");
+            throw new InvalidConfigurationException(type.getQualifiedName() + " must implement the " + TendrilRunner.class.getSimpleName() + " interface");
     }
 
     /**
      * @see tendril.processor.BeanProcessor#processType()
      * 
-     * @throws ProcessingException if multiple @{@link Runner}s were defined
+     * @throws TendrilException if multiple @{@link Runner}s were defined
      */
     @Override
-    protected ClassDefinition processType() {
+    protected ClassDefinition processType() throws TendrilException {
         if (mainRunner != null)
-            throw new ProcessingException("There can only be a single runner specified");
+            throw new InvalidConfigurationException("There can only be a single runner specified");
         
         ClassDefinition generatedDef = RecipeGenerator.generate(currentClassType, currentClass, processingEnv.getMessager(), false);
         mainRunner = generatedDef.getType().getFullyQualifiedName();
@@ -75,11 +76,11 @@ public class RunnerProcessor extends AbstractDelayedAnnotationTendrilProcessor {
 
     /**
      * @see tendril.processor.BeanProcessor#processMethod()
-     * @throws ProcessingException if the annotation is applied to a method
+     * @throws TendrilException if the annotation is applied to a method
      */
     @Override
-    protected ClassDefinition processMethod() {
-        throw new ProcessingException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
+    protected ClassDefinition processMethod() throws TendrilException {
+        throw new InvalidConfigurationException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
                 " - Runner cannot be a method");
     }
 

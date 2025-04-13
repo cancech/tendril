@@ -184,4 +184,14 @@ public class ArrayTypeTest extends AbstractUnitTest {
     public void testAsClassType() {
         Assertions.assertEquals(new ClassType(Array.class), type.asClassType());
     }
+    
+    /**
+     * Verify that the toString produces the expected result
+     */
+    @Test
+    public void testToString() {
+        Assertions.assertEquals("mockType[]", type.toString());
+        Assertions.assertEquals("int[]", new ArrayType<>(PrimitiveType.INT).toString());
+        Assertions.assertEquals("a.b.c.D[]", new ArrayType<>(new ClassType("a.b.c.D")).toString());
+    }
 }

@@ -17,6 +17,7 @@ package tendril.processor.recipe;
 
 import javax.annotation.processing.Messager;
 
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
@@ -40,7 +41,7 @@ class BeanRecipeGenerator extends ClassRecipeGenerator {
     /**
      * @see tendril.processor.recipe.RecipeGenerator#populateBuilder(tendril.codegen.classes.ClassBuilder)
      */
-    protected void populateBuilder(ClassBuilder builder) {
+    protected void populateBuilder(ClassBuilder builder) throws TendrilException {
         // Build up the contents of the recipe
         generateConstructor(builder);
         generateRecipeDescriptor(builder);

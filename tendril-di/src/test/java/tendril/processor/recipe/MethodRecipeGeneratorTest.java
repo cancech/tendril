@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Singleton;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
@@ -61,7 +61,7 @@ public class MethodRecipeGeneratorTest extends AbstractUnitTest {
                 .addAnnotation(JAnnotationFactory.create(Singleton.class)).emptyImplementation();
         builder.setStatic(true);
         
-        Assertions.assertThrows(ProcessingException.class, () -> RecipeGenerator.generate(configType, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(configType, builder.build(), mockMessager));
     }
 
     /**
@@ -74,14 +74,15 @@ public class MethodRecipeGeneratorTest extends AbstractUnitTest {
                 .addAnnotation(JAnnotationFactory.create(Singleton.class)).emptyImplementation();
         builder.setVisibility(VisibilityType.PRIVATE);
         
-        Assertions.assertThrows(ProcessingException.class, () -> RecipeGenerator.generate(configType, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(configType, builder.build(), mockMessager));
     }
 
     /**
      * Make sure that the method can be processed
+     * @throws TendrilException 
      */
     @Test
-    public void testMustBeConcrete() {
+    public void testMustBeConcrete() throws TendrilException {
         ClassType configType = new ClassType("a.b.c.D");
         MethodBuilder<Type> builder = new ConcreteMethodBuilder<>(null, "method").setType(PrimitiveType.INT)
                 .addAnnotation(JAnnotationFactory.create(Singleton.class)).emptyImplementation();

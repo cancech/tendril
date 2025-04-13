@@ -26,7 +26,8 @@ import org.mockito.Mockito;
 
 import tendril.annotationprocessor.element.ElementLoader;
 import tendril.annotationprocessor.element.GeneratedAnnotationHandler;
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.InvalidConfigurationException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
 
@@ -76,9 +77,10 @@ public class AnnotationLoaderProcessorTest extends AbstractUnitTest {
 
     /**
      * Verify that processType() triggers registered listeners
+     * @throws TendrilException 
      */
     @Test
-    public void testListenersTriggersOnProcessType() {
+    public void testListenersTriggersOnProcessType() throws TendrilException {
         // No listeners, "nothing" happens
         Assertions.assertNull(loader.processType());
         verifyAllChecked();
@@ -102,6 +104,6 @@ public class AnnotationLoaderProcessorTest extends AbstractUnitTest {
      */
     @Test
     public void testProcessMethod() {
-        Assertions.assertThrows(ProcessingException.class, () -> loader.processMethod());
+        Assertions.assertThrows(InvalidConfigurationException.class, () -> loader.processMethod());
     }
 }

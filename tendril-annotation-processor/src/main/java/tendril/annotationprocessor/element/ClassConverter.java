@@ -37,8 +37,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.auto.common.AnnotationValues;
 
+import tendril.annotationprocessor.exception.DataMismatchException;
+import tendril.annotationprocessor.exception.InvalidTypeException;
 import tendril.annotationprocessor.exception.MissingAnnotationException;
-import tendril.annotationprocessor.exception.ProcessingException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.codegen.BaseBuilder;
 import tendril.codegen.DefinitionException;
 import tendril.codegen.JBase;
@@ -90,8 +92,9 @@ public class ClassConverter {
      * 
      * @return {@link JClass} representing the element
      * @throws MissingAnnotationException if attempting to load a class which is making use of an annotation that does not (yet) exist
+     * @throws TendrilException if an issues is encountered
      */
-    void loadClassDetails(TypeElement element) throws MissingAnnotationException {
+    void loadClassDetails(TypeElement element) throws MissingAnnotationException, TendrilException {
         // Populate the builder with the details of the class itself
         ClassBuilder builder = builderForClass(element);
         loadElementFinality(builder, element);
@@ -140,8 +143,9 @@ public class ClassConverter {
      * @param element {@link TypeElement} representing the class
      * 
      * @return {@link ClassBuilder} appropriate for the type of class that it is
+     * @throws TendrilException if an unknown/invalid class type is encountered
      */
-    private ClassBuilder builderForClass(TypeElement element) {
+    private ClassBuilder builderForClass(TypeElement element) throws TendrilException {
         ClassType type = deriveClassData(element);
         ElementKind kind = element.getKind();
         if (kind == ElementKind.INTERFACE)
@@ -158,7 +162,7 @@ public class ClassConverter {
         }
         
         // Didn't find a builder...
-        throw new ProcessingException(element.getQualifiedName() + " [" + kind + "] is not a valid class type");
+        throw new InvalidTypeException(element.getQualifiedName() + " [" + kind + "] is not a valid class type");
     }
     
     /**
@@ -168,8 +172,9 @@ public class ClassConverter {
      * @param enclosingClass {@link TypeElement} in which the element is contained
      * @param element {@link ExecutableElement} which is to be loaded
      * @throws MissingAnnotationException if attempting to load a class which is making use of an annotation that does not (yet) exist
+     * @throws DataMismatchException if there is an issue loading data and/or values
      */
-    private void loadExecutableElementDetails(NestedClassMethodElementBuilder<?, ?, ?> builder, TypeElement enclosingClass, ExecutableElement element) throws MissingAnnotationException {
+    private void loadExecutableElementDetails(NestedClassMethodElementBuilder<?, ?, ?> builder, TypeElement enclosingClass, ExecutableElement element) throws MissingAnnotationException, DataMismatchException {
         // Load the general information
         loadElementFinality(builder, element);
         loadElementMods(builder, element);
@@ -179,7 +184,7 @@ public class ClassConverter {
         List<? extends TypeMirror> parameterTypes = ((ExecutableType) element.asType()).getParameterTypes();
         List<? extends VariableElement> parameters = element.getParameters();
         if (parameterTypes.size() != parameters.size())
-            throw new ProcessingException(element + " mismatch between number of parameters and parameter types");
+            throw new DataMismatchException(element + " mismatch between number of parameters and parameter types");
      
         for (int i = 0; i < parameters.size(); i++) {
             VariableElement varElement = parameters.get(i);
@@ -202,8 +207,9 @@ public class ClassConverter {
      * @param enclosingClass {@link TypeElement} in which the field is contained
      * @param varElement {@link VariableElement} defining the field
      * @throws MissingAnnotationException if attempting to load a class which is making use of an annotation that does not (yet) exist
+     * @throws DataMismatchException if there is an issue loading data and/or values
      */
-    private void loadFieldDetails(FieldBuilder<?> builder, TypeElement enclosingClass, VariableElement varElement) throws MissingAnnotationException {
+    private void loadFieldDetails(FieldBuilder<?> builder, TypeElement enclosingClass, VariableElement varElement) throws MissingAnnotationException, DataMismatchException {
         loadElementFinality(builder, varElement);
         loadElementMods(builder, varElement);
         loadAnnotations(builder, varElement);
@@ -216,8 +222,9 @@ public class ClassConverter {
      * @param builder {@link BaseBuilder} with which the representative element is being built
      * @param element {@link Element} from which to load the annotations
      * @throws MissingAnnotationException if attempting to load a class which is making use of an annotation that does not (yet) exist
+     * @throws DataMismatchException if there is an issue processing annotation values
      */
-    private void loadAnnotations(BaseBuilder<?, ?> builder, Element element) throws MissingAnnotationException {
+    private void loadAnnotations(BaseBuilder<?, ?> builder, Element element) throws MissingAnnotationException, DataMismatchException {
         for (AnnotationMirror m : element.getAnnotationMirrors()) {
             TypeElement annonElement = (TypeElement) m.getAnnotationType().asElement();
             try {
@@ -237,16 +244,19 @@ public class ClassConverter {
      * @param element {@link TypeElement} representing the definition of the annotation
      * @param hierarchy {@link List} of {@link ClassType}s that have already been encountered during this iterative build process
      * @return {@link JAnnotation} representing the annotation instance
+     * @throws DataMismatchException if there is an issue processing annotation values
      */
-    private JAnnotation buildAnnotation(ClassType annonType, AnnotationMirror mirror, TypeElement element, List<ClassType> hierarchy) {
+    private JAnnotation buildAnnotation(ClassType annonType, AnnotationMirror mirror, TypeElement element, List<ClassType> hierarchy) throws DataMismatchException {
         hierarchy.add(annonType);
         
         // Process all values
         Map<String, JValue<?, ?>> attributes = new HashMap<>();
-        mirror.getElementValues().forEach((attr, value) -> {
-            JValue<?, ?> jvalue = createValue(TypeFactory.create(attr.getReturnType()), value.getValue());
+        Map<? extends ExecutableElement, ? extends AnnotationValue> mirrorAttributes = mirror.getElementValues();
+        for (ExecutableElement attr: mirror.getElementValues().keySet()) {
+            JValue<?, ?> jvalue = createValue(TypeFactory.create(attr.getReturnType()), mirrorAttributes.get(attr).getValue());
             attributes.put(attr.getSimpleName().toString(), jvalue);
-        });
+            
+        }
         
         // Create the annotation
         JAnnotation annon = null;
@@ -275,8 +285,9 @@ public class ClassConverter {
      * @param desiredType {@link Type} indicating what type is expected by the attribute
      * @param value {@link Object} containing the "real" value
      * @return {@link JValue} representation
+     * @throws DataMismatchException if the value does not match the desired type
      */
-    private JValue<?,?> createValue(Type desiredType, Object value) {
+    private JValue<?,?> createValue(Type desiredType, Object value) throws DataMismatchException {
         // Enums are not seen as the instance, but rather just described. As such they must be treated separately
         if (value instanceof VariableElement)
             return JValueFactory.create(createEnumEntry(desiredType, (VariableElement) value));
@@ -284,7 +295,7 @@ public class ClassConverter {
         Object valueToUse = value;
         if (value instanceof List) {
             if (!(desiredType instanceof ArrayType))
-                throw new ProcessingException("Received array value when " + desiredType.getSimpleName() + " expected");
+                throw new DataMismatchException(desiredType, value.getClass().getName() + "[]");
             
             @SuppressWarnings("unchecked")
             List<AnnotationValue> listVal = (List<AnnotationValue>) value;
@@ -323,17 +334,17 @@ public class ClassConverter {
     
     /**
      * Create an {@link EnumerationEntry} representation of an enum that is defined by a {@link VariableElement}. Verification is performed to ensure that the element
-     * matches the desired type, with a {@link ProcessingException} thrown is that is not the case.
+     * matches the desired type, with a {@link TendrilException} thrown is that is not the case.
      * 
      * @param desiredType {@link Type} indicating the type of enum which is desired/expected
      * @param value {@link VariableElement} representing the specific enum entry
      * @return {@link EnumerationEntry} for the enum
+     * @throws DataMismatchException if the value does not match the desired type
      */
-    private EnumerationEntry createEnumEntry(Type desiredType, VariableElement value) {
+    private EnumerationEntry createEnumEntry(Type desiredType, VariableElement value) throws DataMismatchException {
         ClassType valueType = new ClassType(value.asType().toString());
         if (!desiredType.equals(valueType)) {
-            String expectedType = (desiredType instanceof ClassType) ? ((ClassType)desiredType).getFullyQualifiedName() : desiredType.getSimpleName();
-            throw new ProcessingException("Invalid type, expected " + expectedType + " but received " + valueType.getFullyQualifiedName());
+            throw new DataMismatchException(desiredType, valueType);
         }
         return EnumerationEntry.from(valueType, value.getSimpleName().toString());
     }

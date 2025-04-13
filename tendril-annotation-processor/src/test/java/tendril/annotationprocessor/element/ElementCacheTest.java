@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.annotationprocessor.exception.MissingAnnotationException;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
@@ -76,25 +77,27 @@ public class ElementCacheTest extends AbstractUnitTest {
                 cache.store(mockClassType, mockFieldType, mockField);
                 return null;
             }).when(mockConverter).loadClassDetails(mockClassType);
-        } catch (MissingAnnotationException e) {
+        } catch (Exception e) {
             Assertions.fail("Exception should not be thrown...", e);
         }
     }
 
     /**
      * Verify that during the first load the class is loaded
+     * @throws TendrilException 
      */
     @Test
-    public void testFirstLoadClass() throws MissingAnnotationException {
+    public void testFirstLoadClass() throws MissingAnnotationException, TendrilException {
         Assertions.assertEquals(mockClass, cache.retrieveClass(mockClassType));
         verify(mockConverter, times(1)).loadClassDetails(mockClassType);
     }
 
     /**
      * Verify that during the first load the class is loaded
+     * @throws TendrilException 
      */
     @Test
-    public void testFirstLoadMethod() throws MissingAnnotationException {
+    public void testFirstLoadMethod() throws MissingAnnotationException, TendrilException {
         Assertions.assertEquals(Pair.of(mockClass, mockMethod), cache.retrieveMethod(mockMethodType));
         verify(mockConverter, times(1)).loadClassDetails(mockClassType);
         verify(mockMethodType, times(1)).getEnclosingElement();
@@ -102,9 +105,10 @@ public class ElementCacheTest extends AbstractUnitTest {
 
     /**
      * Verify that during the first load the class is loaded
+     * @throws TendrilException 
      */
     @Test
-    public void testFirstLoadField() throws MissingAnnotationException {
+    public void testFirstLoadField() throws MissingAnnotationException, TendrilException {
         Assertions.assertEquals(Pair.of(mockClass, mockField), cache.retrieveField(mockFieldType));
         verify(mockConverter, times(1)).loadClassDetails(mockClassType);
         verify(mockFieldType, times(1)).getEnclosingElement();
@@ -112,9 +116,10 @@ public class ElementCacheTest extends AbstractUnitTest {
     
     /**
      * Verify that subsequent loads do not re-load the class
+     * @throws TendrilException 
      */
     @Test
-    public void testSubsequentLoadAfterClass() throws MissingAnnotationException {
+    public void testSubsequentLoadAfterClass() throws MissingAnnotationException, TendrilException {
         testFirstLoadClass();
 
         Assertions.assertEquals(mockClass, cache.retrieveClass(mockClassType));
@@ -140,9 +145,10 @@ public class ElementCacheTest extends AbstractUnitTest {
     
     /**
      * Verify that subsequent loads do not re-load the class
+     * @throws TendrilException 
      */
     @Test
-    public void testSubsequentLoadAfterMethod() throws MissingAnnotationException {
+    public void testSubsequentLoadAfterMethod() throws MissingAnnotationException, TendrilException {
         testFirstLoadMethod();
 
         Assertions.assertEquals(mockClass, cache.retrieveClass(mockClassType));
@@ -168,9 +174,10 @@ public class ElementCacheTest extends AbstractUnitTest {
     
     /**
      * Verify that subsequent loads do not re-load the class
+     * @throws TendrilException 
      */
     @Test
-    public void testSubsequentLoadAfterField() throws MissingAnnotationException {
+    public void testSubsequentLoadAfterField() throws MissingAnnotationException, TendrilException {
         testFirstLoadField();
 
         Assertions.assertEquals(mockClass, cache.retrieveClass(mockClassType));
