@@ -72,6 +72,13 @@ public class AppRunner implements TendrilRunner {
     @Inject
     @MyTypeId(MyType.VAL1)
     String tempString2;
+    @Inject
+    @MyTypeId(MyType.VAL2)
+    Object objVal2;
+    @Inject
+    @TempQualifier
+    Object objTmp;
+    
     private FactoryClass factoryBean5;
     
     AppRunner() {
@@ -124,6 +131,7 @@ public class AppRunner implements TendrilRunner {
         System.out.println(factoryBean5);
         System.out.println(tempString1);
         System.out.println(tempString2);
+        System.out.println("Objects: " + objVal2 + ", " + objTmp);
         assert(tempString1.equals(tempString2));
         assert(factoryBean1 != factoryBean2);
         assert(factoryBean1 != factoryBean3);
@@ -135,5 +143,6 @@ public class AppRunner implements TendrilRunner {
         assert(factoryBean3 != factoryBean4);
         assert(factoryBean3 != factoryBean5);
         assert(factoryBean4 != factoryBean5);
+        assert(objVal2 != objTmp);
     }
 }

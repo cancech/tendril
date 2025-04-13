@@ -32,6 +32,7 @@ import tendril.bean.Factory;
 import tendril.bean.Singleton;
 import tendril.bean.qualifier.EnumQualifier;
 import tendril.bean.qualifier.Named;
+import tendril.bean.qualifier.Qualifier;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.ConfigurationRecipe;
 import tendril.bean.recipe.Descriptor;
@@ -277,6 +278,9 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
                 EnumerationEntry entry = (EnumerationEntry) a.getValue(a.getAttributes().get(0)).getValue();
                 externalImports.add(entry.getEnclosingClass());
                 lines.add("addEnumQualifier(" + entry.getEnclosingClass().getClassName() + "." + entry.getName() + ")");
+            } else if (a.hasAnnotation(Qualifier.class)) {
+                externalImports.add(a.getType());
+                lines.add("addQualifier(" + a.getType().getSimpleName() + ".class)");
             }
         }
 

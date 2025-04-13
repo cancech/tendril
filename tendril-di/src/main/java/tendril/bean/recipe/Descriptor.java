@@ -35,6 +35,8 @@ public class Descriptor<BEAN_TYPE> {
     private String name = "";
     /** List of enums that have been applied as qualifiers on the bean */
     private Set<Enum<?>> enumQualifiers = new HashSet<>();
+    /** List of qualifiers that have been applied to the bean */
+    private Set<Class<?>> qualifiers = new HashSet<>();
     
     /**
      * CTOR
@@ -95,6 +97,25 @@ public class Descriptor<BEAN_TYPE> {
     }
     
     /**
+     * Add a qualifier to the bean
+     * 
+     * @param qualifier {@link Class} which is used to describe/find the bean
+     * @return {@link Descriptor} describing the bean
+     */
+    public Descriptor<BEAN_TYPE> addQualifier(Class<?> qualifier) {
+        this.qualifiers.add(qualifier);
+        return this;
+    }
+    
+    /**
+     * Get all qualifying {@link Class}s for the bean
+     * @return {@link Set} of {@link Class}s which describe/qualify a bean
+     */
+    Set<Class<?>> getQualifiers() {
+        return qualifiers;
+    }
+    
+    /**
      * For the purpose of equality, the defined class need not be 100% equal, so long as the other class is assignable from this one.
      * 
      * @see java.lang.Object#equals(java.lang.Object)
@@ -107,7 +128,7 @@ public class Descriptor<BEAN_TYPE> {
         Descriptor<?> other = (Descriptor<?>) obj;
         
         return other.beanClass.isAssignableFrom(beanClass) && other.name.equals(name) && other.enumQualifiers.size() == enumQualifiers.size() &&
-                enumQualifiers.containsAll(other.enumQualifiers);
+                enumQualifiers.containsAll(other.enumQualifiers) && qualifiers.containsAll(other.qualifiers);
     }
 
     /**
@@ -129,6 +150,9 @@ public class Descriptor<BEAN_TYPE> {
         if (!other.enumQualifiers.isEmpty() && !enumQualifiers.containsAll(other.enumQualifiers))
             return false;
         
+        if (!other.qualifiers.isEmpty() && !qualifiers.containsAll(other.qualifiers))
+            return false;
+        
         return true;
     }
     
@@ -144,6 +168,11 @@ public class Descriptor<BEAN_TYPE> {
         if (!enumQualifiers.isEmpty()) {
             str.append(" Enum Qualifiers[");
             str.append(TendrilStringUtil.join(enumQualifiers, e -> e.getClass().getSimpleName() + "." + e.name()));
+            str.append("]");
+        }
+        if (!qualifiers.isEmpty()) {
+            str.append(" Qualifiers[");
+            str.append(TendrilStringUtil.join(qualifiers, e -> e.getClass().getSimpleName()));
             str.append("]");
         }
         

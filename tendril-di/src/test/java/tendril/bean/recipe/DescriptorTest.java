@@ -69,7 +69,7 @@ public class DescriptorTest extends AbstractUnitTest {
     }
 
     /**
-     * Verify that the name can be updated
+     * Verify that the enum qualifiers can be updated
      */
     @Test
     public void testUpdateEnumQualifiers() {
@@ -93,6 +93,33 @@ public class DescriptorTest extends AbstractUnitTest {
         Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
         Assertions.assertEquals(Sets.newSet(PrimitiveType.BYTE, PrimitiveType.SHORT, PrimitiveType.CHAR, PrimitiveType.BOOLEAN, PrimitiveType.INT), descriptor.getEnumQualifiers());
     }
+
+    /**
+     * Verify that the qualifiers can be updated
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testUpdateQualifiers() {
+        // None by default
+        Assertions.assertEquals(Collections.emptySet(), descriptor.getQualifiers());
+        
+        // Can add one
+        descriptor.addQualifier(PrimitiveType.class);
+        Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+        Assertions.assertEquals(Sets.newSet(PrimitiveType.class), descriptor.getQualifiers());
+        
+        // Can add another
+        descriptor.addQualifier(Descriptor.class);
+        Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+        Assertions.assertEquals(Sets.newSet(PrimitiveType.class, Descriptor.class), descriptor.getQualifiers());
+        
+        // Can add some more
+        descriptor.addQualifier(Integer.class);
+        descriptor.addQualifier(String.class);
+        descriptor.addQualifier(AbstractUnitTest.class);
+        Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+        Assertions.assertEquals(Sets.newSet(PrimitiveType.class, Descriptor.class, Integer.class, String.class, AbstractUnitTest.class), descriptor.getQualifiers());
+    }
     
     /**
      * Verify that equality is properly determined
@@ -103,10 +130,23 @@ public class DescriptorTest extends AbstractUnitTest {
         // Must be the same type
         Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).equals(new String("")));
         
+        /*
+         * Just Assignable
+         */
+        
         // So long as it's assignable, it will pass
         Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(Double1TestRecipe.class)));
         Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(AbstractRecipe.class)));
         Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(Object.class)));
+
+        // If it is not assignable, it will fail
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(Double2TestRecipe.class)));
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(StringTestRecipe.class)));
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(IntTestRecipe.class)));
+        
+        /*
+         * Include name
+         */
         
         // So long as it's assignable and the exact same name, it will pass
         Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").setName("qwerty").equals(new Descriptor<>(Double1TestRecipe.class).setName("qwerty")));
@@ -118,34 +158,52 @@ public class DescriptorTest extends AbstractUnitTest {
         Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").equals(new Descriptor<>(AbstractRecipe.class).setName("zxcvb")));
         Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").equals(new Descriptor<>(Object.class)));
         
-        // So long as it's assignable, has the exact same name and enum qualifiers, it will pass
-        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").setName("qwerty").addEnumQualifier(PrimitiveType.CHAR)
-                .equals(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").addEnumQualifier(PrimitiveType.CHAR)));
-        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").addEnumQualifier(PrimitiveType.BOOLEAN).addEnumQualifier(PrimitiveType.BYTE)
-                .equals(new Descriptor<>(AbstractRecipe.class).setName("qwerty").addEnumQualifier(PrimitiveType.BYTE).addEnumQualifier(PrimitiveType.BOOLEAN)));
-        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").addEnumQualifier(PrimitiveType.INT).addEnumQualifier(PrimitiveType.FLOAT).addEnumQualifier(PrimitiveType.SHORT)
-                .equals(new Descriptor<>(Object.class).setName("qwerty").addEnumQualifier(PrimitiveType.SHORT).addEnumQualifier(PrimitiveType.INT).addEnumQualifier(PrimitiveType.FLOAT)));
+        /*
+         * Include enum qualifiers
+         */
         
-        // Assignable with the exact same name but different enum qualifiers, it will fail
-        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").setName("qwerty").addEnumQualifier(PrimitiveType.BOOLEAN)
-                .equals(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").addEnumQualifier(PrimitiveType.CHAR)));
-        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").addEnumQualifier(PrimitiveType.BOOLEAN).addEnumQualifier(PrimitiveType.INT)
-                .equals(new Descriptor<>(AbstractRecipe.class).setName("qwerty").addEnumQualifier(PrimitiveType.BYTE).addEnumQualifier(PrimitiveType.BOOLEAN)));
-        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).setName("qwerty").addEnumQualifier(PrimitiveType.INT).addEnumQualifier(PrimitiveType.FLOAT).addEnumQualifier(PrimitiveType.SHORT)
-                .equals(new Descriptor<>(Object.class).setName("qwerty").addEnumQualifier(PrimitiveType.SHORT).addEnumQualifier(PrimitiveType.FLOAT)));
+        // So long as it's assignable and has the exact same enum qualifiers, it will pass
+        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).addEnumQualifier(PrimitiveType.CHAR)
+                .equals(new Descriptor<>(Double1TestRecipe.class).addEnumQualifier(PrimitiveType.CHAR)));
+        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).addEnumQualifier(PrimitiveType.BOOLEAN).addEnumQualifier(PrimitiveType.BYTE)
+                .equals(new Descriptor<>(AbstractRecipe.class).addEnumQualifier(PrimitiveType.BYTE).addEnumQualifier(PrimitiveType.BOOLEAN)));
+        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).addEnumQualifier(PrimitiveType.INT).addEnumQualifier(PrimitiveType.FLOAT).addEnumQualifier(PrimitiveType.SHORT)
+                .equals(new Descriptor<>(Object.class).addEnumQualifier(PrimitiveType.SHORT).addEnumQualifier(PrimitiveType.INT).addEnumQualifier(PrimitiveType.FLOAT)));
         
+        // Assignable with different enum qualifiers, it will fail
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).addEnumQualifier(PrimitiveType.BOOLEAN)
+                .equals(new Descriptor<>(Double1TestRecipe.class).addEnumQualifier(PrimitiveType.CHAR)));
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).addEnumQualifier(PrimitiveType.BOOLEAN).addEnumQualifier(PrimitiveType.INT)
+                .equals(new Descriptor<>(AbstractRecipe.class).addEnumQualifier(PrimitiveType.BYTE).addEnumQualifier(PrimitiveType.BOOLEAN)));
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).addEnumQualifier(PrimitiveType.INT).addEnumQualifier(PrimitiveType.FLOAT).addEnumQualifier(PrimitiveType.SHORT)
+                .equals(new Descriptor<>(Object.class).addEnumQualifier(PrimitiveType.SHORT).addEnumQualifier(PrimitiveType.FLOAT)));
         
-        // If it is not assignable, it will fail
-        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(Double2TestRecipe.class)));
-        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(StringTestRecipe.class)));
-        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).equals(new Descriptor<>(IntTestRecipe.class)));
+        /*
+         * Include qualifiers
+         */
+        
+        // So long as it's assignable and has the exact same enum qualifiers, it will pass
+        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).addQualifier(PrimitiveType.class)
+                .equals(new Descriptor<>(Double1TestRecipe.class).addQualifier(PrimitiveType.class)));
+        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).addQualifier(PrimitiveType.class).addQualifier(Double1TestRecipe.class)
+                .equals(new Descriptor<>(AbstractRecipe.class).addQualifier(PrimitiveType.class).addQualifier(Double1TestRecipe.class)));
+        Assertions.assertTrue(new Descriptor<>(Double1TestRecipe.class).addQualifier(PrimitiveType.class).addQualifier(Double1TestRecipe.class).addQualifier(Object.class)
+                .equals(new Descriptor<>(Object.class).addQualifier(PrimitiveType.class).addQualifier(Double1TestRecipe.class).addQualifier(Object.class)));
+        
+        // Assignable with different enum qualifiers, it will fail
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).addQualifier(PrimitiveType.class)
+                .equals(new Descriptor<>(Double1TestRecipe.class).addQualifier(Double1TestRecipe.class)));
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).addQualifier(Double1TestRecipe.class).addQualifier(PrimitiveType.class)
+                .equals(new Descriptor<>(AbstractRecipe.class).addQualifier(Double1TestRecipe.class).addQualifier(Object.class)));
+        Assertions.assertFalse(new Descriptor<>(Double1TestRecipe.class).addQualifier(Double1TestRecipe.class).addQualifier(Object.class).addQualifier(Double1TestRecipe.class)
+                .equals(new Descriptor<>(Object.class).addQualifier(Object.class).addQualifier(PrimitiveType.class)));
     }
     
     /**
      * Verify that the matching is done properly
      */
     @Test
-    public void testMatchesNoNameNoEnumQualifiers() {
+    public void testMatchesNoNameNoEnumQualifiersNoQualifiers() {
         // Matches that pass, if no name and in the same hierarchy
         Descriptor<Double1TestRecipe> lhs = new Descriptor<>(Double1TestRecipe.class);
         Assertions.assertTrue(lhs.matches(new Descriptor<>(Double1TestRecipe.class).setName("")));
@@ -235,6 +293,71 @@ public class DescriptorTest extends AbstractUnitTest {
         Assertions.assertFalse(lhs.matches(new Descriptor<>(Double1TestRecipe.class).setName("abc123").addEnumQualifier(PrimitiveType.DOUBLE).addEnumQualifier(PrimitiveType.BOOLEAN).addEnumQualifier(PrimitiveType.CHAR)));
         Assertions.assertFalse(lhs.matches(new Descriptor<>(AbstractRecipe.class).setName("abc123").addEnumQualifier(PrimitiveType.FLOAT).addEnumQualifier(PrimitiveType.BOOLEAN).addEnumQualifier(PrimitiveType.CHAR)));
         Assertions.assertFalse(lhs.matches(new Descriptor<>(Object.class).setName("abc123").addEnumQualifier(PrimitiveType.INT).addEnumQualifier(PrimitiveType.BOOLEAN).addEnumQualifier(PrimitiveType.CHAR)));
+    }
+    
+    /**
+     * Verify that the matching is done properly
+     */
+    @Test
+    public void testMatchesWithQualifiers() {
+        Descriptor<Double1TestRecipe> lhs = new Descriptor<>(Double1TestRecipe.class).setName("abc123");
+        lhs.addEnumQualifier(PrimitiveType.BOOLEAN);
+        lhs.addEnumQualifier(PrimitiveType.BYTE);
+        lhs.addEnumQualifier(PrimitiveType.CHAR);
+        lhs.addQualifier(PrimitiveType.class);
+        lhs.addQualifier(Double1TestRecipe.class);
+        lhs.addQualifier(Object.class);
+        
+        // Pass if no name and no qualifers
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Double1TestRecipe.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(AbstractRecipe.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Object.class)));
+        
+        // Pass if same name and no enum qualifiers
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Double1TestRecipe.class).setName("abc123")));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(AbstractRecipe.class).setName("abc123")));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Object.class).setName("abc123")));
+     
+        // Pass if same name, one matching qualifier, and no enum qualifiers
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Double1TestRecipe.class).setName("abc123").addQualifier(PrimitiveType.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(AbstractRecipe.class).setName("abc123").addQualifier(Double1TestRecipe.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Object.class).setName("abc123").addQualifier(Object.class)));
+     
+        // Pass if same name, one matching qualifier, and one enum qualifier
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Double1TestRecipe.class).setName("abc123").addEnumQualifier(PrimitiveType.BOOLEAN).addQualifier(PrimitiveType.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(AbstractRecipe.class).setName("abc123").addEnumQualifier(PrimitiveType.CHAR).addQualifier(Double1TestRecipe.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Object.class).setName("abc123").addEnumQualifier(PrimitiveType.BYTE).addQualifier(Object.class)));
+     
+        // Pass if same name, two matching qualifiers, and no enum qualifiers
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Double1TestRecipe.class).setName("abc123").addQualifier(PrimitiveType.class).addQualifier(Object.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(AbstractRecipe.class).setName("abc123").addQualifier(Double1TestRecipe.class).addQualifier(PrimitiveType.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Object.class).setName("abc123").addQualifier(Object.class).addQualifier(PrimitiveType.class)));
+     
+        // Pass if same name, two matching qualifiers, and one enum qualifier
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Double1TestRecipe.class).setName("abc123").addEnumQualifier(PrimitiveType.BOOLEAN).addQualifier(PrimitiveType.class).addQualifier(Object.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(AbstractRecipe.class).setName("abc123").addEnumQualifier(PrimitiveType.CHAR).addQualifier(Double1TestRecipe.class).addQualifier(PrimitiveType.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Object.class).setName("abc123").addEnumQualifier(PrimitiveType.BYTE).addQualifier(Object.class).addQualifier(Double1TestRecipe.class)));
+
+        // Pass if same name, all matching qualifiers, and no enum qualifiers
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Double1TestRecipe.class).setName("abc123").addQualifier(PrimitiveType.class).addQualifier(Object.class).addQualifier(Double1TestRecipe.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(AbstractRecipe.class).setName("abc123").addQualifier(Double1TestRecipe.class).addQualifier(PrimitiveType.class).addQualifier(Object.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Object.class).setName("abc123").addQualifier(Object.class).addQualifier(PrimitiveType.class).addQualifier(Double1TestRecipe.class)));
+     
+        // Pass if same name, all matching qualifiers, and all enum qualifiers
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Double1TestRecipe.class).setName("abc123").addEnumQualifier(PrimitiveType.BOOLEAN).addEnumQualifier(PrimitiveType.BYTE).addEnumQualifier(PrimitiveType.CHAR).addQualifier(PrimitiveType.class).addQualifier(Object.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(AbstractRecipe.class).setName("abc123").addEnumQualifier(PrimitiveType.CHAR).addEnumQualifier(PrimitiveType.BYTE).addEnumQualifier(PrimitiveType.BOOLEAN).addQualifier(Double1TestRecipe.class).addQualifier(PrimitiveType.class)));
+        Assertions.assertTrue(lhs.matches(new Descriptor<>(Object.class).setName("abc123").addEnumQualifier(PrimitiveType.BYTE).addEnumQualifier(PrimitiveType.CHAR).addEnumQualifier(PrimitiveType.BOOLEAN).addQualifier(Object.class).addQualifier(Double1TestRecipe.class)));
+        
+        // Fail if one qualifier isn't present on LHS
+        Assertions.assertFalse(lhs.matches(new Descriptor<>(Double1TestRecipe.class).addQualifier(Descriptor.class)));
+        Assertions.assertFalse(lhs.matches(new Descriptor<>(AbstractRecipe.class).addQualifier(Integer.class)));
+        Assertions.assertFalse(lhs.matches(new Descriptor<>(Object.class).addQualifier(String.class)));
+
+        // Fail if one qualifier isn't present on LHS, even if others are
+        Assertions.assertFalse(lhs.matches(new Descriptor<>(Double1TestRecipe.class).addQualifier(Descriptor.class).addQualifier(PrimitiveType.class)));
+        Assertions.assertFalse(lhs.matches(new Descriptor<>(AbstractRecipe.class).addQualifier(Integer.class).addQualifier(Double1TestRecipe.class)));
+        Assertions.assertFalse(lhs.matches(new Descriptor<>(Object.class).addQualifier(String.class).addQualifier(Object.class)));
+     
     }
     
     /**

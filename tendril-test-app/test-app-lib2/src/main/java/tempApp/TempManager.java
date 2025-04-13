@@ -17,12 +17,14 @@ public class TempManager {
     private static int numPostConstruct = 0;
     private static int numVal1Instances = 0;
     private static int numVal2Instances = 0;
+    private static int numTempQualifierInstances = 0;
     
     public static void assertSingleton() {
         assert(numInstances == 1);
         assert(numPostConstruct == 1);
         assert(numVal1Instances == 1);
         assert(numVal2Instances >= 1);
+        assert(numTempQualifierInstances == 1);
     }
     
     public static void reset() {
@@ -30,6 +32,7 @@ public class TempManager {
         numPostConstruct = 0;
         numVal1Instances = 0;
         numVal2Instances = 0;
+        numTempQualifierInstances = 0;
     }
     
     public String other;
@@ -56,12 +59,20 @@ public class TempManager {
 	    numVal1Instances++;
 		return "Singleton = " + sgClass.toString() + ", Factory Field = " + cls.toString() + ", Factory Param = " + fClass.toString() + " something: " + something;
 	}
-	
-	@Bean
-	@Factory
-	@MyTypeId(MyType.VAL2)
-	public Object buildSomething() {
-	    numVal2Instances++;
-	    return new Object();
-	}
+    
+    @Bean
+    @Factory
+    @MyTypeId(MyType.VAL2)
+    public Object buildSomething() {
+        numVal2Instances++;
+        return new Object();
+    }
+    
+    @Bean
+    @Singleton
+    @TempQualifier
+    public Object buildSomethingElse() {
+        numTempQualifierInstances++;
+        return new Object();
+    }
 }
