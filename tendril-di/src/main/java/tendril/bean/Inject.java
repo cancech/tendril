@@ -30,5 +30,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target({ ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.FIELD })
 public @interface Inject {
-// Use javax annotations instead?
 }
