@@ -141,6 +141,7 @@ public class MyConfiguration {
 
 #### Injecting Across Configuration Beans
 If there are Beans defined within a single `Configuration` which depend on each other, they cannot call each other directly. Doing so will cause the creation of the Bean outside of the `Tendril` mechanism, with potentially unintended side-effects. If the Bean is question is a `@Factory` this side-effect may be ultimately inconsequential, however for `@Singleton` this will result in an additional instance of the Bean being created.
+
 ```java
 @Configuration
 public class MyConfiguration {
@@ -160,7 +161,9 @@ public class MyConfiguration {
   }
 }
 ```
+
 In this situation, it is necessary to rely on proper dependency injection methods.
+
 ```java
 @Configuration
 public class MyConfiguration {
@@ -245,6 +248,7 @@ Note that none of these `qualifiers` (including Bean Type) are not unique, as in
 
 ### Enum ID
 It is possible to employ an `Enum` as an ID on a bean using a two-step process. First, the `Enum` itself must be annotated with `@BeanIdEnum` which tells `Tendril` to generate an annotation `@<Enum>Id` which can then be applied to beans. This generated annotation takes a value from the `@BeanIdEnum` annotated `Enum`, which is then applied as a `qualifier` to the Bean.
+
 ```java
 @BeanIdEnum
 public enum MyEnum {
@@ -270,6 +274,7 @@ The generated `@<Enum>Id` is collocated in the same `package` as the `@BeanIdEnu
 
 ### @Named
 Using the `@Named` annotation allows for applying a `String` name to a Bean. There is no restriction placed on what can be contained within the `String`.
+
 ```java
 @Bean
 @Singleton
@@ -286,6 +291,22 @@ public class MyOtherClass {
   MyClass myClass;
 }
 ```
+
+### Qualifier Annotations
+Custom qualifier annotations can be creating, by simply defining an annotation and annotating it with the `@Qualifier` annotation. This marks that annotation as one which can be used as a qualifier and it will be processed as such by `Tendril`. The only other caveats being:
+* it must have a `@Retention` of at least `RUNTIME` to ensure that it can be used outside of the defining library
+* the `@Target` should include `TYPE`, `METHOD`, `FIELD`, and `PARAMETER` at a minimum, so that it can be used in all areas where beans are either produced or injected.
+
+An example qualifier can be defined as follows:
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Qualifier
+public @interface MyQualifier {
+}
+```
+The annotation does not require any attributes, in fact if any are defined they will be ignored by `Tendril`.
+
 ## Creating an Application
 The ability to pass Beans is crucial, however in of itself is insufficient for the purpose of driving an application. In order to be able to create a `Tendril` application, two additional pieces are required.
 
