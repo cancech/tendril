@@ -70,7 +70,6 @@ public abstract class AbstractDelayedAnnotationTendrilProcessor extends Abstract
     }
     
     /**
-     * @throws TendrilException 
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processElement(javax.lang.model.element.TypeElement, javax.lang.model.element.Element)
      */
     @Override
