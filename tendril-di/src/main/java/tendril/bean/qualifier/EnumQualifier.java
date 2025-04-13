@@ -25,6 +25,6 @@ import java.lang.annotation.Target;
  * directly, rather applied to any qualifier annotation that was generated from an enum annotated with @{@link BeanIdEnum}.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE })
+@Target({ ElementType.ANNOTATION_TYPE })
 public @interface EnumQualifier {
 }
