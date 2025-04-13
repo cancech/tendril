@@ -26,5 +26,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE })
 public @interface Qualifier {
-    // Allow for generation of qualifiers from Enum values
+    // TODO Allow for generation of qualifiers from Enum values
 }
