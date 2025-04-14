@@ -350,6 +350,8 @@ public class MyClass {
 }
 ```
 
+The name of the `enum` is irrelevant, as it is not used as part of the generation process.
+
 ## Creating an Application
 The ability to pass Beans is crucial, however in of itself is insufficient for the purpose of driving an application. In order to be able to create a `Tendril` application, two additional pieces are required.
 
