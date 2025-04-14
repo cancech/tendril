@@ -29,11 +29,6 @@ import java.util.Collections;
 
 import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.Name;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -42,7 +37,7 @@ import org.mockito.Mock;
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.qualifier.EnumQualifier;
-import tendril.codegen.classes.JClass;
+import tendril.bean.qualifier.GeneratedQualifier;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
@@ -67,19 +62,7 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
 
     // Mocks to use for testing
     @Mock
-    private TypeElement mockType;
-    @Mock
-    private Name mockName;
-    @Mock
-    private Types mockTypeUtils;
-    @Mock
     private ProcessingEnvironment mockProcessingEnv;
-    @Mock
-    private TypeElement mockBeanIdElement;
-    @Mock
-    private TypeMirror mockTypeMirror;
-    @Mock
-    private JClass mockClass;
     @Mock
     private ClassType mockAnnotatedClass;
     @Mock
@@ -96,42 +79,6 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
     @Override
     protected void prepareTest() {
         processor = new BeanEnumProcessorForTest();
-    }
-
-    /**
-     * Verify that the type validation is performed properly
-     * @throws TendrilException 
-     */
-    @Test
-    public void testValidateType() throws TendrilException {
-        int timesGetKind = 0;
-        int timesGetQualifiedName = 0;
-        when(mockType.getQualifiedName()).thenReturn(mockName);
-
-        // Non-Enum types throw an exception
-        for (ElementKind kind : ElementKind.values()) {
-            if (kind == ElementKind.ENUM)
-                continue;
-            when(mockType.getKind()).thenReturn(kind);
-            Assertions.assertThrows(TendrilException.class, () -> processor.validateType(mockType));
-            verify(mockType, times(++timesGetKind)).getKind();
-            verify(mockType, times(++timesGetQualifiedName)).getQualifiedName();
-        }
-
-        when(mockType.getKind()).thenReturn(ElementKind.ENUM);
-        processor.validateType(mockType);
-        verify(mockType, times(++timesGetKind)).getKind();
-    }
-
-    /**
-     * Verify that attempting to process a method generates an exception
-     */
-    @Test
-    public void testProcessMethod() {
-        when(mockAnnotatedMethod.getName()).thenReturn("mockMethod");
-        Assertions.assertThrows(TendrilException.class, () -> processor.processMethod());
-        verify(mockAnnotatedClass).getFullyQualifiedName();
-        verify(mockAnnotatedMethod).getName();
     }
 
     /**
@@ -168,8 +115,10 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
         matcher.eq("import " + Target.class.getName() + ";");
         matcher.eq("import " + Generated.class.getName() + ";");
         matcher.eq("import " + EnumQualifier.class.getName() + ";");
+        matcher.eq("import " + GeneratedQualifier.class.getName() + ";");
         matcher.eq("");
         matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
+        matcher.eq("@" + GeneratedQualifier.class.getSimpleName());
         matcher.eq("@" + Retention.class.getSimpleName() + "(" + enumToString(RetentionPolicy.RUNTIME) + ")");
         matcher.eq("@" + Target.class.getSimpleName() + "({" + enumsToString(ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER) + "})");
         matcher.eq("@" + EnumQualifier.class.getSimpleName());

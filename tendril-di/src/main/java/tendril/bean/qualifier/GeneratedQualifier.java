@@ -21,9 +21,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Intended to be applied to annotations to denote that the annotation is to be used as a qualifier on beans.
+ * Annotation to denote a qualifier that has been automatically generated. This is employed for the purpose of allowing for the discovery of qualifiers once they have been generated,
+ * allowing for them to be employed as part of annotation processing and code generation.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE })
-public @interface Qualifier {
+public @interface GeneratedQualifier {
 }

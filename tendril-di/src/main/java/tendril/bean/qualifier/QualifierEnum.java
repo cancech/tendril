@@ -21,9 +21,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Intended to be applied to annotations to denote that the annotation is to be used as a qualifier on beans.
+ * Annotation which can be applied to an Enum, which will trigger the generation of a separate qualifier annotation
+ * for each values within the Enum. These generated annotation can then be employed by Beans within the application.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.ANNOTATION_TYPE })
-public @interface Qualifier {
+@Target(ElementType.TYPE)
+public @interface QualifierEnum {
+
 }

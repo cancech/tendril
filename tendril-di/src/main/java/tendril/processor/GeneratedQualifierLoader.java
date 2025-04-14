@@ -23,20 +23,20 @@ import javax.lang.model.SourceVersion;
 import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.AnnotationLoaderProcessor;
-import tendril.bean.qualifier.EnumQualifier;
+import tendril.bean.qualifier.GeneratedQualifier;
 
 /**
- * Processor which acts as a loader to track when {@link EnumQualifier} annotated annotations are generated. It does nothing with said annotations
+ * Processor which acts as a loader to track when {@link GeneratedQualifier} annotated annotations are generated. It does nothing with said annotations
  * other than to track them and allow for them to be used elsewhere.
  */
-@SupportedAnnotationTypes("tendril.bean.qualifier.EnumQualifier")
+@SupportedAnnotationTypes("tendril.bean.qualifier.GeneratedQualifier")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class EnumQualifierLoader extends AnnotationLoaderProcessor {
+public class GeneratedQualifierLoader extends AnnotationLoaderProcessor {
 
     /**
      * CTOR
      */
-    public EnumQualifierLoader() {
+    public GeneratedQualifierLoader() {
     }
 }

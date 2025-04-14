@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Jaroslav Bosak
+ * Copyright 2025 Jaroslav Bosak
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,57 +30,61 @@ import com.google.auto.service.AutoService;
 import tendril.annotationprocessor.AnnotationFromEnumProcessor;
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.exception.TendrilException;
-import tendril.bean.qualifier.BeanIdEnum;
-import tendril.bean.qualifier.EnumQualifier;
 import tendril.bean.qualifier.GeneratedQualifier;
+import tendril.bean.qualifier.Qualifier;
+import tendril.bean.qualifier.QualifierEnum;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
+import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.classes.JClass;
+import tendril.codegen.classes.JClassEnum;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.value.JValueFactory;
 
 /**
- * Processor for {@link Enum}s annotated with {@link BeanIdEnum}. This will generated the appropriate Id {@link EnumQualifier} annotation for the enumeration, which can then be employed in the client
- * code for the purpose of qualifying beans with an enumeration ID.
+ * Processor for generating qualifier annotations from the values of an Enum annotated with @QualifierEnum. The generated annotation can then be employed as qualifiers on
+ * beans.
  */
-@SupportedAnnotationTypes("tendril.bean.qualifier.BeanIdEnum")
+@SupportedAnnotationTypes("tendril.bean.qualifier.QualifierEnum")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class BeanEnumProcessor extends AnnotationFromEnumProcessor {
+public class QualifierEnumProcessor extends AnnotationFromEnumProcessor {
 
     /**
      * CTOR
      */
-    public BeanEnumProcessor() {
-        super(BeanIdEnum.class);
+    public QualifierEnumProcessor() {
+        super(QualifierEnum.class);
     }
-
+    
     /**
-     * Process the annotated class, generating the appropriate {@link EnumQualifier} for the {@link Enum}
+     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
      */
     @Override
-    public ClassDefinition processType() throws TendrilException {
-        ClassType providerClass = currentClassType.generateFromClassSuffix("Id");
-        return new ClassDefinition(providerClass, generateCode(providerClass));
+    protected ClassDefinition processType() throws TendrilException {
+        JClassEnum enumClass = (JClassEnum) currentClass;
+        // Generate an annotation for each value, rather than one for the whole enum
+        for (EnumerationEntry entry: enumClass.getEnumerations()) {
+            ClassType type = new ClassType(currentClassType.getPackageName(), entry.getName());
+            writeCode(new ClassDefinition (type, generateCode(type)));
+        }
+        return null;
     }
-
+    
     /**
-     * Generate the code for the {@link EnumQualifier} which treats the annotated {@link Enum} as an ID
+     * Generate the code for the annotation which is to be created.
      * 
-     * @param qualifier {@link ClassType} representing the qualifier annotation that is to be created
-     * @param sourceEnum {@link ClassType} representing the {@link Enum} that is to be used as the ID
-     * @return {@link String} containing the generated code
-     * @throws ClassNotFoundException if the sourceEnum representing as unknown type
+     * @param type {@link ClassType} of the generated annotation
+     * @return {@link String} containing the full code for the class
      */
-    private String generateCode(ClassType qualifier) {
-        JClass cls = ClassBuilder.forAnnotation(qualifier).setVisibility(VisibilityType.PUBLIC)
+    private String generateCode(ClassType type) {
+        JClass cls = ClassBuilder.forAnnotation(type).setVisibility(VisibilityType.PUBLIC)
                 .addAnnotation(JAnnotationFactory.create(GeneratedQualifier.class))
                 .addAnnotation(JAnnotationFactory.create(Retention.class, JValueFactory.create(RetentionPolicy.RUNTIME)))
                 .addAnnotation(JAnnotationFactory.create(Target.class, JValueFactory.createArray(ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER)))
-                .addAnnotation(JAnnotationFactory.create(EnumQualifier.class))
-                .buildMethod(currentClassType, "value").setVisibility(VisibilityType.PUBLIC).finish().build();
+                .addAnnotation(JAnnotationFactory.create(Qualifier.class)).build();
         return cls.generateCode();
     }
-    
+
 }

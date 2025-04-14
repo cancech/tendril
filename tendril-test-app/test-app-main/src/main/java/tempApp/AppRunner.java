@@ -22,9 +22,6 @@ import tendril.bean.qualifier.Named;
 import tendril.context.launch.Runner;
 import tendril.context.launch.TendrilRunner;
 
-/**
- * 
- */
 @Runner
 public class AppRunner implements TendrilRunner {
 
@@ -78,6 +75,15 @@ public class AppRunner implements TendrilRunner {
     @Inject
     @TempQualifier
     Object objTmp;
+    @Inject
+    @Option1
+    Runnable singletonRunnable;
+    @Inject
+    @Option2
+    Runnable option2Runnable;
+    @Inject
+    @Named("second")
+    Runnable secondRunnable;
     
     private FactoryClass factoryBean5;
     
@@ -144,5 +150,12 @@ public class AppRunner implements TendrilRunner {
         assert(factoryBean3 != factoryBean5);
         assert(factoryBean4 != factoryBean5);
         assert(objVal2 != objTmp);
+        
+        assert(singletonRunnable != option2Runnable);
+        assert(singletonRunnable != secondRunnable);
+        assert(option2Runnable != secondRunnable);
+        singletonRunnable.run();
+        option2Runnable.run();
+        secondRunnable.run();
     }
 }

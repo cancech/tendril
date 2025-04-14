@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Jaroslav Bosak
+ * Copyright 2025 Jaroslav Bosak
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.bean.qualifier;
+package tempApp;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import tendril.bean.Bean;
+import tendril.bean.Singleton;
 
 /**
- * Intended to be applied to annotations to denote that the annotation is to be used as a qualifier on beans.
+ * 
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.ANNOTATION_TYPE })
-public @interface Qualifier {
+@Bean
+@Singleton
+@Option1
+public class SingletonRunnable implements Runnable {
+
+    /**
+     * @see java.lang.Runnable#run()
+     */
+    @Override
+    public void run() {
+        System.out.println("I'M A SINGLETON");
+    }
+
 }

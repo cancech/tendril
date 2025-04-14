@@ -150,11 +150,19 @@ public class ClassConverter {
         ElementKind kind = element.getKind();
         if (kind == ElementKind.INTERFACE)
             return ClassBuilder.forInterface(type);
-        if (kind == ElementKind.ANNOTATION_TYPE)
+        else if (kind == ElementKind.ANNOTATION_TYPE)
             return ClassBuilder.forAnnotation(type);
-        if (kind == ElementKind.ENUM)
-            return ClassBuilder.forEnum(type);
-        if (kind == ElementKind.CLASS) {
+        else if (kind == ElementKind.ENUM) {
+            ClassBuilder builder = ClassBuilder.forEnum(type);
+            // Populate the enum values
+            for(Element e: element.getEnclosedElements()) {
+                if (e.getKind() == ElementKind.ENUM_CONSTANT) {
+                    builder.buildEnumeration(e.getSimpleName().toString()).build();
+                }
+            }
+            
+            return builder;
+        } else if (kind == ElementKind.CLASS) {
             if (element.getModifiers().contains(Modifier.ABSTRACT))
                 return ClassBuilder.forAbstractClass(type);
             

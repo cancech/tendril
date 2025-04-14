@@ -270,7 +270,9 @@ public class MyOtherClass {
   MyClass myClassBean;
 }
 ```
-The generated `@<Enum>Id` is collocated in the same `package` as the `@BeanIdEnum` annotated enumeration.
+The generated `@<Enum>Id` is co-located in the same `package` as the `@BeanIdEnum` annotated enumeration.
+
+When used, the `@<Enum>Id` qualifier ultimately serves the exact same function as `@Named` (detailed below), just with a touch of compiler validation and verification added into the mix to lessen the risk of misnamed beans. This cannot remove the issues associated with employing the *wrong* value, but it will decrease (if not outright remove) risks of typos. For this reason it is recommended to employ `@<Enum>Id` is place of `@Named` whenever possible.
 
 ### @Named
 Using the `@Named` annotation allows for applying a `String` name to a Bean. There is no restriction placed on what can be contained within the `String`.
@@ -306,6 +308,47 @@ public @interface MyQualifier {
 }
 ```
 The annotation does not require any attributes, in fact if any are defined they will be ignored by `Tendril`.
+
+#### Generating Qualifiers
+Since every qualifier will look, behavior, and be implement in the exact same manner, with the only difference being the class/annotation name, the qualifier annotation essentially becomes a bit of boiler plate code. To alleviate some of the drudgery involved with the definition and maintenance of these qualifiers, it is possible to use the `@QualifierEnum` to generate the desired qualifiers. In this manner the various qualifiers are defined in an `enum`, such that each value represents a single qualifier. No parameters/values are necessary, and the `enum` value name is used verbatim to generate a corresponding qualifier annotation.
+
+```java
+@QualifierEnum
+public enum MyQualifiers {
+	Value1, Value2;
+}
+```
+
+will generate
+
+```java
+@GeneratedQualifier
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
+@Qualifier
+public @interface Value1 {
+
+}
+
+@GeneratedQualifier
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
+@Qualifier
+public @interface Value2 {
+
+}
+```
+
+which can then be employed as needed to qualify beans in your application.
+
+```java
+@Bean
+@Factory
+@Value1
+public class MyClass {
+
+}
+```
 
 ## Creating an Application
 The ability to pass Beans is crucial, however in of itself is insufficient for the purpose of driving an application. In order to be able to create a `Tendril` application, two additional pieces are required.
