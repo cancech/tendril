@@ -111,4 +111,16 @@ class SimpleWildcardGenericTest extends AbstractUnitTest {
         Assertions.assertEquals(JValueFactory.create(123), gen.asValue(123));
         Assertions.assertEquals(JValueFactory.create(PrimitiveType.BYTE), gen.asValue(PrimitiveType.BYTE));
     }
+
+    /**
+     * Verify that the generic is properly determining equality
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void testEquals() {
+        Assertions.assertTrue(gen.equals(new SimpleWildcardGeneric()));
+        Assertions.assertFalse(gen.equals(new SimpleGeneric("Abc123")));
+        Assertions.assertFalse(gen.equals(new SimpleGeneric("?")));
+        Assertions.assertFalse(gen.equals(Integer.valueOf(123)));
+    }
 }

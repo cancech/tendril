@@ -92,5 +92,16 @@ class SimpleExplicitGeneric extends GenericType {
     public ClassType asClassType() {
         return classType;
     }
-
+    
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof SimpleExplicitGeneric))
+            return false;
+        
+        SimpleExplicitGeneric other = (SimpleExplicitGeneric) obj;
+        return classType.equals(other.classType);
+    }
 }

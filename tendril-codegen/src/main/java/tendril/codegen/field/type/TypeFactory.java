@@ -15,10 +15,13 @@
  */
 package tendril.codegen.field.type;
 
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.WildcardType;
 
 import tendril.codegen.DefinitionException;
+import tendril.codegen.generics.GenericFactory;
 
 /**
  * Factory to facilitate the creation of {@link Type} instances
@@ -44,11 +47,47 @@ public abstract class TypeFactory {
         if (kind.isPrimitive())
             return PrimitiveType.valueOf(kind.toString());
         if (kind == TypeKind.DECLARED)
-            return new ClassType(mirror.toString());
+            return asClassType(mirror);
         if (kind == TypeKind.ARRAY)
             return new ArrayType<Type>(create(((javax.lang.model.type.ArrayType) mirror).getComponentType()));
+        if (kind == TypeKind.WILDCARD)
+            return asWildcardType(mirror);
 
         throw new DefinitionException("Unknown type: " + mirror + "[" + kind + "]");
+    }
+    
+    /**
+     * Convert the {@link TypeMirror} to a {@link ClassType}
+     * 
+     * @param mirror {@link TypeMirror} representing an object
+     * @return {@link Type} representing the class
+     */
+    private static Type asClassType(TypeMirror mirror) {
+        DeclaredType decl = (DeclaredType) mirror;
+        ClassType type = new ClassType(decl.asElement().toString());
+        decl.getTypeArguments().forEach(gen -> type.addGeneric(GenericFactory.create((ClassType) create(gen))));
+        return type;
+    }
+    
+    /**
+     * Convert the {@link TypeMirror} to {@link ClassType}
+     * 
+     * @param mirror {@link TypeMirror} representing a Wildcard (i.e.: generic with ?)
+     * @return {@link Type} presenting the class (i.e.: the "concrete" type of the wildcard)
+     */
+    private static Type asWildcardType(TypeMirror mirror) {
+        WildcardType wild = (WildcardType) mirror;
+        // If it's an extends wildcard
+        TypeMirror genMirror = wild.getExtendsBound();
+        if (genMirror != null)
+            return create(genMirror);
+        // If it's a super wildcard
+        genMirror = wild.getSuperBound();
+        if (genMirror != null)
+            return create(genMirror);
+        
+        // If it's a pure wildcard, then default to Object
+        return new ClassType(Object.class);
     }
     
     /**

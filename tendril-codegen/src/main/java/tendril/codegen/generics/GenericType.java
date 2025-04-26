@@ -104,4 +104,16 @@ public abstract class GenericType implements Type {
     public String toString() {
         return "<" + getSimpleName() + ">";
     }
+    
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof GenericType))
+            return false;
+        
+        GenericType other = (GenericType) obj;
+        return name.equals(other.name);
+    }
 }

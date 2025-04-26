@@ -73,4 +73,16 @@ public class CompoundExtendsWildcardGenericTest  extends AbstractUnitTest {
         verify(mockParent2).getSimpleName();
         verify(mockParent3).getSimpleName();
     }
+
+    /**
+     * Verify that the generic is properly determining equality
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void testEquals() {
+        Assertions.assertTrue(gen.equals(new CompoundExtendsWildcardGeneric(Arrays.asList(mockParent1, mockParent2, mockParent3))));
+
+        Assertions.assertFalse(gen.equals(new CompoundExtendsWildcardGeneric(Arrays.asList(mockParent1, mockParent3))));
+        Assertions.assertFalse(gen.equals(Integer.valueOf(123)));
+    }
 }

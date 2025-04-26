@@ -57,4 +57,15 @@ class CompoundSuperGeneric extends CompoundGeneric {
     public String generateApplication() {
         return super.generateDefinition();
     }
+    
+    /**
+     * @see tendril.codegen.generics.CompoundGeneric#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof CompoundSuperGeneric))
+            return false;
+        
+        return super.equals(obj);
+    }
 }

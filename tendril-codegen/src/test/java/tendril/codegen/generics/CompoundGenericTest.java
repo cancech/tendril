@@ -45,7 +45,17 @@ public class CompoundGenericTest extends AbstractUnitTest {
          * @param name {@link String} to apply to the generic
          */
         TestCompoundGeneric(String name) {
-            super(name, parentList);
+            this(name, parentList);
+        }
+
+        /**
+         * CTOR
+         * 
+         * @param name {@link String} to apply to the generic
+         * @param parents {@link List} of {@link ClassType}s representing the parents to employs for the generic
+         */
+        TestCompoundGeneric(String name, List<ClassType> parents) {
+            super(name, parents);
         }
 
         /**
@@ -102,6 +112,19 @@ public class CompoundGenericTest extends AbstractUnitTest {
         verify(mockParent1).getSimpleName();
         verify(mockParent2).getSimpleName();
         verify(mockParent3).getSimpleName();
+    }
+
+    /**
+     * Verify that the generic is properly determining equality
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void testEquals() {
+        Assertions.assertTrue(gen.equals(new TestCompoundGeneric("testGeneric", Arrays.asList(mockParent1, mockParent2, mockParent3))));
+
+        Assertions.assertFalse(gen.equals(new TestCompoundGeneric("testGeneric123", Arrays.asList(mockParent1, mockParent2, mockParent3))));
+        Assertions.assertFalse(gen.equals(new TestCompoundGeneric("testGeneric", Arrays.asList(mockParent1, mockParent3))));
+        Assertions.assertFalse(gen.equals(Integer.valueOf(123)));
     }
 
 }

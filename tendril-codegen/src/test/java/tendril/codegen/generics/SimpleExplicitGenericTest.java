@@ -164,4 +164,16 @@ class SimpleExplicitGenericTest extends AbstractUnitTest {
     public void testAsClassType() {
         Assertions.assertEquals(mockClassType, gen.asClassType());
     }
+
+    /**
+     * Verify that the generic is properly determining equality
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void testEquals() {
+        Assertions.assertTrue(gen.equals(new SimpleExplicitGeneric(mockClassType)));
+
+        Assertions.assertFalse(gen.equals(new SimpleExplicitGeneric(new ClassType("a.b.c.D"))));
+        Assertions.assertFalse(gen.equals(Integer.valueOf(123)));
+    }
 }

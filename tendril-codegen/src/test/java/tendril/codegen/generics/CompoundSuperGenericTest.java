@@ -34,6 +34,8 @@ public class CompoundSuperGenericTest extends AbstractUnitTest {
     // Mocks to use for testing
     @Mock
     private ClassType mockParent;
+    @Mock
+    private ClassType mockOtherParent;
     
     // Instance to test
     private CompoundSuperGeneric gen;
@@ -70,5 +72,17 @@ public class CompoundSuperGenericTest extends AbstractUnitTest {
         when(mockParent.getSimpleName()).thenReturn("mockParent");
         Assertions.assertEquals("? super mockParent", gen.generateApplication());
         verify(mockParent).getSimpleName();
+    }
+
+    /**
+     * Verify that the generic is properly determining equality
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void testEquals() {
+        Assertions.assertTrue(gen.equals(new CompoundSuperGeneric(mockParent)));
+
+        Assertions.assertFalse(gen.equals(new CompoundSuperGeneric(mockOtherParent)));
+        Assertions.assertFalse(gen.equals(Integer.valueOf(123)));
     }
 }

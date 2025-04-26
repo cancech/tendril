@@ -38,4 +38,12 @@ class SimpleWildcardGeneric extends SimpleGeneric {
     public String generateDefinition() {
         throw new CodeGenerationException("A wildcard generic cannot be used in a definition");
     }
+    
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof SimpleWildcardGeneric;
+    }
 }

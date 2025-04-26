@@ -49,4 +49,15 @@ class CompoundExtendsWildcardGeneric extends CompoundExtendsGeneric {
     public String generateApplication() {
         return super.generateDefinition();
     }
+    
+    /**
+     * @see tendril.codegen.generics.CompoundGeneric#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof CompoundExtendsWildcardGeneric))
+            return false;
+        
+        return super.equals(obj);
+    }
 }

@@ -63,4 +63,15 @@ abstract class CompoundGeneric extends SimpleGeneric {
         String parentsCode = TendrilStringUtil.join(parents, " & ", (p) -> p.getSimpleName());
         return super.generateDefinition() + " " + getKeyword() + parentsCode;
     }
+    
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof CompoundGeneric))
+            return false;
+        
+        return super.equals(obj) && parents.equals(((CompoundGeneric) obj).parents);
+    }
 }

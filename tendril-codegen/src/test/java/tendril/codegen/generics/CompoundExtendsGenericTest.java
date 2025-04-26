@@ -32,6 +32,8 @@ public class CompoundExtendsGenericTest extends AbstractUnitTest {
     // Mocks to use for testing
     @Mock
     private List<ClassType> mockParents;
+    @Mock
+    private List<ClassType> mockOtherParents;
     
     // Instance to test
     private CompoundExtendsGeneric gen;
@@ -52,4 +54,16 @@ public class CompoundExtendsGenericTest extends AbstractUnitTest {
         Assertions.assertEquals("extends ", gen.getKeyword());
     }
 
+    /**
+     * Verify that the generic is properly determining equality
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void testEquals() {
+        Assertions.assertTrue(gen.equals(new CompoundExtendsGeneric("GenericName", mockParents)));
+
+        Assertions.assertFalse(gen.equals(new CompoundExtendsGeneric("GenericNameAbc123", mockParents)));
+        Assertions.assertFalse(gen.equals(new CompoundExtendsGeneric("GenericName", mockOtherParents)));
+        Assertions.assertFalse(gen.equals(Integer.valueOf(123)));
+    }
 }

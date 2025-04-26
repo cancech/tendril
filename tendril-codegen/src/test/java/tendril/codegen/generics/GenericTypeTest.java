@@ -158,4 +158,16 @@ public class GenericTypeTest extends AbstractUnitTest {
     public void testToString() {
         Assertions.assertEquals("<TestGenericName>", gen.toString());
     }
+
+    /**
+     * Verify that the generic is properly determining equality
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void testEquals() {
+        Assertions.assertTrue(gen.equals(new TestGenericType("TestGenericName")));
+
+        Assertions.assertFalse(gen.equals(new TestGenericType("TestGenericNameAbc123")));
+        Assertions.assertFalse(gen.equals(Integer.valueOf(123)));
+    }
 }

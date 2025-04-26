@@ -41,5 +41,16 @@ class CompoundExtendsGeneric extends CompoundGeneric {
     protected String getKeyword() {
         return "extends ";
     }
+    
+    /**
+     * @see tendril.codegen.generics.CompoundGeneric#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof CompoundExtendsGeneric))
+            return false;
+        
+        return super.equals(obj);
+    }
 
 }
