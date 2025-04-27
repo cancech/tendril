@@ -5,6 +5,7 @@ Tendril is an Annotation Processing based Dependency Injection, where the necess
 |---       | ---       |
 |`@Bean`|Indicates the *production* of a bean, ergo a bean is created (outgoing).|
 |`@Inject`|Indicates the *injection* of a bean, ergo a bean is consumed/retrieved (incoming).|
+|`@InjectAll`|Indicates the *injection* of multiple related beans, ergo beans are consumed/retrieved (incoming).|
 
 Since reflection is not employed, all beans (and any `Tendril` facing aspects) cannot be private. They must be at least `package private` in order for dependency injection to be successfully performed.
 
@@ -93,7 +94,7 @@ In this situation, the `Configuration` will be initialized before any beans it p
 ## Consuming a Bean
 In essence, the act of creating Beans is also the act of consuming them. Bean consumption is performed as part of Bean creation, where a Bean consumes its dependencies before it itself is provided onward to whomever depends on it. Thus, consuming a Bean is the act of defining what other Bean a given Bean depends on. This is done via the `@Inject` annotation, which can be applied on:
 * Constructors - the parameters the constructor takes are treated as bean dependencies and provided when called
-* Instance Fields - instance fields annotated with `@Inject` are automatically fulfilled by dependency injection
+* Instance Fields - instance fields annotated with `@Inject` or `@InjectAll` are automatically fulfilled by dependency injection
 * Methods - any method annotated with `@Inject` is automatically called (once) as part of dependency injection, with all parameters it contains treated as dependencies that are to be provided.
 
 This applied to both `Bean Classes` as well as `Configurations`.
@@ -185,7 +186,33 @@ public class MyConfiguration {
 
 Some things to note:
 * as mentioned at the start, no injected element can be `private`
-* per above, the `@Inject` annotation on a constructor is only necesseray if there are multiple valid constructors on a class. It is still recommended to always apply the annotation regardless to make it explicitely clear (both to `Tendril` as well as anyone looking at the code in the future).
+* per above, the `@Inject` annotation on a constructor is only necessary if there are multiple valid constructors on a class. It is still recommended to always apply the annotation regardless to make it explicitly clear (both to `Tendril` as well as anyone looking at the code in the future).
+
+#### Injecting Multiple Related Beans
+`@Inject` is the *default* injector, with the limitation that it must resolve to exactly one bean. An error will be thrown if either no matching bean is available, or if multiple beans match the required description. The `@InjectAll` can be used to avoid this limitation. The expectation and behavior of `@InjectAll` is as follows:
+* `@InjectAll` can only be applied to fields
+* The field must be a `List` and the *type parameter* must reflect the desired *type* of the bean (i.e.: `@InjectAll List<Runnable>` will inject `Runnable` beans)
+* The field can be qualified in the same manner as `@Inject`, with the same rules/options supported
+* All beans in the application context which match the supplied qualifiers will be retrieved
+* If no bean matches the supplied qualifiers, and empty list will be retrieved
+
+Accordingly, `Tendril` provides zero or more matching beans to the `@InjectAll` field, leaving it up to the client code to perform the necessary actions/operations as necessary upon them.
+
+```java
+@Bean
+@Singleton
+public class MyBeanClass {
+
+  @InjectAll
+  List<Runnable> runnables;
+
+  @PostConstruct
+  void processRunnables() {
+    for (Runnable r: runnables)
+      r.run();
+  }
+}
+```
 
 ## Bean Lifecycle
 

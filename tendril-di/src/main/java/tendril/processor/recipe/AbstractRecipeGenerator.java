@@ -234,8 +234,19 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @return {@link String} containing the code defining the dependency
      */
     protected String getDependencyDescriptor(JType<?> field) {
+        return getDependencyDescriptor(field, field.getType());
+    }
+
+    /**
+     * Get the code for the descriptor that is to be applied to a dependency of the bean defined by this recipe.
+     * 
+     * @param field {@link JType} which defines the dependency
+     * @param beanType {@link Type} representing the bean the descriptor is to describe
+     * @return {@link String} containing the code defining the dependency
+     */
+    protected String getDependencyDescriptor(JType<?> field, Type beanType) {
         externalImports.add(new ClassType(Descriptor.class));
-        String desc = "new " + Descriptor.class.getSimpleName() + "<>(" + field.getType().getSimpleName() + ".class)";
+        String desc = "new " + Descriptor.class.getSimpleName() + "<>(" + beanType.getSimpleName() + ".class)";
         return desc + joinLines(getDescriptorLines(field), ".", "", "\n            ");
     }
 

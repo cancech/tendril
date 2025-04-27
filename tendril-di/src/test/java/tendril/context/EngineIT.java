@@ -27,6 +27,7 @@ import tendril.BeanRetrievalException;
 import tendril.bean.recipe.Descriptor;
 import tendril.processor.registration.RegistryFile;
 import tendril.test.AbstractUnitTest;
+import tendril.test.assertions.CollectionAssert;
 import tendril.test.recipe.Double1DuplicateTestRecipe;
 import tendril.test.recipe.Double1TestRecipe;
 import tendril.test.recipe.Double2TestRecipe;
@@ -88,12 +89,21 @@ public class EngineIT extends AbstractUnitTest {
 
         // Not available
         Assertions.assertThrows(BeanRetrievalException.class, () -> engine.getBean(new Descriptor<>(Long.class)));
-        // Too vague
+        CollectionAssert.assertEmpty(engine.getAllBeans(new Descriptor<>(Long.class)));
+        
+        // Exact match
         Assertions.assertThrows(BeanRetrievalException.class, () -> engine.getBean(new Descriptor<>(Double.class)));
         Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
         Assertions.assertEquals(Double2TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double2TestRecipe.NAME)));
         Assertions.assertEquals(IntTestRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class)));
         Assertions.assertEquals(StringTestRecipe.VALUE, engine.getBean(new Descriptor<>(String.class)));
+
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class)), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)), Double1TestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class).setName(Double2TestRecipe.NAME)), Double2TestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Integer.class)), IntTestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(String.class)), StringTestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Object.class)), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE);
     }
 
     /**
@@ -109,6 +119,12 @@ public class EngineIT extends AbstractUnitTest {
         Assertions.assertEquals(2, engine.getBeanCount());
         Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
         Assertions.assertEquals(Double2TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double2TestRecipe.NAME)));
+        
+        CollectionAssert.assertEmpty(engine.getAllBeans(new Descriptor<>(Long.class)));
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class)), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Object.class)), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)), Double1TestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class).setName(Double2TestRecipe.NAME)), Double2TestRecipe.VALUE);
     }
 
     /**
@@ -126,5 +142,14 @@ public class EngineIT extends AbstractUnitTest {
         Assertions.assertEquals(Double2TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double2TestRecipe.NAME)));
         Assertions.assertEquals(IntTestRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class)));
         Assertions.assertEquals(StringTestRecipe.VALUE, engine.getBean(new Descriptor<>(String.class)));
+        
+
+        CollectionAssert.assertEmpty(engine.getAllBeans(new Descriptor<>(Long.class)));
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class)), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)), Double1TestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class).setName(Double2TestRecipe.NAME)), Double2TestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Integer.class)), IntTestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(String.class)), StringTestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Object.class)), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE);
     }
 }

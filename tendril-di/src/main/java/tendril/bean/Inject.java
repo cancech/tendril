@@ -23,7 +23,8 @@ import java.lang.annotation.Target;
 /**
  * Annotation which is used to mark a method or field into which a bean is to be injected as a bean consumer, provided that the encompassing class is a bean {@link Bean} in its own right. As 
  * part of the initialization of the bean these will be automatically populated with the required bean(s), such that fields will be guaranteed to have the appropriate value (bean) applied, and 
- * methods will be called with the appropriate parameters (beans).
+ * methods will be called with the appropriate parameters (beans). When this is employed, then every @Inject field/parameter must resolve to exactly one bean, with an exception being thrown if
+ * either no suitable bean was found, or more than one.
  *  
  * <p>Note that an injected (consumer) method is expected to be void as any return will be "lost", and can be considered analogous to a method annotated with PostConstruct.</p>
  */

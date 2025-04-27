@@ -128,6 +128,20 @@ public class Engine {
 
         return matchingRecipes.get(0).get();
     }
+    
+    /**
+     * Get all beans that match the provided descriptor. The {@link List} can be empty if there are no matches.
+     * 
+     * @param <BEAN_TYPE> indicating the type of the beans that are to be retrieved
+     * @param descriptor  {@link Descriptor} containing the description of the beans that are to be retrieved
+     * @return {@link List} of matching beans
+     */
+    public <BEAN_TYPE> List<BEAN_TYPE> getAllBeans(Descriptor<BEAN_TYPE> descriptor) {
+        List<BEAN_TYPE> beans = new ArrayList<>();
+        for(AbstractRecipe<BEAN_TYPE> r: findRecipes(descriptor))
+            beans.add(r.get());
+        return beans;
+    }
 
     /**
      * Get all of the recipes which are available for the desired type. This includes exact matches (i.e.: recipe provides exactly the desired class) as well as classes which can be referenced as the

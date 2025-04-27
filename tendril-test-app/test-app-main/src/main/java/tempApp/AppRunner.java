@@ -15,9 +15,12 @@
  */
 package tempApp;
 
+import java.util.List;
+
 import tempApp.id.MyType;
 import tempApp.id.MyTypeId;
 import tendril.bean.Inject;
+import tendril.bean.InjectAll;
 import tendril.bean.qualifier.Named;
 import tendril.context.launch.Runner;
 import tendril.context.launch.TendrilRunner;
@@ -31,16 +34,16 @@ public class AppRunner implements TendrilRunner {
     private static int timesDoNothing = 0;
     private static int timesEnumInjector = 0;
     private static int timesRun = 0;
-    
+
     public static void assertSingleton() {
-        assert(instances == 1);
-        assert(timesDoSomething == 1);
-        assert(timesDoSomethingElse == 1);
-        assert(timesDoNothing == 1);
-        assert(timesEnumInjector == 1);
-        assert(timesRun == 1);
+        assertion(instances == 1);
+        assertion(timesDoSomething == 1);
+        assertion(timesDoSomethingElse == 1);
+        assertion(timesDoNothing == 1);
+        assertion(timesEnumInjector == 1);
+        assertion(timesRun == 1);
     }
-    
+
     public static void reset() {
         instances = 0;
         timesDoSomething = 0;
@@ -49,8 +52,7 @@ public class AppRunner implements TendrilRunner {
         timesEnumInjector = 0;
         timesRun = 0;
     }
-    
-    
+
     @Inject
     @Named("TempName")
     Object tmpClass;
@@ -84,13 +86,15 @@ public class AppRunner implements TendrilRunner {
     @Inject
     @Named("second")
     Runnable secondRunnable;
-    
+    @InjectAll
+    List<? extends Runnable> allRunnables;
+
     private FactoryClass factoryBean5;
-    
+
     AppRunner() {
         instances++;
     }
-    
+
     @Inject
     void doSomething(SingletonClass singleton1, SingletonClass singleton2, FactoryClass factory1, FactoryClass factory2, FactoryClass factory3) {
         timesDoSomething++;
@@ -100,26 +104,26 @@ public class AppRunner implements TendrilRunner {
         System.out.println(factory1);
         System.out.println(factory2);
         System.out.println(factory3);
-        
-        assert(singleton1 == singleton2);
-        assert(factory1 != factory2);
-        assert(factory1 != factory3);
-        assert(factory2 != factory3);
+
+        assert (singleton1 == singleton2);
+        assert (factory1 != factory2);
+        assert (factory1 != factory3);
+        assert (factory2 != factory3);
     }
-    
+
     @Inject
     void doSomethingElse(FactoryClass factory1) {
         timesDoSomethingElse++;
         System.out.println("doSomethingElse()");
         System.out.println(factory1);
     }
-    
+
     @Inject
     void doNothing() {
         timesDoNothing++;
         System.out.println("doNothing()");
     }
-    
+
     @Inject
     void enumInjector(@MyTypeId(MyType.VAL1) String str) {
         timesEnumInjector++;
@@ -138,24 +142,34 @@ public class AppRunner implements TendrilRunner {
         System.out.println(tempString1);
         System.out.println(tempString2);
         System.out.println("Objects: " + objVal2 + ", " + objTmp);
-        assert(tempString1.equals(tempString2));
-        assert(factoryBean1 != factoryBean2);
-        assert(factoryBean1 != factoryBean3);
-        assert(factoryBean1 != factoryBean4);
-        assert(factoryBean1 != factoryBean5);
-        assert(factoryBean2 != factoryBean3);
-        assert(factoryBean2 != factoryBean4);
-        assert(factoryBean2 != factoryBean5);
-        assert(factoryBean3 != factoryBean4);
-        assert(factoryBean3 != factoryBean5);
-        assert(factoryBean4 != factoryBean5);
-        assert(objVal2 != objTmp);
-        
-        assert(singletonRunnable != option2Runnable);
-        assert(singletonRunnable != secondRunnable);
-        assert(option2Runnable != secondRunnable);
+        assertion(tempString1.equals(tempString2));
+        assertion(factoryBean1 != factoryBean2);
+        assertion(factoryBean1 != factoryBean3);
+        assertion(factoryBean1 != factoryBean4);
+        assertion(factoryBean1 != factoryBean5);
+        assertion(factoryBean2 != factoryBean3);
+        assertion(factoryBean2 != factoryBean4);
+        assertion(factoryBean2 != factoryBean5);
+        assertion(factoryBean3 != factoryBean4);
+        assertion(factoryBean3 != factoryBean5);
+        assertion(factoryBean4 != factoryBean5);
+        assertion(objVal2 != objTmp);
+
+        assertion(singletonRunnable != option2Runnable);
+        assertion(singletonRunnable != secondRunnable);
+        assertion(option2Runnable != secondRunnable);
         singletonRunnable.run();
         option2Runnable.run();
         secondRunnable.run();
+
+        assertion(allRunnables.size() == 3);
+        assertion(allRunnables.contains(singletonRunnable));
+        assertion(allRunnables.contains(option2Runnable));
+        assertion(allRunnables.contains(secondRunnable));
+    }
+
+    private  static void assertion(boolean value) {
+        if (!value)
+            throw new AssertionError();
     }
 }
