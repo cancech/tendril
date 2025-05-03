@@ -143,11 +143,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      */
     private void generateInjectAllJFieldDepdendencyConsumers(List<String> ctorLines) throws InvalidConfigurationException {
         for (JField<?> field : creator.getFields(InjectAll.class)) {
-            ClassType fieldType = (ClassType) field.getType();
-
-            if (!fieldType.equals(new ClassType(List.class)))
-                throw new InvalidConfigurationException("@" + InjectAll.class.getSimpleName() + " applied to " + fieldType.getSimpleName() + ", it must be a " + List.class.getSimpleName());
-            Type beanType = fieldType.getGenerics().getFirst();
+            Type beanType = getInjectAllType(field);
 
             // Add imports
             addImport(beanType);
@@ -164,30 +160,12 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     }
 
     /**
-     * Add the type as an import, if it is a {@link ClassType}
-     * 
-     * @param type {@link Type} to potentially import
-     */
-    private void addImport(Type type) {
-        if (type instanceof ClassType)
-            externalImports.add((ClassType) type);
-    }
-
-    /**
-     * Add the specified {@link Class} as an import
-     * 
-     * @param klass {@link Class} which is to be imported
-     */
-    private void addImport(Class<?> klass) {
-        externalImports.add(new ClassType(klass));
-    }
-
-    /**
      * Generate the appropriate code for consumers that are methods within the bean.
      * 
      * @param ctorLines {@link List} of {@link String} lines that are already present in the recipe constructor
+     * @throws InvalidConfigurationException if the annotate code is improperly configured
      */
-    private void generateMethodConsumers(List<String> ctorLines) {
+    private void generateMethodConsumers(List<String> ctorLines) throws InvalidConfigurationException {
         boolean isFirst = true;
         for (JMethod<?> method : creator.getMethods(Inject.class)) {
             // Only include the import, if it's actually used
@@ -269,8 +247,9 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * 
      * @param builder {@link ClassBuilder} where the recipe is being defined
      * @param ctor    {@link JConstructor} which is to be used to create the instance
+     * @throws InvalidConfigurationException if the annotate code is improperly configured
      */
-    private void generateCreateInstanceFromConstructor(ClassBuilder builder, JConstructor ctor) {
+    private void generateCreateInstanceFromConstructor(ClassBuilder builder, JConstructor ctor) throws InvalidConfigurationException {
         // Build the internals of the method
         List<String> lines = new ArrayList<>();
         addParameterInjection(lines, ctor.getParameters(), "", "return new " + creatorType.getSimpleName());

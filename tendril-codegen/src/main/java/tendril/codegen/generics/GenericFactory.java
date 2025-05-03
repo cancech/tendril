@@ -21,6 +21,7 @@ import tendril.codegen.DefinitionException;
 import tendril.codegen.Utilities;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.Type;
 
 /**
  * Factory for the creation of {@link GenericType}s
@@ -47,17 +48,23 @@ public class GenericFactory {
     }
     
     /**
-     * Creates a generic that resolves to a specific class (i.e.: &lt;MyClass&gt;). Note that this can only be used when
+     * Creates a generic that resolves to a specific {@link Type} (i.e.: Class or Generic). Note that this can only be used when
      * applying the generic to an elsewhere defined element (i.e.: for variables, parameters, or parent class/interfaces).
      * <p>
      * Note that this {@link GenericType} <b>cannot</b> have nested generic of its own (i.e.: &lt;MyClass&gt; but not &lt;MyClass&lt;T&gt;&gt;)
      * </p>
-     * @param type {@link ClassType} to apply to the generic
+     * @param type {@link Type} to apply to the generic
      * 
      * @return {@link GenericType}
      */
-    public static GenericType create(ClassType type) {
-        return new SimpleExplicitGeneric(type);
+    public static GenericType create(Type type) {
+        if (type instanceof ClassType)
+            return new SimpleExplicitGeneric((ClassType) type);
+        else if (type instanceof GenericType)
+            return (GenericType)type;
+        
+        throw new DefinitionException(GenericType.class.getSimpleName() + " can only be used with " + ClassType.class.getSimpleName() + " or " +
+                GenericType.class.getSimpleName() + ". " + type.getSimpleName() + " cannot be used.");
     }
     
     /**

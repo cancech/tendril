@@ -52,6 +52,8 @@ public abstract class TypeFactory {
             return new ArrayType<Type>(create(((javax.lang.model.type.ArrayType) mirror).getComponentType()));
         if (kind == TypeKind.WILDCARD)
             return asWildcardType(mirror);
+        if (kind == TypeKind.TYPEVAR)
+            return GenericFactory.create(mirror.toString());
 
         throw new DefinitionException("Unknown type: " + mirror + "[" + kind + "]");
     }
@@ -65,7 +67,7 @@ public abstract class TypeFactory {
     private static Type asClassType(TypeMirror mirror) {
         DeclaredType decl = (DeclaredType) mirror;
         ClassType type = new ClassType(decl.asElement().toString());
-        decl.getTypeArguments().forEach(gen -> type.addGeneric(GenericFactory.create((ClassType) create(gen))));
+        decl.getTypeArguments().forEach(gen -> type.addGeneric(GenericFactory.create(create(gen))));
         return type;
     }
     

@@ -28,7 +28,6 @@ import java.util.List;
  * be empty if no such match exist. It is up to the client code to make appropriate use and determinations as necessary.
  */
 @Retention(RetentionPolicy.SOURCE)
-@Target({ ElementType.FIELD })
+@Target({ ElementType.FIELD, ElementType.PARAMETER })
 public @interface InjectAll {
-    // TODO allow for parameters to constructors or method to perform InjectAll injection
 }

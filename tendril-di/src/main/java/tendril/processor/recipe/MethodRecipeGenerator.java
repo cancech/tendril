@@ -75,9 +75,10 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
 
     /**
      * @see tendril.processor.recipe.AbstractRecipeGenerator#populateBuilder(tendril.codegen.classes.ClassBuilder)
+     * @throws InvalidConfigurationException if the annotate code is improperly configured
      */
     @Override
-    protected void populateBuilder(ClassBuilder builder) {
+    protected void populateBuilder(ClassBuilder builder) throws InvalidConfigurationException {
         // Build up the contents of the recipe
         generateConstructor(configType, builder);
         generateRecipeDescriptor(builder);

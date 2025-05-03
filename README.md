@@ -190,11 +190,12 @@ Some things to note:
 
 #### Injecting Multiple Related Beans
 `@Inject` is the *default* injector, with the limitation that it must resolve to exactly one bean. An error will be thrown if either no matching bean is available, or if multiple beans match the required description. The `@InjectAll` can be used to avoid this limitation. The expectation and behavior of `@InjectAll` is as follows:
-* `@InjectAll` can only be applied to fields
+* `@InjectAll` can only be applied to fields or parameters
 * The field must be a `List` and the *type parameter* must reflect the desired *type* of the bean (i.e.: `@InjectAll List<Runnable>` will inject `Runnable` beans)
 * The field can be qualified in the same manner as `@Inject`, with the same rules/options supported
 * All beans in the application context which match the supplied qualifiers will be retrieved
 * If no bean matches the supplied qualifiers, and empty list will be retrieved
+* When applied to a parameter, then method or constructor it belongs to must be annotated with `@Inject` (either explicitely or implicitely)
 
 Accordingly, `Tendril` provides zero or more matching beans to the `@InjectAll` field, leaving it up to the client code to perform the necessary actions/operations as necessary upon them.
 
@@ -205,6 +206,14 @@ public class MyBeanClass {
 
   @InjectAll
   List<Runnable> runnables;
+  
+  @Inject
+  MyBeanClass(@InjectAll List<String> strings) {
+  }
+  
+  @Inject
+  void methodInjector(MyClass bean1, MyOtherClass bean2, @InjectAll List<Object> allBeans) {
+  }
 
   @PostConstruct
   void processRunnables() {

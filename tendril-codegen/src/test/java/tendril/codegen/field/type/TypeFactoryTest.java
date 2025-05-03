@@ -132,6 +132,25 @@ public class TypeFactoryTest extends AbstractUnitTest {
      * Verify that a class can be created Properly from {@link TypeKind}
      */
     @Test
+    public void testCreateClassTypeKindSingleNamedGeneric() {
+        setupDeclaredMirror("a.b.c.D", createMockedGenericType("T"));
+
+        Type createdType = TypeFactory.create(mockDeclaredMirror);
+        ClassAssert.assertInstance(ClassType.class, createdType);
+
+        ClassType created = (ClassType) createdType;
+        Assertions.assertEquals("a.b.c.D", created.getFullyQualifiedName());
+        CollectionAssert.assertEquivalent(created.getGenerics(), GenericFactory.create("T"));
+
+        verify(mockDeclaredMirror).getKind();
+        verify(mockDeclaredMirror).asElement();
+        verify(mockDeclaredMirror).getTypeArguments();
+    }
+
+    /**
+     * Verify that a class can be created Properly from {@link TypeKind}
+     */
+    @Test
     public void testCreateClassTypeKindWithSingleExtendsGeneric() {
         setupDeclaredMirror("a.b.c.D", createMockedWildcardType("q.w.e.r.t.Y", true));
 
@@ -191,7 +210,7 @@ public class TypeFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateClassTypeKindWithMultipleGenerics() {
         setupDeclaredMirror("a.b.c.D", createMockedWildcardType("q.w.e.r.t.Y", false), createMockedWildcardType("", false), createMockedWildcardType("a.s.d.f.G", true),
-                createMockedDeclaredType("z.x.c.V"));
+                createMockedDeclaredType("z.x.c.V"), createMockedGenericType("U"));
 
         Type createdType = TypeFactory.create(mockDeclaredMirror);
         ClassAssert.assertInstance(ClassType.class, createdType);
@@ -199,7 +218,7 @@ public class TypeFactoryTest extends AbstractUnitTest {
         ClassType created = (ClassType) createdType;
         Assertions.assertEquals("a.b.c.D", created.getFullyQualifiedName());
         CollectionAssert.assertEquivalent(created.getGenerics(), GenericFactory.create(new ClassType(Object.class)), GenericFactory.create(new ClassType("q.w.e.r.t.Y")),
-                GenericFactory.create(new ClassType("a.s.d.f.G")), GenericFactory.create(new ClassType("z.x.c.V")));
+                GenericFactory.create(new ClassType("a.s.d.f.G")), GenericFactory.create(new ClassType("z.x.c.V")), GenericFactory.create("U"));
 
         verify(mockDeclaredMirror).getKind();
         verify(mockDeclaredMirror).asElement();
@@ -227,7 +246,7 @@ public class TypeFactoryTest extends AbstractUnitTest {
     public void testCreateOtherTypeKind() {
         int timesGetKind = 0;
         for (TypeKind kind : TypeKind.values()) {
-            if (kind.isPrimitive() || kind == TypeKind.VOID || kind == TypeKind.DECLARED || kind == TypeKind.ARRAY || kind == TypeKind.WILDCARD)
+            if (kind.isPrimitive() || kind == TypeKind.VOID || kind == TypeKind.DECLARED || kind == TypeKind.ARRAY || kind == TypeKind.WILDCARD || kind == TypeKind.TYPEVAR)
                 continue;
 
             when(mockMirror.getKind()).thenReturn(kind);
@@ -325,7 +344,7 @@ public class TypeFactoryTest extends AbstractUnitTest {
 
     /**
      * Helper for creating and defining a mocked {@link WildcardType} which can be used as a generic argument for a mocked {@link DeclaredType}. Namely this is expected to be passed as a
-     * {@link TypeMirror} parameter to {@code setupDeclaredMirrir()}.
+     * {@link TypeMirror} parameter to {@code setupDeclaredMirror()}.
      * 
      * @param parentName {@link String} the fully qualified name of the parent to extends/super. Leave blank for pure wildcard (i.e.: just <?>)
      * @param isExtends  boolean true if {@code extends}, false if {@code super}. Irrelevant for pure wildcard (i.e.: just <?>)
@@ -348,6 +367,20 @@ public class TypeFactoryTest extends AbstractUnitTest {
             }
         }
 
+        return mockGeneric;
+    }
+
+    /**
+     * Helper for creating and defining a mocked {@link TypeMirror} which can be used as a generic argument (i.e.: T) for a mocked {@link DeclaredType}. Namely this is expected to be passed as a
+     * {@link TypeMirror} parameter to {@code setupDeclaredMirror()}.
+     * 
+     * @param typeName {@link String} the name to apply to the generic
+     * @return mocked {@link TypeMirror}
+     */
+    private TypeMirror createMockedGenericType(String typeName) {
+        TypeMirror mockGeneric = mock(TypeMirror.class);
+        when(mockGeneric.getKind()).thenReturn(TypeKind.TYPEVAR);
+        when(mockGeneric.toString()).thenReturn(typeName);
         return mockGeneric;
     }
 

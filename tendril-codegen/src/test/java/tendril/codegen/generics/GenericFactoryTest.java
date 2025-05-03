@@ -25,7 +25,11 @@ import org.mockito.Mock;
 
 import tendril.codegen.DefinitionException;
 import tendril.codegen.classes.JClass;
+import tendril.codegen.field.type.ArrayType;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.PrimitiveType;
+import tendril.codegen.field.type.Type;
+import tendril.codegen.field.type.VoidType;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.ClassAssert;
 
@@ -41,6 +45,16 @@ public class GenericFactoryTest extends AbstractUnitTest {
     private ClassType mockClassType2;
     @Mock
     private ClassType mockClassType3;
+    @Mock
+    private GenericType mockGenericType;
+    @Mock
+    private Type mockType;
+    @Mock
+    private PrimitiveType mockPrimitiveType;
+    @Mock
+    private VoidType mockVoidType;
+    @Mock
+    private ArrayType<?> mockArrayType;
     @Mock
     private JClass mockClass1;
     @Mock
@@ -84,6 +98,32 @@ public class GenericFactoryTest extends AbstractUnitTest {
     public void testCreateWithClassType () {
         ClassAssert.assertInstance(SimpleExplicitGeneric.class, GenericFactory.create(mockClassType1));
         verify(mockClassType1).getSimpleName();
+    }
+    
+    /**
+     * Verify the creation with a {@link GenericType}
+     */
+    @Test
+    public void testCreateWithGenericType() {
+        Assertions.assertEquals(mockGenericType, GenericFactory.create(mockGenericType));
+    }
+    
+    /**
+     * Verify the creation with a type that is neither {@link ClassType} nor {@link GenericType}
+     */
+    @Test
+    public void testCreateWithOtherType() {
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create(mockType));
+        verify(mockType).getSimpleName();
+
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create(mockPrimitiveType));
+        verify(mockPrimitiveType).getSimpleName();
+
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create(mockVoidType));
+        verify(mockVoidType).getSimpleName();
+
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create(mockArrayType));
+        verify(mockArrayType).getSimpleName();
     }
     
     /**

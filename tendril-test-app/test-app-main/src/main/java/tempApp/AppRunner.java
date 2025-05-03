@@ -34,6 +34,7 @@ public class AppRunner implements TendrilRunner {
     private static int timesDoNothing = 0;
     private static int timesEnumInjector = 0;
     private static int timesRun = 0;
+    private static int timesAllInjectorRun = 0;
 
     public static void assertSingleton() {
         assertion(instances == 1);
@@ -42,6 +43,7 @@ public class AppRunner implements TendrilRunner {
         assertion(timesDoNothing == 1);
         assertion(timesEnumInjector == 1);
         assertion(timesRun == 1);
+        assertion(timesAllInjectorRun == 1);
     }
 
     public static void reset() {
@@ -51,6 +53,7 @@ public class AppRunner implements TendrilRunner {
         timesDoNothing = 0;
         timesEnumInjector = 0;
         timesRun = 0;
+        timesAllInjectorRun = 0;
     }
 
     @Inject
@@ -129,6 +132,12 @@ public class AppRunner implements TendrilRunner {
         timesEnumInjector++;
         System.out.println("INJECTED VIA ENUM: " + str);
     }
+    
+    @Inject
+    void allInjector(@InjectAll List<? extends Runnable> all, @Option1 Runnable one, @Option2 Runnable two, @Named("second") Runnable three) {
+        timesAllInjectorRun++;
+        assertRunnableList("allInjector", all, one, two, three);
+    }
 
     @Override
     public void run() {
@@ -158,18 +167,30 @@ public class AppRunner implements TendrilRunner {
         assertion(singletonRunnable != option2Runnable);
         assertion(singletonRunnable != secondRunnable);
         assertion(option2Runnable != secondRunnable);
+        assertRunnableList("Instance Fields", allRunnables, singletonRunnable, option2Runnable, secondRunnable);
         singletonRunnable.run();
         option2Runnable.run();
         secondRunnable.run();
-
-        assertion(allRunnables.size() == 3);
-        assertion(allRunnables.contains(singletonRunnable));
-        assertion(allRunnables.contains(option2Runnable));
-        assertion(allRunnables.contains(secondRunnable));
     }
 
     private  static void assertion(boolean value) {
         if (!value)
             throw new AssertionError();
+    }
+    
+    private void assertRunnableList(String annoucement, List<? extends Runnable> list, Runnable...runnables) {
+        assertListContains(list, runnables);
+        
+        System.out.println("Running List " + annoucement);
+        for (Runnable r: runnables)
+            r.run();
+    }
+    
+    @SafeVarargs
+    private <T> void assertListContains(List<? extends T> list, T...elements) {
+        // Ensure that the list is correct
+        assertion(list.size() == elements.length);
+        for (T e: elements)
+            assertion(list.contains(e));
     }
 }

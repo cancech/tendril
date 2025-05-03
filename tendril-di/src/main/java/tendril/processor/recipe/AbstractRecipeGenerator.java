@@ -29,6 +29,7 @@ import tendril.annotationprocessor.exception.InvalidConfigurationException;
 import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Configuration;
 import tendril.bean.Factory;
+import tendril.bean.InjectAll;
 import tendril.bean.Singleton;
 import tendril.bean.qualifier.EnumQualifier;
 import tendril.bean.qualifier.Named;
@@ -97,6 +98,25 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
         this.creatorType = creatorType;
         this.creator = creator;
         this.messager = messager;
+    }
+
+    /**
+     * Add the type as an import, if it is a {@link ClassType}
+     * 
+     * @param type {@link Type} to potentially import
+     */
+    protected void addImport(Type type) {
+        if (type instanceof ClassType)
+            externalImports.add((ClassType) type);
+    }
+
+    /**
+     * Add the specified {@link Class} as an import
+     * 
+     * @param klass {@link Class} which is to be imported
+     */
+    protected void addImport(Class<?> klass) {
+        externalImports.add(new ClassType(klass));
     }
     
     /**
@@ -168,15 +188,45 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @param params {@link List} of {@link JParameter}s that are to be processed
      * @param retrievePrefix {@link String} prefix to place before each line of dependency retrieval (i.e.: indentation)
      * @param applyPrefix {@link String} prefix to apply before the parameters (i.e.: the generated application is "applyPrefix(params);")
+     * @throws InvalidConfigurationException if the annotate code is improperly configured
      */
-    protected void addParameterInjection(List<String> code, List<JParameter<?>> params, String retrievePrefix, String applyPrefix) {
+    protected void addParameterInjection(List<String> code, List<JParameter<?>> params, String retrievePrefix, String applyPrefix) throws InvalidConfigurationException {
         for (JParameter<?> p : params) {
             Type pType = p.getType();
             if (pType instanceof ClassType)
                 externalImports.add((ClassType)pType);
-            code.add(retrievePrefix + pType.getSimpleName() + p.getGenericsApplicationKeyword(true) + p.getName() + " = " + "engine.getBean(" + getDependencyDescriptor(p) + ");");
+            
+            String engineCall = "engine.";
+            if (p.hasAnnotation(InjectAll.class)) {
+                Type beanType = getInjectAllType(p);
+                addImport(beanType);
+                engineCall += "getAllBeans" + "(" + getDependencyDescriptor(p, beanType) + ");";
+            } else {
+                engineCall += "getBean" + "(" + getDependencyDescriptor(p) + ");";
+            }
+            code.add(retrievePrefix + pType.getSimpleName() + p.getGenericsApplicationKeyword(true) + p.getName() + " = " + engineCall);
         }
         code.add(applyPrefix + "(" + TendrilStringUtil.join(params, ", ", p -> p.getName()) + ");");
+    }
+    
+    /**
+     * Perform validation of the item to make sure that it can be used for InjectAll injection and determines what exact type is to be injected
+     * 
+     * @param item {@link JType} to verify
+     * @return {@link ClassType} that the {@link InjectAll} is to look for
+     * @throws InvalidConfigurationException if a problem is determined with the injection 
+     */
+    protected Type getInjectAllType(JType<?> item) throws InvalidConfigurationException {
+        // InjectAll must be applied to a List
+        Type itemType = item.getType();
+        if (!(itemType instanceof ClassType))
+            throw new InvalidConfigurationException("@" + InjectAll.class.getSimpleName() + " can be applied to " + itemType.getSimpleName() + ", it must be applied to classes");
+        ClassType classType = (ClassType) itemType;
+        if (!classType.equals(new ClassType(List.class)))
+            throw new InvalidConfigurationException("@" + InjectAll.class.getSimpleName() + " applied to " + classType.getSimpleName() + ", it must be a " + List.class.getSimpleName());
+        
+        // The bean type is the first generic applied to it
+        return classType.getGenerics().getFirst();
     }
     
     /**
@@ -215,8 +265,9 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * 
      * @param creator {@link JMethod} within the configuration to call
      * @param builder {@link ClassBuilder} where the recipe is being defined
+     * @throws InvalidConfigurationException if the annotate code is improperly configured
      */
-    protected void generateCreateInstance(JMethod<?> creator, ClassBuilder builder) {
+    protected void generateCreateInstance(JMethod<?> creator, ClassBuilder builder) throws InvalidConfigurationException {
         // Build the internals of the method
         List<String> lines = new ArrayList<>();
         addParameterInjection(lines, creator.getParameters(), "", "return config.get()." + creator.getName());
