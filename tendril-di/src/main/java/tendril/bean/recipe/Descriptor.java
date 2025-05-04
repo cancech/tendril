@@ -172,7 +172,7 @@ public class Descriptor<BEAN_TYPE> {
         }
         if (!qualifiers.isEmpty()) {
             str.append(" Qualifiers[");
-            str.append(TendrilStringUtil.join(qualifiers, e -> e.getClass().getSimpleName()));
+            str.append(TendrilStringUtil.join(qualifiers, e -> "@" + e.getSimpleName()));
             str.append("]");
         }
         
