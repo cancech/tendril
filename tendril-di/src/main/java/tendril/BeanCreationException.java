@@ -15,12 +15,12 @@
  */
 package tendril;
 
-import tendril.bean.recipe.Descriptor;
+import tendril.bean.qualifier.Descriptor;
 
 /**
  * Exception to be thrown when a bean has failed to be created
  */
-public class BeanCreationException extends RuntimeException {
+public class BeanCreationException extends Error {
     /** Serial ID */
     private static final long serialVersionUID = 2322041446032429263L;
     
