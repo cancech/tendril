@@ -20,6 +20,8 @@ import java.util.List;
 
 import tendril.BeanCreationException;
 import tendril.bean.PostConstruct;
+import tendril.bean.qualifier.Descriptor;
+import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 
 /**
@@ -34,6 +36,8 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
     protected final Engine engine;
     /** The description of this bean */
     private final Descriptor<BEAN_TYPE> descriptor;
+    /** The requirements of this bean */
+    private final Requirement requirement;
     
     /** List of the dependencies that the bean must receive */
     private final List<Injector<BEAN_TYPE>> consumers = new ArrayList<>();
@@ -49,8 +53,10 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
     protected AbstractRecipe(Engine engine, Class<BEAN_TYPE> beanClass) {
         this.engine = engine;
         this.descriptor = new Descriptor<>(beanClass);
+        this.requirement = new Requirement();
         
         setupDescriptor(descriptor);
+        setupRequirement(requirement);
     }
     
     /**
@@ -61,12 +67,23 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
     protected abstract void setupDescriptor(Descriptor<BEAN_TYPE> descriptor);
     
     /**
+     * To be overloaded by the concrete recipe to provide the requirements the context needs to meet for this recipe to be created.
+     * 
+     * @param requirement {@link Requirement} where the bean requirements are to be outlined
+     */
+    protected abstract void setupRequirement(Requirement requirement);
+    
+    /**
      * Get the description of the bean the recipe is to create.
      * 
      * @return {@link Descriptor} for the bean
      */
     public Descriptor<BEAN_TYPE> getDescription() {
         return descriptor;
+    }
+    
+    public Requirement getRequirement() {
+        return requirement;
     }
     
     /**

@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import tendril.BeanRetrievalException;
+import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.ConfigurationRecipe;
-import tendril.bean.recipe.Descriptor;
 import tendril.processor.registration.RegistryFile;
 
 /**
@@ -71,7 +71,7 @@ public class Engine {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Try to add the recipe as though it were a configuration
      * 
@@ -128,7 +128,7 @@ public class Engine {
 
         return matchingRecipes.get(0).get();
     }
-    
+
     /**
      * Get all beans that match the provided descriptor. The {@link List} can be empty if there are no matches.
      * 
@@ -138,7 +138,7 @@ public class Engine {
      */
     public <BEAN_TYPE> List<BEAN_TYPE> getAllBeans(Descriptor<BEAN_TYPE> descriptor) {
         List<BEAN_TYPE> beans = new ArrayList<>();
-        for(AbstractRecipe<BEAN_TYPE> r: findRecipes(descriptor))
+        for (AbstractRecipe<BEAN_TYPE> r : findRecipes(descriptor))
             beans.add(r.get());
         return beans;
     }

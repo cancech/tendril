@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.BeanCreationException;
+import tendril.bean.qualifier.Descriptor;
 import tendril.context.Engine;
 import tendril.test.AbstractUnitTest;
 import tendril.test.bean.SingleCtorBean;
@@ -51,7 +52,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         }
 
         /**
-         * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.recipe.Descriptor)
+         * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
          */
         @Override
         protected void setupDescriptor(Descriptor<SingleCtorBean> descriptor) {
