@@ -15,8 +15,8 @@
  */
 package tendril.test.recipe;
 
+import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
-import tendril.bean.recipe.Descriptor;
 import tendril.context.Engine;
 
 /**
@@ -37,11 +37,10 @@ public class IntTestRecipe extends AbstractRecipe<Integer> {
     }
 
     /**
-     * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.recipe.Descriptor)
+     * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
      */
     @Override
     protected void setupDescriptor(Descriptor<Integer> descriptor) {
-        
     }
 
     /**

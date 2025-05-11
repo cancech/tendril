@@ -15,6 +15,7 @@
  */
 package tendril.bean.recipe;
 
+import tendril.bean.qualifier.Descriptor;
 import tendril.context.Engine;
 
 /**

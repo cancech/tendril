@@ -17,6 +17,7 @@ package tendril.bean.recipe;
 
 import java.util.Map;
 
+import tendril.bean.qualifier.Descriptor;
 import tendril.context.Engine;
 
 /**
@@ -39,11 +40,11 @@ public abstract class ConfigurationRecipe<CONFIGURATION_TYPE> extends SingletonR
     }
 
     /**
-     * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.recipe.Descriptor)
+     * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
      */
     @Override
     protected void setupDescriptor(Descriptor<CONFIGURATION_TYPE> descriptor) {
-        // No descriptor require for configurations
+        // No descriptor required for configurations
     }
 
     /**

@@ -17,8 +17,8 @@ package tendril;
 
 import java.util.List;
 
+import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
-import tendril.bean.recipe.Descriptor;
 
 /**
  * Exception to be thrown when there is a failure to retrieve a bean

@@ -15,8 +15,8 @@
  */
 package tendril.test.runner;
 
+import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
-import tendril.bean.recipe.Descriptor;
 import tendril.context.Engine;
 
 /**
@@ -34,11 +34,10 @@ public class TestTendrilRunnerRecipe extends AbstractRecipe<TestTendrilRunner> {
     }
 
     /**
-     * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.recipe.Descriptor)
+     * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
      */
     @Override
     protected void setupDescriptor(Descriptor<TestTendrilRunner> descriptor) {
-        
     }
 
     /**

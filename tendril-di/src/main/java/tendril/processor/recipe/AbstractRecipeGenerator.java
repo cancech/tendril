@@ -31,12 +31,12 @@ import tendril.bean.Configuration;
 import tendril.bean.Factory;
 import tendril.bean.InjectAll;
 import tendril.bean.Singleton;
+import tendril.bean.qualifier.Descriptor;
 import tendril.bean.qualifier.EnumQualifier;
 import tendril.bean.qualifier.Named;
 import tendril.bean.qualifier.Qualifier;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.ConfigurationRecipe;
-import tendril.bean.recipe.Descriptor;
 import tendril.bean.recipe.FactoryRecipe;
 import tendril.bean.recipe.Registry;
 import tendril.bean.recipe.SingletonRecipe;
@@ -238,7 +238,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
         ClassType descriptorClass = new ClassType(Descriptor.class);
         descriptorClass.addGeneric(GenericFactory.create(creatorType));
         
-        builder.buildMethod("setupDescriptor").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PUBLIC)
+        builder.buildMethod("setupDescriptor").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PROTECTED)
             .buildParameter(descriptorClass, "descriptor").finish()
             .addCode(wrapLines(getDescriptorLines(creator), "descriptor.", ";"))
             .finish();

@@ -24,7 +24,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import tendril.BeanRetrievalException;
-import tendril.bean.recipe.Descriptor;
+import tendril.bean.qualifier.Descriptor;
 import tendril.processor.registration.RegistryFile;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.CollectionAssert;

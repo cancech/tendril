@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.bean.recipe;
+package tendril.bean.qualifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.internal.util.collections.Sets;
 
+import tendril.bean.recipe.AbstractRecipe;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.CollectionAssert;

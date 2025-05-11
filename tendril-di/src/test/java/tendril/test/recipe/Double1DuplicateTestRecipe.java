@@ -15,6 +15,7 @@
  */
 package tendril.test.recipe;
 
+import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.Descriptor;
 import tendril.context.Engine;
@@ -39,7 +40,7 @@ public class Double1DuplicateTestRecipe extends AbstractRecipe<Double> {
     }
 
     /**
-     * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.recipe.Descriptor)
+     * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
      */
     @Override
     protected void setupDescriptor(Descriptor<Double> descriptor) {

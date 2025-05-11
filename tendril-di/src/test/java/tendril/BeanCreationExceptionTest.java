@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.bean.recipe.Descriptor;
+import tendril.bean.qualifier.Descriptor;
 import tendril.test.AbstractUnitTest;
 
 /**
