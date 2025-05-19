@@ -38,8 +38,56 @@ public class LaunchTest {
     }
 
     @Test
-    public void test() {
+    public void testLowercaseQwerty() {
+        AppRunner.expectedMessage = "qwerty";
+        
         ApplicationContext ctx = new ApplicationContext();
+        ctx.setEnvironments("lowercase", "qwerty");
+        ctx.start();
+        
+        // Ensure everything created the expected number of times
+        SingletonClass.assertSingleton();
+        FactoryClass.assertFactory();
+        TempManager.assertSingleton();
+        AppRunner.assertSingleton();
+    }
+
+    @Test
+    public void testUppercaseQwerty() {
+        AppRunner.expectedMessage = "QWERTY";
+        
+        ApplicationContext ctx = new ApplicationContext();
+        ctx.setEnvironments("uppercase", "qwerty");
+        ctx.start();
+        
+        // Ensure everything created the expected number of times
+        SingletonClass.assertSingleton();
+        FactoryClass.assertFactory();
+        TempManager.assertSingleton();
+        AppRunner.assertSingleton();
+    }
+
+    @Test
+    public void testLowercaseAbc123() {
+        AppRunner.expectedMessage = "abc123";
+        
+        ApplicationContext ctx = new ApplicationContext();
+        ctx.setEnvironments("lowercase", "abc123");
+        ctx.start();
+        
+        // Ensure everything created the expected number of times
+        SingletonClass.assertSingleton();
+        FactoryClass.assertFactory();
+        TempManager.assertSingleton();
+        AppRunner.assertSingleton();
+    }
+
+    @Test
+    public void testUppercaseAbc123() {
+        AppRunner.expectedMessage = "ABC!@#";
+        
+        ApplicationContext ctx = new ApplicationContext();
+        ctx.setEnvironments("uppercase", "abc123");
         ctx.start();
         
         // Ensure everything created the expected number of times

@@ -17,6 +17,7 @@ package tendril.test.recipe;
 
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
+import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 
 /**
@@ -41,6 +42,13 @@ public class StringTestRecipe extends AbstractRecipe<String> {
      */
     @Override
     protected void setupDescriptor(Descriptor<String> descriptor) {
+    }
+
+    /**
+     * @see tendril.bean.recipe.AbstractRecipe#setupRequirement(tendril.bean.requirement.Requirement)
+     */
+    @Override
+    protected void setupRequirement(Requirement requirement) {
     }
 
     /**

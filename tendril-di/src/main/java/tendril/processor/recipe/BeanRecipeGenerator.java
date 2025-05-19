@@ -45,6 +45,7 @@ class BeanRecipeGenerator extends ClassRecipeGenerator {
         // Build up the contents of the recipe
         generateConstructor(builder);
         generateRecipeDescriptor(builder);
+        generateRecipeRequirements(builder);
         generateCreateInstance(builder);
         processPostConstruct(builder);
     }

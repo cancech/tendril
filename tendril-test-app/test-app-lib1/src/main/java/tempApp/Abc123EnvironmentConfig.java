@@ -15,10 +15,31 @@
  */
 package tempApp;
 
-import tendril.bean.qualifier.QualifierEnum;
+import tendril.bean.Bean;
+import tendril.bean.Configuration;
+import tendril.bean.Singleton;
+import tendril.bean.requirement.RequiresEnv;
 
-@QualifierEnum
-public enum MyQualifiers {
+/**
+ * 
+ */
+@Configuration
+@RequiresEnv("abc123")
+public class Abc123EnvironmentConfig {
 
-    Option1, Option2, Message;
+    @Bean
+    @Singleton
+    @Message
+    @RequiresEnv("lowercase")
+    String msgLower() {
+        return "abc123";
+    }
+
+    @Bean
+    @Singleton
+    @Message
+    @RequiresEnv("uppercase")
+    String msgUpper() {
+        return "ABC!@#";
+    }
 }

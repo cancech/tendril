@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.test.runner;
+package tendril.test.recipe;
 
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
@@ -21,24 +21,28 @@ import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 
 /**
- * {@link AbstractRecipe} to use for the purpose of allowing the {@link TestTendrilRunner} to be "injected" into tests
+ * 
  */
-public class TestTendrilRunnerRecipe extends AbstractRecipe<TestTendrilRunner> {
+public class RequiresABRecipe extends AbstractRecipe<Integer> {
 
+    /** The name under which the double 2 bean is provided */
+    public static final String NAME = "AB";
+    /** The value that the recipe produces */
+    public static final Integer VALUE = 789;
+    
     /**
-     * CTOR
-     * 
-     * @param engine {@link Engine} that the recipe is to be employed with
+     * @param engine
      */
-    public TestTendrilRunnerRecipe(Engine engine) {
-        super(engine, TestTendrilRunner.class);
+    public RequiresABRecipe(Engine engine) {
+        super(engine, Integer.class);
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
      */
     @Override
-    protected void setupDescriptor(Descriptor<TestTendrilRunner> descriptor) {
+    protected void setupDescriptor(Descriptor<Integer> descriptor) {
+        descriptor.setName(NAME);
     }
 
     /**
@@ -46,22 +50,24 @@ public class TestTendrilRunnerRecipe extends AbstractRecipe<TestTendrilRunner> {
      */
     @Override
     protected void setupRequirement(Requirement requirement) {
+        requirement.addRequiredEnvironment("A");
+        requirement.addRequiredEnvironment("B");
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#get()
      */
     @Override
-    public TestTendrilRunner get() {
-        return new TestTendrilRunner();
+    public Integer get() {
+        return VALUE;
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
      */
     @Override
-    protected TestTendrilRunner createInstance(Engine engine) {
-        return new TestTendrilRunner();
+    protected Integer createInstance(Engine engine) {
+        return VALUE;
     }
 
 }

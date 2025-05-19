@@ -58,6 +58,7 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
         // Build up the contents of the recipe
         generateConstructor(builder);
         generateCreateInstance(builder);
+        generateRecipeRequirements(builder);
         processPostConstruct(builder);
         generateNestedRecipes(builder);
     }

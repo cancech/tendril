@@ -40,6 +40,8 @@ import tendril.bean.recipe.ConfigurationRecipe;
 import tendril.bean.recipe.FactoryRecipe;
 import tendril.bean.recipe.Registry;
 import tendril.bean.recipe.SingletonRecipe;
+import tendril.bean.requirement.Requirement;
+import tendril.bean.requirement.RequiresEnv;
 import tendril.codegen.JBase;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotation;
@@ -52,6 +54,7 @@ import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.value.JValue;
 import tendril.codegen.generics.GenericFactory;
 import tendril.context.Engine;
 import tendril.context.launch.Runner;
@@ -245,6 +248,20 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
     }
     
     /**
+     * Generate the requirement for the recipe
+     * 
+     * @param builder {@link ClassBuilder} where the recipe is being defined
+     */
+    protected void generateRecipeRequirements(ClassBuilder builder) {
+        ClassType recipeClass = new ClassType(Requirement.class);
+        
+        builder.buildMethod("setupRequirement").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PROTECTED)
+        .buildParameter(recipeClass, "requirement").finish()
+        .addCode(wrapLines(getRequirementLines(creator), "requirement.", ";"))
+        .finish();
+    }
+    
+    /**
      * Wrap the provided lines with the specified prefix and suffix
      * 
      * @param lines {@link List} of {@link String} indicating the lines to be wrapped
@@ -333,8 +350,9 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
     private List<String> getDescriptorLines(JBase element) {
         List<String> lines = new ArrayList<>();
 
+        ClassType namedType = new ClassType(Named.class);
         for (JAnnotation a : element.getAnnotations()) {
-            if (a.getType().equals(new ClassType(Named.class))) {
+            if (a.getType().equals(namedType)) {
                 lines.add("setName(\"" + a.getValue(a.getAttributes().get(0)).getValue() + "\")");
             } else if (a.hasAnnotation(EnumQualifier.class)) {
                 EnumerationEntry entry = (EnumerationEntry) a.getValue(a.getAttributes().get(0)).getValue();
@@ -346,6 +364,27 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
             }
         }
 
+        return lines;
+    }
+    
+    /**
+     * Generate the code for traching the needed requirements
+     * 
+     * @param element {@link JBase} on which the requirements are placed
+     */
+    private List<String> getRequirementLines(JBase element) {
+        List<String> lines = new ArrayList<>();
+
+        // TODO make this inherited (i.e.: @RequiresEnv added to other annotation which is applied here)
+        ClassType requiresType = new ClassType(RequiresEnv.class);
+        for (JAnnotation a: element.getAnnotations()) {
+            if (a.getType().equals(requiresType)) {
+                @SuppressWarnings("unchecked")
+                List<JValue<?, ?>> envs = (List<JValue<?, ?>>) a.getValue(a.getAttributes().get(0)).getValue();
+                envs.forEach(e -> lines.add("addRequiredEnvironment(\"" + e.getValue() + "\")"));
+            }
+        }
+        
         return lines;
     }
     

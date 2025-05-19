@@ -50,6 +50,15 @@ public class ApplicationContext {
     ApplicationContext(Engine engine) {
         this.engine = engine;
     }
+    
+    /**
+     * Set the environments in which the application is to be executed
+     * 
+     * @param envs {@link String}... indicating what all environments are to be used
+     */
+    public void setEnvironments(String...envs) {
+        engine.setEnvironments(envs);
+    }
 
     /**
      * Start the context and trigger execution via the defined {@link TendrilRunner}

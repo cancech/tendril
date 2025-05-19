@@ -28,6 +28,8 @@ import tendril.context.launch.TendrilRunner;
 @Runner
 public class AppRunner implements TendrilRunner {
 
+    public static String expectedMessage = "must be set by main";
+    
     private static int instances = 0;
     private static int timesDoSomething = 0;
     private static int timesDoSomethingElse = 0;
@@ -91,6 +93,9 @@ public class AppRunner implements TendrilRunner {
     Runnable secondRunnable;
     @InjectAll
     List<? extends Runnable> allRunnables;
+    @Inject
+    @Message
+    String message;
 
     private FactoryClass factoryBean5;
 
@@ -171,6 +176,9 @@ public class AppRunner implements TendrilRunner {
         singletonRunnable.run();
         option2Runnable.run();
         secondRunnable.run();
+        
+        System.out.println("MESSAGE IS: " + message);
+        assertion(message.equals(expectedMessage));
     }
 
     private  static void assertion(boolean value) {

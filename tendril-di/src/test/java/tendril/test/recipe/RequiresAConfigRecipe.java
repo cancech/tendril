@@ -25,14 +25,14 @@ import tendril.context.Engine;
 /**
  * Configuration recipe to use for testing
  */
-public class TestConfigRecipe extends ConfigurationRecipe<TestConfig>{
+public class RequiresAConfigRecipe extends ConfigurationRecipe<TestConfig>{
 
     /**
      * CTOR
      * 
      * @param engine {@link Engine} for the context
      */
-    public TestConfigRecipe(Engine engine) {
+    public RequiresAConfigRecipe(Engine engine) {
         super(engine, TestConfig.class);
     }
 
@@ -41,8 +41,8 @@ public class TestConfigRecipe extends ConfigurationRecipe<TestConfig>{
      */
     @Override
     public Map<String, AbstractRecipe<?>> getNestedRecipes() {
-        return Map.of("double1", new Double1TestRecipe(engine),
-                "double2", new Double2TestRecipe(engine));
+        return Map.of("int1", new IntTestRecipe(engine),
+                RequiresBNestedRecipe.NAME, new RequiresBNestedRecipe(engine));
     }
 
     /**
@@ -58,6 +58,7 @@ public class TestConfigRecipe extends ConfigurationRecipe<TestConfig>{
      */
     @Override
     protected void setupRequirement(Requirement requirement) {
+        requirement.addRequiredEnvironment("A");
     }
 
 }

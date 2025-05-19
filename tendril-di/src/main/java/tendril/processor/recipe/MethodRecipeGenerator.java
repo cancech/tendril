@@ -82,6 +82,7 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
         // Build up the contents of the recipe
         generateConstructor(configType, builder);
         generateRecipeDescriptor(builder);
+        generateRecipeRequirements(builder);
         generateCreateInstance(beanCreator, builder);
     }
     

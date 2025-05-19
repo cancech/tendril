@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.test.runner;
+package tendril.test.recipe;
 
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
@@ -21,24 +21,26 @@ import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 
 /**
- * {@link AbstractRecipe} to use for the purpose of allowing the {@link TestTendrilRunner} to be "injected" into tests
+ * 
  */
-public class TestTendrilRunnerRecipe extends AbstractRecipe<TestTendrilRunner> {
+public class RequiresARecipe extends AbstractRecipe<String> {
 
+    public static final String NAME = "A";
+    /** The value that the recipe produces */
+    public static final String VALUE = "123";
     /**
-     * CTOR
-     * 
-     * @param engine {@link Engine} that the recipe is to be employed with
+     * @param engine
      */
-    public TestTendrilRunnerRecipe(Engine engine) {
-        super(engine, TestTendrilRunner.class);
+    public RequiresARecipe(Engine engine) {
+        super(engine, String.class);
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
      */
     @Override
-    protected void setupDescriptor(Descriptor<TestTendrilRunner> descriptor) {
+    protected void setupDescriptor(Descriptor<String> descriptor) {
+        descriptor.setName(NAME);
     }
 
     /**
@@ -46,22 +48,23 @@ public class TestTendrilRunnerRecipe extends AbstractRecipe<TestTendrilRunner> {
      */
     @Override
     protected void setupRequirement(Requirement requirement) {
+        requirement.addRequiredEnvironment("A");
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#get()
      */
     @Override
-    public TestTendrilRunner get() {
-        return new TestTendrilRunner();
+    public String get() {
+        return VALUE;
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
      */
     @Override
-    protected TestTendrilRunner createInstance(Engine engine) {
-        return new TestTendrilRunner();
+    protected String createInstance(Engine engine) {
+        return VALUE;
     }
 
 }

@@ -17,6 +17,7 @@ package tendril.test.recipe;
 
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
+import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 
 /**
@@ -24,6 +25,7 @@ import tendril.context.Engine;
  */
 public class IntTestRecipe extends AbstractRecipe<Integer> {
 
+    public static final String NAME = "int1";
     /** The value that the recipe produces */
     public static final int VALUE = 123;
     
@@ -41,6 +43,14 @@ public class IntTestRecipe extends AbstractRecipe<Integer> {
      */
     @Override
     protected void setupDescriptor(Descriptor<Integer> descriptor) {
+        descriptor.setName(NAME);
+    }
+
+    /**
+     * @see tendril.bean.recipe.AbstractRecipe#setupRequirement(tendril.bean.requirement.Requirement)
+     */
+    @Override
+    protected void setupRequirement(Requirement requirement) {
     }
 
     /**

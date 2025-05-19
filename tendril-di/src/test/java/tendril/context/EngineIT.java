@@ -32,6 +32,11 @@ import tendril.test.recipe.Double1DuplicateTestRecipe;
 import tendril.test.recipe.Double1TestRecipe;
 import tendril.test.recipe.Double2TestRecipe;
 import tendril.test.recipe.IntTestRecipe;
+import tendril.test.recipe.RequiresABRecipe;
+import tendril.test.recipe.RequiresAConfigRecipe;
+import tendril.test.recipe.RequiresARecipe;
+import tendril.test.recipe.RequiresBNestedRecipe;
+import tendril.test.recipe.RequiresBRecipe;
 import tendril.test.recipe.StringTestRecipe;
 import tendril.test.recipe.TestConfigRecipe;
 
@@ -151,5 +156,106 @@ public class EngineIT extends AbstractUnitTest {
         CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Integer.class)), IntTestRecipe.VALUE);
         CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(String.class)), StringTestRecipe.VALUE);
         CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Object.class)), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE);
+    }
+
+    /**
+     * Verify that only beans meeting requirements are available
+     */
+    @Test
+    public void testNoEnvironmentSpecified() {
+        try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
+            registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), RequiresARecipe.class.getName(), RequiresBRecipe.class.getName(), RequiresABRecipe.class.getName(),
+                    RequiresAConfigRecipe.class.getName())));
+            engine.init();
+        }
+
+        Assertions.assertEquals(1, engine.getBeanCount());
+        Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
+        
+
+        CollectionAssert.assertEmpty(engine.getAllBeans(new Descriptor<>(Long.class)));
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class)), Double1TestRecipe.VALUE);
+    }
+
+    /**
+     * Verify that only beans meeting requirements are available
+     */
+    @Test
+    public void testAEnvironmentSpecified() {
+        engine.setEnvironments("A");
+        try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
+            registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), RequiresARecipe.class.getName(), RequiresBRecipe.class.getName(), RequiresABRecipe.class.getName(),
+                    RequiresAConfigRecipe.class.getName())));
+            engine.init();
+        }
+
+        Assertions.assertEquals(3, engine.getBeanCount());
+        Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
+        Assertions.assertEquals(RequiresARecipe.VALUE, engine.getBean(new Descriptor<>(String.class).setName(RequiresARecipe.NAME)));
+        Assertions.assertEquals(IntTestRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class).setName(IntTestRecipe.NAME)));
+        
+
+        CollectionAssert.assertEmpty(engine.getAllBeans(new Descriptor<>(Long.class)));
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class)), Double1TestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(String.class)), RequiresARecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Integer.class)), IntTestRecipe.VALUE);
+    }
+
+    /**
+     * Verify that only beans meeting requirements are available
+     */
+    @Test
+    public void testBEnvironmentSpecified() {
+        engine.setEnvironments("B");
+        try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
+            registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), RequiresARecipe.class.getName(), RequiresBRecipe.class.getName(), RequiresABRecipe.class.getName(),
+                    RequiresAConfigRecipe.class.getName())));
+            engine.init();
+        }
+
+        Assertions.assertEquals(2, engine.getBeanCount());
+        Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
+        Assertions.assertEquals(RequiresBRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(RequiresBRecipe.NAME)));
+        
+
+        CollectionAssert.assertEmpty(engine.getAllBeans(new Descriptor<>(Long.class)));
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class)), Double1TestRecipe.VALUE, RequiresBRecipe.VALUE);
+        CollectionAssert.assertEmpty(engine.getAllBeans(new Descriptor<>(String.class)));
+    }
+
+    /**
+     * Verify that only beans meeting requirements are available
+     */
+    @Test
+    public void testABEnvironmentSpecified() {
+        engine.setEnvironments("A", "B");
+        try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
+            registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), RequiresARecipe.class.getName(), RequiresBRecipe.class.getName(), RequiresABRecipe.class.getName(),
+                    RequiresAConfigRecipe.class.getName())));
+            engine.init();
+        }
+
+        Assertions.assertEquals(6, engine.getBeanCount());
+        Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
+        Assertions.assertEquals(RequiresARecipe.VALUE, engine.getBean(new Descriptor<>(String.class).setName(RequiresARecipe.NAME)));
+        Assertions.assertEquals(RequiresBRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(RequiresBRecipe.NAME)));
+        Assertions.assertEquals(RequiresABRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class).setName(RequiresABRecipe.NAME)));
+        Assertions.assertEquals(IntTestRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class).setName(IntTestRecipe.NAME)));
+        Assertions.assertEquals(RequiresBNestedRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(RequiresBNestedRecipe.NAME)));
+        
+
+        CollectionAssert.assertEmpty(engine.getAllBeans(new Descriptor<>(Long.class)));
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class)), Double1TestRecipe.VALUE, RequiresBRecipe.VALUE, RequiresBNestedRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(String.class)), RequiresARecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Integer.class)), RequiresABRecipe.VALUE, IntTestRecipe.VALUE);
+    }
+    
+    /**
+     * Verify that initializing the engine prevents changing the specified environment
+     */
+    @Test
+    public void testCannotChangeEnvironmentsAfterEngineInit() {
+        testABEnvironmentSpecified();
+        Assertions.assertThrows(RuntimeException.class, () -> engine.setEnvironments("qwerty"));
     }
 }

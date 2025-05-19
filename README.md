@@ -21,6 +21,7 @@ Some of these may be clear, some not, but for sake of completeness terms are def
 |Qualifier|Annotation applied to a Bean to add descriptive information to the Bean, to make it possible/easier to find specific Beans (akin to metadata).|
 |Quantifier|Annotation applied to a Bean to indicate how many copies of the Bean are to be produced.|
 |Recipe|Generated class which contains the steps necessary to build a Bean within the `Tendril` framework.|
+|Requirement|Condition which must be met for a bean to be allowed to be created.|
 |Runner|Main entry point for a `Tendril` application.|
 
 ## Creating a Bean
@@ -90,6 +91,36 @@ public class MyConfiguration {
 ```
 
 In this situation, the `Configuration` will be initialized before any beans it provides are created, but only the beans it provides will be made available for injection (i.e.: the `Configuration` itself is transient, a means to an end). This allows for classes from outside of the codebase to be incorporated into `Tendril` dependency injeciton, as well as having multiple distinct copies of the same class to be made available as well. The same `Configuration` instance is employed for all beans it provides, meaning that the `Configuration` class itself is only initialized/created once.
+
+### Placing Restriction on Bean Creation
+Requirements can be placed on Beans and Configuration to limit under what circumstance they will be created. For example to use a different bean in a development, production, or test environment with little to no changes required in the code itself. Note that when a requirement is applied to a Configuration, it is implicitly applied to all Beans within (the configuration will not be employed if the Configuration requirements are not met). Any requirements applied to Beans defined within a Configuration are in effect applied on top of the Configuration requirements. Multiples requirements can be applied, with them acting additively (i.e.: all specified requirements must be met).
+
+#### Environments
+The simplest manner in which to achieve this control is through the use of environments. Different environments can be specified when creating the `ApplicationContext` and requirements can be applied to Beans and Configurations to account for them.
+
+```java
+ApplicationContext ctx = new ApplicationContext();
+ctx.setEnvironments("a", "b", "c");
+ctx.start();
+```
+
+Any number of environments can be provided to `setEnvironments()`. To apply requirements on a Bean or Configuration the following annotations can be used:
+
+* `@RequiresEnv` and specify one (or more) environments which must be applied for the Bean or configuration to be allowed to be created.
+
+```java
+@Bean
+@Singleton
+@RequiresEnv("a")
+public class MyEnvAClass {
+}
+
+@Bean
+@Singleton
+@RequiresEnv({"b", "c"})
+public class MyEnvBandCClass {
+}
+```
 
 ## Consuming a Bean
 In essence, the act of creating Beans is also the act of consuming them. Bean consumption is performed as part of Bean creation, where a Bean consumes its dependencies before it itself is provided onward to whomever depends on it. Thus, consuming a Bean is the act of defining what other Bean a given Bean depends on. This is done via the `@Inject` annotation, which can be applied on:

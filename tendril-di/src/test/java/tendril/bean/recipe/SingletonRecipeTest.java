@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.bean.qualifier.Descriptor;
+import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 import tendril.test.AbstractUnitTest;
 import tendril.test.bean.SingleCtorBean;
@@ -45,6 +46,10 @@ public class SingletonRecipeTest extends AbstractUnitTest {
 
             @Override
             protected void setupDescriptor(Descriptor<SingleCtorBean> descriptor) {
+            }
+
+            @Override
+            protected void setupRequirement(Requirement requirement) {
             }
 
             @Override

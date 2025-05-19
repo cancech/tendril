@@ -63,4 +63,15 @@ public class ApplicationContextTest extends AbstractUnitTest {
         verify(mockEngine).init();
     }
 
+    /**
+     * Verify that the environments are properly handled
+     */
+    @Test
+    public void testEnvironments() {
+        ctx.setEnvironments("a");
+        verify(mockEngine).setEnvironments("a");
+
+        ctx.setEnvironments("a", "b", "c");
+        verify(mockEngine).setEnvironments("a", "b", "c");
+    }
 }

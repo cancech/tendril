@@ -25,6 +25,7 @@ import org.mockito.Mock;
 
 import tendril.BeanCreationException;
 import tendril.bean.qualifier.Descriptor;
+import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 import tendril.test.AbstractUnitTest;
 import tendril.test.bean.SingleCtorBean;
@@ -40,6 +41,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     private class TestRecipe extends AbstractRecipe<SingleCtorBean> {
 
         private boolean isDescriptorSetup;
+        private boolean isRequirementSetup;
         private int timesCreateInstanceCalled = 0;
         private int timesPostConstructCalled = 0;
         private SingleCtorBean postConstructBean = null;
@@ -60,6 +62,16 @@ public class AbstractRecipeTest extends AbstractUnitTest {
             isDescriptorSetup = true;
         }
 
+        /**
+         * @see tendril.bean.recipe.AbstractRecipe#setupRequirement(tendril.bean.requirement.Requirement)
+         */
+        @Override
+        protected void setupRequirement(Requirement requirement) {
+            Assertions.assertFalse(isRequirementSetup);
+            isRequirementSetup = true;
+            
+        }
+
         @Override
         public SingleCtorBean get() {
             throw new NotImplementedException("Not required for testing");
@@ -67,6 +79,10 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         
         public void assertDescriptorSetup() {
             Assertions.assertTrue(isDescriptorSetup);
+        }
+        
+        public void assertRequirementSetup() {
+            Assertions.assertTrue(isRequirementSetup);
         }
 
         /**
@@ -133,6 +149,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     protected void prepareTest() {
         recipe = new TestRecipe();
         recipe.assertDescriptorSetup();
+        recipe.assertRequirementSetup();
         Assertions.assertEquals(SingleCtorBean.class, recipe.getDescription().getBeanClass());
     }
     

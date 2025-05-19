@@ -18,6 +18,8 @@ package tendril.context;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -26,6 +28,7 @@ import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.ConfigurationRecipe;
 import tendril.processor.registration.RegistryFile;
+import tendril.util.TendrilStringUtil;
 
 /**
  * The core element within the {@link ApplicationContext} which is responsible for the bulk of the Dependency Injection capability. This tracks all beans (via their recipes) and allows for their
@@ -38,6 +41,10 @@ public class Engine {
 
     /** All recipes that have been registered */
     private final List<AbstractRecipe<?>> recipes = new ArrayList<>();
+    /** List of environments that are applied to the context */
+    private List<String> environments = Collections.emptyList();
+    /** Flag for whether or not the engine has been started */
+    private boolean isStarted = false;
 
     /**
      * CTOR
@@ -46,10 +53,26 @@ public class Engine {
     }
 
     /**
+     * Set the environments for the context
+     * 
+     * @param envs {@link String}... that are applied
+     */
+    void setEnvironments(String...envs) {
+        // Environments can only be set before starting the engine
+        if (isStarted)
+            throw new RuntimeException("Environments can only be set before starting the context");
+        
+        environments = Arrays.asList(envs);
+    }
+
+    /**
      * Initialize the engine by reading the list of all known recipes and registering them with the engine. Each recipe object is created, though the bean contained within is not created until it
      * becomes necessary to do so (i.e.: accessed by a Consumer).
      */
     void init() {
+        isStarted = true;
+
+        LOGGER.fine("Initializing with environments [" + TendrilStringUtil.join(environments) + "]");
         try {
             for (String recipe : RegistryFile.read()) {
                 try {
@@ -81,23 +104,51 @@ public class Engine {
      */
     private boolean tryAddConfiguration(String recipe, Object object) {
         if (!(object instanceof ConfigurationRecipe))
-                return false;
-        
+            return false;
+
         ConfigurationRecipe<?> config = (ConfigurationRecipe<?>) object;
-        LOGGER.fine("Loading configuration " + recipe);
-        config.getNestedRecipes().forEach((name, r) -> tryAddRecipe(recipe + "::" + name, r));
+        if (requirementsMet(config)) {
+            LOGGER.fine("Loading configuration " + recipe);
+            config.getNestedRecipes().forEach((name, r) -> tryAddRecipe(recipe + "::" + name, r));
+        } else {
+            LOGGER.fine("Configuration requirements not met " + recipe);
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the requirements for the recipe have been met
+     * 
+     * @param recipe {@link AbstractRecipe} to check
+     * @return boolean true if all requirements for the recipe have been met
+     */
+    private boolean requirementsMet(AbstractRecipe<?> recipe) {
+        List<String> reqEnvs = recipe.getRequirement().getRequiredEnvironments();
+        // TODO add support for RequiresNotEnv
+        if (!environments.containsAll(reqEnvs)) {
+            LOGGER.fine("Unable to load " + recipe + " because not all required environments [" + TendrilStringUtil.join(reqEnvs) + "] are met.");
+            return false;
+        }
+                    
         return true;
     }
 
     /**
      * Try to add the recipe as though it were a recipe for an individual bean
      * 
-     * @param recipe {@link String} the fully qualified name of the recipe
+     * @param name   {@link String} the fully qualified name of the recipe
      * @param object {@link Object} recipe instance
      */
-    private void tryAddRecipe(String recipe, Object object) {
-        recipes.add((AbstractRecipe<?>) object);
-        LOGGER.fine("Loaded recipe " + recipe);
+    private void tryAddRecipe(String name, Object object) {
+        AbstractRecipe<?> recipe = (AbstractRecipe<?>) object;
+
+        if (requirementsMet(recipe)) {
+            recipes.add(recipe);
+            LOGGER.fine("Loaded recipe " + name);
+        } else {
+            LOGGER.fine("Bean requirements not met" + recipe);
+        }
     }
 
     /**
