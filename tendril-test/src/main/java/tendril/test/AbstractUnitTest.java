@@ -52,7 +52,7 @@ public abstract class AbstractUnitTest {
      * Before performing any/all tests, listen for the creation of mocks
      */
     @BeforeAll
-    private void setupMockListener() {
+    protected void setupMockListener() {
         Mockito.framework().addListener(mockListener);
     }
 
@@ -60,7 +60,7 @@ public abstract class AbstractUnitTest {
      * Upon termination of all tests, stop listening for the creation of mocks
      */
     @AfterAll
-    private void cleanupMockListener() {
+    protected void cleanupMockListener() {
         Mockito.framework().removeListener(mockListener);
     }
 
