@@ -39,13 +39,13 @@ public class AppRunner implements TendrilRunner {
     private static int timesAllInjectorRun = 0;
 
     public static void assertSingleton() {
-        assertion(instances == 1);
-        assertion(timesDoSomething == 1);
-        assertion(timesDoSomethingElse == 1);
-        assertion(timesDoNothing == 1);
-        assertion(timesEnumInjector == 1);
-        assertion(timesRun == 1);
-        assertion(timesAllInjectorRun == 1);
+        assertion(instances == 1, "instances should be 1, but was " + instances);
+        assertion(timesDoSomething == 1, "instances should be 1, but was " + timesDoSomething);
+        assertion(timesDoSomethingElse == 1, "instances should be 1, but was " + timesDoSomethingElse);
+        assertion(timesDoNothing == 1, "instances should be 1, but was " + timesDoNothing);
+        assertion(timesEnumInjector == 1, "instances should be 1, but was " + timesEnumInjector);
+        assertion(timesRun == 1, "instances should be 1, but was " + timesRun);
+        assertion(timesAllInjectorRun == 1, "instances should be 1, but was " + timesAllInjectorRun);
     }
 
     public static void reset() {
@@ -91,6 +91,9 @@ public class AppRunner implements TendrilRunner {
     @Inject
     @Named("second")
     Runnable secondRunnable;
+    @Inject
+    @Named("notenv")
+    Runnable notEnvRunnable;
     @InjectAll
     List<? extends Runnable> allRunnables;
     @Inject
@@ -139,9 +142,9 @@ public class AppRunner implements TendrilRunner {
     }
     
     @Inject
-    void allInjector(@InjectAll List<? extends Runnable> all, @Option1 Runnable one, @Option2 Runnable two, @Named("second") Runnable three) {
+    void allInjector(@InjectAll List<? extends Runnable> all, @Option1 Runnable one, @Option2 Runnable two, @Named("second") Runnable three, @Named("notenv") Runnable four) {
         timesAllInjectorRun++;
-        assertRunnableList("allInjector", all, one, two, three);
+        assertRunnableList("allInjector", all, one, two, three, four);
     }
 
     @Override
@@ -156,49 +159,50 @@ public class AppRunner implements TendrilRunner {
         System.out.println(tempString1);
         System.out.println(tempString2);
         System.out.println("Objects: " + objVal2 + ", " + objTmp);
-        assertion(tempString1.equals(tempString2));
-        assertion(factoryBean1 != factoryBean2);
-        assertion(factoryBean1 != factoryBean3);
-        assertion(factoryBean1 != factoryBean4);
-        assertion(factoryBean1 != factoryBean5);
-        assertion(factoryBean2 != factoryBean3);
-        assertion(factoryBean2 != factoryBean4);
-        assertion(factoryBean2 != factoryBean5);
-        assertion(factoryBean3 != factoryBean4);
-        assertion(factoryBean3 != factoryBean5);
-        assertion(factoryBean4 != factoryBean5);
-        assertion(objVal2 != objTmp);
+        assertion(tempString1.equals(tempString2), "Ex[ected \"" + tempString1 + "\", but received \"" + tempString2 + "\"");
+        assertion(factoryBean1 != factoryBean2, "factoryBean1 == factoryBean2");
+        assertion(factoryBean1 != factoryBean3, "factoryBean1 == factoryBean3");
+        assertion(factoryBean1 != factoryBean4, "factoryBean1 == factoryBean4");
+        assertion(factoryBean1 != factoryBean5, "factoryBean1 == factoryBean5");
+        assertion(factoryBean2 != factoryBean3, "factoryBean2 == factoryBean3");
+        assertion(factoryBean2 != factoryBean4, "factoryBean2 == factoryBean4");
+        assertion(factoryBean2 != factoryBean5, "factoryBean2 == factoryBean5");
+        assertion(factoryBean3 != factoryBean4, "factoryBean3 == factoryBean4");
+        assertion(factoryBean3 != factoryBean5, "factoryBean3 == factoryBean5");
+        assertion(factoryBean4 != factoryBean5, "factoryBean4 == factoryBean5");
+        assertion(objVal2 != objTmp, "objVal2 == objTmp");
 
-        assertion(singletonRunnable != option2Runnable);
-        assertion(singletonRunnable != secondRunnable);
-        assertion(option2Runnable != secondRunnable);
-        assertRunnableList("Instance Fields", allRunnables, singletonRunnable, option2Runnable, secondRunnable);
-        singletonRunnable.run();
-        option2Runnable.run();
-        secondRunnable.run();
+        assertion(singletonRunnable != option2Runnable, "singletonRunnable == option2Runnable");
+        assertion(singletonRunnable != secondRunnable, "singletonRunnable == secondRunnable");
+        assertion(singletonRunnable != notEnvRunnable, "singletonRunnable == notEnvRunnable");
+        assertion(option2Runnable != secondRunnable, "option2Runnable == secondRunnable");
+        assertion(option2Runnable != notEnvRunnable, "option2Runnable == notEnvRunnable");
+        assertion(secondRunnable != notEnvRunnable, "secondRunnable == notEnvRunnable");
+        assertRunnableList("Instance Fields", allRunnables, singletonRunnable, option2Runnable, secondRunnable, notEnvRunnable);
         
         System.out.println("MESSAGE IS: " + message);
-        assertion(message.equals(expectedMessage));
+        assertion(message.equals(expectedMessage), "Expected \"" + expectedMessage + "\", but received \"" + message + "\"");
     }
 
-    private  static void assertion(boolean value) {
+    private  static void assertion(boolean value, String msg) {
         if (!value)
-            throw new AssertionError();
+            throw new AssertionError(msg);
     }
     
     private void assertRunnableList(String annoucement, List<? extends Runnable> list, Runnable...runnables) {
         assertListContains(list, runnables);
         
-        System.out.println("Running List " + annoucement);
+        System.out.println("---------------------------- Running List " + annoucement + " ----------------------------");
         for (Runnable r: runnables)
             r.run();
+        System.out.println("-------------------------------------------------------------------------------");
     }
     
     @SafeVarargs
     private <T> void assertListContains(List<? extends T> list, T...elements) {
         // Ensure that the list is correct
-        assertion(list.size() == elements.length);
+        assertion(list.size() == elements.length, "Expected " + elements.length + " elements, but recevied " + list.size());
         for (T e: elements)
-            assertion(list.contains(e));
+            assertion(list.contains(e), "List " + list + " does not contain element " + e);
     }
 }
