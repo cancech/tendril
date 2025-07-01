@@ -24,6 +24,28 @@ Some of these may be clear, some not, but for sake of completeness terms are def
 |Requirement|Condition which must be met for a bean to be allowed to be created.|
 |Runner|Main entry point for a `Tendril` application.|
 
+### Transferable Annotations
+Certain annotations (namely Qualifiers and Requirements) are transferable, which in this context means that they can be applied anywhere in the annotation hierarchy and have an effect on the element (namely Bean and Configuration) as if they were applied to the element directly. Thus, common combinations can be placed into a shared/reusable annotation which is then applied to the appropriate Beans or Configurations, avoiding the need to "redefine" the combination in multiple places. Note that the reusable annotation must include `@Retention(RetentionPolicy.RUNTIME)` and have the appropriate `@Target` configured for its various use cases. This allows for defining custom annotation, and refactor these transferable annotations away from concrete Beans or Configurations.
+
+```java
+@QualifierEnum
+public enum MyQualifiers {
+	TestElement;
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.METHOD })
+@RequiresNotEnv("TEST")
+@TestElement
+public @interface TestElement {
+}
+
+@TestElement // provides the transferable annotations @RequiresNotEnv("TEST") and @TestElement
+public class MyTestBean {
+	// ...
+}
+```
+
 ## Creating a Bean
 The bean is the key ingredient in any Dependency Injection scheme, and `Tendril` is no different. There are two ways in which to define beans:
 1. Within a class (where the class defines itself as a bean)
@@ -94,6 +116,8 @@ In this situation, the `Configuration` will be initialized before any beans it p
 
 ### Placing Restriction on Bean Creation
 Requirements can be placed on Beans and Configuration to limit under what circumstance they will be created. For example to use a different bean in a development, production, or test environment with little to no changes required in the code itself. Note that when a requirement is applied to a Configuration, it is implicitly applied to all Beans within (the configuration will not be employed if the Configuration requirements are not met). Any requirements applied to Beans defined within a Configuration are in effect applied on top of the Configuration requirements. Multiples requirements can be applied, with them acting additively (i.e.: all specified requirements must be met).
+
+Note that requirements are transferable.
 
 #### Environments
 The simplest manner in which to achieve this control is through the use of environments. Different environments can be specified when creating the `ApplicationContext` and requirements can be applied to Beans and Configurations to account for them.
@@ -315,6 +339,8 @@ Everything thus far has described the mechanics of how Beans work, additionally 
 This type, or something from its inheritance hierarchy, must be used for the purpose of retrieving the Bean. Beyond this most basic `qualifier` additional options are available through which to provide additional information to distinguish one Bean from another.
 
 Note that none of these `qualifiers` (including Bean Type) are not unique, as in each can be applied to any number of Beans. Uniqueness is not guaranteed by any individual `qualifier` and it is up to the user to either enforce uniqueness manually when building beans if such is required, or to employ a combination of `qualifiers` which together uniquely identify a specific Bean.
+
+Note that bean qualifiers are transferable 
 
 ### Enum ID
 It is possible to employ an `Enum` as an ID on a bean using a two-step process. First, the `Enum` itself must be annotated with `@BeanIdEnum` which tells `Tendril` to generate an annotation `@<Enum>Id` which can then be applied to beans. This generated annotation takes a value from the `@BeanIdEnum` annotated `Enum`, which is then applied as a `qualifier` to the Bean.

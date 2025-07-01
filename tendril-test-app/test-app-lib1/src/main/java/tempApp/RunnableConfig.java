@@ -43,8 +43,7 @@ public class RunnableConfig {
     
     @Bean
     @Singleton
-    @Named("notenv")
-    @RequiresNotEnv("uppercase")
+    @NotUpperCase
     Runnable notUppercase() {
         return () -> System.out.println("NOT AN UPPERCASE ENVIRONMENT");
     }

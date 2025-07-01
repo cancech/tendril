@@ -362,6 +362,8 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
             } else if (a.hasAnnotation(Qualifier.class)) {
                 externalImports.add(a.getType());
                 lines.add("addQualifier(" + a.getType().getSimpleName() + ".class)");
+            } else {
+                lines.addAll(getDescriptorLines(a));
             }
         }
 
@@ -376,8 +378,6 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
     private List<String> getRequirementLines(JBase element) {
         List<String> lines = new ArrayList<>();
 
-        // TODO make this inherited (i.e.: @RequiresEnv added to other annotation which is applied here)
-        
         // Account for any required environments
         populateEnvironmentReqs(lines, element, RequiresEnv.class, "addRequiredEnvironment");
         populateEnvironmentReqs(lines, element, RequiresNotEnv.class, "addRequiredNotEnvironment");
@@ -400,7 +400,8 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
                 @SuppressWarnings("unchecked")
                 List<JValue<?, ?>> envs = (List<JValue<?, ?>>) a.getValue(a.getAttributes().get(0)).getValue();
                 envs.forEach(e -> lines.add(methodName + "(\"" + e.getValue() + "\")"));
-            }
+            } else
+                populateEnvironmentReqs(lines, a, annotation, methodName);
         }
     }
     
