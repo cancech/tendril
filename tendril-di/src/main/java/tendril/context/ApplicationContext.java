@@ -67,6 +67,7 @@ public class ApplicationContext {
         engine.init();
 
         try {
+            // TODO Allow for multiple runners with different requirements
             String runnerClass = RunnerFile.read();
             TendrilRunner runner = (TendrilRunner) ((AbstractRecipe<?>)Class.forName(runnerClass).getDeclaredConstructor(Engine.class).newInstance(engine)).get();
             runner.run();

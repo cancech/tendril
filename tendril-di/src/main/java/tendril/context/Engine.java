@@ -59,6 +59,7 @@ public class Engine {
      * @param envs {@link String}... that are applied
      */
     void setEnvironments(String...envs) {
+        // TODO initialize from environment variables/flags?
         // Environments can only be set before starting the engine
         if (isStarted)
             throw new RuntimeException("Environments can only be set before starting the context");

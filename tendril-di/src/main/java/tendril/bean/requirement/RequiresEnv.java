@@ -28,6 +28,8 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface RequiresEnv {
     
+    // TODO generate from enum?
+    
     /**
      * Array of different environments, all of which must be met in order for the bean to be deemed valid in the execution environment.
      * 
