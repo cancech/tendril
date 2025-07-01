@@ -106,19 +106,22 @@ ctx.start();
 
 Any number of environments can be provided to `setEnvironments()`. To apply requirements on a Bean or Configuration the following annotations can be used:
 
-* `@RequiresEnv` and specify one (or more) environments which must be applied for the Bean or configuration to be allowed to be created.
+* `@RequiresEnv` and specify one (or more) environments which must be applied for the Bean or Configuration to be allowed to be created.
+* `@RequiresNotEnv` and specifying one (or more) environments which must *not* be applied for the Bean of Configuration to be allowed to be created.
 
 ```java
 @Bean
 @Singleton
 @RequiresEnv("a")
-public class MyEnvAClass {
+@RequiresNotEnv("b")
+public class MyEnvANotBClass {
 }
 
 @Bean
 @Singleton
 @RequiresEnv({"b", "c"})
-public class MyEnvBandCClass {
+@RequiresNotEnv({"d", "e"})
+public class MyEnvBandCNotDandEClass {
 }
 ```
 
