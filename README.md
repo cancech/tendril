@@ -496,6 +496,7 @@ public static void main(String[] args) {
 In support of `Tendril` functionality, the build will generate a number of supporting files in the `META-INF/tendril` directory. These files are vital to the runtime operations of the application and must be preserved. If a tool such as `shadow` is used to create a *Fat* or *Uber* jar, care must be taken to ensure that the `META-INF/tendril` files are combined or merged and not overridden. The loss of data which would ensure will directly result in loss of bean (meta) data and failure for the resulting jar/application to work properly. The following `META-INF/tendril` files are produced
 
 |File Name| Description|
+|---    | ---       |
 |`registry`|List of all `Recipes` that are present for the purpose of producing beans. This file is loaded by the `Engine` to determine what all `Recipes` (and thus beans) are available for injection. Looked at a little differently, this is a list of all `@Registry` annotated classes in the application.|
 |`runner`|List of `@Runner` annotated classes, ergo potential entry points into the `Application Context`.|
 
