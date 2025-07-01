@@ -379,26 +379,29 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
         // TODO make this inherited (i.e.: @RequiresEnv added to other annotation which is applied here)
         
         // Account for any required environments
-        ClassType requiresType = new ClassType(RequiresEnv.class);
-        for (JAnnotation a: element.getAnnotations()) {
-            if (a.getType().equals(requiresType)) {
-                @SuppressWarnings("unchecked")
-                List<JValue<?, ?>> envs = (List<JValue<?, ?>>) a.getValue(a.getAttributes().get(0)).getValue();
-                envs.forEach(e -> lines.add("addRequiredEnvironment(\"" + e.getValue() + "\")"));
-            }
-        }
-        
+        populateEnvironmentReqs(lines, element, RequiresEnv.class, "addRequiredEnvironment");
+        populateEnvironmentReqs(lines, element, RequiresNotEnv.class, "addRequiredNotEnvironment");
+        return lines;
+    }
+    
+    /**
+     * Generate the code to account for environmental requirements for the element
+     * 
+     * @param lines {@link List} of {@link String}s where the code is stored as separate lines
+     * @param element {@link JBase} for whom the requirements to be generated
+     * @param annotation {@link Class} extending {@link Annotation} representing the annotation to search for
+     * @param methodName {@link String} the name of the method to use to apply the requirement
+     */
+    private void populateEnvironmentReqs(List<String> lines, JBase element, Class<? extends Annotation> annotation, String methodName) {
         // Account for any NOT required environments
-        ClassType requiresNotType = new ClassType(RequiresNotEnv.class);
+        ClassType requiresNotType = new ClassType(annotation);
         for (JAnnotation a: element.getAnnotations()) {
             if (a.getType().equals(requiresNotType)) {
                 @SuppressWarnings("unchecked")
                 List<JValue<?, ?>> envs = (List<JValue<?, ?>>) a.getValue(a.getAttributes().get(0)).getValue();
-                envs.forEach(e -> lines.add("addRequiredNotEnvironment(\"" + e.getValue() + "\")"));
+                envs.forEach(e -> lines.add(methodName + "(\"" + e.getValue() + "\")"));
             }
         }
-        
-        return lines;
     }
     
 }
