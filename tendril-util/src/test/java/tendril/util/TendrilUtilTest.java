@@ -19,6 +19,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -83,5 +86,27 @@ public class TendrilUtilTest extends AbstractUnitTest {
         verify(mockComparator, times(2)).compare("abc", "abc");
         verify(mockComparator, times(2)).compare("abc", "123");
         verify(mockComparator, times(1)).compare("abc", "abc123"); // Never called a second time
+    }
+    
+    /**
+     * Verify that containsAny works as expected
+     */
+    @Test
+    public void testContainsAny() {
+        // When it passes
+        Assertions.assertTrue(TendrilUtil.containsAny(Collections.singleton("a"), Collections.singleton("a")));
+        Assertions.assertTrue(TendrilUtil.containsAny(Collections.singleton("a"), Arrays.asList("a", "b", "c")));
+        Assertions.assertTrue(TendrilUtil.containsAny(Arrays.asList("a", "b", "c"), Arrays.asList("a", "b", "c")));
+        Assertions.assertTrue(TendrilUtil.containsAny(Arrays.asList("a", "b", "c"), Arrays.asList("a", "a", "a")));
+        Assertions.assertTrue(TendrilUtil.containsAny(Arrays.asList("a", "b", "c"), Arrays.asList("d", "e", "c")));
+        Assertions.assertTrue(TendrilUtil.containsAny(Arrays.asList("a", "b", "c"), Collections.singleton("a")));
+        Assertions.assertTrue(TendrilUtil.containsAny(Arrays.asList("a", "b", "c"), Collections.singleton("b")));
+        Assertions.assertTrue(TendrilUtil.containsAny(Arrays.asList("a", "b", "c"), Collections.singleton("c")));
+        
+        // When it fails
+        Assertions.assertFalse(TendrilUtil.containsAny(Collections.singleton("a"), Collections.singleton("b")));
+        Assertions.assertFalse(TendrilUtil.containsAny(Arrays.asList("a", "b", "c"), Arrays.asList("d", "e", "f")));
+        Assertions.assertFalse(TendrilUtil.containsAny(Arrays.asList("a", "b", "c"), Collections.emptyList()));
+        Assertions.assertFalse(TendrilUtil.containsAny(Collections.emptyList(), Collections.emptyList()));
     }
 }

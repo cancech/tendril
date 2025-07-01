@@ -15,6 +15,8 @@
  */
 package tendril.util;
 
+import java.util.Collection;
+
 /**
  * Utility class which holds miscellaneous capabilities used throughout the library
  */
@@ -59,6 +61,23 @@ public abstract class TendrilUtil {
                 return true;
         }
 
+        return false;
+    }
+    
+    /**
+     * Check if the {@code toCheck} {@link Collection} contains any of the elements from the {@code toFind} {@link Collection}.
+     * 
+     * @param <T> the type of element to be contained within the {@link Collection}s
+     * @param toCheck {@link Collection} in which to look for the elements
+     * @param toFind {@link Collection} of elements to look for
+     * @return boolean true if any of the elements from {@code toFind} are present in {@code toCheck}
+     */
+    public static <T> boolean containsAny(Collection<T> toCheck, Collection<T> toFind) {
+        for (T t: toFind) {
+            if (toCheck.contains(t))
+                return true;
+        }
+        
         return false;
     }
 }
