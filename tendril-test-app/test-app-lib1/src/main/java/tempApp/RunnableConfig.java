@@ -19,6 +19,7 @@ import tendril.bean.Bean;
 import tendril.bean.Configuration;
 import tendril.bean.Singleton;
 import tendril.bean.qualifier.Named;
+import tendril.bean.requirement.RequiresNotEnv;
 
 /**
  * 
@@ -38,5 +39,21 @@ public class RunnableConfig {
     @Named("second")
     Runnable second() {
         return () -> System.out.println("Second");
+    }
+    
+    @Bean
+    @Singleton
+    @Named("notenv")
+    @RequiresNotEnv("uppercase")
+    Runnable notUppercase() {
+        return () -> System.out.println("NOT AN UPPERCASE ENVIRONMENT");
+    }
+    
+    @Bean
+    @Singleton
+    @Named("notenv")
+    @RequiresNotEnv("lowercase")
+    Runnable notLowercase() {
+        return () -> System.out.println("not a lowercase environment");
     }
 }

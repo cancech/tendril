@@ -1,0 +1,37 @@
+/*
+ * Copyright 2024 Jaroslav Bosak
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://opensource.org/license/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package tendril.bean.requirement;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Used to indicate what type of environment is required to <b>NOT</b> be set/applied to a context for the annotated bean to be allowed to be created. This can be used to limit
+ * under what circumstances a bean can be made available.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.METHOD })
+public @interface RequiresNotEnv {
+    
+    /**
+     * Array of different environments, none of which must be applied in order for the bean to be deemed valid in the execution environment.
+     * 
+     * @return {@link String} array of environments required to be missing
+     */
+    String[] value();
+}

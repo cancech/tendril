@@ -24,6 +24,8 @@ import java.util.List;
 public class Requirement {
     /** List of environments, all of which must be present */
     private final List<String> requiredEnvs = new ArrayList<>();
+    /** List of environments, none of which must be present */
+    private final List<String> requiredNotEnvs = new ArrayList<>();
     
     /**
      * Add an environment which must be present for the bean to be creatable
@@ -41,5 +43,23 @@ public class Requirement {
      */
     public List<String> getRequiredEnvironments() {
         return requiredEnvs;
+    }
+    
+    /**
+     * Add an environment which must <b>NOT</b> be present for the bean to be creatable
+     * 
+     * @param env {@link String} environment name
+     */
+    public void addRequiredNotEnvironment(String env) {
+        requiredNotEnvs.add(env);
+    }
+
+    /**
+     * Get the list of all environments that cannot be present for the bean
+     * 
+     * @return {@link List} of {@link String}
+     */
+    public List<String> getRequiredNotEnvironments() {
+        return requiredNotEnvs;
     }
 }

@@ -42,6 +42,7 @@ import tendril.bean.recipe.Registry;
 import tendril.bean.recipe.SingletonRecipe;
 import tendril.bean.requirement.Requirement;
 import tendril.bean.requirement.RequiresEnv;
+import tendril.bean.requirement.RequiresNotEnv;
 import tendril.codegen.JBase;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotation;
@@ -368,7 +369,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
     }
     
     /**
-     * Generate the code for traching the needed requirements
+     * Generate the code for tracking the needed requirements
      * 
      * @param element {@link JBase} on which the requirements are placed
      */
@@ -376,12 +377,24 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
         List<String> lines = new ArrayList<>();
 
         // TODO make this inherited (i.e.: @RequiresEnv added to other annotation which is applied here)
+        
+        // Account for any required environments
         ClassType requiresType = new ClassType(RequiresEnv.class);
         for (JAnnotation a: element.getAnnotations()) {
             if (a.getType().equals(requiresType)) {
                 @SuppressWarnings("unchecked")
                 List<JValue<?, ?>> envs = (List<JValue<?, ?>>) a.getValue(a.getAttributes().get(0)).getValue();
                 envs.forEach(e -> lines.add("addRequiredEnvironment(\"" + e.getValue() + "\")"));
+            }
+        }
+        
+        // Account for any NOT required environments
+        ClassType requiresNotType = new ClassType(RequiresNotEnv.class);
+        for (JAnnotation a: element.getAnnotations()) {
+            if (a.getType().equals(requiresNotType)) {
+                @SuppressWarnings("unchecked")
+                List<JValue<?, ?>> envs = (List<JValue<?, ?>>) a.getValue(a.getAttributes().get(0)).getValue();
+                envs.forEach(e -> lines.add("addRequiredNotEnvironment(\"" + e.getValue() + "\")"));
             }
         }
         

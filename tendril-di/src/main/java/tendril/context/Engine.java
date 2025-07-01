@@ -29,6 +29,7 @@ import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.ConfigurationRecipe;
 import tendril.processor.registration.RegistryFile;
 import tendril.util.TendrilStringUtil;
+import tendril.util.TendrilUtil;
 
 /**
  * The core element within the {@link ApplicationContext} which is responsible for the bulk of the Dependency Injection capability. This tracks all beans (via their recipes) and allows for their
@@ -125,9 +126,13 @@ public class Engine {
      */
     private boolean requirementsMet(AbstractRecipe<?> recipe) {
         List<String> reqEnvs = recipe.getRequirement().getRequiredEnvironments();
-        // TODO add support for RequiresNotEnv
+        List<String> notReqEnvs = recipe.getRequirement().getRequiredNotEnvironments();
+
         if (!environments.containsAll(reqEnvs)) {
             LOGGER.fine("Unable to load " + recipe + " because not all required environments [" + TendrilStringUtil.join(reqEnvs) + "] are met.");
+            return false;
+        } else if (TendrilUtil.containsAny(environments, notReqEnvs)) {
+            LOGGER.fine("Unable to load " + recipe + " because at least one of the not required environments [" + TendrilStringUtil.join(notReqEnvs) + "] is present");
             return false;
         }
                     
