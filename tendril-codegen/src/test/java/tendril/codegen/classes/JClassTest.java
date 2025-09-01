@@ -108,6 +108,8 @@ public class JClassTest extends AbstractUnitTest {
     @Mock
     private ClassType mockField2Type;
     @Mock
+    private JClass mockGrandParentClass;
+    @Mock
     private JClass mockParentClass;
     @Mock
     private ClassType mockParentClassType;
@@ -328,7 +330,10 @@ public class JClassTest extends AbstractUnitTest {
         endDefinition();
 
         // Add the additional features
+        Assertions.assertNull(jclass.getParentClass());
         jclass.setParentClass(mockParentClass);
+        Assertions.assertEquals(mockParentClass, jclass.getParentClass());
+        
 
         // Verify that it matches
         assertGeneratedCode();
@@ -531,9 +536,9 @@ public class JClassTest extends AbstractUnitTest {
         endDefinition();
 
         // Add the additional features
+        Assertions.assertNull(jclass.getParentClass());
         jclass.setParentClass(mockParentClass);
-
-        //System.out.println(jclass.generateCode());
+        Assertions.assertEquals(mockParentClass, jclass.getParentClass());
         
         // Verify that it matches
         assertGeneratedCode();
@@ -657,7 +662,7 @@ public class JClassTest extends AbstractUnitTest {
      * Verify that fields can be retrieved by annotation
      */
     @Test
-    public void testGetFieldByAnnotation() {
+    public void testGetFieldByAnnotationNoInheritance() {
         jclass.addField(mockField1);
         jclass.addField(mockField2);
         jclass.addField(mockField3);
@@ -666,44 +671,151 @@ public class JClassTest extends AbstractUnitTest {
         when(mockField1.hasAnnotation(Override.class)).thenReturn(false);
         when(mockField2.hasAnnotation(Override.class)).thenReturn(false);
         when(mockField3.hasAnnotation(Override.class)).thenReturn(false);
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getExplicitFields(Override.class));
         Assertions.assertIterableEquals(Collections.emptyList(), jclass.getFields(Override.class));
-        verify(mockField1).hasAnnotation(Override.class);
-        verify(mockField2).hasAnnotation(Override.class);
-        verify(mockField3).hasAnnotation(Override.class);
+        verify(mockField1, times(2)).hasAnnotation(Override.class);
+        verify(mockField2, times(2)).hasAnnotation(Override.class);
+        verify(mockField3, times(2)).hasAnnotation(Override.class);
 
         // Annotation is present on one
         when(mockField1.hasAnnotation(Override.class)).thenReturn(false);
         when(mockField2.hasAnnotation(Override.class)).thenReturn(true);
         when(mockField3.hasAnnotation(Override.class)).thenReturn(false);
+        Assertions.assertIterableEquals(Collections.singletonList(mockField2), jclass.getExplicitFields(Override.class));
         Assertions.assertIterableEquals(Collections.singletonList(mockField2), jclass.getFields(Override.class));
-        verify(mockField1, times(2)).hasAnnotation(Override.class);
-        verify(mockField2, times(2)).hasAnnotation(Override.class);
-        verify(mockField3, times(2)).hasAnnotation(Override.class);
+        verify(mockField1, times(4)).hasAnnotation(Override.class);
+        verify(mockField2, times(4)).hasAnnotation(Override.class);
+        verify(mockField3, times(4)).hasAnnotation(Override.class);
 
         // Annotation is present on two
         when(mockField1.hasAnnotation(Override.class)).thenReturn(true);
         when(mockField2.hasAnnotation(Override.class)).thenReturn(false);
         when(mockField3.hasAnnotation(Override.class)).thenReturn(true);
+        Assertions.assertIterableEquals(Arrays.asList(mockField1, mockField3), jclass.getExplicitFields(Override.class));
         Assertions.assertIterableEquals(Arrays.asList(mockField1, mockField3), jclass.getFields(Override.class));
-        verify(mockField1, times(3)).hasAnnotation(Override.class);
-        verify(mockField2, times(3)).hasAnnotation(Override.class);
-        verify(mockField3, times(3)).hasAnnotation(Override.class);
+        verify(mockField1, times(6)).hasAnnotation(Override.class);
+        verify(mockField2, times(6)).hasAnnotation(Override.class);
+        verify(mockField3, times(6)).hasAnnotation(Override.class);
 
         // Annotation is present on all
         when(mockField1.hasAnnotation(Override.class)).thenReturn(true);
         when(mockField2.hasAnnotation(Override.class)).thenReturn(true);
         when(mockField3.hasAnnotation(Override.class)).thenReturn(true);
+        Assertions.assertIterableEquals(Arrays.asList(mockField1, mockField2, mockField3), jclass.getExplicitFields(Override.class));
         Assertions.assertIterableEquals(Arrays.asList(mockField1, mockField2, mockField3), jclass.getFields(Override.class));
+        verify(mockField1, times(8)).hasAnnotation(Override.class);
+        verify(mockField2, times(8)).hasAnnotation(Override.class);
+        verify(mockField3, times(8)).hasAnnotation(Override.class);
+    }
+    
+    /**
+     * Verify that fields can be retrieved by annotation
+     */
+    @Test
+    public void testGetFieldByAnnotationWithSingleParentInheritance() {
+        when(mockParentClass.getParentClass()).thenReturn(null);
+        jclass.setParentClass(mockParentClass);
+        jclass.addField(mockField1);
+        
+        // Annotation is not present on any
+        when(mockField1.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockParentClass.getExplicitFields(Override.class)).thenReturn(Collections.emptyList());
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getExplicitFields(Override.class));
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getFields(Override.class));
+        verify(mockField1, times(2)).hasAnnotation(Override.class);
+        verify(mockParentClass).getExplicitFields(Override.class);
+
+        // Annotation is present on just local
+        when(mockField1.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockParentClass.getExplicitFields(Override.class)).thenReturn(Collections.emptyList());
+        Assertions.assertIterableEquals(Collections.singletonList(mockField1), jclass.getExplicitFields(Override.class));
+        Assertions.assertIterableEquals(Collections.singletonList(mockField1), jclass.getFields(Override.class));
         verify(mockField1, times(4)).hasAnnotation(Override.class);
-        verify(mockField2, times(4)).hasAnnotation(Override.class);
-        verify(mockField3, times(4)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(2)).getExplicitFields(Override.class);
+
+        // Annotation is present on just inherited
+        when(mockField1.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockParentClass.getExplicitFields(Override.class)).thenReturn(Collections.singletonList(mockField3));
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getExplicitFields(Override.class));
+        Assertions.assertIterableEquals(Collections.singletonList(mockField3), jclass.getFields(Override.class));
+        verify(mockField1, times(6)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(3)).getExplicitFields(Override.class);
+
+        // Annotation is present on all
+        when(mockField1.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockParentClass.getExplicitFields(Override.class)).thenReturn(Arrays.asList(mockField2, mockField3));
+        Assertions.assertIterableEquals(Collections.singletonList(mockField1), jclass.getExplicitFields(Override.class));
+        Assertions.assertIterableEquals(Arrays.asList(mockField1, mockField2, mockField3), jclass.getFields(Override.class));
+        verify(mockField1, times(8)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(4)).getExplicitFields(Override.class);
+    }
+    
+    /**
+     * Verify that fields can be retrieved by annotation
+     */
+    @Test
+    public void testGetFieldByAnnotationWithNestedParentInheritance() {
+        when(mockParentClass.getParentClass()).thenReturn(mockGrandParentClass);
+        when(mockGrandParentClass.getParentClass()).thenReturn(null);
+        jclass.setParentClass(mockParentClass);
+        jclass.addField(mockField1);
+        
+        // Annotation is not present on any
+        when(mockField1.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockParentClass.getExplicitFields(Override.class)).thenReturn(Collections.emptyList());
+        when(mockGrandParentClass.getExplicitFields(Override.class)).thenReturn(Collections.emptyList());
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getExplicitFields(Override.class));
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getFields(Override.class));
+        verify(mockField1, times(2)).hasAnnotation(Override.class);
+        verify(mockParentClass).getExplicitFields(Override.class);
+        verify(mockGrandParentClass).getExplicitFields(Override.class);
+
+        // Annotation is present on just local
+        when(mockField1.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockParentClass.getExplicitFields(Override.class)).thenReturn(Collections.emptyList());
+        when(mockGrandParentClass.getExplicitFields(Override.class)).thenReturn(Collections.emptyList());
+        Assertions.assertIterableEquals(Collections.singletonList(mockField1), jclass.getExplicitFields(Override.class));
+        Assertions.assertIterableEquals(Collections.singletonList(mockField1), jclass.getFields(Override.class));
+        verify(mockField1, times(4)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(2)).getExplicitFields(Override.class);
+        verify(mockGrandParentClass, times(2)).getExplicitFields(Override.class);
+
+        // Annotation is present on just inherited
+        when(mockField1.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockParentClass.getExplicitFields(Override.class)).thenReturn(Collections.singletonList(mockField2));
+        when(mockGrandParentClass.getExplicitFields(Override.class)).thenReturn(Collections.emptyList());
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getExplicitFields(Override.class));
+        Assertions.assertIterableEquals(Collections.singletonList(mockField2), jclass.getFields(Override.class));
+        verify(mockField1, times(6)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(3)).getExplicitFields(Override.class);
+        verify(mockGrandParentClass, times(3)).getExplicitFields(Override.class);
+
+        // Annotation is present on just inherited
+        when(mockField1.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockParentClass.getExplicitFields(Override.class)).thenReturn(Collections.emptyList());
+        when(mockGrandParentClass.getExplicitFields(Override.class)).thenReturn(Collections.singletonList(mockField3));
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getExplicitFields(Override.class));
+        Assertions.assertIterableEquals(Collections.singletonList(mockField3), jclass.getFields(Override.class));
+        verify(mockField1, times(8)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(4)).getExplicitFields(Override.class);
+        verify(mockGrandParentClass, times(4)).getExplicitFields(Override.class);
+
+        // Annotation is present on all
+        when(mockField1.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockParentClass.getExplicitFields(Override.class)).thenReturn(Collections.singletonList(mockField2));
+        when(mockGrandParentClass.getExplicitFields(Override.class)).thenReturn(Collections.singletonList(mockField3));
+        Assertions.assertIterableEquals(Collections.singletonList(mockField1), jclass.getExplicitFields(Override.class));
+        Assertions.assertIterableEquals(Arrays.asList(mockField1, mockField2, mockField3), jclass.getFields(Override.class));
+        verify(mockField1, times(10)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(5)).getExplicitFields(Override.class);
+        verify(mockGrandParentClass, times(5)).getExplicitFields(Override.class);
     }
     
     /**
      * Verify that methods can be retrieved by annotation
      */
     @Test
-    public void testGetMethodByAnnotation() {
+    public void testGetMethodByAnnotationNoInheritance() {
         jclass.addMethod(mockVoidMethod);
         jclass.addMethod(mockPrimitiveMethod);
         jclass.addMethod(mockClassMethod);
@@ -743,6 +855,109 @@ public class JClassTest extends AbstractUnitTest {
         verify(mockVoidMethod, times(4)).hasAnnotation(Override.class);
         verify(mockPrimitiveMethod, times(4)).hasAnnotation(Override.class);
         verify(mockClassMethod, times(4)).hasAnnotation(Override.class);
+    }
+    
+    /**
+     * Verify that methods can be retrieved by annotation
+     */
+    @Test
+    public void testGetMethodByAnnotationSingleInheritance() {
+        when(mockParentClass.getParentClass()).thenReturn(null);
+        jclass.setParentClass(mockParentClass);
+        jclass.addMethod(mockVoidMethod);
+        
+        // Annotation is not present on any
+        when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockParentClass.getExplicitMethods(Override.class)).thenReturn(Collections.emptyList());
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getExplicitMethods(Override.class));
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getMethods(Override.class));
+        verify(mockVoidMethod, times(2)).hasAnnotation(Override.class);
+        verify(mockParentClass).getExplicitMethods(Override.class);
+        
+        // Annotation is present on one explicit
+        when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockParentClass.getExplicitMethods(Override.class)).thenReturn(Collections.emptyList());
+        Assertions.assertIterableEquals(Collections.singletonList(mockVoidMethod), jclass.getExplicitMethods(Override.class));
+        Assertions.assertIterableEquals(Collections.singletonList(mockVoidMethod), jclass.getMethods(Override.class));
+        verify(mockVoidMethod, times(4)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(2)).getExplicitMethods(Override.class);
+        
+        // Annotation is present on one inherited
+        when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockParentClass.getExplicitMethods(Override.class)).thenReturn(Collections.singletonList(mockPrimitiveMethod));
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getExplicitMethods(Override.class));
+        Assertions.assertIterableEquals(Collections.singletonList(mockPrimitiveMethod), jclass.getMethods(Override.class));
+        verify(mockVoidMethod, times(6)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(3)).getExplicitMethods(Override.class);
+        
+        // Annotation is present on all
+        when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockParentClass.getExplicitMethods(Override.class)).thenReturn(Arrays.asList(mockPrimitiveMethod, mockClassMethod));
+        Assertions.assertIterableEquals(Collections.singletonList(mockVoidMethod), jclass.getExplicitMethods(Override.class));
+        Assertions.assertIterableEquals(Arrays.asList(mockVoidMethod, mockPrimitiveMethod, mockClassMethod), jclass.getMethods(Override.class));
+        verify(mockVoidMethod, times(8)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(4)).getExplicitMethods(Override.class);
+    }
+    
+    /**
+     * Verify that methods can be retrieved by annotation
+     */
+    @Test
+    public void testGetMethodByAnnotationNestedInheritance() {
+        when(mockParentClass.getParentClass()).thenReturn(mockGrandParentClass);
+        when(mockGrandParentClass.getParentClass()).thenReturn(null);
+        jclass.setParentClass(mockParentClass);
+        jclass.addMethod(mockVoidMethod);
+        
+        // Annotation is not present on any
+        when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockParentClass.getExplicitMethods(Override.class)).thenReturn(Collections.emptyList());
+        when(mockGrandParentClass.getExplicitMethods(Override.class)).thenReturn(Collections.emptyList());
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getExplicitMethods(Override.class));
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getMethods(Override.class));
+        verify(mockVoidMethod, times(2)).hasAnnotation(Override.class);
+        verify(mockParentClass).getExplicitMethods(Override.class);
+        verify(mockGrandParentClass).getExplicitMethods(Override.class);
+        
+        // Annotation is present on one explicit
+        when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockParentClass.getExplicitMethods(Override.class)).thenReturn(Collections.emptyList());
+        when(mockGrandParentClass.getExplicitMethods(Override.class)).thenReturn(Collections.emptyList());
+        Assertions.assertIterableEquals(Collections.singletonList(mockVoidMethod), jclass.getExplicitMethods(Override.class));
+        Assertions.assertIterableEquals(Collections.singletonList(mockVoidMethod), jclass.getMethods(Override.class));
+        verify(mockVoidMethod, times(4)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(2)).getExplicitMethods(Override.class);
+        verify(mockGrandParentClass, times(2)).getExplicitMethods(Override.class);
+        
+        // Annotation is present on one inherited
+        when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockParentClass.getExplicitMethods(Override.class)).thenReturn(Collections.singletonList(mockPrimitiveMethod));
+        when(mockGrandParentClass.getExplicitMethods(Override.class)).thenReturn(Collections.emptyList());
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getExplicitMethods(Override.class));
+        Assertions.assertIterableEquals(Collections.singletonList(mockPrimitiveMethod), jclass.getMethods(Override.class));
+        verify(mockVoidMethod, times(6)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(3)).getExplicitMethods(Override.class);
+        verify(mockGrandParentClass, times(3)).getExplicitMethods(Override.class);
+        
+        // Annotation is present on one inherited
+        when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(false);
+        when(mockParentClass.getExplicitMethods(Override.class)).thenReturn(Collections.emptyList());
+        when(mockGrandParentClass.getExplicitMethods(Override.class)).thenReturn(Collections.singletonList(mockClassMethod));
+        Assertions.assertIterableEquals(Collections.emptyList(), jclass.getExplicitMethods(Override.class));
+        Assertions.assertIterableEquals(Collections.singletonList(mockClassMethod), jclass.getMethods(Override.class));
+        verify(mockVoidMethod, times(8)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(4)).getExplicitMethods(Override.class);
+        verify(mockGrandParentClass, times(4)).getExplicitMethods(Override.class);
+        
+        // Annotation is present on all
+        when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(true);
+        when(mockParentClass.getExplicitMethods(Override.class)).thenReturn(Collections.singletonList(mockPrimitiveMethod));
+        when(mockGrandParentClass.getExplicitMethods(Override.class)).thenReturn(Collections.singletonList(mockClassMethod));
+        Assertions.assertIterableEquals(Collections.singletonList(mockVoidMethod), jclass.getExplicitMethods(Override.class));
+        Assertions.assertIterableEquals(Arrays.asList(mockVoidMethod, mockPrimitiveMethod, mockClassMethod), jclass.getMethods(Override.class));
+        verify(mockVoidMethod, times(10)).hasAnnotation(Override.class);
+        verify(mockParentClass, times(5)).getExplicitMethods(Override.class);
+        verify(mockGrandParentClass, times(5)).getExplicitMethods(Override.class);
     }
     
     /**

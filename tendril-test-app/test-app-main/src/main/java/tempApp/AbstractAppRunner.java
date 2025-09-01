@@ -25,8 +25,6 @@ import tendril.bean.qualifier.Named;
 import tendril.context.launch.TendrilRunner;
 
 public abstract class AbstractAppRunner implements TendrilRunner {
-    // TODO allow for inherited injection
-
     public static String expectedMessage = "must be set by main";
     public static Class<? extends AbstractAppRunner> expectedRunner;
     
@@ -153,7 +151,8 @@ public abstract class AbstractAppRunner implements TendrilRunner {
     public void run() {
         timesRun++;
         assertion(expectedRunner == actualRunner, "Runner expected to be " + expectedRunner + " but was " + actualRunner);
-        
+
+        System.out.println("RUNNING " + actualRunner.getSimpleName()  + "!!!");
         System.out.println("RUNNING!!! " + tmpClass);
         System.out.println(factoryBean1);
         System.out.println(factoryBean2);

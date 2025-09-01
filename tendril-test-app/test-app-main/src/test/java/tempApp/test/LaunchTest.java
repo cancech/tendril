@@ -18,6 +18,7 @@ package tempApp.test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import tempApp.AbstractAppRunner;
 import tempApp.AppRunner1;
 import tempApp.AppRunner2;
 import tempApp.FactoryClass;
@@ -35,14 +36,14 @@ public class LaunchTest {
         SingletonClass.reset();
         FactoryClass.reset();
         TempManager.reset();
-        AppRunner1.reset();
-        AppRunner2.reset();
+        AbstractAppRunner.reset();
+        AbstractAppRunner.reset();
     }
 
     @Test
     public void testAppRunner1LowerCaseQwerty() {
-        AppRunner1.expectedMessage = "qwerty";
-        AppRunner1.expectedRunner = AppRunner1.class;
+        AbstractAppRunner.expectedMessage = "qwerty";
+        AbstractAppRunner.expectedRunner = AppRunner1.class;
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("lowercase", "qwerty", "AppRunner1");
@@ -52,13 +53,13 @@ public class LaunchTest {
         SingletonClass.assertSingleton();
         FactoryClass.assertFactory();
         TempManager.assertSingleton();
-        AppRunner1.assertSingleton();
+        AbstractAppRunner.assertSingleton();
     }
 
     @Test
     public void testAppRunner1UpperCaseQwerty() {
-        AppRunner1.expectedMessage = "QWERTY";
-        AppRunner1.expectedRunner = AppRunner1.class;
+        AbstractAppRunner.expectedMessage = "QWERTY";
+        AbstractAppRunner.expectedRunner = AppRunner1.class;
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("uppercase", "qwerty", "AppRunner1");
@@ -68,13 +69,13 @@ public class LaunchTest {
         SingletonClass.assertSingleton();
         FactoryClass.assertFactory();
         TempManager.assertSingleton();
-        AppRunner1.assertSingleton();
+        AbstractAppRunner.assertSingleton();
     }
 
     @Test
     public void testAppRunner2LowercaseQwerty() {
-        AppRunner2.expectedMessage = "qwerty";
-        AppRunner2.expectedRunner = AppRunner2.class;
+        AbstractAppRunner.expectedMessage = "qwerty";
+        AbstractAppRunner.expectedRunner = AppRunner2.class;
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("lowercase", "qwerty");
@@ -84,13 +85,13 @@ public class LaunchTest {
         SingletonClass.assertSingleton();
         FactoryClass.assertFactory();
         TempManager.assertSingleton();
-        AppRunner2.assertSingleton();
+        AbstractAppRunner.assertSingleton();
     }
 
     @Test
     public void testAppRunner2UppercaseQwerty() {
-        AppRunner2.expectedMessage = "QWERTY";
-        AppRunner2.expectedRunner = AppRunner2.class;
+        AbstractAppRunner.expectedMessage = "QWERTY";
+        AbstractAppRunner.expectedRunner = AppRunner2.class;
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("uppercase", "qwerty");
@@ -100,13 +101,13 @@ public class LaunchTest {
         SingletonClass.assertSingleton();
         FactoryClass.assertFactory();
         TempManager.assertSingleton();
-        AppRunner2.assertSingleton();
+        AbstractAppRunner.assertSingleton();
     }
 
     @Test
     public void testAppRunner2LowercaseAbc123() {
-        AppRunner2.expectedMessage = "abc123";
-        AppRunner2.expectedRunner = AppRunner2.class;
+        AbstractAppRunner.expectedMessage = "abc123";
+        AbstractAppRunner.expectedRunner = AppRunner2.class;
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("lowercase", "abc123");
@@ -116,13 +117,13 @@ public class LaunchTest {
         SingletonClass.assertSingleton();
         FactoryClass.assertFactory();
         TempManager.assertSingleton();
-        AppRunner2.assertSingleton();
+        AbstractAppRunner.assertSingleton();
     }
 
     @Test
     public void testAppRunner2UppercaseAbc123() {
-        AppRunner2.expectedMessage = "ABC!@#";
-        AppRunner2.expectedRunner = AppRunner2.class;
+        AbstractAppRunner.expectedMessage = "ABC!@#";
+        AbstractAppRunner.expectedRunner = AppRunner2.class;
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("uppercase", "abc123");
@@ -132,6 +133,6 @@ public class LaunchTest {
         SingletonClass.assertSingleton();
         FactoryClass.assertFactory();
         TempManager.assertSingleton();
-        AppRunner2.assertSingleton();
+        AbstractAppRunner.assertSingleton();
     }
 }

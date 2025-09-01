@@ -30,7 +30,9 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 import org.apache.commons.lang3.StringUtils;
@@ -97,6 +99,7 @@ public class ClassConverter {
     void loadClassDetails(TypeElement element) throws MissingAnnotationException, TendrilException {
         // Populate the builder with the details of the class itself
         ClassBuilder builder = builderForClass(element);
+        loadParentClass(builder, element);
         loadElementFinality(builder, element);
         loadElementMods(builder, element);
         loadAnnotations(builder, element);
@@ -123,6 +126,33 @@ public class ClassConverter {
         }
         
         cache.store(element, builder.build());
+    }
+    
+    /**
+     * Load the details of the parent class
+     * 
+     * @param builder {@link ClassBuilder} in which the current class is being defined/built
+     * @param element {@link TypeElement} representing the class
+     * 
+     * @throws TendrilException if an issue loading the details of the parent is encountered
+     */
+    private void loadParentClass(ClassBuilder builder, TypeElement element) throws TendrilException {
+        // Make sure that there's a valid parent
+        TypeMirror m = element.getSuperclass();
+        if (m == null || m.getKind() == TypeKind.NONE)
+            return;
+        
+        // Make sure that it's something we need to explicitely extend
+        TypeElement parentElement = (TypeElement) ((DeclaredType) m).asElement();
+        String parentName = parentElement.getQualifiedName().toString();
+        if ("java.lang.Object".equals(parentName) || "java.lang.Enum".equals(parentName))
+            return;
+        
+        try {
+            builder.extendsClass(ElementLoader.retrieveClass(parentElement));
+        } catch (MissingAnnotationException | TendrilException e) {
+            throw new TendrilException("Failed to determine parent for " + element, e);
+        }
     }
 
     /**

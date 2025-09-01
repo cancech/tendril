@@ -97,6 +97,15 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
     public void setParentClass(JClass parent) {
         extendedClass = parent;
     }
+    
+    /**
+     * Get the (explicit) parent class for this JClass. Note that if no parent is explicitly defined, this will return null.
+     * 
+     * @return {@link JClass} representing the parent class
+     */
+    public JClass getParentClass() {
+        return extendedClass;
+    }
 
     /**
      * Set the interfaces that this JClass is to implement
@@ -129,10 +138,31 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
      * Get all fields which have the indicated annotation
      * 
      * @param annotatedWith {@link Annotation} {@link Class} that is desired
+     * @return {@link List} of {@link JField}s explicitly defined within the class with the desired annotation
+     */
+    public List<JField<?>> getExplicitFields(Class<? extends Annotation> annotatedWith) {
+        return getAnnotatedItems(fields, annotatedWith);
+    }
+    
+    /**
+     * Get all fields available in the class (both explicitly defined and inherited) which use the supplied annotation
+     * 
+     * @param annotatedWith {@link Annotation} {@link Class} that is desired
      * @return {@link List} of {@link JField}s with the desired annotation
      */
     public List<JField<?>> getFields(Class<? extends Annotation> annotatedWith) {
-        return getAnnotatedItems(fields, annotatedWith);
+        // Start with what is explicitly defined
+        List<JField<?>> found = new ArrayList<>();
+        found.addAll(getExplicitFields(annotatedWith));
+        
+        // Then check all parents
+        JClass parent = getParentClass();
+        while(parent != null) {
+            found.addAll(parent.getExplicitFields(annotatedWith));
+            parent = parent.getParentClass();
+        }
+        
+        return found;
     }
     
     /**
@@ -200,13 +230,34 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
     }
     
     /**
-     * Get all methods which have the indicated annotation
+     * Get all methods which have the indicated annotation and are defined explicitly within this class
+     * 
+     * @param annotatedWith {@link Annotation} {@link Class} that is desired
+     * @return {@link List} of {@link JMethod}s with the desired annotation
+     */
+    public List<JMethod<?>> getExplicitMethods(Class<? extends Annotation> annotatedWith) {
+        return getAnnotatedItems(methods, annotatedWith);
+    }
+    
+    /**
+     * Get all methods available in the class (both explicitly defined and inherited) which use the supplied annotation
      * 
      * @param annotatedWith {@link Annotation} {@link Class} that is desired
      * @return {@link List} of {@link JMethod}s with the desired annotation
      */
     public List<JMethod<?>> getMethods(Class<? extends Annotation> annotatedWith) {
-        return getAnnotatedItems(methods, annotatedWith);
+        // Start with what is explicitly defined
+        List<JMethod<?>> found = new ArrayList<>();
+        found.addAll(getExplicitMethods(annotatedWith));
+        
+        // Then check all parents
+        JClass parent = getParentClass();
+        while(parent != null) {
+            found.addAll(parent.getExplicitMethods(annotatedWith));
+            parent = parent.getParentClass();
+        }
+        
+        return found;
     }
     
     /**
