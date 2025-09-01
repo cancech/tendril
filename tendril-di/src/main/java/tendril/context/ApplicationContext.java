@@ -15,9 +15,16 @@
  */
 package tendril.context;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+
+import tendril.TendrilStartupException;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.context.launch.TendrilRunner;
 import tendril.processor.registration.RunnerFile;
+import tendril.util.TendrilStringUtil;
 
 /**
  * The context and scope in which the dependency injection will take place, and within which the application logic will execute. There is the expectation of a single
@@ -67,12 +74,24 @@ public class ApplicationContext {
         engine.init();
 
         try {
-            // TODO Allow for multiple runners with different requirements
-            String runnerClass = RunnerFile.read();
-            TendrilRunner runner = (TendrilRunner) ((AbstractRecipe<?>)Class.forName(runnerClass).getDeclaredConstructor(Engine.class).newInstance(engine)).get();
+            List<AbstractRecipe<?>> runnerRecipes = new ArrayList<>();
+            for (String runnerClass: RunnerFile.read()) {
+                AbstractRecipe<?> runnerRecipe = (AbstractRecipe<?>)Class.forName(runnerClass).getDeclaredConstructor(Engine.class).newInstance(engine);
+                if (engine.requirementsMet(runnerRecipe))
+                    runnerRecipes.add(runnerRecipe);
+            }
+
+            if (runnerRecipes.isEmpty())
+                throw new TendrilStartupException("Exactly one runner is required to start the application, however none can be loaded.");
+            else if (runnerRecipes.size() > 1)
+                throw new TendrilStartupException("Exactly one runner is required to start the application, however " + runnerRecipes.size() + " can be loaded [" +
+                        TendrilStringUtil.join(runnerRecipes, r -> r.getDescription().getBeanClass().getName()) + "].");
+            
+            TendrilRunner runner = (TendrilRunner) runnerRecipes.get(0).get();
             runner.run();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException |
+                SecurityException | ClassNotFoundException e) {
+            throw new TendrilStartupException(e);
         }
     }
     

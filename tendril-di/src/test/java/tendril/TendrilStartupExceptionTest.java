@@ -17,19 +17,50 @@ package tendril;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+
+import tendril.test.AbstractUnitTest;
 
 /**
  * Test case for {@link TendrilStartupException}
  */
-public class TendrilStartupExceptionTest {
+public class TendrilStartupExceptionTest extends AbstractUnitTest{
+
+    @Mock
+    private Exception mockCause; 
+    
+    /**
+     * @see tendril.test.AbstractUnitTest#prepareTest()
+     */
+    @Override
+    protected void prepareTest() {
+        // Not required
+    }
 
     /**
      * Verify that the message is properly stored
      */
     @Test
     public void testMessage() {
-        Assertions.assertEquals("abc", new TendrilStartupException("abc").getMessage());
-        Assertions.assertEquals("123", new TendrilStartupException("123").getMessage());
-        Assertions.assertEquals("abc123", new TendrilStartupException("abc123").getMessage());
+        testMessageException("abc");
+        testMessageException("123");
+        testMessageException("abc123");
+    }
+    
+    /**
+     * Helper for testing exceptions that only include a message
+     * @param msg
+     */
+    private void testMessageException(String msg) {
+        TendrilStartupException ex = new TendrilStartupException(msg);
+        Assertions.assertEquals(msg, ex.getMessage());
+        Assertions.assertNull(ex.getCause());
+    }
+    
+    @Test
+    public void testCause() {
+        TendrilStartupException ex = new TendrilStartupException(mockCause);
+        Assertions.assertEquals("mockCause", ex.getMessage());
+        Assertions.assertEquals(mockCause, ex.getCause());
     }
 }

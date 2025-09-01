@@ -27,7 +27,6 @@ import java.util.List;
 
 import tendril.TendrilStartupException;
 import tendril.context.Engine;
-import tendril.util.TendrilStringUtil;
 
 /**
  * Helper file for finding and processing the runner metadata file, containing the recipe which is to create the application runner
@@ -42,7 +41,7 @@ public class RunnerFile {
      * @return {@link String} the contents of the file
      * @throws IOException if there are issues reading the file
      */
-    public static String read() throws IOException {
+    public static List<String> read() throws IOException {
         List<String> runners = new ArrayList<>();
         Enumeration<URL> resEnum = Engine.class.getClassLoader().getResources(PATH);
         for (URL url : Collections.list(resEnum)) {
@@ -56,12 +55,10 @@ public class RunnerFile {
             }
         }
 
-        // Make sure that exactly one was found
+        // Make sure that at least one was
         if (runners.isEmpty())
             throw new TendrilStartupException("No runner is available in the application");
-        else if (runners.size() > 1)
-            throw new TendrilStartupException("Multiple runners are available: " + TendrilStringUtil.join(runners));
-        return runners.get(0);
+        return runners;
     }
 
     /**

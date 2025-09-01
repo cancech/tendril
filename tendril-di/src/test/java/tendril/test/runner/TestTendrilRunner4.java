@@ -20,7 +20,7 @@ import tendril.context.launch.TendrilRunner;
 /**
  * {@link TendrilRunner} implementation to use for the purpose of testing
  */
-public class TestTendrilRunner implements TendrilRunner {
+public class TestTendrilRunner4 implements TendrilRunner {
     
     /** Flag for whether or not an instance of the runner has been run */
     private static boolean isRun = false;

@@ -455,6 +455,7 @@ The ability to pass Beans is crucial, however in of itself is insufficient for t
 Much like `public static void main(String[] args)` is the entry point into an application, a `Runner` must be defined as the entry point into a `Tendril` application. The `Runner` is a class which must fulfill two exact criteria:
 1. It must implement the `TendrilRunner` interface
 2. It must be annotated with `@Runner`
+3. If more than one `Runner` is to be made available, the appropriate `Requirements` must be applied to each.
 
 It is from this `Runner` that the `Tendril` application execution/processing starts, and it is this `Runner` which triggers the start of dependency injection with the application. Conceptually the `Runner` is equivalent to a `Bean Class` (everything that has been written about `Bean Classes` applies to `Runners` as well) other than the annotations which are employed. In practice, the only difference from the `Bean Class` is that upon completing the assembly of the `Runner`, rather than injecting it as a dependency, the `run()` method is called. Once `run()` returns, the application as a whole is considered "done".
 
@@ -479,7 +480,7 @@ public class Main implements TendrilRunner {
   }
 }
 ```
-The application must have exactly **one** `Runner` defined.
+The application must have exactly **one** `Runner` available at runtime, with an exception thrown if more or less are available at application start. If multiple runners are to be provided in the code, then it is necessary to supply the appropriate `Requirements` to each, such that only a single `Runner` is available to the application. For example, one `Runner` can be created for use in a production environment and another in a test environment, with the appropriate requirements (i.e.: `@RequiresEnv` or `@RequiresNotEnv`) supplied to allow for their down selection.
 
 ### Create the Application Context
 The dependency injection takes place within a `Context`, which must be created and started. This is done via `ApplicationContext`, which is to be created and started in the global application `main()` or equivalent.

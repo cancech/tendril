@@ -15,6 +15,9 @@
  */
 package tendril.processor.registration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -40,7 +43,7 @@ import tendril.processor.recipe.RecipeGenerator;
 public class RunnerProcessor extends AbstractDelayedAnnotationTendrilProcessor {
 
     /** The class that is the recipe for the runner */
-    private String mainRunner = null;
+    private List<String> runners = new ArrayList<>();
     
     /**
      * CTOR
@@ -66,11 +69,8 @@ public class RunnerProcessor extends AbstractDelayedAnnotationTendrilProcessor {
      */
     @Override
     protected ClassDefinition processType() throws TendrilException {
-        if (mainRunner != null)
-            throw new InvalidConfigurationException("There can only be a single runner specified");
-        
         ClassDefinition generatedDef = RecipeGenerator.generate(currentClassType, currentClass, processingEnv.getMessager(), false);
-        mainRunner = generatedDef.getType().getFullyQualifiedName();
+        runners.add(generatedDef.getType().getFullyQualifiedName());
         return generatedDef;
     }
 
@@ -92,8 +92,8 @@ public class RunnerProcessor extends AbstractDelayedAnnotationTendrilProcessor {
         super.processingOver();
         
         // Nothing to be done if no runner was found
-        if (mainRunner == null)
+        if (runners == null)
             return;
-        writeResourceFile(RunnerFile.PATH, mainRunner);
+        writeResourceFile(RunnerFile.PATH, runners);
     }
 }

@@ -30,4 +30,13 @@ public class TendrilStartupException extends RuntimeException {
     public TendrilStartupException(String reason) {
         super(reason);
     }
+    
+    /**
+     * CTOR
+     * 
+     * @param cause {@link Exception} which is the cause of the exception
+     */
+    public TendrilStartupException(Exception cause) {
+        super(cause);
+    }
 }

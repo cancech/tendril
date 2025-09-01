@@ -22,13 +22,13 @@ import tempApp.id.MyTypeId;
 import tendril.bean.Inject;
 import tendril.bean.InjectAll;
 import tendril.bean.qualifier.Named;
-import tendril.context.launch.Runner;
 import tendril.context.launch.TendrilRunner;
 
-@Runner
-public class AppRunner implements TendrilRunner {
+public abstract class AbstractAppRunner implements TendrilRunner {
+    // TODO allow for inherited injection
 
     public static String expectedMessage = "must be set by main";
+    public static Class<? extends AbstractAppRunner> expectedRunner;
     
     private static int instances = 0;
     private static int timesDoSomething = 0;
@@ -101,8 +101,10 @@ public class AppRunner implements TendrilRunner {
     String message;
 
     private FactoryClass factoryBean5;
+    private final Class<? extends AbstractAppRunner> actualRunner;
 
-    AppRunner() {
+    AbstractAppRunner(Class<? extends AbstractAppRunner> concreteRunner) {
+        this.actualRunner = concreteRunner;
         instances++;
     }
 
@@ -150,6 +152,8 @@ public class AppRunner implements TendrilRunner {
     @Override
     public void run() {
         timesRun++;
+        assertion(expectedRunner == actualRunner, "Runner expected to be " + expectedRunner + " but was " + actualRunner);
+        
         System.out.println("RUNNING!!! " + tmpClass);
         System.out.println(factoryBean1);
         System.out.println(factoryBean2);

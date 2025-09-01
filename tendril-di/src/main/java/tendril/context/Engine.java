@@ -125,7 +125,7 @@ public class Engine {
      * @param recipe {@link AbstractRecipe} to check
      * @return boolean true if all requirements for the recipe have been met
      */
-    private boolean requirementsMet(AbstractRecipe<?> recipe) {
+    boolean requirementsMet(AbstractRecipe<?> recipe) {
         List<String> reqEnvs = recipe.getRequirement().getRequiredEnvironments();
         List<String> notReqEnvs = recipe.getRequirement().getRequiredNotEnvironments();
 
