@@ -82,6 +82,11 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
         return descriptor;
     }
     
+    /**
+     * Get the requirement for the recipe. This will under what circumstances the recipe can be accepted and the bean within created.
+     * 
+     * @return {@link Requirement} for the bean/recipe
+     */
     public Requirement getRequirement() {
         return requirement;
     }
