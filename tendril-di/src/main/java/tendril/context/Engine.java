@@ -27,6 +27,7 @@ import tendril.BeanRetrievalException;
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.ConfigurationRecipe;
+import tendril.bean.requirement.Requirement;
 import tendril.processor.registration.RegistryFile;
 import tendril.util.TendrilStringUtil;
 import tendril.util.TendrilUtil;
@@ -126,15 +127,28 @@ public class Engine {
      * @return boolean true if all requirements for the recipe have been met
      */
     boolean requirementsMet(AbstractRecipe<?> recipe) {
-        List<String> reqEnvs = recipe.getRequirement().getRequiredEnvironments();
-        List<String> notReqEnvs = recipe.getRequirement().getRequiredNotEnvironments();
+        Requirement req = recipe.getRequirement();
+        List<String> reqEnvs = req.getRequiredEnvironments();
+        List<String> notReqEnvs = req.getRequiredNotEnvironments();
 
+        // Make sure that all required environments are present
         if (!environments.containsAll(reqEnvs)) {
             LOGGER.fine("Unable to load " + recipe + " because not all required environments [" + TendrilStringUtil.join(reqEnvs) + "] are met.");
             return false;
-        } else if (TendrilUtil.containsAny(environments, notReqEnvs)) {
+        }
+        
+        // Make sure that none of the not required environments are present
+        if (TendrilUtil.containsAny(environments, notReqEnvs)) {
             LOGGER.fine("Unable to load " + recipe + " because at least one of the not required environments [" + TendrilStringUtil.join(notReqEnvs) + "] is present");
             return false;
+        }
+
+        // Make sure that all of the "one of" environments are present
+        for (List<String> tuple: req.getRequiredOneOfEnvironments()) {
+            if (!TendrilUtil.containsAny(environments, tuple)) {
+                LOGGER.fine("Unable to load " + recipe + " because at least one of the required environments [" + TendrilStringUtil.join(tuple) +"] is not present");
+                return false;
+            }
         }
                     
         return true;

@@ -46,6 +46,7 @@ public class RequirementTest {
         req.addRequiredEnvironment("qwerty");
         CollectionAssert.assertEquals(Collections.singletonList("qwerty"), req.getRequiredEnvironments());
         CollectionAssert.assertEmpty(req.getRequiredNotEnvironments());
+        CollectionAssert.assertEmpty(req.getRequiredOneOfEnvironments());
     }
 
     /**
@@ -57,6 +58,19 @@ public class RequirementTest {
         req.addRequiredNotEnvironment("qwerty");
         CollectionAssert.assertEmpty(req.getRequiredEnvironments());
         CollectionAssert.assertEquals(Collections.singletonList("qwerty"), req.getRequiredNotEnvironments());
+        CollectionAssert.assertEmpty(req.getRequiredOneOfEnvironments());
+    }
+    
+    /**
+     * Verify that the one-of required environments are properly tracked
+     */
+    @Test
+    public void testSingleOneOfRequirementEnvironments() {
+        Requirement req = new Requirement();
+        req.addRequiredOneOfEnvironment("a", "b", "c");
+        CollectionAssert.assertEmpty(req.getRequiredEnvironments());
+        CollectionAssert.assertEmpty(req.getRequiredNotEnvironments());
+        CollectionAssert.assertEquals(Collections.singletonList(Arrays.asList("a", "b", "c")), req.getRequiredOneOfEnvironments());
     }
 
     /**
@@ -67,8 +81,10 @@ public class RequirementTest {
         Requirement req = new Requirement();
         req.addRequiredEnvironment("qwerty");
         req.addRequiredNotEnvironment("abc123");
+        req.addRequiredOneOfEnvironment("a", "b", "c");
         CollectionAssert.assertEquals(Collections.singletonList("qwerty"), req.getRequiredEnvironments());
         CollectionAssert.assertEquals(Collections.singletonList("abc123"), req.getRequiredNotEnvironments());
+        CollectionAssert.assertEquals(Collections.singletonList(Arrays.asList("a", "b", "c")), req.getRequiredOneOfEnvironments());
     }
 
     /**
@@ -83,8 +99,9 @@ public class RequirementTest {
         req.addRequiredEnvironment("d");
         CollectionAssert.assertEquals(Arrays.asList("a", "b", "c", "d"), req.getRequiredEnvironments());
         CollectionAssert.assertEmpty(req.getRequiredNotEnvironments());
+        CollectionAssert.assertEmpty(req.getRequiredOneOfEnvironments());
     }
-
+    
     /**
      * Verify that the not required environments are properly tracked
      */
@@ -97,6 +114,22 @@ public class RequirementTest {
         req.addRequiredNotEnvironment("d");
         CollectionAssert.assertEmpty(req.getRequiredEnvironments());
         CollectionAssert.assertEquals(Arrays.asList("a", "b", "c", "d"), req.getRequiredNotEnvironments());
+        CollectionAssert.assertEmpty(req.getRequiredOneOfEnvironments());
+    }
+    
+    /**
+     * Verify that the one-of required environments are properly tracked
+     */
+    @Test
+    public void testMultipleOneOfRequirementEnvironments() {
+        Requirement req = new Requirement();
+        req.addRequiredOneOfEnvironment("a", "b", "c");
+        req.addRequiredOneOfEnvironment("d", "e", "f");
+        req.addRequiredOneOfEnvironment("g", "h", "i");
+        req.addRequiredOneOfEnvironment("j", "k", "l");
+        CollectionAssert.assertEmpty(req.getRequiredEnvironments());
+        CollectionAssert.assertEmpty(req.getRequiredNotEnvironments());
+        CollectionAssert.assertEquals(Arrays.asList(Arrays.asList("a", "b", "c"), Arrays.asList("d", "e", "f"), Arrays.asList("g", "h", "i"), Arrays.asList("j", "k", "l")), req.getRequiredOneOfEnvironments());
     }
 
     /**
@@ -113,7 +146,12 @@ public class RequirementTest {
         req.addRequiredNotEnvironment("f");
         req.addRequiredNotEnvironment("g");
         req.addRequiredNotEnvironment("h");
+        req.addRequiredOneOfEnvironment("a", "b", "c");
+        req.addRequiredOneOfEnvironment("d", "e", "f");
+        req.addRequiredOneOfEnvironment("g", "h", "i");
+        req.addRequiredOneOfEnvironment("j", "k", "l");
         CollectionAssert.assertEquals(Arrays.asList("a", "b", "c", "d"), req.getRequiredEnvironments());
         CollectionAssert.assertEquals(Arrays.asList("e", "f", "g", "h"), req.getRequiredNotEnvironments());
+        CollectionAssert.assertEquals(Arrays.asList(Arrays.asList("a", "b", "c"), Arrays.asList("d", "e", "f"), Arrays.asList("g", "h", "i"), Arrays.asList("j", "k", "l")), req.getRequiredOneOfEnvironments());
     }
 }

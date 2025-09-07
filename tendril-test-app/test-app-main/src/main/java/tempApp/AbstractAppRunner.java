@@ -27,6 +27,7 @@ import tendril.context.launch.TendrilRunner;
 public abstract class AbstractAppRunner implements TendrilRunner {
     public static String expectedMessage = "must be set by main";
     public static Class<? extends AbstractAppRunner> expectedRunner;
+    public static Class<? extends MultiEnvBean> expectedMultiEnvBean;
     
     private static int instances = 0;
     private static int timesDoSomething = 0;
@@ -97,6 +98,8 @@ public abstract class AbstractAppRunner implements TendrilRunner {
     @Inject
     @Message
     String message;
+    @Inject
+    MultiEnvBean multiEnvBean;
 
     private FactoryClass factoryBean5;
     private final Class<? extends AbstractAppRunner> actualRunner;
@@ -185,6 +188,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
         
         System.out.println("MESSAGE IS: " + message);
         assertion(message.equals(expectedMessage), "Expected \"" + expectedMessage + "\", but received \"" + message + "\"");
+
+        assertion(multiEnvBean != null, "MultiEnvBean was not created!");
+        assertion(multiEnvBean.getClass() == expectedMultiEnvBean, "Expected " + expectedMultiEnvBean + " but received " + multiEnvBean.getClass());
     }
 
     private  static void assertion(boolean value, String msg) {

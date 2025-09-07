@@ -131,6 +131,7 @@ ctx.start();
 Any number of environments can be provided to `setEnvironments()`. To apply requirements on a Bean or Configuration the following annotations can be used:
 
 * `@RequiresEnv` and specify one (or more) environments which must be applied for the Bean or Configuration to be allowed to be created.
+* `@RequiresOneOfEnv` and specify one (or more) environments, one of which must be applied for the Bean or Configuration to be allowed to be created.
 * `@RequiresNotEnv` and specifying one (or more) environments which must *not* be applied for the Bean of Configuration to be allowed to be created.
 
 ```java
@@ -145,9 +146,12 @@ public class MyEnvANotBClass {
 @Singleton
 @RequiresEnv({"b", "c"})
 @RequiresNotEnv({"d", "e"})
+@RequiredOneOfEnv({"f", "g", "h"})
 public class MyEnvBandCNotDandEClass {
 }
 ```
+
+`@RequiresEnv` can be view as an `and`, where *all* of the environments must be present. `@RequiredOneOfEnv` can be viewed as an `or`, where *at least one* of the environments must be present. `@RequiredNotEnv` can be viewed as a `not`, where *none* of the listed environments can be present.
 
 ## Consuming a Bean
 In essence, the act of creating Beans is also the act of consuming them. Bean consumption is performed as part of Bean creation, where a Bean consumes its dependencies before it itself is provided onward to whomever depends on it. Thus, consuming a Bean is the act of defining what other Bean a given Bean depends on. This is done via the `@Inject` annotation, which can be applied on:

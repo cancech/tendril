@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Jaroslav Bosak
+ * Copyright 2025 Jaroslav Bosak
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,15 @@ import java.lang.annotation.Target;
 
 /**
  * Used to indicate what type of environment is required to be set/applied to a context for the annotated bean to be allowed to be created. This can be used to limit
- * under what circumstances a bean can be made available. Unlike {@link RequiresOneOfEnv}, where at least one of the listed environments must be present, here all of the
- * listed environments must be present (ergo {@link RequiresOneOfEnv} is an {@code or} whereas {@link RequiresfEnv} is an {@code and} condition).
+ * under what circumstances a bean can be made available. Unlike {@link RequiresEnv}, where all of the listed environments must be present, here at least one of the
+ * listed environments must be present (ergo {@link RequiresEnv} is an {@code and} whereas {@link RequiresOneOfEnv} is an {@code or} condition).
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface RequiresEnv {
+public @interface RequiresOneOfEnv {
     
     /**
-     * Array of different environments, all of which must be met in order for the bean to be deemed valid in the execution environment.
+     * Array of different environments, at least one of which must be met in order for the bean to be deemed valid in the execution environment.
      * 
      * @return {@link String} array of required environments
      */

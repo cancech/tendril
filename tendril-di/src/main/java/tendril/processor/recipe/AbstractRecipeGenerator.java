@@ -43,6 +43,7 @@ import tendril.bean.recipe.SingletonRecipe;
 import tendril.bean.requirement.Requirement;
 import tendril.bean.requirement.RequiresEnv;
 import tendril.bean.requirement.RequiresNotEnv;
+import tendril.bean.requirement.RequiresOneOfEnv;
 import tendril.codegen.JBase;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotation;
@@ -379,8 +380,9 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
         List<String> lines = new ArrayList<>();
 
         // Account for any required environments
-        populateEnvironmentReqs(lines, element, RequiresEnv.class, "addRequiredEnvironment");
-        populateEnvironmentReqs(lines, element, RequiresNotEnv.class, "addRequiredNotEnvironment");
+        populateEnvironmentReqs(lines, element, RequiresEnv.class, "addRequiredEnvironment", true);
+        populateEnvironmentReqs(lines, element, RequiresOneOfEnv.class, "addRequiredOneOfEnvironment", false);
+        populateEnvironmentReqs(lines, element, RequiresNotEnv.class, "addRequiredNotEnvironment", true);
         return lines;
     }
     
@@ -391,17 +393,22 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @param element {@link JBase} for whom the requirements to be generated
      * @param annotation {@link Class} extending {@link Annotation} representing the annotation to search for
      * @param methodName {@link String} the name of the method to use to apply the requirement
+     * @param individually boolean flag {@code true} for whether the values are added individually to the method (i.e.: call the method for each entry), or {@false} as a vararg
      */
-    private void populateEnvironmentReqs(List<String> lines, JBase element, Class<? extends Annotation> annotation, String methodName) {
+    private void populateEnvironmentReqs(List<String> lines, JBase element, Class<? extends Annotation> annotation, String methodName, boolean individually) {
         // Account for any requirements
         ClassType reqAnnotation = new ClassType(annotation);
         for (JAnnotation a: element.getAnnotations()) {
             if (a.getType().equals(reqAnnotation)) {
                 @SuppressWarnings("unchecked")
                 List<JValue<?, ?>> envs = (List<JValue<?, ?>>) a.getValue(a.getAttributes().get(0)).getValue();
-                envs.forEach(e -> lines.add(methodName + "(\"" + e.getValue() + "\")"));
+                if (individually)
+                    envs.forEach(e -> lines.add(methodName + "(\"" + e.getValue() + "\")"));
+                else {
+                    lines.add(methodName + "(" + TendrilStringUtil.join(envs, e -> "\"" + e.getValue() + "\"") + ")");
+                }
             } else
-                populateEnvironmentReqs(lines, a, annotation, methodName);
+                populateEnvironmentReqs(lines, a, annotation, methodName, individually);
         }
     }
     

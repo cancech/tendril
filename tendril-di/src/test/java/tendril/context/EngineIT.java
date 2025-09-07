@@ -36,6 +36,7 @@ import tendril.test.recipe.RequiresABRecipe;
 import tendril.test.recipe.RequiresAConfigRecipe;
 import tendril.test.recipe.RequiresANotBRecipe;
 import tendril.test.recipe.RequiresARecipe;
+import tendril.test.recipe.RequiresAorBRecipe;
 import tendril.test.recipe.RequiresBNestedRecipe;
 import tendril.test.recipe.RequiresBNotARecipe;
 import tendril.test.recipe.RequiresBRecipe;
@@ -169,7 +170,7 @@ public class EngineIT extends AbstractUnitTest {
     public void testNoEnvironmentSpecified() {
         try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
             registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), RequiresARecipe.class.getName(), RequiresBRecipe.class.getName(), RequiresABRecipe.class.getName(),
-                    RequiresAConfigRecipe.class.getName())));
+                    RequiresAConfigRecipe.class.getName(), RequiresAorBRecipe.class.getName())));
             engine.init();
         }
 
@@ -189,22 +190,23 @@ public class EngineIT extends AbstractUnitTest {
         engine.setEnvironments("A");
         try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
             registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), RequiresARecipe.class.getName(), RequiresBRecipe.class.getName(), RequiresABRecipe.class.getName(),
-                    RequiresAConfigRecipe.class.getName(), RequiresANotBRecipe.class.getName(), RequiresBNotARecipe.class.getName(), RequiresNotARecipe.class.getName(), RequiresNotBRecipe.class.getName())));
+                    RequiresAConfigRecipe.class.getName(), RequiresANotBRecipe.class.getName(), RequiresBNotARecipe.class.getName(), RequiresNotARecipe.class.getName(), RequiresNotBRecipe.class.getName(), RequiresAorBRecipe.class.getName())));
             engine.init();
         }
 
-        Assertions.assertEquals(5, engine.getBeanCount());
+        Assertions.assertEquals(6, engine.getBeanCount());
         Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
         Assertions.assertEquals(RequiresARecipe.VALUE, engine.getBean(new Descriptor<>(String.class).setName(RequiresARecipe.NAME)));
         Assertions.assertEquals(IntTestRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class).setName(IntTestRecipe.NAME)));
         Assertions.assertEquals(RequiresANotBRecipe.VALUE, engine.getBean(new Descriptor<>(String.class).setName(RequiresANotBRecipe.NAME)));
         Assertions.assertEquals(RequiresNotBRecipe.VALUE, engine.getBean(new Descriptor<>(String.class).setName(RequiresNotBRecipe.NAME)));
+        Assertions.assertEquals(RequiresAorBRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class).setName(RequiresAorBRecipe.NAME)));
         
 
         CollectionAssert.assertEmpty(engine.getAllBeans(new Descriptor<>(Long.class)));
         CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class)), Double1TestRecipe.VALUE);
         CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(String.class)), RequiresARecipe.VALUE, RequiresANotBRecipe.VALUE, RequiresNotBRecipe.VALUE);
-        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Integer.class)), IntTestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Integer.class)), IntTestRecipe.VALUE, RequiresAorBRecipe.VALUE);
     }
 
     /**
@@ -215,20 +217,22 @@ public class EngineIT extends AbstractUnitTest {
         engine.setEnvironments("B");
         try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
             registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), RequiresARecipe.class.getName(), RequiresBRecipe.class.getName(), RequiresABRecipe.class.getName(),
-                    RequiresAConfigRecipe.class.getName(), RequiresANotBRecipe.class.getName(), RequiresBNotARecipe.class.getName(), RequiresNotARecipe.class.getName(), RequiresNotBRecipe.class.getName())));
+                    RequiresAConfigRecipe.class.getName(), RequiresANotBRecipe.class.getName(), RequiresBNotARecipe.class.getName(), RequiresNotARecipe.class.getName(), RequiresNotBRecipe.class.getName(), RequiresAorBRecipe.class.getName())));
             engine.init();
         }
 
-        Assertions.assertEquals(4, engine.getBeanCount());
+        Assertions.assertEquals(5, engine.getBeanCount());
         Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
         Assertions.assertEquals(RequiresBRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(RequiresBRecipe.NAME)));
         Assertions.assertEquals(RequiresBNotARecipe.VALUE, engine.getBean(new Descriptor<>(String.class).setName(RequiresBNotARecipe.NAME)));
         Assertions.assertEquals(RequiresNotARecipe.VALUE, engine.getBean(new Descriptor<>(String.class).setName(RequiresNotARecipe.NAME)));
+        Assertions.assertEquals(RequiresAorBRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class).setName(RequiresAorBRecipe.NAME)));
         
 
         CollectionAssert.assertEmpty(engine.getAllBeans(new Descriptor<>(Long.class)));
         CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class)), Double1TestRecipe.VALUE, RequiresBRecipe.VALUE);
         CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(String.class)), RequiresBNotARecipe.VALUE, RequiresNotARecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Integer.class)), RequiresAorBRecipe.VALUE);
     }
 
     /**
@@ -239,23 +243,24 @@ public class EngineIT extends AbstractUnitTest {
         engine.setEnvironments("A", "B");
         try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
             registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), RequiresARecipe.class.getName(), RequiresBRecipe.class.getName(), RequiresABRecipe.class.getName(),
-                    RequiresAConfigRecipe.class.getName(), RequiresANotBRecipe.class.getName(), RequiresBNotARecipe.class.getName(), RequiresNotARecipe.class.getName(), RequiresNotBRecipe.class.getName())));
+                    RequiresAConfigRecipe.class.getName(), RequiresANotBRecipe.class.getName(), RequiresBNotARecipe.class.getName(), RequiresNotARecipe.class.getName(), RequiresNotBRecipe.class.getName(), RequiresAorBRecipe.class.getName())));
             engine.init();
         }
 
-        Assertions.assertEquals(6, engine.getBeanCount());
+        Assertions.assertEquals(7, engine.getBeanCount());
         Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME)));
         Assertions.assertEquals(RequiresARecipe.VALUE, engine.getBean(new Descriptor<>(String.class).setName(RequiresARecipe.NAME)));
         Assertions.assertEquals(RequiresBRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(RequiresBRecipe.NAME)));
         Assertions.assertEquals(RequiresABRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class).setName(RequiresABRecipe.NAME)));
         Assertions.assertEquals(IntTestRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class).setName(IntTestRecipe.NAME)));
         Assertions.assertEquals(RequiresBNestedRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class).setName(RequiresBNestedRecipe.NAME)));
+        Assertions.assertEquals(RequiresAorBRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class).setName(RequiresAorBRecipe.NAME)));
         
 
         CollectionAssert.assertEmpty(engine.getAllBeans(new Descriptor<>(Long.class)));
         CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Double.class)), Double1TestRecipe.VALUE, RequiresBRecipe.VALUE, RequiresBNestedRecipe.VALUE);
         CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(String.class)), RequiresARecipe.VALUE);
-        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Integer.class)), RequiresABRecipe.VALUE, IntTestRecipe.VALUE);
+        CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(Integer.class)), RequiresABRecipe.VALUE, IntTestRecipe.VALUE, RequiresAorBRecipe.VALUE);
     }
     
     /**

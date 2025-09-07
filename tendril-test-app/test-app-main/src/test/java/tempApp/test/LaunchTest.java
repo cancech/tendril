@@ -22,6 +22,8 @@ import tempApp.AbstractAppRunner;
 import tempApp.AppRunner1;
 import tempApp.AppRunner2;
 import tempApp.FactoryClass;
+import tempApp.MultiEnvBean1;
+import tempApp.MultiEnvBean2;
 import tempApp.SingletonClass;
 import tempApp.TempManager;
 import tendril.context.ApplicationContext;
@@ -44,9 +46,10 @@ public class LaunchTest {
     public void testAppRunner1LowerCaseQwerty() {
         AbstractAppRunner.expectedMessage = "qwerty";
         AbstractAppRunner.expectedRunner = AppRunner1.class;
+        AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
         
         ApplicationContext ctx = new ApplicationContext();
-        ctx.setEnvironments("lowercase", "qwerty", "AppRunner1");
+        ctx.setEnvironments("lowercase", "qwerty", "AppRunner1", "production");
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -60,9 +63,10 @@ public class LaunchTest {
     public void testAppRunner1UpperCaseQwerty() {
         AbstractAppRunner.expectedMessage = "QWERTY";
         AbstractAppRunner.expectedRunner = AppRunner1.class;
+        AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
         
         ApplicationContext ctx = new ApplicationContext();
-        ctx.setEnvironments("uppercase", "qwerty", "AppRunner1");
+        ctx.setEnvironments("uppercase", "qwerty", "AppRunner1", "production");
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -76,9 +80,10 @@ public class LaunchTest {
     public void testAppRunner2LowercaseQwerty() {
         AbstractAppRunner.expectedMessage = "qwerty";
         AbstractAppRunner.expectedRunner = AppRunner2.class;
+        AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
         
         ApplicationContext ctx = new ApplicationContext();
-        ctx.setEnvironments("lowercase", "qwerty");
+        ctx.setEnvironments("lowercase", "qwerty", "test");
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -92,9 +97,10 @@ public class LaunchTest {
     public void testAppRunner2UppercaseQwerty() {
         AbstractAppRunner.expectedMessage = "QWERTY";
         AbstractAppRunner.expectedRunner = AppRunner2.class;
+        AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
         
         ApplicationContext ctx = new ApplicationContext();
-        ctx.setEnvironments("uppercase", "qwerty");
+        ctx.setEnvironments("uppercase", "qwerty", "test");
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -108,9 +114,10 @@ public class LaunchTest {
     public void testAppRunner2LowercaseAbc123() {
         AbstractAppRunner.expectedMessage = "abc123";
         AbstractAppRunner.expectedRunner = AppRunner2.class;
+        AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
         
         ApplicationContext ctx = new ApplicationContext();
-        ctx.setEnvironments("lowercase", "abc123");
+        ctx.setEnvironments("lowercase", "abc123", "test");
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -124,9 +131,10 @@ public class LaunchTest {
     public void testAppRunner2UppercaseAbc123() {
         AbstractAppRunner.expectedMessage = "ABC!@#";
         AbstractAppRunner.expectedRunner = AppRunner2.class;
+        AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
         
         ApplicationContext ctx = new ApplicationContext();
-        ctx.setEnvironments("uppercase", "abc123");
+        ctx.setEnvironments("uppercase", "abc123", "test");
         ctx.start();
         
         // Ensure everything created the expected number of times

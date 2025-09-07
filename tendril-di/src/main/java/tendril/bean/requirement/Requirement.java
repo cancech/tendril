@@ -16,6 +16,7 @@
 package tendril.bean.requirement;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -24,6 +25,8 @@ import java.util.List;
 public class Requirement {
     /** List of environments, all of which must be present */
     private final List<String> requiredEnvs = new ArrayList<>();
+    /** List of environments groups, where at least one from each group must be present */
+    private final List<List<String>> requiredOneOfEnvs = new ArrayList<>();
     /** List of environments, none of which must be present */
     private final List<String> requiredNotEnvs = new ArrayList<>();
     
@@ -43,6 +46,24 @@ public class Requirement {
      */
     public List<String> getRequiredEnvironments() {
         return requiredEnvs;
+    }
+    
+    /**
+     * Add a series of environments, at least one of which must be present for the bean to be creatable
+     * 
+     * @param envs {@link String}... names of the environments of which at least one must be present
+     */
+    public void addRequiredOneOfEnvironment(String... envs) {
+        requiredOneOfEnvs.add(Arrays.asList(envs));
+    }
+
+    /**
+     * Get all of the "one-of" groups, where at least one environment from each group must be present.
+     * 
+     * @return {@link List} of {@link String}
+     */
+    public List<List<String>> getRequiredOneOfEnvironments() {
+        return requiredOneOfEnvs;
     }
     
     /**
