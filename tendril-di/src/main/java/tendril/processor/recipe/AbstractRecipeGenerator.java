@@ -393,10 +393,10 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @param methodName {@link String} the name of the method to use to apply the requirement
      */
     private void populateEnvironmentReqs(List<String> lines, JBase element, Class<? extends Annotation> annotation, String methodName) {
-        // Account for any NOT required environments
-        ClassType requiresNotType = new ClassType(annotation);
+        // Account for any requirements
+        ClassType reqAnnotation = new ClassType(annotation);
         for (JAnnotation a: element.getAnnotations()) {
-            if (a.getType().equals(requiresNotType)) {
+            if (a.getType().equals(reqAnnotation)) {
                 @SuppressWarnings("unchecked")
                 List<JValue<?, ?>> envs = (List<JValue<?, ?>>) a.getValue(a.getAttributes().get(0)).getValue();
                 envs.forEach(e -> lines.add(methodName + "(\"" + e.getValue() + "\")"));
