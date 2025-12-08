@@ -19,7 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tendril.BeanCreationException;
+import tendril.bean.Fallback;
 import tendril.bean.PostConstruct;
+import tendril.bean.Primary;
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
@@ -38,6 +40,10 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
     private final Descriptor<BEAN_TYPE> descriptor;
     /** The requirements of this bean */
     private final Requirement requirement;
+    /** Flag indicating that the bean is a primary bean */
+    private final boolean isPrimary;
+    /** Flag indicating that the bean is a fallback bean */
+    private final boolean isFallback;
     
     /** List of the dependencies that the bean must receive */
     private final List<Injector<BEAN_TYPE>> consumers = new ArrayList<>();
@@ -49,14 +55,36 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
      * 
      * @param engine {@link Engine} powering the dependency injection and bean passing
      * @param beanClass {@link Class} of the bean the recipe is to build
+     * @param isPrimary boolean flag for whether the bean is marked as {@link Primary}
+     * @param isFallback boolean flag for whether the bean is marked as {@link Fallback}
      */
-    protected AbstractRecipe(Engine engine, Class<BEAN_TYPE> beanClass) {
+    protected AbstractRecipe(Engine engine, Class<BEAN_TYPE> beanClass, boolean isPrimary, boolean isFallback) {
         this.engine = engine;
         this.descriptor = new Descriptor<>(beanClass);
         this.requirement = new Requirement();
+        this.isPrimary = isPrimary;
+        this.isFallback = isFallback;
         
         setupDescriptor(descriptor);
         setupRequirement(requirement);
+    }
+    
+    /**
+     * Check if the bean is a {@link Primary} bean
+     * 
+     * @return true if it is
+     */
+    public boolean isPrimary() {
+    	return this.isPrimary;
+    }
+    
+    /**
+     * Check if the bean is a {@link Fallback} bean
+     * 
+     * @return true if it is
+     */
+    public boolean isFallback() {
+    	return this.isFallback;
     }
     
     /**

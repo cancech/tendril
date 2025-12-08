@@ -33,7 +33,7 @@ public class TestConfigRecipe extends ConfigurationRecipe<TestConfig>{
      * @param engine {@link Engine} for the context
      */
     public TestConfigRecipe(Engine engine) {
-        super(engine, TestConfig.class);
+        super(engine, TestConfig.class, false, false);
     }
 
     /**

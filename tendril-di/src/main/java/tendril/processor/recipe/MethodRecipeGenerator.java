@@ -101,7 +101,7 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC)
             .buildParameter(configRecipeType, "config").finish()
             .buildParameter(new ClassType(Engine.class), "engine").finish()
-            .addCode("super(engine, " + creatorType.getSimpleName() + ".class);",
+            .addCode("super(engine, " + creatorType.getSimpleName() + ".class, " + isPrimary + ", " + isFallback + ");",
                      "this.config = config;")
             .finish();
     }

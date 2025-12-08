@@ -31,7 +31,7 @@ public class TestTendrilRunnerRecipe3 extends AbstractRecipe<TestTendrilRunner3>
      * @param engine {@link Engine} that the recipe is to be employed with
      */
     public TestTendrilRunnerRecipe3(Engine engine) {
-        super(engine, TestTendrilRunner3.class);
+        super(engine, TestTendrilRunner3.class, false, false);
     }
 
     /**

@@ -36,7 +36,7 @@ public class Double1DuplicateTestRecipe extends AbstractRecipe<Double> {
      * @param engine {@link Engine} in which the recipe is to be registered
      */
     public Double1DuplicateTestRecipe(Engine engine) {
-        super(engine, Double.class);
+        super(engine, Double.class, false, false);
     }
 
     /**

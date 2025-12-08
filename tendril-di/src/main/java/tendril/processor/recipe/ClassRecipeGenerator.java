@@ -94,7 +94,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     protected void generateConstructor(ClassBuilder builder) throws InvalidConfigurationException {
         // CTOR contents
         List<String> ctorCode = new ArrayList<>();
-        ctorCode.add("super(engine, " + creatorType.getSimpleName() + ".class);");
+        ctorCode.add("super(engine, " + creatorType.getSimpleName() + ".class, " + isPrimary + ", " + isFallback + ");");
         generateFieldConsumers(ctorCode);
         generateMethodConsumers(ctorCode);
 

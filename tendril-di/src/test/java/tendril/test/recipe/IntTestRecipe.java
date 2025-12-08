@@ -35,7 +35,7 @@ public class IntTestRecipe extends AbstractRecipe<Integer> {
      * @param engine {@link Engine} in which the recipe is to be registered
      */
     public IntTestRecipe(Engine engine) {
-        super(engine, Integer.class);
+        super(engine, Integer.class, false, false);
     }
 
     /**

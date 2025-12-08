@@ -34,7 +34,7 @@ public class RequiresBRecipe extends AbstractRecipe<Double> {
      * @param engine
      */
     public RequiresBRecipe(Engine engine) {
-        super(engine, Double.class);
+        super(engine, Double.class, false, false);
     }
 
     /**

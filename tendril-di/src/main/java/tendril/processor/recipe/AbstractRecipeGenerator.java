@@ -26,10 +26,13 @@ import javax.annotation.processing.Messager;
 
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.exception.InvalidConfigurationException;
+import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Configuration;
 import tendril.bean.Factory;
+import tendril.bean.Fallback;
 import tendril.bean.InjectAll;
+import tendril.bean.Primary;
 import tendril.bean.Singleton;
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.qualifier.EnumQualifier;
@@ -82,6 +85,11 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
     protected final ClassType creatorType;
     /** The element which is triggering the creation of the bean */
     protected final CREATOR creator;
+    /** Flag indicating whether the bean the recipe is creating is a primary bean */
+    protected final boolean isPrimary;
+    /** Flag indicating whether the bean the recipe is creating is a fallback bean */
+    protected final boolean isFallback;
+    
     /** Messager through which to provide "proper" feedback */
     protected final Messager messager;
     
@@ -103,6 +111,12 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
         this.creatorType = creatorType;
         this.creator = creator;
         this.messager = messager;
+        
+    	isPrimary = creator.hasAnnotation(Primary.class);
+    	isFallback = creator.hasAnnotation(Fallback.class);
+    	if (isPrimary && isFallback)
+    		throw new ProcessingException(creatorType.getFullyQualifiedName() + " is marked as both " + Primary.class.getSimpleName() + " and " + Fallback.class.getSimpleName() +
+    				". At most one can be employed at a time.");
     }
 
     /**

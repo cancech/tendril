@@ -32,7 +32,7 @@ public class RequiresNotBRecipe extends AbstractRecipe<String> {
      * @param engine
      */
     public RequiresNotBRecipe(Engine engine) {
-        super(engine, String.class);
+        super(engine, String.class, false, false);
     }
 
     /**

@@ -34,7 +34,7 @@ public class RequiresABRecipe extends AbstractRecipe<Integer> {
      * @param engine
      */
     public RequiresABRecipe(Engine engine) {
-        super(engine, Integer.class);
+        super(engine, Integer.class, false, false);
     }
 
     /**

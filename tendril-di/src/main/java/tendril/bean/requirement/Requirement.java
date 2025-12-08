@@ -31,6 +31,12 @@ public class Requirement {
     private final List<String> requiredNotEnvs = new ArrayList<>();
     
     /**
+     * CTOR
+     */
+    public Requirement() {
+    }
+    
+    /**
      * Add an environment which must be present for the bean to be creatable
      * 
      * @param env {@link String} environment name

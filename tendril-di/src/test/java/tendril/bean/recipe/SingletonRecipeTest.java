@@ -37,26 +37,56 @@ public class SingletonRecipeTest extends AbstractUnitTest {
     // Instance to test
     private SingletonRecipe<SingleCtorBean> recipe;
 
+    // Concrete instance to use for testing
+    private class TestSingletonRecipe extends SingletonRecipe<SingleCtorBean> {
+
+		protected TestSingletonRecipe(boolean isPrimary, boolean isFallback) {
+			super(mockEngine, SingleCtorBean.class, isPrimary, isFallback);
+		}
+
+        @Override
+        protected void setupDescriptor(Descriptor<SingleCtorBean> descriptor) {
+        }
+
+        @Override
+        protected void setupRequirement(Requirement requirement) {
+        }
+
+        @Override
+        protected SingleCtorBean createInstance(Engine engine) {
+            return new SingleCtorBean();
+        }
+    	
+    }
+
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {
-        recipe = new SingletonRecipe<>(mockEngine, SingleCtorBean.class) {
+        recipe = new TestSingletonRecipe(false, false);
+    }
+    
+    /**
+     * Verify that the primary and fallback flags are properly handled
+     */
+    @Test
+    public void testRecipePrimaryFallbackFlags() {
+    	TestSingletonRecipe r1 = new TestSingletonRecipe(false, false);
+    	Assertions.assertFalse(r1.isPrimary());
+    	Assertions.assertFalse(r1.isFallback());
 
-            @Override
-            protected void setupDescriptor(Descriptor<SingleCtorBean> descriptor) {
-            }
+    	TestSingletonRecipe r2 = new TestSingletonRecipe(true, false);
+    	Assertions.assertTrue(r2.isPrimary());
+    	Assertions.assertFalse(r2.isFallback());
+    	
+    	TestSingletonRecipe r3 = new TestSingletonRecipe(false, true);
+    	Assertions.assertFalse(r3.isPrimary());
+    	Assertions.assertTrue(r3.isFallback());
 
-            @Override
-            protected void setupRequirement(Requirement requirement) {
-            }
-
-            @Override
-            protected SingleCtorBean createInstance(Engine engine) {
-                return new SingleCtorBean();
-            }
-        };
+    	TestSingletonRecipe r4 = new TestSingletonRecipe(true, true);
+    	Assertions.assertTrue(r4.isPrimary());
+    	Assertions.assertTrue(r4.isFallback());
     }
 
     /**

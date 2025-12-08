@@ -49,8 +49,14 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         private boolean createInstanceThrows = false;
         private boolean postConstructThrows = false;
         
-        protected TestRecipe() {
-            super(mockEngine, SingleCtorBean.class);
+        /**
+         * CTOR
+         * 
+         * @param isPrimary true if the bean is to be primary
+         * @param isFallback true if the bean is to be a fallback
+         */
+        protected TestRecipe(boolean isPrimary, boolean isFallback) {
+            super(mockEngine, SingleCtorBean.class, isPrimary, isFallback);
         }
 
         /**
@@ -147,10 +153,32 @@ public class AbstractRecipeTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
-        recipe = new TestRecipe();
+        recipe = new TestRecipe(false, false);
         recipe.assertDescriptorSetup();
         recipe.assertRequirementSetup();
         Assertions.assertEquals(SingleCtorBean.class, recipe.getDescription().getBeanClass());
+    }
+    
+    /**
+     * Verify that the primary and fallback flags are properly handled
+     */
+    @Test
+    public void testRecipePrimaryFallbackFlags() {
+    	TestRecipe r1 = new TestRecipe(false, false);
+    	Assertions.assertFalse(r1.isPrimary());
+    	Assertions.assertFalse(r1.isFallback());
+
+    	TestRecipe r2 = new TestRecipe(true, false);
+    	Assertions.assertTrue(r2.isPrimary());
+    	Assertions.assertFalse(r2.isFallback());
+    	
+    	TestRecipe r3 = new TestRecipe(false, true);
+    	Assertions.assertFalse(r3.isPrimary());
+    	Assertions.assertTrue(r3.isFallback());
+
+    	TestRecipe r4 = new TestRecipe(true, true);
+    	Assertions.assertTrue(r4.isPrimary());
+    	Assertions.assertTrue(r4.isFallback());
     }
     
     /**

@@ -78,11 +78,11 @@ public class BeanRetrievalExceptionTest extends AbstractUnitTest {
         when(mockRecipeDescriptor2.toString()).thenReturn("B");
         when(mockRecipeDescriptor3.toString()).thenReturn("C");
         
-        BeanRetrievalException ex = new BeanRetrievalException(mockBeanDescriptor, Arrays.asList(mockRecipe1, mockRecipe2, mockRecipe3));
+        BeanRetrievalException ex = new BeanRetrievalException(mockBeanDescriptor, Arrays.asList(mockRecipe1, mockRecipe2, mockRecipe3), "type");
         verify(mockRecipe1).getDescription();
         verify(mockRecipe2).getDescription();
         verify(mockRecipe3).getDescription();
         
-        Assertions.assertEquals("Multiple matches available for BEAN:\n    - A\n    - B\n    - C", ex.getMessage());
+        Assertions.assertEquals("Multiple type matches available for BEAN:\n    - A\n    - B\n    - C", ex.getMessage());
     }
 }

@@ -1,18 +1,3 @@
-/*
- * Copyright 2025 Jaroslav Bosak
- *
- * Licensed under the MIT License (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * https://opensource.org/license/MIT
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package tendril.test.recipe;
 
 import tendril.bean.qualifier.Descriptor;
@@ -20,19 +5,18 @@ import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 
-/**
- * 
- */
-public class RequiresNotARecipe extends AbstractRecipe<String> {
+public class FallbackStringRecipe3 extends AbstractRecipe<String> {
 
-    public static final String NAME = "NotA";
     /** The value that the recipe produces */
-    public static final String VALUE = "NotAValue";
+    public static final String VALUE = "FallbackString3";
+    
     /**
-     * @param engine
+     * CTOR
+     * 
+     * @param engine {@link Engine} in which the recipe is to be registered
      */
-    public RequiresNotARecipe(Engine engine) {
-        super(engine, String.class, false, false);
+    public FallbackStringRecipe3(Engine engine) {
+        super(engine, String.class, false, true);
     }
 
     /**
@@ -40,7 +24,6 @@ public class RequiresNotARecipe extends AbstractRecipe<String> {
      */
     @Override
     protected void setupDescriptor(Descriptor<String> descriptor) {
-        descriptor.setName(NAME);
     }
 
     /**
@@ -48,7 +31,6 @@ public class RequiresNotARecipe extends AbstractRecipe<String> {
      */
     @Override
     protected void setupRequirement(Requirement requirement) {
-        requirement.addRequiredNotEnvironment("A");
     }
 
     /**
@@ -66,5 +48,4 @@ public class RequiresNotARecipe extends AbstractRecipe<String> {
     protected String createInstance(Engine engine) {
         return VALUE;
     }
-
 }

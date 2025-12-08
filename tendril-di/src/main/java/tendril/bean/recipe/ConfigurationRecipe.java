@@ -34,9 +34,11 @@ public abstract class ConfigurationRecipe<CONFIGURATION_TYPE> extends SingletonR
      * 
      * @param engine      {@link Engine} powering the dependency injection and bean passing
      * @param configClass {@link Class} of the configuration
+     * @param isPrimary true if the bean is a Primary bean
+     * @param isFallback true if the bean is a fallback bean
      */
-    protected ConfigurationRecipe(Engine engine, Class<CONFIGURATION_TYPE> configClass) {
-        super(engine, configClass);
+    protected ConfigurationRecipe(Engine engine, Class<CONFIGURATION_TYPE> configClass, boolean isPrimary, boolean isFallback) {
+        super(engine, configClass, isPrimary, isFallback);
     }
 
     /**

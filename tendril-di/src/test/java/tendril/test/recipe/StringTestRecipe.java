@@ -34,7 +34,7 @@ public class StringTestRecipe extends AbstractRecipe<String> {
      * @param engine {@link Engine} in which the recipe is to be registered
      */
     public StringTestRecipe(Engine engine) {
-        super(engine, String.class);
+        super(engine, String.class, false, false);
     }
 
     /**

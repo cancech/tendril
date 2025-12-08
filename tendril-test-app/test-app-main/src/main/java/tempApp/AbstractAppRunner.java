@@ -15,6 +15,7 @@
  */
 package tempApp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import tempApp.id.MyType;
@@ -100,6 +101,35 @@ public abstract class AbstractAppRunner implements TendrilRunner {
     String message;
     @Inject
     MultiEnvBean multiEnvBean;
+
+    // To test injections from PriorityConfig
+    @Inject
+    @Option1
+    StringWrapper option1StringWrapper;
+    @Inject
+    @Option2
+    StringWrapper option2StringWrapper;
+    @Inject
+    @Named("Option1")
+    StringWrapper option1NamedStringWrapper;
+    @Inject
+    @Named("Option2")
+    StringWrapper option2NamedStringWrapper;
+    @InjectAll
+    List<StringWrapper> allStringWrappers;
+    @InjectAll
+    @Option1
+    List<StringWrapper> allOption1StringWrappers;
+    @InjectAll
+    @Option2
+    List<StringWrapper> allOption2StringWrappers;
+    @InjectAll
+    @Option1
+    @Option2
+    List<StringWrapper> allOption1and2StringWrappers;
+    @InjectAll
+    @Message
+    List<StringWrapper> allMessageStringWrapeprs;
 
     private FactoryClass factoryBean5;
     private final Class<? extends AbstractAppRunner> actualRunner;
@@ -191,6 +221,17 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 
         assertion(multiEnvBean != null, "MultiEnvBean was not created!");
         assertion(multiEnvBean.getClass() == expectedMultiEnvBean, "Expected " + expectedMultiEnvBean + " but received " + multiEnvBean.getClass());
+
+        
+        assertion(PriorityConfig.PRIMARY1.equals(option1StringWrapper.getString()), "Expected " + PriorityConfig.PRIMARY1 + " but received " + option1StringWrapper.getString());
+        assertion(PriorityConfig.PRIMARY2.equals(option2StringWrapper.getString()), "Expected " + PriorityConfig.PRIMARY2 + " but received " + option2StringWrapper.getString());
+        assertion(PriorityConfig.FALLBACK1.equals(option1NamedStringWrapper.getString()), "Expected " + PriorityConfig.FALLBACK1 + " but received " + option1NamedStringWrapper.getString());
+        assertion(PriorityConfig.FALLBACK2.equals(option2NamedStringWrapper.getString()), "Expected " + PriorityConfig.FALLBACK2 + " but received " + option2NamedStringWrapper.getString());
+        assertStringWrapperListContains(allStringWrappers, PriorityConfig.PRIMARY1, PriorityConfig.PRIMARY2, PriorityConfig.BASIC1, PriorityConfig.BASIC2, PriorityConfig.BASIC3);
+        assertStringWrapperListContains(allOption1StringWrappers, PriorityConfig.PRIMARY1, PriorityConfig.BASIC1, PriorityConfig.BASIC2, PriorityConfig.BASIC3);
+        assertStringWrapperListContains(allOption2StringWrappers, PriorityConfig.PRIMARY2, PriorityConfig.BASIC1, PriorityConfig.BASIC2, PriorityConfig.BASIC3);
+        assertStringWrapperListContains(allOption1and2StringWrappers, PriorityConfig.BASIC1, PriorityConfig.BASIC2, PriorityConfig.BASIC3);
+        assertStringWrapperListContains(allMessageStringWrapeprs, PriorityConfig.FALLBACK3);
     }
 
     private  static void assertion(boolean value, String msg) {
@@ -213,5 +254,17 @@ public abstract class AbstractAppRunner implements TendrilRunner {
         assertion(list.size() == elements.length, "Expected " + elements.length + " elements, but recevied " + list.size());
         for (T e: elements)
             assertion(list.contains(e), "List " + list + " does not contain element " + e);
+    }
+    
+    private void assertStringWrapperListContains(List<StringWrapper> actual, String...expected) {
+        // Ensure that the list is correct
+        assertion(actual.size() == expected.length, "Expected " + expected.length + " elements, but recevied " + actual.size());
+        
+        List<String> actualStrings = new ArrayList<String>();
+        for (StringWrapper sw: actual)
+        	actualStrings.add(sw.getString());
+        
+        for (String e: expected)
+            assertion(actualStrings.contains(e), "List " + actualStrings + " does not contain element " + e);
     }
 }

@@ -33,7 +33,7 @@ public class RequiresBNestedRecipe extends AbstractRecipe<Double> {
      * @param engine
      */
     public RequiresBNestedRecipe(Engine engine) {
-        super(engine, Double.class);
+        super(engine, Double.class, false, false);
     }
 
     /**

@@ -34,7 +34,7 @@ public class RequiresAorBRecipe extends AbstractRecipe<Integer> {
      * @param engine
      */
     public RequiresAorBRecipe(Engine engine) {
-        super(engine, Integer.class);
+        super(engine, Integer.class, false, false);
     }
 
     /**

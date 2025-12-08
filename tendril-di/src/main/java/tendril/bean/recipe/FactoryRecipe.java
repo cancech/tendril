@@ -31,9 +31,11 @@ public abstract class FactoryRecipe<BEAN_TYPE> extends AbstractRecipe<BEAN_TYPE>
      * 
      * @param engine {@link Engine} powering the {@link ApplicationContext} in which the bean lives
      * @param beanClass {@link Class} of the bean instance
+     * @param isPrimary true if the bean is a Primary bean
+     * @param isFallback true if the bean is a fallback bean
      */
-    protected FactoryRecipe(Engine engine, Class<BEAN_TYPE> beanClass) {
-        super(engine, beanClass);
+    protected FactoryRecipe(Engine engine, Class<BEAN_TYPE> beanClass, boolean isPrimary, boolean isFallback) {
+        super(engine, beanClass, isPrimary, isFallback);
     }
     
     /**

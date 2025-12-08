@@ -452,6 +452,87 @@ public class MyClass {
 
 The name of the `enum` is irrelevant, as it is not used as part of the generation process.
 
+## Prioritizing Beans
+In some situations it may be necessary to *prioritize* which beans are used by applying a *type* to them. These types can be either:
+* `Primary` - high priority
+* `Basic`- normal priority
+* `Fallback` - low priority, only to be used when no other bean is available
+
+This is done when defining a bean (whether as a class or method) by annotating it with `@Primary` to make it a primary bean, or `@Fallback` to make it a fallback bean. If neither is applied it will be a default `Basic` bean. How this comes into effect depends on how the bean is retrieved.
+
+### `@Inject` Bean Priority
+When injecting a single bean via `@Inject`, it will be pulled from the highest priority level that is available from the beans which match the injection, regardless of how many beans may exist in the lower priority levels. For example: the single matching `@Primary` bean will be returned
+regardless of how many `Basic` or `@Fallback` matches are present. If there is no `@Primary` match, then the single `Basic` bean will be returned, regardless of how many `@Fallback` ones are present. If there are no `@Primary` or `Basic` beans, then there must be a
+single `@Fallback` bean in the results. There must be exactly one match in the highest available level when injecting an `@Inject` bean, otherwise an exception will be thrown.
+
+In this situation, the `@Primary` can be seen as a means of *elevating* one bean over others. For example, if `BeanB` extends `BeanA` then `@Priority` can be employed to prioritize the parent class when making an injection.
+
+```java
+@Bean
+@Singleton
+@Priority
+public class BeanA {
+}
+
+@Bean
+@Singleton
+public class BeanB {
+}
+
+@Bean
+@Singleton
+@Fallback
+@MyQualifier
+public class BeanC extends BeanA {
+}
+
+@Inject
+BeanA beanA;
+
+@InjectAll
+@MyQualifier
+BeanA myQualifierBeanA;
+```
+
+In the code snippet above, by making `BeanA` higher priority than `BeanB`, injecting `BeanA` will favor the class `BeanA` over `BeanB`, and `BeanB` over `BeanC`. Otherwise, `@Inject BeanA` will not know which instance to pull in as `BeanA`, `BeanB`, and `BeanC` are all viable
+options for the injection without any other qualifiers being present. On the flip side `@Fallback` acts as the name implies, a fallback or fail safe to ensure that a valid bean is provided when there are no other options available. For example, if an important bean is expected to be provided
+(such as a database or network connection/handler) then a `@Fallback` bean can be used to ensure that some kind of sane default is provided, rather than risking a crash due to an important component not being available. Accordingly in the code snippet above, `myQualifierBeanA` will receive
+`BeanC` as there is no other `BeanA` castable bean with the `@MyQualifier` applied.
+
+### `@InjectAll` Bean Priority
+When injecting multiple beans via `@InjectAll`, then all `@Primary` and `Basic` beans matching the injection will be provided as there is no limitation or stipulation on the number of possible matches. `@Fallback` beans will only be provided if there are no higher priority beans available.
+In this situation, there is no functional difference between the `@Primary` and `Basic` beans (that distinction is only used by `@Inject`). However, `@Fallback` maintains its fail safe role, as again no `@Fallback` beans will be provided if there are any other beans available.
+
+```java
+@Bean
+@Singleton
+@Priority
+public class BeanA {
+}
+
+@Bean
+@Singleton
+public class BeanB {
+}
+
+@Bean
+@Singleton
+@Fallback
+@MyQualifier
+public class BeanC extends BeanA {
+}
+
+@InjectAll
+List<BeanA> allBeanA;
+
+@InjectAll
+@MyQualifier
+List<BeanA> allMyQualifierBeanA;
+```
+
+In the code snippet above `allBeanA` will contain the `BeanA` and `BeanB` beans, as both can be cast to `BeanA`. `BeanC` will not be included as there are `@Primary` (BeanA) and `Basic` (BeanB) beans that meet the injection criteria. On the other hand, `allMyQualifierBeanA`
+will include only `BeanC`, as that is the only bean which can be cast to `BeanA` and includes the qualifier `@MyQualifier`.
+
 ## Creating an Application
 The ability to pass Beans is crucial, however in of itself is insufficient for the purpose of driving an application. In order to be able to create a `Tendril` application, two additional pieces are required.
 
