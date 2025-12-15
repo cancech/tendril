@@ -23,8 +23,6 @@ import javax.lang.model.element.TypeElement;
  * the current round.
  */
 public abstract class AbstractGeneratedAnnotationTendrilProcessor extends AbstractTendrilProccessor {
-    /** Flag for whether this is the first time the processor is called upon to process something */
-    private boolean isFirst = true;
     
     /**
      * CTOR
@@ -33,25 +31,25 @@ public abstract class AbstractGeneratedAnnotationTendrilProcessor extends Abstra
     }
 
     /**
+     * The generated annotation is tagged with a non-generated annotation. Search for the non-generated annotation, and when found repeat the search with
+     * the generated one.
+     * 
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#findAndProcessElements(javax.lang.model.element.TypeElement)
      */
     @Override
     protected void findAndProcessElements(TypeElement annotation) {
-        // After the first, can perform processing as-per normal
-        if (!isFirst) {
-            super.findAndProcessElements(annotation);
-            return;
-        }
-            
-        // Only the first iteration will need to go back and double-check previous rounds (as those will have been skipped)
-        isFirst = false;
+    	// Track the original round
         final RoundEnvironment original = roundEnv;
+        
+        // Find who is using the generated annotation
         findAndProcessElements(annotation, customAnnon -> {
             EnvironmentCollector.getAllEnvironments(roundEnv).forEach(e -> {
                 roundEnv = e;
                 super.findAndProcessElements((TypeElement) customAnnon);   
             });
-            roundEnv = original;
         });
+        
+        // Reset the original round
+        roundEnv = original;
     }
 }
