@@ -108,10 +108,19 @@ public abstract class JBase extends JGeneric {
      * @return boolean true if at least one instance of the annotation is found
      */
     public boolean hasAnnotation(Class<? extends Annotation> annotation) {
-        ClassType type = new ClassType(annotation);
-        
+    	return hasAnnotation(new ClassType(annotation));
+    }
+    
+    /**
+     * Check if an annotation is placed on the item
+     * 
+     * @param annotation {@link ClassType} representing the annotation to look for
+     * 
+     * @return boolean true if at least one instance of the annotation is found
+     */
+    public boolean hasAnnotation(ClassType annotation) {
         for (JAnnotation a: annotations) {
-            if (a.getType().equals(type))
+            if (a.getType().equals(annotation))
                 return true;
         }
         

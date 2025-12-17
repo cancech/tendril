@@ -29,6 +29,7 @@ import tendril.codegen.classes.JClassAnnotation;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.value.JValueFactory;
+import tendril.codegen.generics.GenericFactory;
 import tendril.test.assertions.ClassAssert;
 import tendril.test.assertions.matchers.MultiLineStringMatcher;
 import tendril.test.helper.annotation.TestMarkerAnnotation;
@@ -113,15 +114,22 @@ public class CreateAnnotationTest {
      */
     @Test
     public void createAnnotationWithMethods() {
+    	ClassType jclassType = new ClassType(JClass.class);
+    	ClassType type = new ClassType(Class.class);
+    	type.addGeneric(GenericFactory.create(jclassType));
+    	
         JClass annotation = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC)
                 .buildMethod(String.class, "strMethod").setDefaultValue(JValueFactory.create("abc123")).finish()
                 .buildMethod(Integer.class, "intMethod").finish()
+                .buildMethod(type, "classValue").setDefaultValue(JValueFactory.create(jclassType)).finish()
                 .build();
+        System.out.println(annotation.generateCode());
         
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package a.b.c;");
         matcher.eq("");
         matcher.eq("import " + Generated.class.getName() + ";");
+        matcher.eq("import " + JClass.class.getName() + ";");
         matcher.eq("");
         matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
         matcher.eq("public @interface D {");
@@ -129,6 +137,8 @@ public class CreateAnnotationTest {
         matcher.eq("    String strMethod() default \"abc123\";");
         matcher.eq("");
         matcher.eq("    Integer intMethod();");
+        matcher.eq("");
+        matcher.eq("    Class<JClass> classValue() default JClass.class;");
         matcher.eq("");
         matcher.eq("}");
         matcher.match(annotation.generateCode());

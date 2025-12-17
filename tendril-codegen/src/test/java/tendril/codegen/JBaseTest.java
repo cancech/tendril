@@ -152,6 +152,29 @@ public class JBaseTest extends AbstractUnitTest {
     }
 
     /**
+     * Verify that the correct code is generated with a single annotation
+     */
+    @Test
+    public void testSingleAnnotationClassType() {
+        when(mockAnnotation1.getType()).thenReturn(new ClassType("a.b.c.D"));
+        
+        element.setFinal(true);
+        element.add(mockAnnotation1);
+        Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
+
+        element.generate(mockCodeBuilder, mockImports);
+        verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
+        element.verifyTimesCalled(1, 0);
+
+        Assertions.assertFalse(element.hasAnnotation(new ClassType("a.B")));
+        verify(mockAnnotation1).getType();
+        Assertions.assertFalse(element.hasAnnotation(new ClassType("a.b.C")));
+        verify(mockAnnotation1, times(2)).getType();
+        Assertions.assertTrue(element.hasAnnotation(new ClassType("a.b.c.D")));
+        verify(mockAnnotation1, times(3)).getType();
+    }
+
+    /**
      * Verify that the correct code is generates with multiple annotations applied
      */
     @Test
@@ -182,6 +205,40 @@ public class JBaseTest extends AbstractUnitTest {
         verify(mockAnnotation2, times(2)).getType();
         verify(mockAnnotation3, times(1)).getType();
         Assertions.assertTrue(element.hasAnnotation(Override.class));
+        verify(mockAnnotation1, times(3)).getType();
+    }
+
+    /**
+     * Verify that the correct code is generates with multiple annotations applied
+     */
+    @Test
+    public void testMultipleAnnotationsClassType() {
+        when(mockAnnotation1.getType()).thenReturn(new ClassType("a.B"));
+        when(mockAnnotation2.getType()).thenReturn(new ClassType("a.b.C"));
+        when(mockAnnotation3.getType()).thenReturn(new ClassType("a.B"));
+        
+        element.add(mockAnnotation1);
+        Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
+        element.add(mockAnnotation2);
+        Assertions.assertIterableEquals(Arrays.asList(mockAnnotation1, mockAnnotation2), element.getAnnotations());
+        element.add(mockAnnotation3);
+        Assertions.assertIterableEquals(Arrays.asList(mockAnnotation1, mockAnnotation2, mockAnnotation3), element.getAnnotations());
+
+        element.generate(mockCodeBuilder, mockImports);
+        verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
+        verify(mockAnnotation2).generate(mockCodeBuilder, mockImports);
+        verify(mockAnnotation3).generate(mockCodeBuilder, mockImports);
+        element.verifyTimesCalled(1, 0);
+        
+
+        Assertions.assertTrue(element.hasAnnotation(new ClassType("a.b.C")));
+        verify(mockAnnotation1).getType();
+        verify(mockAnnotation2).getType();
+        Assertions.assertFalse(element.hasAnnotation(new ClassType("a.b.c.D")));
+        verify(mockAnnotation1, times(2)).getType();
+        verify(mockAnnotation2, times(2)).getType();
+        verify(mockAnnotation3, times(1)).getType();
+        Assertions.assertTrue(element.hasAnnotation(new ClassType("a.B")));
         verify(mockAnnotation1, times(3)).getType();
     }
 

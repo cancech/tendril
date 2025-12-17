@@ -68,6 +68,9 @@ public class JValueFactory {
      */
     @SuppressWarnings("unchecked")
     public static <DATA_TYPE extends Type, VALUE> JValue<DATA_TYPE, VALUE> create(VALUE value) {
+    	if (value instanceof ClassType cType)
+    		return (JValue<DATA_TYPE, VALUE>) new JValueClass(cType); 
+    				
         Class<?> cls = value.getClass();
         
         JValue<?, ?> createdValue = null;

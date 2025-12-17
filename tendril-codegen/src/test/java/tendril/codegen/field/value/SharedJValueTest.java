@@ -15,7 +15,7 @@
  */
 package tendril.codegen.field.value;
 
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.Set;
 
@@ -57,6 +57,6 @@ public class SharedJValueTest extends AbstractUnitTest {
      * Verify that the expected interactions took place with the mockImports
      */
     protected void verifyMockImports() {
-        verifyNoInteractions(mockImports);
+        verifyNoMoreInteractions(mockImports);
     }
 }

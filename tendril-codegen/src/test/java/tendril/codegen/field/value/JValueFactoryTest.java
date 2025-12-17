@@ -17,7 +17,6 @@ package tendril.codegen.field.value;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -70,6 +69,10 @@ public class JValueFactoryTest extends SharedJValueTest {
      */
     @Test
     public void testCreatedValues() {
+    	ClassType classType = new ClassType(ClassType.class);
+        lastImport = classType;
+    	assertCode("ClassType.class", JValueFactory.create(classType));
+    	
         assertCode("\"StringValue\"", JValueFactory.create("StringValue"));
         assertCode("'a'", JValueFactory.create('a'));
         assertCode("123456l", JValueFactory.create(123456l));
@@ -80,7 +83,7 @@ public class JValueFactoryTest extends SharedJValueTest {
         assertCode("false", JValueFactory.create(false));
         assertCode("true", JValueFactory.create(true));
         assertCode("10", JValueFactory.create((byte) Byte.valueOf("10")));
-        verifyNoInteractions(mockImports);
+        verifyMockImports();
 
         lastImport = new ClassType(VisibilityType.class);
         assertCode("VisibilityType.PACKAGE_PRIVATE", JValueFactory.create(VisibilityType.PACKAGE_PRIVATE));
@@ -96,7 +99,7 @@ public class JValueFactoryTest extends SharedJValueTest {
         verify(mockType).getSimpleName();
         verifyMockImports();
         
-        Assertions.assertThrows(DefinitionException.class, () -> JValueFactory.create(new ClassType("a", "b")));
+        Assertions.assertThrows(DefinitionException.class, () -> JValueFactory.create(new Object()));
     }
     
     /**
