@@ -261,6 +261,39 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
     }
     
     /**
+     * Get all methods which have the name specified
+     * 
+     * @param name {@link String} name of the method(s) to retrieve
+     * @return {@link List} of {@link JMethod}s with the desired name
+     */
+    public List<JMethod<?>> getMethods(String name) {
+    	return getMethods(m -> m.getName().equals(name));
+    }
+    
+    /**
+     * Get all methods which match the specified criteria
+     * 
+     * @param criteria {@link JMethodFilter} on which to filter/search the methods
+     * @return {@link List} of {@link JMethod}s which meet the desired criteria
+     */
+    public List<JMethod<?>> getMethods(JMethodFilter criteria) {
+    	List<JMethod<?>> found = new ArrayList<>();
+    	
+    	// Start with those explicitly placed on this class
+    	for (JMethod<?> m: methods) {
+    		if (criteria.matches(m))
+    			found.add(m);
+    	}
+    	
+    	// Check all inherited methods as well
+        // Then check all parents
+        JClass parent = getParentClass();
+        if (parent != null)
+        	found.addAll(parent.getMethods(criteria));
+    	return found;
+    }
+    
+    /**
      * Generate the code which represents this class, without needing any "external" imports. In this case an "external" import would be one, which is not part of the
      * API documentation. Thus, this should be called if there are no additional imports required beyond what the API of the class requires.
      * 

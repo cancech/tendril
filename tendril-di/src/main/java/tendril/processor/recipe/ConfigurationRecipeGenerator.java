@@ -51,7 +51,7 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
     }
 
     /**
-     * @see tendril.processor.recipe.RecipeGenerator#populateBuilder(tendril.codegen.classes.ClassBuilder)
+     * @see tendril.processor.recipe.AbstractRecipeGenerator#populateBuilder(tendril.codegen.classes.ClassBuilder)
      */
     @Override
     protected void populateBuilder(ClassBuilder builder) throws TendrilException {
@@ -83,7 +83,7 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
      * 
      * @return {@link String}[] containing the necessary code
      */
-    private String[] nestedRecipesCode() {
+    protected String[] nestedRecipesCode() {
         externalImports.add(new ClassType(HashMap.class));
         List<String> code = new ArrayList<>();
         code.add("Map<String, AbstractRecipe<?>> recipes = new HashMap<>();");

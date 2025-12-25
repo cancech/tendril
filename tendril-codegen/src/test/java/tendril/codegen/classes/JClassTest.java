@@ -47,6 +47,7 @@ import tendril.codegen.field.type.VoidType;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
+import tendril.test.assertions.CollectionAssert;
 import tendril.test.assertions.matchers.MultiLineStringMatcher;
 import tendril.test.helper.annotation.TestMarkerAnnotation;
 import tendril.test.helper.annotation.TestPrimitiveAnnotation;
@@ -1004,6 +1005,74 @@ public class JClassTest extends AbstractUnitTest {
         verify(mockCtor1, times(4)).hasAnnotation(Override.class);
         verify(mockCtor2, times(4)).hasAnnotation(Override.class);
         verify(mockCtor3, times(4)).hasAnnotation(Override.class);
+    }
+    
+    /**
+     * Get methods by name
+     */
+    @Test
+    public void testGetMethodsByNameNoResults() {
+    	when(mockClassMethod.getName()).thenReturn("a");
+    	when(mockPrimitiveMethod.getName()).thenReturn("b");
+    	when(mockVoidMethod.getName()).thenReturn("c");
+
+    	jclass.addMethod(mockClassMethod);
+    	jclass.addMethod(mockPrimitiveMethod);
+    	jclass.addMethod(mockVoidMethod);
+    	
+    	CollectionAssert.assertEmpty(jclass.getMethods("d"));
+    	verify(mockClassMethod).getName();
+    	verify(mockPrimitiveMethod).getName();
+    	verify(mockVoidMethod).getName();
+    }
+    
+    /**
+     * Get methods by name
+     */
+    @Test
+    public void testGetMethodsByNameSingleResult() {
+    	when(mockClassMethod.getName()).thenReturn("a");
+    	when(mockPrimitiveMethod.getName()).thenReturn("b");
+    	when(mockVoidMethod.getName()).thenReturn("c");
+
+    	jclass.addMethod(mockClassMethod);
+    	jclass.addMethod(mockPrimitiveMethod);
+    	jclass.addMethod(mockVoidMethod);
+    	
+    	CollectionAssert.assertEquivalent(jclass.getMethods("a"), mockClassMethod);
+    	verify(mockClassMethod).getName();
+    	verify(mockPrimitiveMethod).getName();
+    	verify(mockVoidMethod).getName();
+    }
+    
+    /**
+     * Get methods by name
+     */
+    @Test
+    public void testGetMethodsByNameMultipleResults() {
+    	when(mockClassMethod.getName()).thenReturn("a");
+    	when(mockPrimitiveMethod.getName()).thenReturn("a");
+    	when(mockVoidMethod.getName()).thenReturn("a");
+
+    	jclass.addMethod(mockClassMethod);
+    	jclass.addMethod(mockPrimitiveMethod);
+    	jclass.addMethod(mockVoidMethod);
+    	
+    	CollectionAssert.assertEquivalent(jclass.getMethods("a"), mockClassMethod, mockPrimitiveMethod, mockVoidMethod);
+    	verify(mockClassMethod).getName();
+    	verify(mockPrimitiveMethod).getName();
+    	verify(mockVoidMethod).getName();
+    }
+    
+    /**
+     * Get methods by name
+     */
+    @Test
+    public void testGetMethodsByNameMultipleResultsWithParent() {
+    	when(mockParentClass.getMethods(any(JMethodFilter.class))).thenReturn(Arrays.asList(mockPrimitiveMethod, mockClassMethod, mockVoidMethod));
+    	jclass.setParentClass(mockParentClass);
+    	
+    	CollectionAssert.assertEquivalent(jclass.getMethods("a"), mockClassMethod, mockPrimitiveMethod, mockVoidMethod);
     }
 
     /**

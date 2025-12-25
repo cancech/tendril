@@ -53,7 +53,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * CTOR
      * 
      * @param beanType {@link ClassType} of the bean
-     * @param creator  {@link JClass} which defined and creates the bean
+     * @param creator  {@link JClass} which defines and creates the bean
      * @param messager {@link Messager} that is used by the annotation processor
      */
     ClassRecipeGenerator(ClassType beanType, JClass creator, Messager messager) {
@@ -61,7 +61,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     }
 
     /**
-     * @see tendril.processor.recipe.RecipeGenerator#validateCreator()
+     * @see tendril.processor.recipe.AbstractRecipeGenerator#validateCreator()
      */
     protected void validateCreator() throws InvalidConfigurationException {
         // This can't actually happen, but just to be sure
@@ -107,7 +107,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * @param ctorLines {@link List} of {@link String} lines that are already present in the recipe constructor
      * @throws InvalidConfigurationException if there is an issue encountered generating the fields
      */
-    private void generateFieldConsumers(List<String> ctorLines) throws InvalidConfigurationException {
+    protected void generateFieldConsumers(List<String> ctorLines) throws InvalidConfigurationException {
         generateInjectJFieldDependencyConsumer(ctorLines);
         generateInjectAllJFieldDepdendencyConsumers(ctorLines);
     }
@@ -122,18 +122,28 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
             Type fieldType = field.getType();
             String fieldTypeName = fieldType.getSimpleName();
 
-            // Add imports
             addImport(fieldType);
-            addImport(Applicator.class);
-            addImport(Descriptor.class);
-
-            ctorLines.add("registerDependency(" + getDependencyDescriptor(field) + ", new " + Applicator.class.getSimpleName() + "<" + creatorType.getSimpleName() + ", " + fieldTypeName + ">() {");
-            ctorLines.add("    @Override");
-            ctorLines.add("    public void apply(" + creatorType.getSimpleName() + " consumer, " + fieldTypeName + " bean) {");
-            ctorLines.add("        consumer." + field.getName() + " = bean;");
-            ctorLines.add("    }");
-            ctorLines.add("});");
+        	generateFieldInjection(field, fieldTypeName, ctorLines);
         }
+    }
+    
+    /**
+     * Generate the code which will be used to inject instance fields in the class.
+     * 
+     * @param field {@link JField} that is to be injected
+     * @param fieldTypeName {@link String} the name of the type that the field is
+     * @param ctorLines {@link List} of {@link String}s where the constructor code is contained
+     */
+    protected void generateFieldInjection(JField<?> field, String fieldTypeName, List<String> ctorLines) {
+        addImport(Applicator.class);
+        addImport(Descriptor.class);
+        
+        ctorLines.add("registerDependency(" + getDependencyDescriptor(field) + ", new " + Applicator.class.getSimpleName() + "<" + creatorType.getSimpleName() + ", " + fieldTypeName + ">() {");
+        ctorLines.add("    @Override");
+        ctorLines.add("    public void apply(" + creatorType.getSimpleName() + " consumer, " + fieldTypeName + " bean) {");
+        ctorLines.add("        consumer." + field.getName() + " = bean;");
+        ctorLines.add("    }");
+        ctorLines.add("});");
     }
 
     /**
@@ -165,7 +175,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * @param ctorLines {@link List} of {@link String} lines that are already present in the recipe constructor
      * @throws InvalidConfigurationException if the annotate code is improperly configured
      */
-    private void generateMethodConsumers(List<String> ctorLines) throws InvalidConfigurationException {
+    protected void generateMethodConsumers(List<String> ctorLines) throws InvalidConfigurationException {
         boolean isFirst = true;
         for (JMethod<?> method : creator.getMethods(Inject.class)) {
             // Only include the import, if it's actually used
@@ -196,7 +206,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * Generate the createInstance(Engine engine) method where the recipe create the instance for the recipe to provide after it has been processed.
      * 
      * @param builder {@link ClassBuilder} where the recipe is being defined
-     * @throws InvalidConfigurationException
+     * @throws InvalidConfigurationException if issues generating the createInstance are encountered
      */
     protected void generateCreateInstance(ClassBuilder builder) throws TendrilException {
         // First check if there are any @Inject annotated constructors

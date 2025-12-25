@@ -18,6 +18,9 @@ package tempApp;
 import java.util.ArrayList;
 import java.util.List;
 
+import tempApp.duplicate.StaticDuplicateBean;
+import tempApp.duplicate.StaticDuplicateBean2;
+import tempApp.duplicate.StaticDuplicateBean3;
 import tempApp.id.MyType;
 import tempApp.id.MyTypeId;
 import tendril.bean.Inject;
@@ -131,6 +134,40 @@ public abstract class AbstractAppRunner implements TendrilRunner {
     @Message
     List<StringWrapper> allMessageStringWrapeprs;
 
+    @Inject
+    @COPY_1
+    StaticDuplicateBean bean1Copy1;
+    @Inject
+    @COPY_2
+    StaticDuplicateBean bean1Copy2;
+    @Inject
+    @COPY_3
+    StaticDuplicateBean bean1Copy3;
+    @InjectAll
+    List<StaticDuplicateBean> allBean1Copies;
+    @Inject
+    @COPY_1
+    StaticDuplicateBean2 bean2Copy1;
+    @Inject
+    @COPY_2
+    StaticDuplicateBean2 bean2Copy2;
+    @Inject
+    @COPY_3
+    StaticDuplicateBean2 bean2Copy3;
+    @InjectAll
+    List<StaticDuplicateBean2> allBean2Copies;
+    @Inject
+    @COPY_1
+    StaticDuplicateBean3 bean3Copy1;
+    @Inject
+    @COPY_2
+    StaticDuplicateBean3 bean3Copy2;
+    @Inject
+    @COPY_3
+    StaticDuplicateBean3 bean3Copy3;
+    @InjectAll
+    List<StaticDuplicateBean3> allBean3Copies;
+    
     private FactoryClass factoryBean5;
     private final Class<? extends AbstractAppRunner> actualRunner;
 
@@ -222,7 +259,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
         assertion(multiEnvBean != null, "MultiEnvBean was not created!");
         assertion(multiEnvBean.getClass() == expectedMultiEnvBean, "Expected " + expectedMultiEnvBean + " but received " + multiEnvBean.getClass());
 
-        
+        // Make sure the @Primary @Fallback is properly resolved
         assertion(PriorityConfig.PRIMARY1.equals(option1StringWrapper.getString()), "Expected " + PriorityConfig.PRIMARY1 + " but received " + option1StringWrapper.getString());
         assertion(PriorityConfig.PRIMARY2.equals(option2StringWrapper.getString()), "Expected " + PriorityConfig.PRIMARY2 + " but received " + option2StringWrapper.getString());
         assertion(PriorityConfig.FALLBACK1.equals(option1NamedStringWrapper.getString()), "Expected " + PriorityConfig.FALLBACK1 + " but received " + option1NamedStringWrapper.getString());
@@ -232,6 +269,83 @@ public abstract class AbstractAppRunner implements TendrilRunner {
         assertStringWrapperListContains(allOption2StringWrappers, PriorityConfig.PRIMARY2, PriorityConfig.BASIC1, PriorityConfig.BASIC2, PriorityConfig.BASIC3);
         assertStringWrapperListContains(allOption1and2StringWrappers, PriorityConfig.BASIC1, PriorityConfig.BASIC2, PriorityConfig.BASIC3);
         assertStringWrapperListContains(allMessageStringWrapeprs, PriorityConfig.FALLBACK3);
+        
+        // Make sure the Enum driven @Duplicate bean1 is properly resolved
+        assertion(bean1Copy1.isSameBlueprint(), "Expected instance field and constructor blueprint to be the same");
+        assertion(bean1Copy1.getInteger() == 1, "Expected 1 but received " + bean1Copy1.getInteger());
+        assertion(bean1Copy1.getDouble() == 1.23, "Expected 1.23 but received " + bean1Copy1.getDouble());
+        assertion("First".equals(bean1Copy1.getString()), "Expected First but received " + bean1Copy1.getString());
+        assertion(bean1Copy1.isSameMessage(), "Expected instance field and constructor messages to be the same");
+        assertion(bean1Copy1.getMessage().equals(expectedMessage), "Expected message " + expectedMessage + " but received " + bean1Copy1.getMessage());
+
+        assertion(bean1Copy2.isSameBlueprint(), "Expected instance field and constructor blueprint to be the same");
+        assertion(bean1Copy2.getInteger() == 2, "Expected 2 but received " + bean1Copy2.getInteger());
+        assertion(bean1Copy2.getDouble() == 2.34, "Expected 2.34 but received " + bean1Copy2.getDouble());
+        assertion("Second".equals(bean1Copy2.getString()), "Expected Second but received " + bean1Copy2.getString());
+        assertion(bean1Copy2.isSameMessage(), "Expected instance field and constructor messages to be the same");
+        assertion(bean1Copy2.getMessage().equals(expectedMessage), "Expected message " + expectedMessage + " but received " + bean1Copy2.getMessage());
+
+        assertion(bean1Copy3.isSameBlueprint(), "Expected instance field and constructor blueprint to be the same");
+        assertion(bean1Copy3.getInteger() == 3, "Expected 3 but received " + bean1Copy3.getInteger());
+        assertion(bean1Copy3.getDouble() == 3.45, "Expected 3.45 but received " + bean1Copy3.getDouble());
+        assertion("Third".equals(bean1Copy3.getString()), "Expected Third but received " + bean1Copy3.getString());
+        assertion(bean1Copy3.isSameMessage(), "Expected instance field and constructor messages to be the same");
+        assertion(bean1Copy3.getMessage().equals(expectedMessage), "Expected message " + expectedMessage + " but received " + bean1Copy3.getMessage());
+        
+        assertion(allBean1Copies.size() == 3, "Expected to receive three copies, but received " + allBean1Copies.size());
+        assertion(allBean1Copies.contains(bean1Copy1), "bean1Copy1 is not contained in allBean1Copies");
+        assertion(allBean1Copies.contains(bean1Copy2), "bean1Copy2 is not contained in allBean1Copies");
+        assertion(allBean1Copies.contains(bean1Copy3), "bean1Copy3 is not contained in allCoallBean1Copiespies");
+
+        // Make sure the Enum driven @Duplicate bean2 is properly resolved
+        assertion(bean2Copy1.getInteger() == 1, "Expected 1 but received " + bean2Copy1.getInteger());
+        assertion(bean2Copy1.getDouble() == 1.23, "Expected 1.23 but received " + bean2Copy1.getDouble());
+        assertion("First".equals(bean2Copy1.getString()), "Expected First but received " + bean2Copy1.getString());
+        assertion(bean2Copy1.isSameMessage(), "Expected instance field and constructor messages to be the same");
+        assertion(bean2Copy1.getMessage().equals(expectedMessage), "Expected message " + expectedMessage + " but received " + bean2Copy1.getMessage());
+
+        assertion(bean2Copy2.getInteger() == 2, "Expected 2 but received " + bean2Copy2.getInteger());
+        assertion(bean2Copy2.getDouble() == 2.34, "Expected 2.34 but received " + bean2Copy2.getDouble());
+        assertion("Second".equals(bean2Copy2.getString()), "Expected Second but received " + bean2Copy2.getString());
+        assertion(bean2Copy2.isSameMessage(), "Expected instance field and constructor messages to be the same");
+        assertion(bean2Copy2.getMessage().equals(expectedMessage), "Expected message " + expectedMessage + " but received " + bean2Copy2.getMessage());
+
+        assertion(bean2Copy3.getInteger() == 3, "Expected 3 but received " + bean2Copy3.getInteger());
+        assertion(bean2Copy3.getDouble() == 3.45, "Expected 3.45 but received " + bean2Copy3.getDouble());
+        assertion("Third".equals(bean2Copy3.getString()), "Expected Third but received " + bean2Copy3.getString());
+        assertion(bean2Copy3.isSameMessage(), "Expected instance field and constructor messages to be the same");
+        assertion(bean2Copy3.getMessage().equals(expectedMessage), "Expected message " + expectedMessage + " but received " + bean2Copy3.getMessage());
+        
+        assertion(allBean2Copies.size() == 3, "Expected to receive three copies, but received " + allBean2Copies.size());
+        assertion(!allBean2Copies.contains(bean2Copy1), "bean2Copy1 is contained in allBean2Copies");
+        assertion(!allBean2Copies.contains(bean2Copy2), "bean2Copy2 is contained in allBean2Copies");
+        assertion(!allBean2Copies.contains(bean2Copy3), "bean2Copy3 is contained in allBean2Copies");
+        for (StaticDuplicateBean2 b2: allBean2Copies)
+        	assertion(b2.isEquivalent(bean2Copy1) || b2.isEquivalent(bean2Copy2) || b2.isEquivalent(bean2Copy3), "allBean2Copies contains unexpecte bean " + b2.getBlueprint());
+
+        // Make sure the Enum driven @Duplicate bean3 is properly resolved
+        assertion(bean3Copy1.getInteger() == 1, "Expected 1 but received " + bean3Copy1.getInteger());
+        assertion(bean3Copy1.getDouble() == 1.23, "Expected 1.23 but received " + bean3Copy1.getDouble());
+        assertion("First".equals(bean3Copy1.getString()), "Expected First but received " + bean3Copy1.getString());
+        assertion(bean3Copy1.isSameMessage(), "Expected instance field and constructor messages to be the same");
+        assertion(bean3Copy1.getMessage().equals(expectedMessage), "Expected message " + expectedMessage + " but received " + bean3Copy1.getMessage());
+
+        assertion(bean3Copy2.getInteger() == 2, "Expected 2 but received " + bean3Copy2.getInteger());
+        assertion(bean3Copy2.getDouble() == 2.34, "Expected 2.34 but received " + bean3Copy2.getDouble());
+        assertion("Second".equals(bean3Copy2.getString()), "Expected Second but received " + bean3Copy2.getString());
+        assertion(bean3Copy2.isSameMessage(), "Expected instance field and constructor messages to be the same");
+        assertion(bean3Copy2.getMessage().equals(expectedMessage), "Expected message " + expectedMessage + " but received " + bean3Copy2.getMessage());
+
+        assertion(bean3Copy3.getInteger() == 3, "Expected 3 but received " + bean3Copy3.getInteger());
+        assertion(bean3Copy3.getDouble() == 3.45, "Expected 3.45 but received " + bean3Copy3.getDouble());
+        assertion("Third".equals(bean3Copy3.getString()), "Expected Third but received " + bean3Copy3.getString());
+        assertion(bean3Copy3.isSameMessage(), "Expected instance field and constructor messages to be the same");
+        assertion(bean3Copy3.getMessage().equals(expectedMessage), "Expected message " + expectedMessage + " but received " + bean3Copy3.getMessage());
+        
+        assertion(allBean3Copies.size() == 3, "Expected to receive three copies, but received " + allBean3Copies.size());
+        assertion(allBean3Copies.contains(bean3Copy1), "bean3Copy1 is not contained in allBean3Copies");
+        assertion(allBean3Copies.contains(bean3Copy2), "bean3Copy2 is not contained in allBean3Copies");
+        assertion(allBean3Copies.contains(bean3Copy3), "bean3Copy3 is not contained in allBean3Copies");
     }
 
     private  static void assertion(boolean value, String msg) {
@@ -267,4 +381,5 @@ public abstract class AbstractAppRunner implements TendrilRunner {
         for (String e: expected)
             assertion(actualStrings.contains(e), "List " + actualStrings + " does not contain element " + e);
     }
+    
 }

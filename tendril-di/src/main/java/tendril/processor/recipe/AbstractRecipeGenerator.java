@@ -178,13 +178,14 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
     protected abstract void populateBuilder(ClassBuilder builder) throws TendrilException;
     
     /**
-     * Get the recipe class that is to be employed for the indicated bean.
+     * Get the recipe class that is to be employed for the indicated bean. By default this will make the determination based
+     * on what annotation is applied to the creator class (i.e.: what class this is a recipe for).
      * 
      * @return {@link Class} extending {@link AbstractRecipe} representing the concrete recipe that is to be used for the bean
-     * @throws InvalidConfigurationException 
+     * @throws InvalidConfigurationException if the lifecycle of the bean cannot be determined
      */
     @SuppressWarnings("rawtypes")
-    private Class<? extends AbstractRecipe> getRecipeClass() throws InvalidConfigurationException {
+    protected Class<? extends AbstractRecipe> getRecipeClass() throws InvalidConfigurationException {
         List<Class<? extends Annotation>> foundTypes = new ArrayList<>();
 
         for (Class<? extends Annotation> annonClass : recipeTypeMap.keySet()) {
@@ -207,25 +208,36 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @param params {@link List} of {@link JParameter}s that are to be processed
      * @param retrievePrefix {@link String} prefix to place before each line of dependency retrieval (i.e.: indentation)
      * @param applyPrefix {@link String} prefix to apply before the parameters (i.e.: the generated application is "applyPrefix(params);")
-     * @throws InvalidConfigurationException if the annotate code is improperly configured
+     * @throws InvalidConfigurationException if the annotated code is improperly configured
      */
     protected void addParameterInjection(List<String> code, List<JParameter<?>> params, String retrievePrefix, String applyPrefix) throws InvalidConfigurationException {
         for (JParameter<?> p : params) {
             Type pType = p.getType();
             if (pType instanceof ClassType)
                 externalImports.add((ClassType)pType);
-            
-            String engineCall = "engine.";
-            if (p.hasAnnotation(InjectAll.class)) {
-                Type beanType = getInjectAllType(p);
-                addImport(beanType);
-                engineCall += "getAllBeans" + "(" + getDependencyDescriptor(p, beanType) + ");";
-            } else {
-                engineCall += "getBean" + "(" + getDependencyDescriptor(p) + ");";
-            }
-            code.add(retrievePrefix + pType.getSimpleName() + p.getGenericsApplicationKeyword(true) + p.getName() + " = " + engineCall);
+            code.add(retrievePrefix + pType.getSimpleName() + p.getGenericsApplicationKeyword(true) + p.getName() + " = " + createParameterInjectionCodeRhs(p) + ";");
         }
         code.add(applyPrefix + "(" + TendrilStringUtil.join(params, ", ", p -> p.getName()) + ");");
+    }
+    
+    /**
+     * Creates the specific code which will is to be used to determine the value to be applied to the parameter. By default this performs a bean retrieval.
+     * 
+     * @param param {@link JParameter} that is being injected
+     * @return {@link String} the code to place on the right hand side of the assignment
+     * @throws InvalidConfigurationException if the annotated code is improperly configured
+     */
+    protected String createParameterInjectionCodeRhs(JParameter<?> param) throws InvalidConfigurationException {
+        String engineCall = "engine.";
+        if (param.hasAnnotation(InjectAll.class)) {
+            Type beanType = getInjectAllType(param);
+            addImport(beanType);
+            engineCall += "getAllBeans" + "(" + getDependencyDescriptor(param, beanType) + ")";
+        } else {
+            engineCall += "getBean" + "(" + getDependencyDescriptor(param) + ")";
+        }
+        
+        return engineCall;
     }
     
     /**

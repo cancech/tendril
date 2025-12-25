@@ -113,6 +113,35 @@ public final class RecipeGenerator {
     }
     
     /**
+     * Generate the recipe for the entry recipe for duplication.
+     * 
+     * @param blueprintType {@link ClassType} of the {@link Enum} which drives the duplication
+     * @param duplicateType {@link ClassType} of the bean which is to be duplicated
+     * @param duplicate {@link JClass} describing the bean which is to be duplicated
+     * @param messager {@link Messager} for the annotation processing
+     * @return {@link ClassDefinition}
+     * @throws TendrilException when an issue generating the recipe is encountered
+     */
+    public static ClassDefinition generateDuplicateBean(ClassType blueprintType, ClassType duplicateType, JClass duplicate, Messager messager) throws TendrilException {
+    	return new DuplicateRecipeGenerator(blueprintType, duplicateType, duplicate, messager).generate(getRecipeType(duplicateType), true);
+    }
+    
+    /**
+     * Generate the recipe which will trigger the creation of all copies of the duplicated beans
+     * 
+     * @param blueprintType {@link ClassType} of the {@link Enum} which drives the duplication
+     * @param siblingType {@link ClassType} of the bean which is to be duplicated
+     * @param sibling {@link JClass} describing the bean which is to be duplicated
+     * @param messager {@link Messager} for the annotation processing
+     * @return {@link ClassDefinition}
+     * @throws TendrilException when an issue generating the recipe is encountered
+     */
+    public static ClassDefinition generateDuplicateSiblingBean(ClassType blueprintType, ClassType siblingType, JClass sibling, Messager messager) throws TendrilException {
+    	DuplicateSiblingRecipeGenerator generator = new DuplicateSiblingRecipeGenerator(siblingType, sibling, messager, blueprintType);
+    	return generator.generate(getSiblingRecipeType(siblingType), false);
+    }
+    
+    /**
      * Derive the recipe type for a bean which is defined within a configuration
      * 
      * @param configType {@link ClassType} defining the configuration
@@ -133,5 +162,15 @@ public final class RecipeGenerator {
      */
     private static ClassType getRecipeType(ClassType beanType) {
         return beanType.generateFromClassSuffix("Recipe");
+    }
+    
+    /**
+     * Derive the recipe class for the sibling bean
+     * 
+     * @param siblingType {@link ClassType} indicating the class of the sibling bean
+     * @return {@link ClassType}
+     */
+    static ClassType getSiblingRecipeType(ClassType siblingType) {
+    	return getRecipeType(siblingType.generateFromClassSuffix("Sibling"));
     }
 }

@@ -15,6 +15,7 @@
  */
 package tendril.codegen.classes;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
@@ -28,6 +29,9 @@ public class FieldBuilder<DATA_TYPE extends Type> extends NestedClassElementBuil
 
     /** Value that is to be applied to the field */
     private JValue<DATA_TYPE, ?> value = null;
+    
+    /** Custom initialization that is to be applied to the field */
+    private String customInitialization = "";
 
     /**
      * CTOR - for use when creating an arbitrary field
@@ -49,13 +53,27 @@ public class FieldBuilder<DATA_TYPE extends Type> extends NestedClassElementBuil
     }
 
     /**
-     * Set the default value of the field
+     * Set the default value of the field (cannot be used in conjunction with {@code setCustomInitialization})
      * 
      * @param value {@link JValue} containing the default value
      * @return {@link FieldBuilder}
      */
     public FieldBuilder<DATA_TYPE> setValue(JValue<DATA_TYPE, ?> value) {
         this.value = value;
+        return this;
+    }
+
+    /**
+     * Set the custom initialization of the field (cannot be used in conjunction with {@code setValue})
+     * 
+     * Note, no error checking is performed on the custom initialization and it will be applied as-is (merely appending a {@code ;} after it)
+     * Thus, no errors will be detected until the generated code is compiled.
+     * 
+     * @param code {@link String} containing the custom initialization
+     * @return {@link FieldBuilder}
+     */
+    public FieldBuilder<DATA_TYPE> setCustomInitialization(String code) {
+        this.customInitialization = code;
         return this;
     }
 
@@ -81,7 +99,19 @@ public class FieldBuilder<DATA_TYPE extends Type> extends NestedClassElementBuil
     @Override
     protected JField<DATA_TYPE> applyDetails(JField<DATA_TYPE> element) {
         element.setValue(value);
+        element.setCustomInitialization(customInitialization);
         return super.applyDetails(element);
+    }
+    
+    /**
+     * @see tendril.codegen.field.TypeBuilder#validate()
+     */
+    @Override
+    protected void validate() {
+    	super.validate();
+    	
+    	if (value != null && !customInitialization.isEmpty())
+    		throw new DefinitionException("Field cannot have both a default value and a custom initialization");
     }
 
 }

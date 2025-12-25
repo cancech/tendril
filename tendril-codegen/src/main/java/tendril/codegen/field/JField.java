@@ -30,6 +30,8 @@ import tendril.codegen.field.value.JValue;
 public class JField<DATA_TYPE extends Type> extends JVisibleType<DATA_TYPE> {
     /** The value applied to the field */
     private JValue<DATA_TYPE, ?> value = null;
+    /** Custom code to be applied to initialize the field */
+    private String customInitialization = "";
 
     /**
      * CTOR with no field applied
@@ -60,6 +62,24 @@ public class JField<DATA_TYPE extends Type> extends JVisibleType<DATA_TYPE> {
     }
 
     /**
+     * Apply the specified custom initialization code to the field
+     * 
+     * @param code {@link String} to be used to initialize the field
+     */
+    public void setCustomInitialization(String code) {
+        this.customInitialization = code;
+    }
+    
+    /**
+     * Get the custom initialization for the field
+     * 
+     * @return {@link String} the code through which to initialize the field
+     */
+    public String getCustomInitialization() {
+    	return customInitialization;
+    }
+
+    /**
      * @see tendril.codegen.field.JType#equals(java.lang.Object)
      */
     @Override
@@ -68,7 +88,9 @@ public class JField<DATA_TYPE extends Type> extends JVisibleType<DATA_TYPE> {
             return false;
 
         JField<?> otherField = (JField<?>) other;
-        if (value == null) {
+        if (customInitialization != otherField.customInitialization)
+        	return false;
+        else if (value == null) {
             if (otherField.value != null)
                 return false;
         } else if (!value.equals(otherField.value))
@@ -95,10 +117,12 @@ public class JField<DATA_TYPE extends Type> extends JVisibleType<DATA_TYPE> {
         String code = visibility.getKeyword() + getStaticKeyword() + getFinalKeyword();
         code += type.getSimpleName() + getGenericsApplicationKeyword(true) + name;
 
-        if (value == null)
-            return code + ";";
+        if (value != null)
+            code += " = " + value.generate(classImports);
+        else if (!customInitialization.isEmpty())
+        	code += " = " + customInitialization;
 
-        return code + " = " + value.generate(classImports) + ";";
+        return code + ";";
     }
 
 }

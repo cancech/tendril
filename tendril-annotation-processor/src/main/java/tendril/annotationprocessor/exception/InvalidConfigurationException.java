@@ -31,4 +31,14 @@ public class InvalidConfigurationException extends TendrilException{
         super(reason);
     }
 
+    /**
+     * CTOR
+     * 
+     * @param reason {@link String} causing the exception
+     * @param cause {@link Exception} which triggered the exception
+     */
+    public InvalidConfigurationException(String reason, Exception cause) {
+        super(reason, cause);
+    }
+
 }

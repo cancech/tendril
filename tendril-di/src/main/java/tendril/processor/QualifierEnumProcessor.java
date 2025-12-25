@@ -15,6 +15,7 @@
  */
 package tendril.processor;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -59,6 +60,15 @@ public class QualifierEnumProcessor extends AnnotationFromEnumProcessor {
     }
     
     /**
+     * CTOR
+     * 
+     * @param processorAnnotation {@link Annotation} {@link Class} that the processor is to process
+     */
+    public QualifierEnumProcessor(Class<? extends Annotation> processorAnnotation) {
+        super(processorAnnotation);
+    }
+    
+    /**
      * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
      */
     @Override
@@ -78,7 +88,7 @@ public class QualifierEnumProcessor extends AnnotationFromEnumProcessor {
      * @param type {@link ClassType} of the generated annotation
      * @return {@link String} containing the full code for the class
      */
-    private String generateCode(ClassType type) {
+    protected String generateCode(ClassType type) {
         JClass cls = ClassBuilder.forAnnotation(type).setVisibility(VisibilityType.PUBLIC)
                 .addAnnotation(JAnnotationFactory.create(GeneratedQualifier.class))
                 .addAnnotation(JAnnotationFactory.create(Retention.class, JValueFactory.create(RetentionPolicy.RUNTIME)))

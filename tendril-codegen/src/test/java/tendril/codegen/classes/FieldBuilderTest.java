@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.Type;
@@ -61,6 +62,7 @@ public class FieldBuilderTest extends AbstractUnitTest {
         // By default value is null
         builder.applyDetails(mockField);
         verify(mockField).setValue(null);
+        verify(mockField).setCustomInitialization("");
         verify(mockField).setFinal(false);
         verify(mockField).setStatic(false);
         verify(mockField).setVisibility(VisibilityType.PACKAGE_PRIVATE);
@@ -75,6 +77,22 @@ public class FieldBuilderTest extends AbstractUnitTest {
         builder.setValue(mockValue);
         builder.applyDetails(mockField);
         verify(mockField).setValue(mockValue);
+        verify(mockField).setCustomInitialization("");
+        verify(mockField).setFinal(false);
+        verify(mockField).setStatic(false);
+        verify(mockField).setVisibility(VisibilityType.PACKAGE_PRIVATE);
+    }
+
+    /**
+     * Verify that the custom initialization can be set properly
+     */
+    @Test
+    public void testApplySpecifiedCustomInitialization() {
+        // Apply some value
+        builder.setCustomInitialization("abc123");
+        builder.applyDetails(mockField);
+        verify(mockField).setValue(null);
+        verify(mockField).setCustomInitialization("abc123");
         verify(mockField).setFinal(false);
         verify(mockField).setStatic(false);
         verify(mockField).setVisibility(VisibilityType.PACKAGE_PRIVATE);
@@ -98,5 +116,31 @@ public class FieldBuilderTest extends AbstractUnitTest {
     public void testAddToClass() {
         builder.addToClass(mockClassBuilder, mockField);
         verify(mockClassBuilder).add(mockField);
+    }
+    
+    /**
+     * Verify that the validation is performed properly
+     */
+    @Test
+    public void testValidate() {
+    	// No initialization, no error
+    	builder.setType(mockType);
+    	builder.validate();
+    	
+    	// Only value
+    	builder.setValue(mockValue);
+    	builder.validate();
+    	
+    	// both value and initialization triggers error
+    	builder.setCustomInitialization("qwerty");
+    	Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
+    	
+    	// only custom initialization
+    	builder.setValue(null);
+    	builder.validate();
+    	
+    	// neither, no error
+    	builder.setCustomInitialization("");
+    	builder.validate();
     }
 }

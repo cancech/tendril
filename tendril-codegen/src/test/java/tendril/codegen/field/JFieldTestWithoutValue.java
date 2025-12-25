@@ -38,6 +38,7 @@ public class JFieldTestWithoutValue extends CommonJFieldTest {
     protected void prepareTest() {
         field = create(VisibilityType.PACKAGE_PRIVATE, mockType, "fieldName");
         Assertions.assertNull(field.getValue());
+        Assertions.assertEquals("", field.getCustomInitialization());
     }
 
     /**

@@ -32,54 +32,86 @@ import tendril.test.AbstractUnitTest;
  */
 public abstract class CommonJFieldTest extends AbstractUnitTest {
 
-    // Mocks to use for testing
-    @Mock
-    protected Type mockType;
-    @Mock
-    protected JValue<Type, ?> mockOtherValue;
-    @Mock
-    protected CodeBuilder mockBuilder;
-    @Mock
-    protected Set<ClassType> mockImports;
-    @Mock
-    protected GenericType mockGeneric1;
-    @Mock
-    protected GenericType mockGeneric2;
-    @Mock
-    protected GenericType mockGeneric3;
+	// Mocks to use for testing
+	@Mock
+	protected Type mockType;
+	@Mock
+	protected JValue<Type, ?> mockOtherValue;
+	@Mock
+	protected CodeBuilder mockBuilder;
+	@Mock
+	protected Set<ClassType> mockImports;
+	@Mock
+	protected GenericType mockGeneric1;
+	@Mock
+	protected GenericType mockGeneric2;
+	@Mock
+	protected GenericType mockGeneric3;
 
-    // Instance with value to test
-    protected JField<Type> field;
+	// Instance with value to test
+	protected JField<Type> field;
 
-    /**
-     * Create a field with the specified characteristics
-     * 
-     * @param visibility {@link VisibilityType}
-     * @param type       {@link Type}
-     * @param name       {@link String}
-     * @return {@link JField}
-     */
-    protected JField<Type> create(VisibilityType visibility, Type type, String name) {
-        return create(visibility, type, name, null);
-    }
+	/**
+	 * Create a field with the specified characteristics
+	 * 
+	 * @param visibility {@link VisibilityType}
+	 * @param type       {@link Type}
+	 * @param name       {@link String}
+	 * @return {@link JField}
+	 */
+	protected JField<Type> create(VisibilityType visibility, Type type, String name) {
+		return create(visibility, type, name, null, "");
+	}
 
-    /**
-     * Create a field with the specified characteristics
-     * 
-     * @param <DATA_TYPE> extending {@link Type} indicating what the field contains
-     * @param visibility  {@link VisibilityType}
-     * @param type        {@link Type}
-     * @param name        {@link String}
-     * @param value       {@link JValue}
-     * @return {@link JField}
-     */
-    protected <DATA_TYPE extends Type> JField<DATA_TYPE> create(VisibilityType visibility, DATA_TYPE type, String name, JValue<DATA_TYPE, ?> value) {
-        JField<DATA_TYPE> field = new JField<>(type, name);
-        field.setVisibility(visibility);
+	/**
+	 * Create a field with the specified characteristics
+	 * 
+	 * @param <DATA_TYPE> extending {@link Type} indicating what the field contains
+	 * @param visibility  {@link VisibilityType}
+	 * @param type        {@link Type}
+	 * @param name        {@link String}
+	 * @param value       {@link JValue}
+	 * @return {@link JField}
+	 */
+	protected <DATA_TYPE extends Type> JField<DATA_TYPE> create(VisibilityType visibility, DATA_TYPE type, String name, JValue<DATA_TYPE, ?> value) {
+		return create(visibility, type, name, value, "");
+	}
 
-        if (value != null)
-            field.setValue(value);
+	/**
+	 * Create a field with the specified characteristics
+	 * 
+	 * @param <DATA_TYPE> extending {@link Type} indicating what the field contains
+	 * @param visibility  {@link VisibilityType}
+	 * @param type        {@link Type}
+	 * @param name        {@link String}
+	 * @param customInitialization {@link String}
+	 * @return {@link JField}
+	 */
+	protected <DATA_TYPE extends Type> JField<DATA_TYPE> create(VisibilityType visibility, DATA_TYPE type, String name, String customInitialization) {
+		return create(visibility, type, name, null, customInitialization);
+	}
 
-        return field;
-    }
+	/**
+	 * Create a field with the specified characteristics
+	 * 
+	 * @param <DATA_TYPE>          extending {@link Type} indicating what the field contains
+	 * @param visibility           {@link VisibilityType}
+	 * @param type                 {@link Type}
+	 * @param name                 {@link String}
+	 * @param value                {@link JValue}
+	 * @param customInitialization {@link String}
+	 * @return {@link JField}
+	 */
+	protected <DATA_TYPE extends Type> JField<DATA_TYPE> create(VisibilityType visibility, DATA_TYPE type, String name, JValue<DATA_TYPE, ?> value, String customInitialization) {
+		JField<DATA_TYPE> field = new JField<>(type, name);
+		field.setVisibility(visibility);
+
+		if (value != null)
+			field.setValue(value);
+		if (!customInitialization.isEmpty())
+			field.setCustomInitialization(customInitialization);
+
+		return field;
+	}
+
 }

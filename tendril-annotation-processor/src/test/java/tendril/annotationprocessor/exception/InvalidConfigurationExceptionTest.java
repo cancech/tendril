@@ -17,12 +17,27 @@ package tendril.annotationprocessor.exception;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+
+import tendril.test.AbstractUnitTest;
 
 /**
  * Test case for {@link InvalidConfigurationException}
  */
-public class InvalidConfigurationExceptionTest {
+public class InvalidConfigurationExceptionTest extends AbstractUnitTest {
 
+	// Mocks to use for testing
+	@Mock
+	private Exception mockException;
+	
+    /**
+     * @see tendril.test.AbstractUnitTest#prepareTest()
+     */
+	@Override
+	protected void prepareTest() {
+		// nothing to be done
+	}
+	
     /**
      * Verify that the message is properly stored
      */
@@ -31,5 +46,15 @@ public class InvalidConfigurationExceptionTest {
         Assertions.assertEquals("abc123", new InvalidConfigurationException("abc123").getMessage());
         Assertions.assertEquals("123abc", new InvalidConfigurationException("123abc").getMessage());
         Assertions.assertEquals("qwerty", new InvalidConfigurationException("qwerty").getMessage());
+    }
+    
+    /**
+     * Verify that the message and cause are properly stored
+     */
+    @Test
+    public void testCause() {
+    	InvalidConfigurationException ex = new InvalidConfigurationException("kfjfor123", mockException);
+    	Assertions.assertEquals("kfjfor123", ex.getMessage());
+    	Assertions.assertEquals(mockException, ex.getCause());
     }
 }
