@@ -29,4 +29,6 @@ import java.lang.annotation.Target;
 public @interface Sibling {
 	// TODO Make sure this is used for field as well as parameter injection
 	// TODO Allow for sibling injection
+	// TODO Allow for config duplicates
+	// TODO warning when placed on a @Bean
 }
