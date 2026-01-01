@@ -1,5 +1,5 @@
 # Tendril
-Tendril is an Annotation Processing based Dependency Injection, where the necessary code to perform dependency injection is generated at compile time and the dependency injection itself at runtime - no reflection required. The core usage is fairly straightforward, where a bean is defined in one location and then consumed in another. Two annotations are employed to indicate the "direction" of bean movement:
+Tendril is an Annotation Processing based Dependency Injection, where the necessary code to perform dependency injection is generated at compile time and the dependency injection itself at runtime - no reflection required. The core usage is fairly straightforward, where a bean is defined in one location and then consumed in another. Three annotations are employed to indicate the "direction" of bean movement:
 
 |Annotation|Description|
 |---       | ---       |
@@ -18,33 +18,13 @@ Some of these may be clear, some not, but for sake of completeness terms are def
 |Configuration|A class which performs the steps to create and provide one or more Beans that are separate from the Configuration class itself.|
 |Context|The logical bounds of the running application.|
 |Dependency Injection|A mechanism for passing object from producers to consumers, such that consumers can obtain their necessary dependencies without needing to be concerned with where said dependencies come from.|
+|Duplication|The process of creating multiple copies of a bean are created according to a specified blueprint. Injection of the bean copies takes place as per normal, with the exception that as many copies are produces as the blueprint indicates that should exist.|
 |Qualifier|Annotation applied to a Bean to add descriptive information to the Bean, to make it possible/easier to find specific Beans (akin to metadata).|
 |Quantifier|Annotation applied to a Bean to indicate how many copies of the Bean are to be produced.|
 |Recipe|Generated class which contains the steps necessary to build a Bean within the `Tendril` framework.|
 |Requirement|Condition which must be met for a bean to be allowed to be created.|
 |Runner|Main entry point for a `Tendril` application.|
-
-### Transferable Annotations
-Certain annotations (namely Qualifiers and Requirements) are transferable, which in this context means that they can be applied anywhere in the annotation hierarchy and have an effect on the element (namely Bean and Configuration) as if they were applied to the element directly. Thus, common combinations can be placed into a shared/reusable annotation which is then applied to the appropriate Beans or Configurations, avoiding the need to "redefine" the combination in multiple places. Note that the reusable annotation must include `@Retention(RetentionPolicy.RUNTIME)` and have the appropriate `@Target` configured for its various use cases. This allows for defining custom annotation, and refactor these transferable annotations away from concrete Beans or Configurations.
-
-```java
-@QualifierEnum
-public enum MyQualifiers {
-	TestElement;
-}
-
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
-@RequiresNotEnv("TEST")
-@TestElement
-public @interface TestElement {
-}
-
-@TestElement // provides the transferable annotations @RequiresNotEnv("TEST") and @TestElement
-public class MyTestBean {
-	// ...
-}
-```
+|Sibling|Beans which are created for the same blueprint instance are siblings of each other. There can be any number of beans created as siblings, so long as they are tied to the same blueprint instance.|
 
 ## Creating a Bean
 The bean is the key ingredient in any Dependency Injection scheme, and `Tendril` is no different. There are two ways in which to define beans:
@@ -55,11 +35,11 @@ Regardless of which approach is taken to define a bean, each bean must be *quant
 
 |Annotation|Description|
 |---       | ---       |
-|`@Singleton`| The first time the bean is accessed, an instance is created. This instace is then returned for each subsequent access of the bean. `Tendril` *guarantees* that only a single instance of the bean is ever employed as part of dependency injection. The class itself need not (in fact should not) actually follow the Singleton pattern.|
+|`@Singleton`| The first time the bean is accessed, an instance is created. This instance is then returned for each subsequent access of the bean. `Tendril` *guarantees* that only a single instance of the bean is ever employed as part of dependency injection. The class itself need not (in fact should not) actually follow the Singleton pattern.|
 |`@Factory`| A new instance of the class is created for every access of the bean. `Tendril` *guarantees* that the same approach/mechanism is employed for the purpose of creating the bean, but a separate copy is always retrieved.|
 
 ### Bean Class
-The simplest and most straight forward to define a bean, is to make a class itself into a bean. Much like how a class defines the characteristics and capabilities of an enclosed *thing*, it can also define how it is to be used within `Tendril`. To do so, simply annotate the class with `@Bean` to indicate to `Tendril` that it is to be treated as a bean. Do not forget that the `quantifier` is still necessary. Thus a simple bean would look like the following:
+The simplest and most straight forward way to define a bean, is to make a class itself into a bean. Much like how a class defines the characteristics and capabilities of an enclosed *concept*, it can also define how it is to be used within `Tendril`. To do so, simply annotate the class with `@Bean` to indicate to `Tendril` that it is to be treated as a bean. Do not forget that the `quantifier` is still necessary. Thus a simple bean would look like the following:
 
 ```java
 @Bean
@@ -89,10 +69,10 @@ public class MySingletonBean {
 }
 ```
 
-Note that private constructors are not considered valid and are thus ignored for the purpose of bean processing. This means that if there is only a single non-private constructor, it need not be annotated with `@Inejct`. Any private constructors are ignored, regardless of whether or not they are annotated with `@Inject`.
+Note that private constructors are not considered valid and are thus ignored for the purpose of bean processing. This means that if there is only a single non-private constructor, it need not be annotated with `@Inject`. Any private constructors are ignored, regardless of whether or not they are annotated with `@Inject`.
 
 ### Configuration Class
-Where a bean class defined itself as a bean, a `Configuration` defines other beans. Meaning that the class itself is not a bean, but rather it provides one or more beans via methods. To create a `Configuration` a class is annotated with `@Configuration` and any methods which are to be used as the source of beans must be annotated with `@Bean`.
+Where a bean class defines itself as a bean, a `Configuration` defines other beans. Meaning that the class itself is not a bean, but rather it provides one or more beans via methods. To create a `Configuration` a class is annotated with `@Configuration` and any methods which are to be used as the source of beans must be annotated with `@Bean`.
 
 ```java
 @Configuration
@@ -112,12 +92,10 @@ public class MyConfiguration {
 }
 ```
 
-In this situation, the `Configuration` will be initialized before any beans it provides are created, but only the beans it provides will be made available for injection (i.e.: the `Configuration` itself is transient, a means to an end). This allows for classes from outside of the codebase to be incorporated into `Tendril` dependency injeciton, as well as having multiple distinct copies of the same class to be made available as well. The same `Configuration` instance is employed for all beans it provides, meaning that the `Configuration` class itself is only initialized/created once.
+In this situation, the `Configuration` will be initialized before any beans it provides are created, but only the beans it provides will be made available for injection (i.e.: the `Configuration` itself is transient, a means to an end). This allows for classes from outside of the codebase to be incorporated into `Tendril` dependency injection, as well as having multiple distinct copies of the same class to be made available as well. The same `Configuration` instance is employed for all beans it provides, meaning that the `Configuration` class itself is only initialized/created once.
 
 ### Placing Restriction on Bean Creation
-Requirements can be placed on Beans and Configuration to limit under what circumstance they will be created. For example to use a different bean in a development, production, or test environment with little to no changes required in the code itself. Note that when a requirement is applied to a Configuration, it is implicitly applied to all Beans within (the configuration will not be employed if the Configuration requirements are not met). Any requirements applied to Beans defined within a Configuration are in effect applied on top of the Configuration requirements. Multiples requirements can be applied, with them acting additively (i.e.: all specified requirements must be met).
-
-Note that requirements are transferable.
+Requirements can be placed on Beans and Configurations to limit under what circumstance they will be created. For example to use a different bean in a development, production, or test environment with little to no changes required in the code itself. Note that when a requirement is applied to a `Configuration` directly, it is implicitly applied to all Beans within (the whole `Configuration` will not be employed if the `Configuration` requirements are not met). Any requirements applied to Beans defined within a `Configuration` are in effect applied on top of the `Configuration` requirements. Multiples requirements can be applied, with them acting additively (i.e.: all specified requirements must be met).
 
 #### Environments
 The simplest manner in which to achieve this control is through the use of environments. Different environments can be specified when creating the `ApplicationContext` and requirements can be applied to Beans and Configurations to account for them.
@@ -130,9 +108,9 @@ ctx.start();
 
 Any number of environments can be provided to `setEnvironments()`. To apply requirements on a Bean or Configuration the following annotations can be used:
 
-* `@RequiresEnv` and specify one (or more) environments which must be applied for the Bean or Configuration to be allowed to be created.
-* `@RequiresOneOfEnv` and specify one (or more) environments, one of which must be applied for the Bean or Configuration to be allowed to be created.
-* `@RequiresNotEnv` and specifying one (or more) environments which must *not* be applied for the Bean of Configuration to be allowed to be created.
+* `@RequiresEnv` and specify one (or more) environments, *all of which* must be applied for the Bean or Configuration to be allowed to be created.
+* `@RequiresOneOfEnv` and specify one (or more) environments, *at least one of which* must be applied for the Bean or Configuration to be allowed to be created.
+* `@RequiresNotEnv` and specifying one (or more) environments, *none of which* can be applied for the Bean of Configuration to be allowed to be created.
 
 ```java
 @Bean
@@ -155,11 +133,11 @@ public class MyEnvBandCNotDandEClass {
 
 ## Consuming a Bean
 In essence, the act of creating Beans is also the act of consuming them. Bean consumption is performed as part of Bean creation, where a Bean consumes its dependencies before it itself is provided onward to whomever depends on it. Thus, consuming a Bean is the act of defining what other Bean a given Bean depends on. This is done via the `@Inject` annotation, which can be applied on:
-* Constructors - the parameters the constructor takes are treated as bean dependencies and provided when called
-* Instance Fields - instance fields annotated with `@Inject` or `@InjectAll` are automatically fulfilled by dependency injection
-* Methods - any method annotated with `@Inject` is automatically called (once) as part of dependency injection, with all parameters it contains treated as dependencies that are to be provided.
+* Constructors - the parameters the constructor takes are treated as bean dependencies and provided when called. Note: only one constructor can be injected.
+* Instance Fields - instance fields annotated with `@Inject` or `@InjectAll` are automatically fulfilled by dependency injection. Note: any number of instance fields can be injected.
+* Methods - any method annotated with `@Inject` is automatically called (once) as part of dependency injection, with all parameters it contains treated as dependencies that are to be provided. Note: any number of methods (provided they are not constructors) can be injected.
 
-This applied to both `Bean Classes` as well as `Configurations`.
+This applies to both `Bean Classes` as well as `Configurations`.
 
 ```java
 @Bean
@@ -203,25 +181,27 @@ public class MyConfiguration {
 ```
 
 #### Injecting Across Configuration Beans
-If there are Beans defined within a single `Configuration` which depend on each other, they cannot call each other directly. Doing so will cause the creation of the Bean outside of the `Tendril` mechanism, with potentially unintended side-effects. If the Bean is question is a `@Factory` this side-effect may be ultimately inconsequential, however for `@Singleton` this will result in an additional instance of the Bean being created.
+If there are Beans defined within a single `Configuration` which depend on each other, they cannot call each other directly. Doing so will cause the bypass the `Tendril` mechanism, with potentially unintended side-effects. If the Bean is question is a `@Factory` this side-effect may be ultimately inconsequential, however for `@Singleton` this will result in an additional instance of the Bean being created.
 
 ```java
 @Configuration
 public class MyConfiguration {
 
-  @Bean
-  @Singleton
-  MyClass createMyClass() {
-    return new MyClass();
-  }
-
-  @Bean
-  @Singleton
-  MyOtherClass createMyOtherClass() {
-    // Calling createMyClass() directly results in an instance of MyClass being created
-    // outside of the Tendril dependency injection mechanism
-    return new MyOtherClass(createMyClass());
-  }
+	@Bean
+	@Singleton
+	MyClass createMyClass() {
+		return new MyClass();
+	}
+  
+	@Bean
+	@Singleton
+	MyOtherClass createMyOtherClass() {
+		// Calling createMyClass() directly results in an instance of MyClass being created
+		// outside of the Tendril dependency injection mechanism. Thus while this will properly
+		// compile and run, a separate instance of MyClass will be employed which will have
+		// runtime consequences, depending on the nature and capabilities of MyClass.
+		return new MyOtherClass(createMyClass());
+	}
 }
 ```
 
@@ -231,18 +211,19 @@ In this situation, it is necessary to rely on proper dependency injection method
 @Configuration
 public class MyConfiguration {
 
-  @Bean
-  @Singleton
-  MyClass createMyClass() {
-    return new MyClass();
-  }
+	@Bean
+	@Singleton
+	MyClass createMyClass() {
+		return new MyClass();
+	}
 
-  @Bean
-  @Singleton
-  MyOtherClass createMyOtherClass(MyClass myClass) {
-    // MyClass is now provided as a Bean, with the appropriate protections in place
-    return new MyOtherClass(myClass);
-  }
+	@Bean
+	@Singleton
+	MyOtherClass createMyOtherClass(MyClass myClass) {
+		// MyClass is properly injected and provided via Tendril.
+		// The appropriate MyClass singleton instance is employed
+		return new MyOtherClass(myClass);
+	}
 }
 ```
 
@@ -256,8 +237,8 @@ Some things to note:
 * The field must be a `List` and the *type parameter* must reflect the desired *type* of the bean (i.e.: `@InjectAll List<Runnable>` will inject `Runnable` beans)
 * The field can be qualified in the same manner as `@Inject`, with the same rules/options supported
 * All beans in the application context which match the supplied qualifiers will be retrieved
-* If no bean matches the supplied qualifiers, and empty list will be retrieved
-* When applied to a parameter, then method or constructor it belongs to must be annotated with `@Inject` (either explicitely or implicitely)
+* If no bean matches the supplied qualifiers, and empty list will be retrieved (no error is thrown if no matching beans are available)
+* When applied to a parameter, then method or constructor it belongs to must be annotated with `@Inject` (either explicitly or implicitly)
 
 Accordingly, `Tendril` provides zero or more matching beans to the `@InjectAll` field, leaving it up to the client code to perform the necessary actions/operations as necessary upon them.
 
@@ -266,28 +247,253 @@ Accordingly, `Tendril` provides zero or more matching beans to the `@InjectAll` 
 @Singleton
 public class MyBeanClass {
 
-  @InjectAll
-  List<Runnable> runnables;
+	@InjectAll
+	List<Runnable> runnables;
   
-  @Inject
-  MyBeanClass(@InjectAll List<String> strings) {
-  }
+	@Inject
+	MyBeanClass(@InjectAll List<String> strings) {
+	}
   
-  @Inject
-  void methodInjector(MyClass bean1, MyOtherClass bean2, @InjectAll List<Object> allBeans) {
-  }
+	@Inject
+	void methodInjector(MyClass bean1, MyOtherClass bean2, @InjectAll List<Object> allBeans) {
+	}
+}
+```
 
-  @PostConstruct
-  void processRunnables() {
-    for (Runnable r: runnables)
-      r.run();
-  }
+## Qualify Beans
+As the number of beans within an application grows, it becomes important to provide means of qualifying or describing beans. This is crucial once multiple Beans of the same type (either directly through a `Configuration` or indirectly through their inheritance hierarchy) are to be employed. This is where `qualifiers` come into the picture, acting as descriptors (i.e.: metadata) for each Bean, allowing for fine-grained differentiation of one Bean from another. The most basic differentiator is the type (i.e.: class) of the Bean, dictated by either:
+* The class for a `Class Bean`
+* The return type of a `Configuration Bean`
+This type, or something from its inheritance hierarchy, must be used for the purpose of retrieving the Bean (i.e.: must be able to cast the Bean to the desired type). Beyond this most basic `qualifier` additional options are available through which to provide additional information to distinguish one Bean from another.
+
+Note that none of these `qualifiers` (including Bean Type) are unique, as each can be applied to any number of Beans. Uniqueness is not guaranteed by any individual `qualifier` and it is up to the user to either enforce uniqueness manually when building beans if such is required, or to employ a combination of `qualifiers` which together uniquely identify a specific Bean.
+
+### @Named
+Using the `@Named` annotation allows for applying a `String` name to a Bean. There is no restriction placed on what can be contained within the `String`.
+
+```java
+@Bean
+@Singleton
+@Named("qwerty")
+public class MyClass {
+}
+
+@Bean
+@Singleton
+public class MyOtherClass {
+
+	@Inject
+	@Named("qwerty")
+	MyClass myClass;
+}
+```
+
+This is the simplest manner in which to qualify a bean, however due to no compile or even runtime validation of the supplied name, then there is a very high probability of errors that will not be seen/noticed until runtime. Some of this can be mitigated through the use of `static final String` variables, however this does not outright resolve the issue.
+
+### Enum ID
+It is possible to employ an `Enum` as an ID on a bean using a two-step process. First, the `Enum` itself must be annotated with `@BeanIdEnum` which tells `Tendril` to generate an annotation `@<Enum>Id` which can then be applied to beans. This generated annotation takes a value from the `@BeanIdEnum` annotated `Enum`, which is then applied as a `qualifier` to the Bean.
+
+```java
+@BeanIdEnum
+public enum MyEnum {
+	VALUE1, VALUE2;
+}
+
+@Bean
+@Singleton
+@MyEnumId(MyEnum.VALUE1)
+public class MyClass {
+}
+
+@Bean
+@Singleton
+public class MyOtherClass {
+
+	@Inject
+	@MyEnumId(MyEnum.VALUE1)
+	MyClass myClassBean;
+}
+```
+The generated `@<Enum>Id` is co-located in the same `package` as the `@BeanIdEnum` annotated enumeration.
+
+When used, the `@<Enum>Id` qualifier ultimately serves the exact same function as `@Named`, just with a touch of compiler validation and verification added into the mix to lessen the risk of misnamed beans. This cannot remove the issues associated with employing the *wrong* value, but it will decrease (if not outright remove) risks of typos. For this reason it is recommended to employ `@<Enum>Id` is place of `@Named` whenever possible.
+
+### Qualifier Annotations
+Custom qualifier annotations can be creating, by simply defining an annotation and annotating it with the `@Qualifier` annotation. This marks that annotation as one which can be used as a qualifier and it will be processed as such by `Tendril`. The only other caveats being:
+* it must have a `@Retention` of at least `RUNTIME` to ensure that it can be used outside of the defining library
+* the `@Target` should include `TYPE`, `METHOD`, `FIELD`, and `PARAMETER` at a minimum, so that it can be used in all areas where beans are either produced or injected.
+
+An example qualifier can be defined as follows:
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Qualifier
+public @interface MyQualifier {
+}
+```
+The annotation does not require any attributes, in fact if any are defined they will be ignored by `Tendril`. Once defined, the qualified can be applied to beans both when defined and injected.
+
+```java
+@Bean
+@Singleton
+@MyQualifier
+public class MyClass {
+}
+
+@Bean
+@Singleton
+public class MyOtherClass {
+
+	@Inject
+	@MyQualifier
+	MyClass myClassBean;
+}
+```
+
+At a high level, the `qualifier annotation` can act as a `Name` or `Enum ID`, with one major distinction. Any number of *distinct* qualifiers can be applied to a single bean, whereas only a single `Name` or `Enum ID` (for a given `Enum`) can be applied. In that respect the `qualifier annotation` can be viewed as a more flexible option.
+
+#### Generated Qualifiers
+Since every `qualifier annotation` will look, behave, and be implemented in the exact same manner, with the only difference being the class/annotation name, the `qualifier annotation` essentially becomes a bit of boiler plate code. To alleviate some of the drudgery involved with the definition and maintenance of these qualifiers, it is possible to use the `@QualifierEnum` to generate the desired qualifiers. In this manner the various qualifiers are defined in an `enum`, such that each value represents a single qualifier. No parameters/values are necessary, and the `enum` value name is used verbatim to generate a corresponding `qualifier annotation`.
+
+```java
+@QualifierEnum
+public enum MyQualifiers {
+	Value1, Value2;
+}
+```
+
+will generate
+
+```java
+@GeneratedQualifier
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
+@Qualifier
+public @interface Value1 {
+
+}
+
+@GeneratedQualifier
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
+@Qualifier
+public @interface Value2 {
+
+}
+```
+
+which can then be employed as needed to qualify beans in your application.
+
+```java
+@Bean
+@Factory
+@Value1
+@Value2
+public class MyClass {
+
+}
+```
+
+The name of the `enum` is irrelevant, as it is not used as part of the generation process. Only the `enum value` is employed. This also alleviates the restriction from `Enum ID` as each generated anotation is distinct any number of them can be applied to a single bean.\
+
+## Prioritizing Beans
+In some situations it may be necessary to *prioritize* which beans are used by applying a *type* to them. These types can be either:
+* `Primary` - high priority
+* `Basic`- normal priority
+* `Fallback` - low priority, only to be used when no other bean is available
+
+This is done when defining a bean (whether as a class or method) by annotating it with `@Primary` to make it a primary bean, or `@Fallback` to make it a fallback bean. If neither is applied it will be a default `Basic` bean. How this comes into effect depends on how the bean is retrieved.
+
+### `@Inject` Bean Priority
+When injecting a single bean via `@Inject`, it will be pulled from the highest priority level that is available from the beans which match the injection, regardless of how many beans may exist in the lower priority levels. For example: the single matching `@Primary` bean will be returned regardless of how many `Basic` or `@Fallback` matches are present. If there is no `@Primary` match, then the single `Basic` bean will be returned, regardless of how many `@Fallback` ones are present. If there are no `@Primary` or `Basic` beans, then there must be a single `@Fallback` bean in the results. There must be exactly one match in the highest available level when injecting an `@Inject` bean, otherwise an exception will be thrown.
+
+In this situation, the `@Primary` can be seen as a means of *elevating* one bean over others. For example, if `BeanB` extends `BeanA` then `@Priority` can be employed to prioritize the parent class when making an injection.
+
+```java
+@Bean
+@Singleton
+@Priority
+public class BeanA {
+}
+
+@Bean
+@Singleton
+public class BeanB extends BeanA {
+}
+
+@Bean
+@Singleton
+@Fallback
+@MyQualifier
+public class BeanC extends BeanA {
+}
+
+@Inject
+BeanA beanA;
+
+@InjectAll
+@MyQualifier
+BeanA myQualifierBeanA;
+```
+
+In the code snippet above, by making `BeanA` higher priority than `BeanB`, injecting `BeanA` will favor the class `BeanA` over `BeanB` and `BeanC`. Otherwise, `@Inject BeanA` will not know which instance to pull in as `BeanA`, `BeanB`, and `BeanC` are all viable options for the injection without any other qualifiers being present. On the flip side `@Fallback` acts as the name implies, a fallback or fail safe to ensure that a valid bean is provided when there are no other options available. For example, if an important bean is expected to be provided (such as a database or network connection/handler) then a `@Fallback` bean can be used to ensure that some kind of sane default is provided, rather than risking a crash due to an important component not being available. Accordingly in the code snippet above, `myQualifierBeanA` will receive
+`BeanC` as there is no other `BeanA` castable bean with the `@MyQualifier` applied.
+
+### `@InjectAll` Bean Priority
+When injecting multiple beans via `@InjectAll`, then all `@Primary` and `Basic` beans matching the injection will be provided as there is no limitation or stipulation on the number of possible matches. `@Fallback` beans will only be provided if there are no higher priority beans available. In this situation, there is no functional difference between the `@Primary` and `Basic` beans (that distinction is only used by `@Inject`). However, `@Fallback` maintains its fail safe role, as again no `@Fallback` beans will be provided if there are any other beans available.
+
+```java
+@Bean
+@Singleton
+@Priority
+public class BeanA {
+}
+
+@Bean
+@Singleton
+public class BeanB extends BeanA {
+}
+
+@Bean
+@Singleton
+@Fallback
+@MyQualifier
+public class BeanC extends BeanA {
+}
+
+@InjectAll
+List<BeanA> allBeanA;
+
+@InjectAll
+@MyQualifier
+List<BeanA> allMyQualifierBeanA;
+```
+
+In the code snippet above `allBeanA` will contain the `BeanA` and `BeanB` beans, as both can be cast to `BeanA`. `BeanC` will not be included as there are `@Primary` (BeanA) and `Basic` (BeanB) beans that meet the injection criteria. On the other hand, `allMyQualifierBeanA` will include only `BeanC`, as that is the only bean which can be cast to `BeanA` and includes the qualifier `@MyQualifier`.
+
+## Transferable Annotations
+Certain annotations (namely Qualifiers and Requirements) are transferable, which in this context means that they can be applied anywhere in the annotation hierarchy and have an effect on the element (namely Bean and Configuration) as if they were applied to the element directly. Thus, common combinations can be placed into a shared/reusable annotation which is then applied to the appropriate Beans or Configurations, avoiding the need to "redefine" the combination in multiple places. Note that the reusable annotation must include `@Retention(RetentionPolicy.RUNTIME)` and have the appropriate `@Target` configured for its various use cases. This allows for defining custom annotation, and refactoring these transferable annotations away from concrete Beans or Configurations.
+
+```java
+@QualifierEnum
+public enum MyQualifiers {
+	ExampleElement;
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.METHOD })
+@RequiresNotEnv("TEST")
+@ExampleElement
+public @interface ProductionElement {
+}
+
+@ProductionElement // provides the transferable annotations @RequiresNotEnv("TEST") and @ExampleElement
+public class MyBean {
 }
 ```
 
 ## Bean Lifecycle
-
-There is a rigid lifecycle that Beans adhere to within the `Tendril` ecosystem, starting from initialization all the way to destruction. No Bean is provided until all of its dependencies has been completely satisfied, ergo `Tendril` guarantees that any Bean which is injected is *complete* (as far as `Tendril` is concerned). The initialization order of a Bean is as follows:
+There is a rigid lifecycle that Beans adhere to within the `Tendril` ecosystem, starting from initialization all the way to destruction. No Bean is provided until all of its dependencies have been completely satisfied, ergo `Tendril` guarantees that any Bean which is injected is *complete* (as far as `Tendril` is concerned). The initialization order of a Bean is as follows:
 1. Constructor is called
 2. Fields/Methods are populated/called
 3. `@PostConstruct` methods are called
@@ -336,205 +542,8 @@ There is no explicit mechanism for destroying a Bean, with appropriate Java garb
 |`@Singleton`| The single instance is maintained for the entire application lifecycle - this instance is created the first time it is accessed and kept until the application shuts down. There is no mechanism through which to trigger its destruction prematurely.|
 |`@Factory`| Since a new instance is created for access to the Bean, the lifecycle of each instance it not controlled by `Tendril`. Rather it is up to the consumer to control when/if the instance is destroyed (i.e.: it is only destroyed once it is no longer referenced).|
 
-## Qualify Beans
-Everything thus far has described the mechanics of how Beans work, additionally a means is required to identify one Bean from another. This is of particular importance once multiple Beans of the same type (either directly or through their inheritance hierarchy) are to be employed. This is where `qualifiers` come into the picture, acting as descriptors (i.e.: metadata) for each Bean allowing fine-grained differenciation of one Bean from another. The most basic differentiator is the type (i.e.: class) of the Bean, dictated by either:
-* The class for a `Class Bean`
-* The return type of a `Configuration Bean`
-This type, or something from its inheritance hierarchy, must be used for the purpose of retrieving the Bean. Beyond this most basic `qualifier` additional options are available through which to provide additional information to distinguish one Bean from another.
-
-Note that none of these `qualifiers` (including Bean Type) are not unique, as in each can be applied to any number of Beans. Uniqueness is not guaranteed by any individual `qualifier` and it is up to the user to either enforce uniqueness manually when building beans if such is required, or to employ a combination of `qualifiers` which together uniquely identify a specific Bean.
-
-Note that bean qualifiers are transferable 
-
-### Enum ID
-It is possible to employ an `Enum` as an ID on a bean using a two-step process. First, the `Enum` itself must be annotated with `@BeanIdEnum` which tells `Tendril` to generate an annotation `@<Enum>Id` which can then be applied to beans. This generated annotation takes a value from the `@BeanIdEnum` annotated `Enum`, which is then applied as a `qualifier` to the Bean.
-
-```java
-@BeanIdEnum
-public enum MyEnum {
-  VALUE1, VALUE2;
-}
-
-@Bean
-@Singleton
-@MyEnumId(MyEnum.VALUE1)
-public class MyClass {
-}
-
-@Bean
-@Singleton
-public class MyOtherClass {
-
-  @Inject
-  @MyEnumId(MyEnum.VALUE1)
-  MyClass myClassBean;
-}
-```
-The generated `@<Enum>Id` is co-located in the same `package` as the `@BeanIdEnum` annotated enumeration.
-
-When used, the `@<Enum>Id` qualifier ultimately serves the exact same function as `@Named` (detailed below), just with a touch of compiler validation and verification added into the mix to lessen the risk of misnamed beans. This cannot remove the issues associated with employing the *wrong* value, but it will decrease (if not outright remove) risks of typos. For this reason it is recommended to employ `@<Enum>Id` is place of `@Named` whenever possible.
-
-### @Named
-Using the `@Named` annotation allows for applying a `String` name to a Bean. There is no restriction placed on what can be contained within the `String`.
-
-```java
-@Bean
-@Singleton
-@Named("qwerty")
-public class MyClass {
-}
-
-@Bean
-@Singleton
-public class MyOtherClass {
-
-  @Inject
-  @Named("qwerty")
-  MyClass myClass;
-}
-```
-
-### Qualifier Annotations
-Custom qualifier annotations can be creating, by simply defining an annotation and annotating it with the `@Qualifier` annotation. This marks that annotation as one which can be used as a qualifier and it will be processed as such by `Tendril`. The only other caveats being:
-* it must have a `@Retention` of at least `RUNTIME` to ensure that it can be used outside of the defining library
-* the `@Target` should include `TYPE`, `METHOD`, `FIELD`, and `PARAMETER` at a minimum, so that it can be used in all areas where beans are either produced or injected.
-
-An example qualifier can be defined as follows:
-
-```java
-@Retention(RetentionPolicy.RUNTIME)
-@Qualifier
-public @interface MyQualifier {
-}
-```
-The annotation does not require any attributes, in fact if any are defined they will be ignored by `Tendril`.
-
-#### Generating Qualifiers
-Since every qualifier will look, behavior, and be implement in the exact same manner, with the only difference being the class/annotation name, the qualifier annotation essentially becomes a bit of boiler plate code. To alleviate some of the drudgery involved with the definition and maintenance of these qualifiers, it is possible to use the `@QualifierEnum` to generate the desired qualifiers. In this manner the various qualifiers are defined in an `enum`, such that each value represents a single qualifier. No parameters/values are necessary, and the `enum` value name is used verbatim to generate a corresponding qualifier annotation.
-
-```java
-@QualifierEnum
-public enum MyQualifiers {
-	Value1, Value2;
-}
-```
-
-will generate
-
-```java
-@GeneratedQualifier
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
-@Qualifier
-public @interface Value1 {
-
-}
-
-@GeneratedQualifier
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
-@Qualifier
-public @interface Value2 {
-
-}
-```
-
-which can then be employed as needed to qualify beans in your application.
-
-```java
-@Bean
-@Factory
-@Value1
-public class MyClass {
-
-}
-```
-
-The name of the `enum` is irrelevant, as it is not used as part of the generation process.
-
-## Prioritizing Beans
-In some situations it may be necessary to *prioritize* which beans are used by applying a *type* to them. These types can be either:
-* `Primary` - high priority
-* `Basic`- normal priority
-* `Fallback` - low priority, only to be used when no other bean is available
-
-This is done when defining a bean (whether as a class or method) by annotating it with `@Primary` to make it a primary bean, or `@Fallback` to make it a fallback bean. If neither is applied it will be a default `Basic` bean. How this comes into effect depends on how the bean is retrieved.
-
-### `@Inject` Bean Priority
-When injecting a single bean via `@Inject`, it will be pulled from the highest priority level that is available from the beans which match the injection, regardless of how many beans may exist in the lower priority levels. For example: the single matching `@Primary` bean will be returned
-regardless of how many `Basic` or `@Fallback` matches are present. If there is no `@Primary` match, then the single `Basic` bean will be returned, regardless of how many `@Fallback` ones are present. If there are no `@Primary` or `Basic` beans, then there must be a
-single `@Fallback` bean in the results. There must be exactly one match in the highest available level when injecting an `@Inject` bean, otherwise an exception will be thrown.
-
-In this situation, the `@Primary` can be seen as a means of *elevating* one bean over others. For example, if `BeanB` extends `BeanA` then `@Priority` can be employed to prioritize the parent class when making an injection.
-
-```java
-@Bean
-@Singleton
-@Priority
-public class BeanA {
-}
-
-@Bean
-@Singleton
-public class BeanB {
-}
-
-@Bean
-@Singleton
-@Fallback
-@MyQualifier
-public class BeanC extends BeanA {
-}
-
-@Inject
-BeanA beanA;
-
-@InjectAll
-@MyQualifier
-BeanA myQualifierBeanA;
-```
-
-In the code snippet above, by making `BeanA` higher priority than `BeanB`, injecting `BeanA` will favor the class `BeanA` over `BeanB`, and `BeanB` over `BeanC`. Otherwise, `@Inject BeanA` will not know which instance to pull in as `BeanA`, `BeanB`, and `BeanC` are all viable
-options for the injection without any other qualifiers being present. On the flip side `@Fallback` acts as the name implies, a fallback or fail safe to ensure that a valid bean is provided when there are no other options available. For example, if an important bean is expected to be provided
-(such as a database or network connection/handler) then a `@Fallback` bean can be used to ensure that some kind of sane default is provided, rather than risking a crash due to an important component not being available. Accordingly in the code snippet above, `myQualifierBeanA` will receive
-`BeanC` as there is no other `BeanA` castable bean with the `@MyQualifier` applied.
-
-### `@InjectAll` Bean Priority
-When injecting multiple beans via `@InjectAll`, then all `@Primary` and `Basic` beans matching the injection will be provided as there is no limitation or stipulation on the number of possible matches. `@Fallback` beans will only be provided if there are no higher priority beans available.
-In this situation, there is no functional difference between the `@Primary` and `Basic` beans (that distinction is only used by `@Inject`). However, `@Fallback` maintains its fail safe role, as again no `@Fallback` beans will be provided if there are any other beans available.
-
-```java
-@Bean
-@Singleton
-@Priority
-public class BeanA {
-}
-
-@Bean
-@Singleton
-public class BeanB {
-}
-
-@Bean
-@Singleton
-@Fallback
-@MyQualifier
-public class BeanC extends BeanA {
-}
-
-@InjectAll
-List<BeanA> allBeanA;
-
-@InjectAll
-@MyQualifier
-List<BeanA> allMyQualifierBeanA;
-```
-
-In the code snippet above `allBeanA` will contain the `BeanA` and `BeanB` beans, as both can be cast to `BeanA`. `BeanC` will not be included as there are `@Primary` (BeanA) and `Basic` (BeanB) beans that meet the injection criteria. On the other hand, `allMyQualifierBeanA`
-will include only `BeanC`, as that is the only bean which can be cast to `BeanA` and includes the qualifier `@MyQualifier`.
-
 ## Creating an Application
-The ability to pass Beans is crucial, however in of itself is insufficient for the purpose of driving an application. In order to be able to create a `Tendril` application, two additional pieces are required.
+The ability to pass Beans is crucial, however this in of itself is insufficient for the purpose of driving an application. In order to be able to create a `Tendril` application, two additional pieces are required.
 
 ### Define a Runner
 Much like `public static void main(String[] args)` is the entry point into an application, a `Runner` must be defined as the entry point into a `Tendril` application. The `Runner` is a class which must fulfill two exact criteria:
@@ -565,6 +574,7 @@ public class Main implements TendrilRunner {
   }
 }
 ```
+
 The application must have exactly **one** `Runner` available at runtime, with an exception thrown if more or less are available at application start. If multiple runners are to be provided in the code, then it is necessary to supply the appropriate `Requirements` to each, such that only a single `Runner` is available to the application. For example, one `Runner` can be created for use in a production environment and another in a test environment, with the appropriate requirements (i.e.: `@RequiresEnv` or `@RequiresNotEnv`) supplied to allow for their down selection.
 
 ### Create the Application Context
