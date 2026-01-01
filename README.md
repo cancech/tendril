@@ -471,6 +471,101 @@ List<BeanA> allMyQualifierBeanA;
 
 In the code snippet above `allBeanA` will contain the `BeanA` and `BeanB` beans, as both can be cast to `BeanA`. `BeanC` will not be included as there are `@Primary` (BeanA) and `Basic` (BeanB) beans that meet the injection criteria. On the other hand, `allMyQualifierBeanA` will include only `BeanC`, as that is the only bean which can be cast to `BeanA` and includes the qualifier `@MyQualifier`.
 
+## Duplicating Beans
+It is possible to create multiple copies of "the same" bean, such that the same definition mechanism is employed for all. This takes a *cookie cutter* approach, where a blueprint is employed to define how many copies are to be produced and what the distinctions between them are and `Tendril` will automatically produce and provide the appropriate beans. The blueprint is `Enum` driven, any enum can be used it just needs to be annotated with `@Blueprint` and each value within the blueprint enum will be then to define a specific copy. Any desired characteristics which are unique to a given copy can be included in the enum, thus allowing for distinct variations between different copies with the only limitation being dictated by the enum construct itself.
+
+```java
+@Blueprint
+public enum MyDuplicates {
+	COPY_1("copy1"),
+	COPY_2("copy2"),
+	COPY_3("copy3");
+	
+	private final String name;
+	
+	private MyDuplicate(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
+	}
+}
+```
+
+From this two things will be generated: a blueprint annotation and qualifier for each duplicate (enum value). The blueprint annotation will take the name of the enum and append `Blueprint` to it (thus `@MyDuplicatesBlueprint` in this example) and can be used instead of `@Bean` to define a bean which is to be duplicated. Note that the `quantifier` must still be included as per a regular bean.
+
+```java
+@MyDuplicatesBlueprint
+@Singleton
+public class MyBean {
+
+}
+```
+
+This will trigger the creation of as many unique beans as there are values in the enum. Any qualifiers and restrictions can be placed onto the blueprint bean as per any other bean and these will be applied to all copies. Unlike regular beans, the qualifier generated for each enum value will automatically be applied to the bean created for the specific duplicate. 
+Dependencies that are outside of the duplicate can be injected as-per normal using the traditional mechanisms.
+
+```java
+@MyDuplicatesBlueprint
+@Singleton
+@CustomQualifier
+@RequiresEnv("env")
+public class MyBean {
+
+	@Inject
+	@Named("abc123")
+	OtherBean otherBean;
+
+}
+```
+
+Duplicate beans can be injected as any other bean, with the distinction that there will be however many desired duplicates of the bean. As the manually applied qualifiers (including name and Enum ID) will be applied to all copies, the only way in which to uniquely distinguish one copy from the others is using the generated duplicate qualifier that is automatically applied.
+
+```java
+@Bean
+@Singleton
+public class MyConsumer {
+	
+	@Inject
+	@COPY_1
+	MyBean bean1;
+	
+	@Inject
+	@COPY_2
+	MyBean bean2;
+	
+	@Inject
+	@COPY_3
+	MyBean bean3;
+}
+```
+
+### Injecting the Blueprint
+As the copies are all identical with the exception of the blueprint enum value that is used to generate it, any unique values for the copy must be provided via the enum and these values need to be made available to the bean. This can be done by *injecting* the enum and annotating with `@Sibling`. This can be done via the constructor, instance field, or method.
+
+```java
+@MyDuplicatesBlueprint
+@Singleton
+public class MyBean {
+
+	@Inject
+	@Sibling
+	MyDuplicates blueprint;
+	
+	@Inject
+	MyBean(@Sibling MyDuplicates blueprint) {
+	}
+	
+	@Inject
+	void doSomething(@Sibling MyDuplicates blueprint) {
+	}
+
+}
+```
+
+This inject the specific enum value that was used to produce the copy, and it can then be used within the bean in whatever manner necessary to configure or otherwise handle itself appropriately.
+
 ## Transferable Annotations
 Certain annotations (namely Qualifiers and Requirements) are transferable, which in this context means that they can be applied anywhere in the annotation hierarchy and have an effect on the element (namely Bean and Configuration) as if they were applied to the element directly. Thus, common combinations can be placed into a shared/reusable annotation which is then applied to the appropriate Beans or Configurations, avoiding the need to "redefine" the combination in multiple places. Note that the reusable annotation must include `@Retention(RetentionPolicy.RUNTIME)` and have the appropriate `@Target` configured for its various use cases. This allows for defining custom annotation, and refactoring these transferable annotations away from concrete Beans or Configurations.
 
