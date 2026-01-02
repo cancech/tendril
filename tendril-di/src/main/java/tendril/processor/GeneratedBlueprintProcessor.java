@@ -21,6 +21,7 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.TypeElement;
 
 import com.google.auto.service.AutoService;
 
@@ -30,6 +31,7 @@ import tendril.annotationprocessor.element.ElementLoader;
 import tendril.annotationprocessor.exception.InvalidConfigurationException;
 import tendril.annotationprocessor.exception.MissingAnnotationException;
 import tendril.annotationprocessor.exception.TendrilException;
+import tendril.bean.Bean;
 import tendril.bean.duplicate.GeneratedBlueprint;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
@@ -49,6 +51,13 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 	 * CTOR
 	 */
 	public GeneratedBlueprintProcessor() {
+	}
+	
+	@Override
+	protected void validateType(TypeElement type) throws TendrilException {
+		super.validateType(type);
+		if (type.getAnnotationsByType(Bean.class).length != 0)
+			throw new TendrilException("Unable to process " + type + ", it has both @Bean and @" + currentAnnotation.getSimpleName() + " annotations applied. Only one of these can be applied to a bean.");
 	}
 
 	/**

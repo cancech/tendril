@@ -26,5 +26,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE })
 public @interface GeneratedBlueprint {
-	// TODO error if @Bean and @GeneratedBlueprint applied to the same element
 }
