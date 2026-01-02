@@ -1,5 +1,6 @@
 package tendril.processor.recipe;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,6 +16,7 @@ import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Fallback;
 import tendril.bean.Primary;
+import tendril.bean.duplicate.Sibling;
 import tendril.codegen.JBase;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.field.type.ClassType;
@@ -32,6 +34,8 @@ public class AbstractRecipeGeneratorTest extends AbstractUnitTest {
 	private ClassType mockClassType;
 	@Mock
 	private JBase mockCreator;
+	@Mock
+	private JBase mockElement;
 	@Mock
 	private Messager mockMessager;
 
@@ -98,5 +102,29 @@ public class AbstractRecipeGeneratorTest extends AbstractUnitTest {
 		verify(mockCreator, times(4)).hasAnnotation(Primary.class);
 		verify(mockCreator, times(4)).hasAnnotation(Fallback.class);
 		verify(mockClassType, times(1)).getFullyQualifiedName();
+	}
+	
+	/**
+	 * Make sure that the sibling warning is properly generated.
+	 */
+	@Test
+	public void testSiblingWarning() {
+		when(mockCreator.hasAnnotation(Primary.class)).thenReturn(false);
+		when(mockCreator.hasAnnotation(Fallback.class)).thenReturn(false);
+		AbstractRecipeGenerator<JBase> generator = new TestAbstractRecipeGenerator();
+		verify(mockCreator, times(1)).hasAnnotation(Primary.class);
+		verify(mockCreator, times(1)).hasAnnotation(Fallback.class);
+		
+		// Nothing printed when @Sibling not present
+		when(mockElement.hasAnnotation(Sibling.class)).thenReturn(false);
+		generator.warnSiblingInjection(mockElement);
+		verify(mockMessager, never()).printWarning(anyString());
+		
+		// Warning printed when @Sibling not present
+		when(mockElement.hasAnnotation(Sibling.class)).thenReturn(true);
+		when(mockClassType.getFullyQualifiedName()).thenReturn("SomeClass");
+		when(mockElement.getName()).thenReturn("Element");
+		generator.warnSiblingInjection(mockElement);
+		verify(mockMessager).printWarning("SomeClass injection Element has an @Sibling annotation but this is not supported for this bean and thus ignored.");
 	}
 }

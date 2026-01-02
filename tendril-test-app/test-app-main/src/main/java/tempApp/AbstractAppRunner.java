@@ -25,6 +25,7 @@ import tempApp.id.MyType;
 import tempApp.id.MyTypeId;
 import tendril.bean.Inject;
 import tendril.bean.InjectAll;
+import tendril.bean.duplicate.Sibling;
 import tendril.bean.qualifier.Named;
 import tendril.context.launch.TendrilRunner;
 
@@ -66,6 +67,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
     Object tmpClass;
 
     @Inject
+    @Sibling
     FactoryClass factoryBean1;
     @Inject
     FactoryClass factoryBean2;

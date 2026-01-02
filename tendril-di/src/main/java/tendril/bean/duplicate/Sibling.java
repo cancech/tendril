@@ -29,5 +29,4 @@ import java.lang.annotation.Target;
 public @interface Sibling {
 	// TODO Allow for sibling injection
 	// TODO Allow for config duplicates
-	// TODO warning when placed on a @Bean
 }

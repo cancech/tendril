@@ -34,6 +34,7 @@ import tendril.bean.Fallback;
 import tendril.bean.InjectAll;
 import tendril.bean.Primary;
 import tendril.bean.Singleton;
+import tendril.bean.duplicate.Sibling;
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.qualifier.EnumQualifier;
 import tendril.bean.qualifier.Named;
@@ -99,7 +100,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * part of the class/method/field signature.
      */
     protected final Set<ClassType> externalImports = new HashSet<>();
-    
+
     /**
      * CTOR
      * 
@@ -228,6 +229,8 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @throws InvalidConfigurationException if the annotated code is improperly configured
      */
     protected String createParameterInjectionCodeRhs(JParameter<?> param) throws InvalidConfigurationException {
+    	warnSiblingInjection(param);
+    	
         String engineCall = "engine.";
         if (param.hasAnnotation(InjectAll.class)) {
             Type beanType = getInjectAllType(param);
@@ -238,6 +241,16 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
         }
         
         return engineCall;
+    }
+
+    /**
+     * Check whether a sibling injection warning should be produced for the element.
+     * 
+     * @param element {@link JBase} to check
+     */
+    protected void warnSiblingInjection(JBase element) {
+    	if (element.hasAnnotation(Sibling.class))
+    		messager.printWarning(creatorType.getFullyQualifiedName() + " injection " + element.getName() + " has an @Sibling annotation but this is not supported for this bean and thus ignored.");
     }
     
     /**

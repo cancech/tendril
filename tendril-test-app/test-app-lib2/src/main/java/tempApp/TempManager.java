@@ -8,6 +8,7 @@ import tendril.bean.Factory;
 import tendril.bean.Inject;
 import tendril.bean.PostConstruct;
 import tendril.bean.Singleton;
+import tendril.bean.duplicate.Sibling;
 import tendril.bean.qualifier.Named;
 
 @Configuration
@@ -40,7 +41,7 @@ public class TempManager {
 	private final FactoryClass cls;
 	
 	@Inject
-	public TempManager(FactoryClass cls) {
+	public TempManager(@Sibling FactoryClass cls) {
 	    numInstances++;
 		this.cls = cls;
 	}

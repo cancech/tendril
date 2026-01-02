@@ -29,6 +29,7 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
+import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
 import tendril.context.Engine;
 
@@ -63,6 +64,33 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 	protected Class<? extends AbstractRecipe> getRecipeClass() throws InvalidConfigurationException {
 		return ConfigurationRecipe.class;
 	}
+	
+	/**
+	 * This is not required for the Duplication entry recipe, and so this does nothing
+	 * 
+	 * @see tendril.processor.recipe.ClassRecipeGenerator#generateFieldInjection(tendril.codegen.field.JField, java.lang.String, java.util.List)
+	 */
+	@Override
+	protected void generateFieldInjection(JField<?> field, String fieldTypeName, List<String> ctorLines) {
+	}
+	
+	/**
+	 * This is not required for the Duplication entry recipe, and so this does nothing
+	 * 
+	 * @see tendril.processor.recipe.ClassRecipeGenerator#generateFieldConsumers(java.util.List)
+	 */
+	@Override
+	protected void generateFieldConsumers(List<String> ctorLines) throws InvalidConfigurationException {
+	}
+	
+	/**
+	 * This is not required for the Duplication entry recipe, and so this does nothing
+	 * 
+	 * @see tendril.processor.recipe.ClassRecipeGenerator#generateMethodConsumers(java.util.List)
+	 */
+	@Override
+	protected void generateMethodConsumers(List<String> ctorLines) throws InvalidConfigurationException {
+	}
 
 	/**
 	 * @see tendril.processor.recipe.ClassRecipeGenerator#generateCreateInstance(tendril.codegen.classes.ClassBuilder)
@@ -76,9 +104,9 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 	}
 
 	/**
-	 * @see tendril.processor.recipe.ConfigurationRecipeGenerator#nestedRecipesCode()
-	 * 
 	 * The nested recipe code reflects the creation of the "child" beans, driven by the different blueprint values
+	 * 
+	 * @see tendril.processor.recipe.ConfigurationRecipeGenerator#nestedRecipesCode()
 	 */
 	@Override
 	protected String[] nestedRecipesCode() {

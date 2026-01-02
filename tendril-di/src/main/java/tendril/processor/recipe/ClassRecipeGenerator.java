@@ -135,6 +135,8 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * @param ctorLines {@link List} of {@link String}s where the constructor code is contained
      */
     protected void generateFieldInjection(JField<?> field, String fieldTypeName, List<String> ctorLines) {
+    	warnSiblingInjection(field);
+    	
         addImport(Applicator.class);
         addImport(Descriptor.class);
         
