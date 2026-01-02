@@ -103,6 +103,7 @@ public abstract class JAnnotationFactory {
                 throw new DefinitionException(classType, "Cannot be used as an Annotation as it is not an Annotation");
             return klass;
         } catch (ClassNotFoundException e) {
+        	// TODO clean up output, this is being triggered when trying to use generated qualifiers
             LOGGER.severe("Cannot find Class for " + classType.getFullyQualifiedName() + ". It does not exist on the classpath");
         }
 
