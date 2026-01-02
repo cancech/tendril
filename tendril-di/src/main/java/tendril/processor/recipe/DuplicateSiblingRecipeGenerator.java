@@ -110,7 +110,7 @@ class DuplicateSiblingRecipeGenerator extends BeanRecipeGenerator {
 	 */
 	@Override
 	protected void generateFieldInjection(JField<?> field, String fieldTypeName, List<String> ctorLines) {
-		if (field.getType().equals(blueprintType)) {
+		if (field.getType().equals(blueprintType) && field.hasAnnotation(Sibling.class)) {
             addImport(Injector.class);
 	        ctorLines.add("registerInjector(new " + Injector.class.getSimpleName() + "<" + creatorType.getSimpleName() + ">() {");
 	        ctorLines.add("    @Override");
