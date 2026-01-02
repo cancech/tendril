@@ -29,6 +29,7 @@ import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Bean;
 import tendril.bean.Configuration;
 import tendril.bean.recipe.Registry;
+import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.processor.recipe.RecipeGenerator;
 
 /**
@@ -44,6 +45,8 @@ public class BeanProcessor extends AbstractDelayedAnnotationTendrilProcessor {
      * CTOR - will be annotated as a {@link Registry}
      */
     public BeanProcessor() {
+    	// Disable JAnnotationFactory logging to keep the output cleaner
+    	JAnnotationFactory.setLoggingEnabled(false);
     }
     
     /**

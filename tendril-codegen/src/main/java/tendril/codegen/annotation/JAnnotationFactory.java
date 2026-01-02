@@ -42,11 +42,22 @@ public abstract class JAnnotationFactory {
 
     /** Logger for creating log messages when running */
     private static Logger LOGGER = Logger.getLogger(JAnnotationFactory.class.getSimpleName());
+    /** Flag for whether log messages are enabled */
+    private static boolean loggingEnabled = true;
 
     /**
      * Hidden CTOR
      */
     private JAnnotationFactory() {
+    }
+    
+    /**
+     * Set whether the log messages for the class are enabled (they are by default).
+     * 
+     * @param isEnabled boolean true if logging messages are to be enabled.
+     */
+    public static void setLoggingEnabled(boolean isEnabled) {
+    	loggingEnabled = isEnabled;
     }
 
     /**
@@ -103,8 +114,8 @@ public abstract class JAnnotationFactory {
                 throw new DefinitionException(classType, "Cannot be used as an Annotation as it is not an Annotation");
             return klass;
         } catch (ClassNotFoundException e) {
-        	// TODO clean up output, this is being triggered when trying to use generated qualifiers
-            LOGGER.severe("Cannot find Class for " + classType.getFullyQualifiedName() + ". It does not exist on the classpath");
+        	if (loggingEnabled)
+        		LOGGER.severe("Cannot find Class for " + classType.getFullyQualifiedName() + ". It does not exist on the classpath");
         }
 
         return null;
@@ -183,7 +194,7 @@ public abstract class JAnnotationFactory {
             Method[] methods = annotationClass.getDeclaredMethods();
             if (methods.length != 1 || !"value".equals(methods[0].getName()))
                 throw new DefinitionException(annotationType, "Cannot employ default value, to use default value Annotation must have exactly one attribute named value");
-        } else {
+        } else if (loggingEnabled) {
             LOGGER.warning(buildAnnotationClassNotFoundWarning("Default Value", annotationType));
         }
 
@@ -312,7 +323,7 @@ public abstract class JAnnotationFactory {
             if (annotationClass.getDeclaredMethods().length == 0)
                 throw new DefinitionException(annotationClass, "Annotations with named attributes must have at least one attribute");
             checkUnsatisfiedAttributes(annotationClass, values.keySet());
-        } else {
+        } else if (loggingEnabled){
             LOGGER.warning(buildAnnotationClassNotFoundWarning("Multi-Value", annotationType));
         }
 
