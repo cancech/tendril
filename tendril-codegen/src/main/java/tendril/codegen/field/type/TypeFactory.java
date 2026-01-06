@@ -66,7 +66,7 @@ public abstract class TypeFactory {
      */
     private static Type asClassType(TypeMirror mirror) {
         DeclaredType decl = (DeclaredType) mirror;
-        ClassType type = new ClassType(decl.asElement().toString());
+        ClassType type = createClassType(decl.asElement().toString());
         decl.getTypeArguments().forEach(gen -> type.addGeneric(GenericFactory.create(create(gen))));
         return type;
     }
@@ -89,7 +89,7 @@ public abstract class TypeFactory {
             return create(genMirror);
         
         // If it's a pure wildcard, then default to Object
-        return new ClassType(Object.class);
+        return createClassType(Object.class);
     }
     
     /**
@@ -104,7 +104,58 @@ public abstract class TypeFactory {
         try {
             return PrimitiveType.from(klass);
         } catch (Exception e) {
-            return new ClassType(klass);
+            return createClassType(klass);
         }
+    }
+    
+    /**
+     * Create a {@link ClassType} from the specified {@link Class}
+     * 
+     * @param klass {@link Class} to use as the basis for the {@link ClassType}
+     * @return {@link ClassType} for the {@link Class}
+     */
+    public static ClassType createClassType(Class<?> klass) {
+    	return createClassType(klass.getPackageName(), klass.getSimpleName());
+    }
+    
+    /**
+     * Create a {@link ClassType} from the specified fully qualified class name
+     * 
+     * @param fullyQualifiedName {@link String} of the class
+     * @return {@link ClassType} for the fully qualified class name
+     */
+    public static ClassType createClassType(String fullyQualifiedName) {
+        int lastDot = fullyQualifiedName.lastIndexOf('.');
+        if (lastDot <= 0)
+            throw new DefinitionException(fullyQualifiedName, "Invalid fully qualified class \"" + fullyQualifiedName + "\". Hint: default package is not supported");
+
+        String packageName = fullyQualifiedName.substring(0, lastDot);
+        String className = fullyQualifiedName.substring(lastDot + 1);
+        return createClassType(packageName, className);
+    }
+    
+    /**
+     * Create the {@link ClassType} for the class details
+     * 
+     * @param packageName {@link String} the name of the package in which the class appears
+     * @param className {@link String} the name of the class
+     * @return {@link ClassType} for the class details
+     */
+    public static ClassType createClassType(String packageName, String className) {
+        if (packageName == null || packageName.isBlank())
+            throw new DefinitionException(className, "Invalid package \"" + packageName + "\" - valid (non default) package is required");
+        
+        return new ClassType(packageName, className);
+    }
+    
+    /**
+     * Derive a new class definition from an existing one, such that the specified suffix is applied to the generated class name
+     * 
+     * @param original {@link ClassType} the existing {@link ClassType} to which to append the suffix
+     * @param classSuffix {@link String} the suffix to apply to generate a new class definition
+     * @return {@link ClassType} of the new class
+     */
+    public static ClassType createClassType(ClassType original, String classSuffix) {
+        return new ClassType(original.getPackageName(), original.getClassName() + classSuffix);
     }
 }

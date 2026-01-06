@@ -35,10 +35,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.DefinitionException;
+import tendril.codegen.VisibilityType;
 import tendril.codegen.generics.GenericFactory;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.ClassAssert;
 import tendril.test.assertions.CollectionAssert;
+import tendril.test.helper.assertions.TendrilAssert;
 
 /**
  * Test case for {@link TypeFactory}
@@ -102,7 +104,7 @@ public class TypeFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateClassTypeKindNoGeneric() {
         setupDeclaredMirror("a.b.c.D");
-        performCreateTest(mockDeclaredMirror, TypeKind.DECLARED, new ClassType("a.b.c.D"));
+        performCreateTest(mockDeclaredMirror, TypeKind.DECLARED, new ClassType("a.b.c", "D"));
 
         verify(mockDeclaredMirror).getKind();
         verify(mockDeclaredMirror).asElement();
@@ -121,7 +123,7 @@ public class TypeFactoryTest extends AbstractUnitTest {
 
         ClassType created = (ClassType) createdType;
         Assertions.assertEquals("a.b.c.D", created.getFullyQualifiedName());
-        CollectionAssert.assertEquivalent(created.getGenerics(), GenericFactory.create(new ClassType("q.w.e.r.t.Y")));
+        CollectionAssert.assertEquivalent(created.getGenerics(), GenericFactory.create(new ClassType("q.w.e.r.t", "Y")));
 
         verify(mockDeclaredMirror).getKind();
         verify(mockDeclaredMirror).asElement();
@@ -159,7 +161,7 @@ public class TypeFactoryTest extends AbstractUnitTest {
 
         ClassType created = (ClassType) createdType;
         Assertions.assertEquals("a.b.c.D", created.getFullyQualifiedName());
-        CollectionAssert.assertEquivalent(created.getGenerics(), GenericFactory.create(new ClassType("q.w.e.r.t.Y")));
+        CollectionAssert.assertEquivalent(created.getGenerics(), GenericFactory.create(new ClassType("q.w.e.r.t", "Y")));
 
         verify(mockDeclaredMirror).getKind();
         verify(mockDeclaredMirror).asElement();
@@ -178,7 +180,7 @@ public class TypeFactoryTest extends AbstractUnitTest {
 
         ClassType created = (ClassType) createdType;
         Assertions.assertEquals("a.b.c.D", created.getFullyQualifiedName());
-        CollectionAssert.assertEquivalent(created.getGenerics(), GenericFactory.create(new ClassType("q.w.e.r.t.Y")));
+        CollectionAssert.assertEquivalent(created.getGenerics(), GenericFactory.create(new ClassType("q.w.e.r.t", "Y")));
 
         verify(mockDeclaredMirror).getKind();
         verify(mockDeclaredMirror).asElement();
@@ -197,7 +199,7 @@ public class TypeFactoryTest extends AbstractUnitTest {
 
         ClassType created = (ClassType) createdType;
         Assertions.assertEquals("a.b.c.D", created.getFullyQualifiedName());
-        CollectionAssert.assertEquivalent(created.getGenerics(), GenericFactory.create(new ClassType(Object.class)));
+        CollectionAssert.assertEquivalent(created.getGenerics(), GenericFactory.create(new ClassType(Object.class.getPackageName(), Object.class.getSimpleName())));
 
         verify(mockDeclaredMirror).getKind();
         verify(mockDeclaredMirror).asElement();
@@ -217,8 +219,9 @@ public class TypeFactoryTest extends AbstractUnitTest {
 
         ClassType created = (ClassType) createdType;
         Assertions.assertEquals("a.b.c.D", created.getFullyQualifiedName());
-        CollectionAssert.assertEquivalent(created.getGenerics(), GenericFactory.create(new ClassType(Object.class)), GenericFactory.create(new ClassType("q.w.e.r.t.Y")),
-                GenericFactory.create(new ClassType("a.s.d.f.G")), GenericFactory.create(new ClassType("z.x.c.V")), GenericFactory.create("U"));
+        CollectionAssert.assertEquivalent(created.getGenerics(), GenericFactory.create(new ClassType(Object.class.getPackageName(), Object.class.getSimpleName())),
+        		GenericFactory.create(new ClassType("q.w.e.r.t", "Y")),
+                GenericFactory.create(new ClassType("a.s.d.f", "G")), GenericFactory.create(new ClassType("z.x.c", "V")), GenericFactory.create("U"));
 
         verify(mockDeclaredMirror).getKind();
         verify(mockDeclaredMirror).asElement();
@@ -283,7 +286,7 @@ public class TypeFactoryTest extends AbstractUnitTest {
      */
     @Test
     public void createClassTypeFromClass() {
-        performCreateTest(ClassType.class, new ClassType(ClassType.class));
+        performCreateTest(ClassType.class, new ClassType(ClassType.class.getPackageName(), ClassType.class.getSimpleName()));
     }
 
     /**
@@ -307,9 +310,46 @@ public class TypeFactoryTest extends AbstractUnitTest {
         performCreateTest(long[].class, new ArrayType<PrimitiveType>(PrimitiveType.LONG));
         performCreateTest(Short[].class, new ArrayType<PrimitiveType>(PrimitiveType.SHORT));
         performCreateTest(short[].class, new ArrayType<PrimitiveType>(PrimitiveType.SHORT));
-        performCreateTest(ClassType[].class, new ArrayType<ClassType>(new ClassType(ClassType.class)));
+        performCreateTest(ClassType[].class, new ArrayType<ClassType>(new ClassType(ClassType.class.getPackageName(), ClassType.class.getSimpleName())));
     }
+    
+    /**
+     * Verify that ClassType is properly created
+     */
+    @Test
+    public void testCreateClassType() {
+    	verifyClassType("a.b.c", "D", TypeFactory.createClassType("a.b.c.D"));
+    	verifyClassType("a.b.c", "D", TypeFactory.createClassType("a.b.c", "D"));
+    	verifyClassType(TypeFactory.class.getPackageName(), TypeFactory.class.getSimpleName(), TypeFactory.createClassType(TypeFactory.class));
+    }
+    
+    private void verifyClassType(String expectedPackage, String expectedName, ClassType actual) {
+    	Assertions.assertEquals(expectedPackage, actual.getPackageName());
+    	Assertions.assertEquals(expectedName, actual.getClassName());
+    }
+    
+	/**
+	 * Verify that a class that appears in the default package generates an exception
+	 */
+	@Test
+	public void testCreateClassInDefaultPackage() {
+		Assertions.assertThrows(DefinitionException.class, () -> TypeFactory.createClassType("SomeClass"));
+		Assertions.assertThrows(DefinitionException.class, () -> TypeFactory.createClassType((String) null, "SomeOtherClass"));
+		Assertions.assertThrows(DefinitionException.class, () -> TypeFactory.createClassType("", "YetOtherClass"));
+		Assertions.assertThrows(DefinitionException.class, () -> TypeFactory.createClassType(" ", "MyClass"));
+		Assertions.assertThrows(DefinitionException.class, () -> TypeFactory.createClassType("        ", "MyOtherClass"));
+	}
 
+	/**
+	 * Verify that a new class data is properly generated from an existing one when a class name suffix is supplied
+	 */
+	@Test
+	public void testGenerateFromSuffix() {
+		TendrilAssert.assertImportData(VisibilityType.class.getPackageName(), VisibilityType.class.getSimpleName() + "Suffix", TypeFactory.createClassType(TypeFactory.createClassType(VisibilityType.class), "Suffix"));
+		TendrilAssert.assertImportData("a.b.c.d", "EfGhQwerty", TypeFactory.createClassType(TypeFactory.createClassType("a.b.c.d", "EfGh"), "Qwerty"));
+		TendrilAssert.assertImportData("1.2.3.4", "AbcdEfgh", TypeFactory.createClassType(TypeFactory.createClassType("1.2.3.4", "Abcd"), "Efgh"));
+	}
+	
     /**
      * Setup the mockDeclaredMirror with the specified values so that it can be used in a test
      * 

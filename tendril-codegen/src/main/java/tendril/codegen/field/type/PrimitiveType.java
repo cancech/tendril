@@ -165,6 +165,6 @@ public enum PrimitiveType implements Type {
      */
     @Override
     public ClassType asClassType() {
-        return new ClassType(objectClass);
+        return TypeFactory.createClassType(objectClass);
     }
 }

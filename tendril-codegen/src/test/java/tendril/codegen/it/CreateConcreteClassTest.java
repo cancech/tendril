@@ -28,6 +28,7 @@ import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.codegen.generics.GenericFactory;
 import tendril.codegen.generics.GenericType;
@@ -45,7 +46,7 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateEmptyClass() {
-        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).build();
+        JClass cls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
@@ -64,7 +65,7 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateEmptyAnnotatedClass() {
-        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).build();
+        JClass cls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).build();
         cls.add(JAnnotationFactory.create(Deprecated.class, Map.of("since", JValueFactory.create("yesterday"), "forRemoval", JValueFactory.create(true))));
         cls.add(JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", JValueFactory.create("qwerty"), "valInt", JValueFactory.create(789))));
 
@@ -88,7 +89,7 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateClassWithFields() {
-        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+        JClass cls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
                 .buildField(PrimitiveType.BOOLEAN, "booleanField").setVisibility(VisibilityType.PUBLIC).setValue(JValueFactory.create(false)).finish()
                 .buildField(VisibilityType.class, "enumField").setVisibility(VisibilityType.PRIVATE).setValue(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)).finish()
                 .build();
@@ -115,9 +116,9 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateClassWithMethods() {
-        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+        JClass cls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
                 .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED)
-                    .buildParameter(new ClassType(String.class), "strParam").finish()
+                    .buildParameter(TypeFactory.createClassType(String.class), "strParam").finish()
                     .emptyImplementation().finish()
                 .buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
                     .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
@@ -151,8 +152,8 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateClassWithParent() {
-        JClass parentCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
-        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).extendsClass(parentCls).build();
+        JClass parentCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).build();
+        JClass cls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).extendsClass(parentCls).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
@@ -172,8 +173,8 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateClassWithInterface() {
-        JClass ifaceCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
-        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).implementsInterface(ifaceCls).build();
+        JClass ifaceCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).build();
+        JClass cls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).implementsInterface(ifaceCls).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
@@ -193,10 +194,10 @@ public class CreateConcreteClassTest {
      */
     @Test
     public void testCreateWithConsturctors() {
-        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+        JClass cls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
                 .buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().finish()
                 .buildConstructor().setVisibility(VisibilityType.PROTECTED)
-                    .buildParameter(new ClassType(String.class), "strParam").finish()
+                    .buildParameter(TypeFactory.createClassType(String.class), "strParam").finish()
                     .addCode("a", "b", "c", "d").finish()
                 .buildConstructor().setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
                     .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
@@ -238,11 +239,11 @@ public class CreateConcreteClassTest {
     @Test
     public void testCreateSimpleGeneric() {
         GenericType genericT = GenericFactory.create("T");
-        GenericType genericU = GenericFactory.createExtends("U", new ClassType("a", "B"));
-        GenericType superType = GenericFactory.createSuper(new ClassType("z.x.c", "V"));
-        ClassType listClass = new ClassType(List.class);
+        GenericType genericU = GenericFactory.createExtends("U", TypeFactory.createClassType("a", "B"));
+        GenericType superType = GenericFactory.createSuper(TypeFactory.createClassType("z.x.c", "V"));
+        ClassType listClass = TypeFactory.createClassType(List.class);
         listClass.addGeneric(superType);
-        JClass abstractCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PROTECTED).addGeneric(genericT)
+        JClass abstractCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PROTECTED).addGeneric(genericT)
                 .buildMethod("abc123").addGeneric(genericU).buildParameter(genericT, "t").finish().buildParameter(genericU, "u").finish()
                     .buildParameter(listClass, "list").finish().addCode().finish()
                 .buildField(genericT, "tField").finish()
@@ -277,19 +278,19 @@ public class CreateConcreteClassTest {
     @Test
     public void testCreateComplexClass() {
         GenericType genericT = GenericFactory.create("T");
-        GenericType genericU = GenericFactory.createExtends("U", new ClassType("a", "B"));
-        GenericType superType = GenericFactory.createSuper(new ClassType("z.x.c", "V"));
-        ClassType listClass = new ClassType(List.class);
+        GenericType genericU = GenericFactory.createExtends("U", TypeFactory.createClassType("a", "B"));
+        GenericType superType = GenericFactory.createSuper(TypeFactory.createClassType("z.x.c", "V"));
+        ClassType listClass = TypeFactory.createClassType(List.class);
         listClass.addGeneric(superType);
         
-        JClass parentCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
-        JClass ifaceYCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
-        JClass ifaceFCls = ClassBuilder.forConcreteClass(new ClassType("a.b.c.d", "F")).build();
-        JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+        JClass parentCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).build();
+        JClass ifaceYCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).build();
+        JClass ifaceFCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("a.b.c.d", "F")).build();
+        JClass cls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
                 .extendsClass(parentCls)
                 .implementsInterface(ifaceYCls).implementsInterface(ifaceFCls)
                 .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED)
-                    .buildParameter(new ClassType(String.class), "strParam").finish().emptyImplementation().finish()
+                    .buildParameter(TypeFactory.createClassType(String.class), "strParam").finish().emptyImplementation().finish()
                 .addAnnotation(JAnnotationFactory.create(Deprecated.class, Map.of("since", JValueFactory.create("yesterday"), "forRemoval", JValueFactory.create(true))))
                 .buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
                     .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
@@ -298,7 +299,7 @@ public class CreateConcreteClassTest {
                 .buildField(VisibilityType.class, "enumField").setVisibility(VisibilityType.PRIVATE).setValue(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)).finish()
                 .buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().finish()
                 .buildConstructor().addGeneric(genericU).setVisibility(VisibilityType.PROTECTED)
-                    .buildParameter(new ClassType(String.class), "strParam").finish()
+                    .buildParameter(TypeFactory.createClassType(String.class), "strParam").finish()
                     .buildParameter(genericU, "u").finish()
                     .addCode("a", "b", "c", "d").finish()
                 .buildConstructor().setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")

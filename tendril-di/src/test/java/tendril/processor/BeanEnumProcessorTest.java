@@ -16,7 +16,6 @@
 package tendril.processor;
 
 import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,7 +24,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Arrays;
-import java.util.Collections;
 
 import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -40,6 +38,7 @@ import tendril.bean.qualifier.EnumQualifier;
 import tendril.bean.qualifier.GeneratedQualifier;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.matchers.MultiLineStringMatcher;
 import tendril.util.TendrilStringUtil;
@@ -67,8 +66,6 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
     private ClassType mockAnnotatedClass;
     @Mock
     private JMethod<?> mockAnnotatedMethod;
-    @Mock
-    private ClassType mockClassToGenerate;
 
     // Instance to test
     private BeanEnumProcessor processor;
@@ -87,23 +84,17 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
      */
     @Test
     public void testProcessType() throws TendrilException {
-        when(mockAnnotatedClass.generateFromClassSuffix("Id")).thenReturn(mockClassToGenerate);
         when(mockAnnotatedClass.isVoid()).thenReturn(false);
+        when(mockAnnotatedClass.getPackageName()).thenReturn("a.b.c.d");
+        when(mockAnnotatedClass.getClassName()).thenReturn("MockEnum");
         when(mockAnnotatedClass.getSimpleName()).thenReturn("MockEnum");
-        when(mockClassToGenerate.getSimpleName()).thenReturn("MockEnumId");
-        when(mockClassToGenerate.getClassName()).thenReturn("MockEnumId");
-        when(mockClassToGenerate.getPackageName()).thenReturn("a.b.c.d");
-        when(mockClassToGenerate.getFullyQualifiedName()).thenReturn("a.b.c.d.MockEnumId");
-        when(mockClassToGenerate.getGenerics()).thenReturn(Collections.emptyList());
 
         ClassDefinition generated = processor.processType();
-        verify(mockAnnotatedClass).generateFromClassSuffix("Id");
         verify(mockAnnotatedClass).isVoid();
         verify(mockAnnotatedClass).registerImport(anySet());
+        verify(mockAnnotatedClass).getPackageName();
+        verify(mockAnnotatedClass).getClassName();
         verify(mockAnnotatedClass).getSimpleName();
-        verify(mockClassToGenerate).getSimpleName();
-        verify(mockClassToGenerate).getClassName();
-        verify(mockClassToGenerate, times(2)).getPackageName();
 
         // The code which should be generated
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
@@ -129,7 +120,7 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
         matcher.eq("}");
 
         // Verify that the correct thing was generated
-        Assertions.assertEquals(mockClassToGenerate, generated.getType());
+        Assertions.assertEquals(TypeFactory.createClassType("a.b.c.d", "MockEnumId"), generated.getType());
         matcher.match(generated.getCode());
     }
 

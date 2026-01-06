@@ -22,6 +22,7 @@ import java.util.Set;
 
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 
 /**
  * The base of any element that is to be part of the generated code.
@@ -108,7 +109,7 @@ public abstract class JBase extends JGeneric {
      * @return boolean true if at least one instance of the annotation is found
      */
     public boolean hasAnnotation(Class<? extends Annotation> annotation) {
-    	return hasAnnotation(new ClassType(annotation));
+    	return hasAnnotation(TypeFactory.createClassType(annotation));
     }
     
     /**

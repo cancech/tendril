@@ -28,6 +28,7 @@ import tendril.codegen.classes.method.AnonymousMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.test.AbstractUnitTest;
@@ -86,7 +87,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
      */
     @Test
     public void testCreateMarkerAnnotationFromClassType() {
-        JAnnotation annotation = JAnnotationFactory.create(new ClassType(TestMarkerAnnotation.class));
+        JAnnotation annotation = JAnnotationFactory.create(TypeFactory.createClassType(TestMarkerAnnotation.class));
         assertImportData(TestMarkerAnnotation.class, annotation);
         CollectionAssert.assertEmpty(annotation.getAttributes());
     }
@@ -106,7 +107,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
      */
     @Test
     public void testCreateMarkerAnnotationWithUnknownClass() {
-        JAnnotation annotation = JAnnotationFactory.create(new ClassType("a.b.c.D"));
+        JAnnotation annotation = JAnnotationFactory.create(TypeFactory.createClassType("a.b.c.D"));
         TendrilAssert.assertImportData("a.b.c", "D", annotation.getType());
         CollectionAssert.assertEmpty(annotation.getAttributes());
     }
@@ -116,7 +117,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
      */
     @Test
     public void testCreateMarkerAnnotationNotADefaultClass() {
-        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(new ClassType(JAnnotation.class)));
+        Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TypeFactory.createClassType(JAnnotation.class)));
         Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TestDefaultAttrAnnotation.class));
         Assertions.assertThrows(DefinitionException.class, () -> JAnnotationFactory.create(TestMultiAttrsAnnotation.class));
     }
@@ -167,7 +168,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     public void testCreateDefaultValueAnnotationFromClassType() {
         JValue<ClassType, String> value = JValueFactory.create("abc123");
 
-        JAnnotation annotation = JAnnotationFactory.create(new ClassType(TestDefaultAttrAnnotation.class), value);
+        JAnnotation annotation = JAnnotationFactory.create(TypeFactory.createClassType(TestDefaultAttrAnnotation.class), value);
         assertImportData(TestDefaultAttrAnnotation.class, annotation);
         CollectionAssert.assertEquals(Collections.singleton(new AnonymousMethod<>(value.getType(), "value")), annotation.getAttributes());
         Assertions.assertEquals(value, annotation.getValue(new AnonymousMethod<>(value.getType(), "value")));
@@ -180,7 +181,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
     public void testCreateDefaultAnnotationWithUnknownClass() {
         JValue<ClassType, String> value = JValueFactory.create("abc123");
 
-        JAnnotation annotation = JAnnotationFactory.create(new ClassType("a.b.c.D"), value);
+        JAnnotation annotation = JAnnotationFactory.create(TypeFactory.createClassType("a.b.c.D"), value);
         TendrilAssert.assertImportData("a.b.c", "D", annotation.getType());
         CollectionAssert.assertEquals(Collections.singleton(new AnonymousMethod<>(value.getType(), "value")), annotation.getAttributes());
         Assertions.assertEquals(value, annotation.getValue(new AnonymousMethod<>(value.getType(), "value")));
@@ -251,7 +252,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
         JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
-        JAnnotation annotation = JAnnotationFactory.create(new ClassType(TestMultiAttrsAnnotation.class), Map.of("valStr", strValue, "valInt", intValue));
+        JAnnotation annotation = JAnnotationFactory.create(TypeFactory.createClassType(TestMultiAttrsAnnotation.class), Map.of("valStr", strValue, "valInt", intValue));
         assertImportData(TestMultiAttrsAnnotation.class, annotation);
         CollectionAssert.assertEquivalent(annotation.getAttributes(), new AnonymousMethod<>(strValue.getType(), "valStr"), new AnonymousMethod<>(intValue.getType(), "valInt"));
         Assertions.assertEquals(strValue, annotation.getValue(new AnonymousMethod<>(strValue.getType(), "valStr")));
@@ -266,7 +267,7 @@ public class JAnnotationFactoryTest extends AbstractUnitTest {
         JValue<ClassType, String> strValue = JValueFactory.create("abc123");
         JValue<PrimitiveType, Integer> intValue = JValueFactory.create(234);
 
-        JAnnotation annotation = JAnnotationFactory.create(new ClassType("a.b.c.D"), Map.of("valStr", strValue, "valInt", intValue));
+        JAnnotation annotation = JAnnotationFactory.create(TypeFactory.createClassType("a.b.c.D"), Map.of("valStr", strValue, "valInt", intValue));
         TendrilAssert.assertImportData("a.b.c", "D", annotation.getType());
         CollectionAssert.assertEquivalent(annotation.getAttributes(), new AnonymousMethod<>(strValue.getType(), "valStr"), new AnonymousMethod<>(intValue.getType(), "valInt"));
         Assertions.assertEquals(strValue, annotation.getValue(new AnonymousMethod<>(strValue.getType(), "valStr")));

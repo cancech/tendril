@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
-import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.test.assertions.matchers.MultiLineStringMatcher;
 
@@ -37,7 +37,7 @@ public class CreateEnumTest {
      */
     @Test
     public void testCreateEmptyEnum() {
-        JClass cls = ClassBuilder.forEnum(new ClassType("a.b.c.d.E")).setVisibility(VisibilityType.PUBLIC).build();
+        JClass cls = ClassBuilder.forEnum(TypeFactory.createClassType("a.b.c.d.E")).setVisibility(VisibilityType.PUBLIC).build();
         
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package a.b.c.d;");
@@ -56,7 +56,7 @@ public class CreateEnumTest {
      */
     @Test
     public void testCreateWithSingleEntryOnly() {
-        JClass cls = ClassBuilder.forEnum(new ClassType("a.b.c.d.E")).setVisibility(VisibilityType.PUBLIC)
+        JClass cls = ClassBuilder.forEnum(TypeFactory.createClassType("a.b.c.d.E")).setVisibility(VisibilityType.PUBLIC)
                 .buildEnumeration("ABC").build()
                 .build();
         
@@ -79,7 +79,7 @@ public class CreateEnumTest {
      */
     @Test
     public void testCreateWithMultipleEntries() {
-        JClass cls = ClassBuilder.forEnum(new ClassType("a.b.c.d.E")).setVisibility(VisibilityType.PUBLIC)
+        JClass cls = ClassBuilder.forEnum(TypeFactory.createClassType("a.b.c.d.E")).setVisibility(VisibilityType.PUBLIC)
                 .buildEnumeration("ABC").build()
                 .buildEnumeration("DEF").build()
                 .buildEnumeration("GHI").build()
@@ -108,7 +108,7 @@ public class CreateEnumTest {
      */
     @Test
     public void testCreateWithSingleEntryWithParameter() {
-        JClass cls = ClassBuilder.forEnum(new ClassType("a.b.c.d.E")).setVisibility(VisibilityType.PUBLIC)
+        JClass cls = ClassBuilder.forEnum(TypeFactory.createClassType("a.b.c.d.E")).setVisibility(VisibilityType.PUBLIC)
                 .buildEnumeration("ABC").addParameter(JValueFactory.create("abc")).build()
                 .build();
         
@@ -131,7 +131,7 @@ public class CreateEnumTest {
      */
     @Test
     public void testCreateWithMultipleEntriesWithParameters() {
-        JClass cls = ClassBuilder.forEnum(new ClassType("a.b.c.d.E")).setVisibility(VisibilityType.PUBLIC)
+        JClass cls = ClassBuilder.forEnum(TypeFactory.createClassType("a.b.c.d.E")).setVisibility(VisibilityType.PUBLIC)
                 .buildEnumeration("ABC").addParameter(JValueFactory.create("abc")).build()
                 .buildEnumeration("DEF").addParameter(JValueFactory.create(true)).addParameter(JValueFactory.create('f')).build()
                 .buildEnumeration("GHI").build()

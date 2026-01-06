@@ -38,6 +38,7 @@ import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValueFactory;
 
 /**
@@ -61,7 +62,7 @@ public class BeanEnumProcessor extends AnnotationFromEnumProcessor {
      */
     @Override
     public ClassDefinition processType() throws TendrilException {
-        ClassType providerClass = currentClassType.generateFromClassSuffix("Id");
+        ClassType providerClass = TypeFactory.createClassType(currentClassType, "Id");
         return new ClassDefinition(providerClass, generateCode(providerClass));
     }
 

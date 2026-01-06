@@ -29,6 +29,7 @@ import org.mockito.Mock;
 
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
 
@@ -133,7 +134,7 @@ public class JBaseTest extends AbstractUnitTest {
      */
     @Test
     public void testSingleAnnotation() {
-        when(mockAnnotation1.getType()).thenReturn(new ClassType(Override.class));
+        when(mockAnnotation1.getType()).thenReturn(TypeFactory.createClassType(Override.class));
         
         element.setFinal(true);
         element.add(mockAnnotation1);
@@ -156,7 +157,7 @@ public class JBaseTest extends AbstractUnitTest {
      */
     @Test
     public void testSingleAnnotationClassType() {
-        when(mockAnnotation1.getType()).thenReturn(new ClassType("a.b.c.D"));
+        when(mockAnnotation1.getType()).thenReturn(TypeFactory.createClassType("a.b.c.D"));
         
         element.setFinal(true);
         element.add(mockAnnotation1);
@@ -166,11 +167,11 @@ public class JBaseTest extends AbstractUnitTest {
         verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
         element.verifyTimesCalled(1, 0);
 
-        Assertions.assertFalse(element.hasAnnotation(new ClassType("a.B")));
+        Assertions.assertFalse(element.hasAnnotation(TypeFactory.createClassType("a.B")));
         verify(mockAnnotation1).getType();
-        Assertions.assertFalse(element.hasAnnotation(new ClassType("a.b.C")));
+        Assertions.assertFalse(element.hasAnnotation(TypeFactory.createClassType("a.b.C")));
         verify(mockAnnotation1, times(2)).getType();
-        Assertions.assertTrue(element.hasAnnotation(new ClassType("a.b.c.D")));
+        Assertions.assertTrue(element.hasAnnotation(TypeFactory.createClassType("a.b.c.D")));
         verify(mockAnnotation1, times(3)).getType();
     }
 
@@ -179,9 +180,9 @@ public class JBaseTest extends AbstractUnitTest {
      */
     @Test
     public void testMultipleAnnotations() {
-        when(mockAnnotation1.getType()).thenReturn(new ClassType(Override.class));
-        when(mockAnnotation2.getType()).thenReturn(new ClassType(Deprecated.class));
-        when(mockAnnotation3.getType()).thenReturn(new ClassType(Override.class));
+        when(mockAnnotation1.getType()).thenReturn(TypeFactory.createClassType(Override.class));
+        when(mockAnnotation2.getType()).thenReturn(TypeFactory.createClassType(Deprecated.class));
+        when(mockAnnotation3.getType()).thenReturn(TypeFactory.createClassType(Override.class));
         
         element.add(mockAnnotation1);
         Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
@@ -213,9 +214,9 @@ public class JBaseTest extends AbstractUnitTest {
      */
     @Test
     public void testMultipleAnnotationsClassType() {
-        when(mockAnnotation1.getType()).thenReturn(new ClassType("a.B"));
-        when(mockAnnotation2.getType()).thenReturn(new ClassType("a.b.C"));
-        when(mockAnnotation3.getType()).thenReturn(new ClassType("a.B"));
+        when(mockAnnotation1.getType()).thenReturn(TypeFactory.createClassType("a.B"));
+        when(mockAnnotation2.getType()).thenReturn(TypeFactory.createClassType("a.b.C"));
+        when(mockAnnotation3.getType()).thenReturn(TypeFactory.createClassType("a.B"));
         
         element.add(mockAnnotation1);
         Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
@@ -231,14 +232,14 @@ public class JBaseTest extends AbstractUnitTest {
         element.verifyTimesCalled(1, 0);
         
 
-        Assertions.assertTrue(element.hasAnnotation(new ClassType("a.b.C")));
+        Assertions.assertTrue(element.hasAnnotation(TypeFactory.createClassType("a.b.C")));
         verify(mockAnnotation1).getType();
         verify(mockAnnotation2).getType();
-        Assertions.assertFalse(element.hasAnnotation(new ClassType("a.b.c.D")));
+        Assertions.assertFalse(element.hasAnnotation(TypeFactory.createClassType("a.b.c.D")));
         verify(mockAnnotation1, times(2)).getType();
         verify(mockAnnotation2, times(2)).getType();
         verify(mockAnnotation3, times(1)).getType();
-        Assertions.assertTrue(element.hasAnnotation(new ClassType("a.B")));
+        Assertions.assertTrue(element.hasAnnotation(TypeFactory.createClassType("a.B")));
         verify(mockAnnotation1, times(3)).getType();
     }
 

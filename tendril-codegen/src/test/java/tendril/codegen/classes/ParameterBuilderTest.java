@@ -28,6 +28,7 @@ import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.type.VoidType;
 import tendril.test.AbstractUnitTest;
 
@@ -68,7 +69,7 @@ public class ParameterBuilderTest extends AbstractUnitTest {
         }
 
         // Class is OK
-        builder.setType(new ClassType(ClassType.class));
+        builder.setType(TypeFactory.createClassType(ClassType.class));
         builder.validate();
 
         // Non-void is OK

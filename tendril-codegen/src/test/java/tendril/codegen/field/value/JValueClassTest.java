@@ -11,6 +11,7 @@ import tendril.codegen.field.JVisibleType;
 import tendril.codegen.field.type.ArrayType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.type.VoidType;
 import tendril.codegen.generics.GenericFactory;
 
@@ -47,7 +48,7 @@ public class JValueClassTest extends SharedJValueTest {
 	 * @param klass {@link Class} to use for the test
 	 */
 	private <T> void testClassCode(Class<T> klass) {
-		currentImport = new ClassType(klass);
+		currentImport = TypeFactory.createClassType(klass);
 		assertCode(klass.getSimpleName() + ".class", new JValueClass(currentImport));
 	}
 
@@ -56,7 +57,7 @@ public class JValueClassTest extends SharedJValueTest {
 	 */
 	@Test
 	public void testInstanceOf() {
-		JValueClass value = new JValueClass(new ClassType(JType.class));
+		JValueClass value = new JValueClass(TypeFactory.createClassType(JType.class));
 
 		// Expected to be false
 		Assertions.assertFalse(value.isInstanceOf(null));
@@ -64,7 +65,7 @@ public class JValueClassTest extends SharedJValueTest {
 			Assertions.assertFalse(value.isInstanceOf(t));
 		Assertions.assertFalse(value.isInstanceOf(VoidType.INSTANCE));
 		Assertions.assertFalse(value.isInstanceOf(new ArrayType<>(PrimitiveType.BOOLEAN)));
-		Assertions.assertFalse(value.isInstanceOf(new ClassType(Double.class)));
+		Assertions.assertFalse(value.isInstanceOf(TypeFactory.createClassType(Double.class)));
 		Assertions.assertFalse(value.isInstanceOf(buildClass(Double.class)));
 		Assertions.assertFalse(value.isInstanceOf(buildClass(JVisibleType.class)));
 		Assertions.assertFalse(value.isInstanceOf(buildClass(JClass.class)));
@@ -80,8 +81,8 @@ public class JValueClassTest extends SharedJValueTest {
 	 * @return {@link ClassType}
 	 */
 	private ClassType buildClass(Class<?> klass) {
-		ClassType type = new ClassType(Class.class);
-		type.addGeneric(GenericFactory.create(new ClassType(klass)));
+		ClassType type = TypeFactory.createClassType(Class.class);
+		type.addGeneric(GenericFactory.create(TypeFactory.createClassType(klass)));
 		return type;
 	}
 }

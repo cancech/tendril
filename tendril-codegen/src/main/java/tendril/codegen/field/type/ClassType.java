@@ -34,41 +34,13 @@ public class ClassType extends JGeneric implements Type {
     /** The name of the importable element (class or equivalent) */
     private final String className;
     
-    // TODO create factory wrapper
-    
-    /**
-     * CTOR
-     * 
-     * @param klass {@link Class} the specific class definition which is being described
-     */
-    public ClassType(Class<?> klass) {
-        this(klass.getPackageName(), klass.getSimpleName());
-    }
-
-    /**
-     * CTOR
-     * 
-     * @param fullyQualifiedName {@link String} the fully qualified name of the defined class
-     */
-    public ClassType(String fullyQualifiedName) {
-        int lastDot = fullyQualifiedName.lastIndexOf('.');
-        if (lastDot <= 0)
-            throw new DefinitionException(this, "Invalid fully qualified class \"" + fullyQualifiedName + "\". Hint: default package is not supported");
-
-        this.packageName = fullyQualifiedName.substring(0, lastDot);
-        this.className = fullyQualifiedName.substring(lastDot + 1);
-    }
-
     /**
      * CTOR
      * 
      * @param packageName {@link String} the name of the package where the defined class lives
      * @param className   {@link String} the name of the class itself
      */
-    public ClassType(String packageName, String className) {
-        if (packageName == null || packageName.isBlank())
-            throw new DefinitionException(this, "Invalid package \"" + packageName + "\" - valid (non default) package is required");
-
+    ClassType(String packageName, String className) {
         this.packageName = packageName;
         this.className = className;
     }
@@ -98,16 +70,6 @@ public class ClassType extends JGeneric implements Type {
      */
     public String getFullyQualifiedName() {
         return packageName + "." + className;
-    }
-
-    /**
-     * Derive a new class definition from the current one, such that the specified suffix is applied to the generated class name
-     * 
-     * @param classSuffix {@link String} the suffix to apply to generate a new class definition
-     * @return {@link ClassType} of the new class
-     */
-    public ClassType generateFromClassSuffix(String classSuffix) {
-        return new ClassType(getPackageName(), getClassName() + classSuffix);
     }
 
     /**

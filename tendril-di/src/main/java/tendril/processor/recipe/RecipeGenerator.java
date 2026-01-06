@@ -23,6 +23,7 @@ import tendril.bean.Configuration;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 
 /**
  * Generator for Recipe files, intended to be used by Annotation Processors that need to generate recipe files that are to be used by the DI capability at runtime.
@@ -149,7 +150,7 @@ public final class RecipeGenerator {
      * @return {@link ClassType}
      */
     static ClassType getRecipeType(ClassType configType, JMethod<?> creator) {
-        ClassType providerClass = configType.generateFromClassSuffix(creator.getName());
+        ClassType providerClass = TypeFactory.createClassType(configType, creator.getName());
         return getRecipeType(providerClass);
         
     }
@@ -161,7 +162,7 @@ public final class RecipeGenerator {
      * @return {@link ClassType}
      */
     private static ClassType getRecipeType(ClassType beanType) {
-        return beanType.generateFromClassSuffix("Recipe");
+        return TypeFactory.createClassType(beanType, "Recipe");
     }
     
     /**
@@ -171,6 +172,6 @@ public final class RecipeGenerator {
      * @return {@link ClassType}
      */
     static ClassType getSiblingRecipeType(ClassType siblingType) {
-    	return getRecipeType(siblingType.generateFromClassSuffix("Sibling"));
+    	return getRecipeType(TypeFactory.createClassType(siblingType, "Sibling"));
     }
 }

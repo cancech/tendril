@@ -25,6 +25,7 @@ import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.codegen.generics.GenericFactory;
 
@@ -66,7 +67,7 @@ public class BlueprintProcessor extends QualifierEnumProcessor {
 	 */
 	@Override
 	protected ClassDefinition processType() throws TendrilException {
-		generatedBlueprintClass = currentClassType.generateFromClassSuffix("Blueprint");
+		generatedBlueprintClass = TypeFactory.createClassType(currentClassType, "Blueprint");
         
 		// Generate qualifiers for each of the entries
 		super.processType();
@@ -99,7 +100,7 @@ public class BlueprintProcessor extends QualifierEnumProcessor {
      * @throws ClassNotFoundException if the sourceEnum representing as unknown type
      */
     private String generateBlueprintCode(ClassType qualifier) {
-    	ClassType type = new ClassType(Class.class);
+    	ClassType type = TypeFactory.createClassType(Class.class);
     	type.addGeneric(GenericFactory.create(currentClass));
     	
         JClass cls = ClassBuilder.forAnnotation(qualifier).setVisibility(VisibilityType.PUBLIC)

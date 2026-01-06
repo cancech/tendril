@@ -24,6 +24,7 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.generics.GenericFactory;
 import tendril.context.Engine;
 
@@ -92,7 +93,7 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
      * @param builder {@link ClassBuilder} where the recipe class is being defined
      */
     private void generateConstructor(ClassType configType, ClassBuilder builder) {
-        ClassType configRecipeType = new ClassType(ConfigurationRecipe.class);
+        ClassType configRecipeType = TypeFactory.createClassType(ConfigurationRecipe.class);
         configRecipeType.addGeneric(GenericFactory.create(configType));
         
         // Instance field for the config
@@ -100,7 +101,7 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
         // Add the constructor
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC)
             .buildParameter(configRecipeType, "config").finish()
-            .buildParameter(new ClassType(Engine.class), "engine").finish()
+            .buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish()
             .addCode("super(engine, " + creatorType.getSimpleName() + ".class, " + isPrimary + ", " + isFallback + ");",
                      "this.config = config;")
             .finish();

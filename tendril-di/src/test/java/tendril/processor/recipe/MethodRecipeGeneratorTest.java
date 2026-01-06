@@ -30,6 +30,7 @@ import tendril.codegen.classes.method.ConcreteMethodBuilder;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -56,7 +57,7 @@ public class MethodRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testCannotBeStatic() {
-        ClassType configType = new ClassType("a.b.c.D");
+        ClassType configType = TypeFactory.createClassType("a.b.c.D");
         MethodBuilder<Type> builder = new ConcreteMethodBuilder<>(null, "method").setType(PrimitiveType.INT)
                 .addAnnotation(JAnnotationFactory.create(Singleton.class)).emptyImplementation();
         builder.setStatic(true);
@@ -69,7 +70,7 @@ public class MethodRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testCannotBePrivate() {
-        ClassType configType = new ClassType("a.b.c.D");
+        ClassType configType = TypeFactory.createClassType("a.b.c.D");
         MethodBuilder<Type> builder = new ConcreteMethodBuilder<>(null, "method").setType(PrimitiveType.INT)
                 .addAnnotation(JAnnotationFactory.create(Singleton.class)).emptyImplementation();
         builder.setVisibility(VisibilityType.PRIVATE);
@@ -83,7 +84,7 @@ public class MethodRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testMustBeConcrete() throws TendrilException {
-        ClassType configType = new ClassType("a.b.c.D");
+        ClassType configType = TypeFactory.createClassType("a.b.c.D");
         MethodBuilder<Type> builder = new ConcreteMethodBuilder<>(null, "method").setType(PrimitiveType.INT)
                 .addAnnotation(JAnnotationFactory.create(Singleton.class)).emptyImplementation();
         

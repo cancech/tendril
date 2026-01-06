@@ -164,7 +164,7 @@ public class ClassConverter {
     private ClassType deriveClassData(TypeElement type) {
         String typeName = type.getSimpleName().toString();
         String packageName = StringUtils.removeEnd(StringUtils.removeEnd(type.getQualifiedName().toString(), typeName), ".");
-        return new ClassType(packageName, typeName);
+        return TypeFactory.createClassType(packageName, typeName);
     }
     
     /**
@@ -380,7 +380,7 @@ public class ClassConverter {
      * @throws DataMismatchException if the value does not match the desired type
      */
     private EnumerationEntry createEnumEntry(Type desiredType, VariableElement value) throws DataMismatchException {
-        ClassType valueType = new ClassType(value.asType().toString());
+        ClassType valueType = TypeFactory.createClassType(value.asType().toString());
         if (!desiredType.equals(valueType)) {
             throw new DataMismatchException(desiredType, valueType);
         }

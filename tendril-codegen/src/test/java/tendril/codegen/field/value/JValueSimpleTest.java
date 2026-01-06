@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
+import tendril.codegen.field.type.TypeFactory;
 
 /**
  * Test case for {@link JValueSimple}
@@ -39,7 +40,7 @@ public class JValueSimpleTest extends SharedJValueTest {
      */
     @Test
     public void testGenerate() {
-        assertCode("`dsf'", new JValueSimple<ClassType, String>(new ClassType(String.class), "dsf", "`", "'"));
+        assertCode("`dsf'", new JValueSimple<ClassType, String>(TypeFactory.createClassType(String.class), "dsf", "`", "'"));
         assertCode("abc123efg", new JValueSimple<PrimitiveType, Integer>(PrimitiveType.INT, 123, "abc", "efg"));
         assertCode("1.23", new JValueSimple<PrimitiveType, Double>(PrimitiveType.DOUBLE, 1.23, "", ""));
         assertCode("321", new JValueSimple<PrimitiveType, Short>(PrimitiveType.SHORT, (short) 321));
@@ -48,7 +49,7 @@ public class JValueSimpleTest extends SharedJValueTest {
     /** Verify that the appropriate string it produced */
     @Test
     public void testToString() {
-        Assertions.assertEquals("[String = dsf]", new JValueSimple<ClassType, String>(new ClassType(String.class), "dsf", "`", "'").toString());
+        Assertions.assertEquals("[String = dsf]", new JValueSimple<ClassType, String>(TypeFactory.createClassType(String.class), "dsf", "`", "'").toString());
         Assertions.assertEquals("[int = 123]", new JValueSimple<PrimitiveType, Integer>(PrimitiveType.INT, 123, "abc", "efg").toString());
         Assertions.assertEquals("[double = 1.23]", new JValueSimple<PrimitiveType, Double>(PrimitiveType.DOUBLE, 1.23, "", "").toString());
         Assertions.assertEquals("[short = 321]", new JValueSimple<PrimitiveType, Short>(PrimitiveType.SHORT, (short) 321).toString());

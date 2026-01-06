@@ -255,13 +255,13 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
      */
     @Test
     public void testAsClassType() {
-        Assertions.assertEquals(new ClassType(Boolean.class), PrimitiveType.BOOLEAN.asClassType());
-        Assertions.assertEquals(new ClassType(Byte.class), PrimitiveType.BYTE.asClassType());
-        Assertions.assertEquals(new ClassType(Character.class), PrimitiveType.CHAR.asClassType());
-        Assertions.assertEquals(new ClassType(Double.class), PrimitiveType.DOUBLE.asClassType());
-        Assertions.assertEquals(new ClassType(Float.class), PrimitiveType.FLOAT.asClassType());
-        Assertions.assertEquals(new ClassType(Integer.class), PrimitiveType.INT.asClassType());
-        Assertions.assertEquals(new ClassType(Long.class), PrimitiveType.LONG.asClassType());
-        Assertions.assertEquals(new ClassType(Short.class), PrimitiveType.SHORT.asClassType());
+        Assertions.assertEquals(TypeFactory.createClassType(Boolean.class), PrimitiveType.BOOLEAN.asClassType());
+        Assertions.assertEquals(TypeFactory.createClassType(Byte.class), PrimitiveType.BYTE.asClassType());
+        Assertions.assertEquals(TypeFactory.createClassType(Character.class), PrimitiveType.CHAR.asClassType());
+        Assertions.assertEquals(TypeFactory.createClassType(Double.class), PrimitiveType.DOUBLE.asClassType());
+        Assertions.assertEquals(TypeFactory.createClassType(Float.class), PrimitiveType.FLOAT.asClassType());
+        Assertions.assertEquals(TypeFactory.createClassType(Integer.class), PrimitiveType.INT.asClassType());
+        Assertions.assertEquals(TypeFactory.createClassType(Long.class), PrimitiveType.LONG.asClassType());
+        Assertions.assertEquals(TypeFactory.createClassType(Short.class), PrimitiveType.SHORT.asClassType());
     }
 }

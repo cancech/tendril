@@ -113,7 +113,7 @@ public class DefinitionException extends RuntimeException {
      * @param fullyQualifiedName {@link String} fully qualified name of the class whose definition is causing the exception
      * @param reason {@link String} the reason for the exception
      */
-    private DefinitionException(String fullyQualifiedName, String reason) {
+    public DefinitionException(String fullyQualifiedName, String reason) {
         super(fullyQualifiedName + " - " + reason);
     }
 

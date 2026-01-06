@@ -25,6 +25,7 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.test.helper.TestEnum;
 
 /**
@@ -87,7 +88,7 @@ public class JValueEnumTest extends SharedJValueTest {
      * @param enumClass {@link Class} of the Enum
      */
     private <T extends Enum<T>> void testEnum(T value, Class<T> enumClass) {
-        currentImport = new ClassType(enumClass);
+        currentImport = TypeFactory.createClassType(enumClass);
         assertCode(enumClass.getSimpleName() + "." + value.name(), new JValueEnum(value));
     }
 

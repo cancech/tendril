@@ -40,6 +40,7 @@ import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.context.Engine;
 
 /**
@@ -98,7 +99,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
         generateFieldConsumers(ctorCode);
         generateMethodConsumers(ctorCode);
 
-        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).buildParameter(new ClassType(Engine.class), "engine").finish().addCode(ctorCode.toArray(new String[ctorCode.size()])).finish();
+        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish().addCode(ctorCode.toArray(new String[ctorCode.size()])).finish();
     }
 
     /**
@@ -182,7 +183,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
         for (JMethod<?> method : creator.getMethods(Inject.class)) {
             // Only include the import, if it's actually used
             if (isFirst) {
-                externalImports.add(new ClassType(Injector.class));
+                externalImports.add(TypeFactory.createClassType(Injector.class));
                 isFirst = false;
             }
 
@@ -268,7 +269,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
 
         // Add the method to the recipe
         builder.buildMethod(creatorType, "createInstance").setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
-                .buildParameter(new ClassType(Engine.class), "engine").finish().addCode(lines.toArray(new String[lines.size()])).finish();
+                .buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish().addCode(lines.toArray(new String[lines.size()])).finish();
     }
 
     /**

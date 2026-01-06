@@ -24,6 +24,7 @@ import tendril.codegen.field.type.ArrayType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.type.TypeFactory;
 
 /**
  * Factory to facilitate the creation of {@link JValue}s
@@ -129,7 +130,7 @@ public class JValueFactory {
      * @return {@link JValue}
      */
     public static JValue<ClassType, String> create(String value) {
-        return new JValueSimple<ClassType, String>(new ClassType(String.class), value, "\"", "\"");
+        return new JValueSimple<ClassType, String>(TypeFactory.createClassType(String.class), value, "\"", "\"");
     }
 
     /**

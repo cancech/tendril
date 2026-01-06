@@ -124,7 +124,7 @@ public class ArrayType<DATA_TYPE extends Type> implements Type {
      */
     @Override
     public ClassType asClassType() {
-        return new ClassType(Array.class);
+        return TypeFactory.createClassType(Array.class);
     }
     
     /**

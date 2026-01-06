@@ -30,6 +30,7 @@ import tendril.codegen.field.JField;
 import tendril.codegen.field.VisibileTypeBuilder;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.type.VoidType;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.codegen.generics.GenericType;
@@ -57,7 +58,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * @return {@link ClassBuilder}
      */
     public static ClassBuilder forConcreteClass(Class<?> type) {
-        return forConcreteClass(new ClassType(type));
+        return forConcreteClass(TypeFactory.createClassType(type));
     }
 
     /**
@@ -77,7 +78,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * @return {@link ClassBuilder}
      */
     public static ClassBuilder forAbstractClass(Class<?> type) {
-        return forAbstractClass(new ClassType(type));
+        return forAbstractClass(TypeFactory.createClassType(type));
     }
 
     /**
@@ -107,7 +108,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * @return {@link ClassBuilder}
      */
     public static ClassBuilder forInterface(Class<?> type) {
-        return forInterface(new ClassType(type));
+        return forInterface(TypeFactory.createClassType(type));
     }
 
     /**
@@ -127,7 +128,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * @return {@link ClassBuilder}
      */
     public static ClassBuilder forAnnotation(Class<?> type) {
-        return forAnnotation(new ClassType(type));
+        return forAnnotation(TypeFactory.createClassType(type));
     }
 
     /**
@@ -147,7 +148,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * @return {@link ClassBuilder}
      */
     public static ClassBuilder forEnum(Class<?> type) {
-        return forEnum(new ClassType(type));
+        return forEnum(TypeFactory.createClassType(type));
     }
 
     /**
@@ -218,7 +219,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * @return {@link MethodBuilder} for creating the method
      */
     public MethodBuilder<ClassType> buildMethod(Class<?> returnType, String name) {
-        return buildMethod(new ClassType(returnType), name);
+        return buildMethod(TypeFactory.createClassType(returnType), name);
     }
 
     /**
@@ -261,7 +262,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
      * @return {@link FieldBuilder} for creating the field
      */
     public FieldBuilder<ClassType> buildField(Class<?> type, String name) {
-        return buildField(new ClassType(type), name);
+        return buildField(TypeFactory.createClassType(type), name);
     }
 
     /**

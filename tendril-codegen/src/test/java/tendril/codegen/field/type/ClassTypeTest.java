@@ -50,7 +50,16 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	 */
 	@Override
 	protected void prepareTest() {
-		type = new ClassType(VisibilityType.class);
+		type = new ClassType(VisibilityType.class.getPackageName(), VisibilityType.class.getSimpleName());
+	}
+	
+	/**
+	 * Helper to simplify the creation of {@link ClassType} instances.
+	 * 
+	 * @param klass {@link Class} from which to create the {@link ClassType}
+	 */
+	private ClassType create(Class<?> klass) {
+		return new ClassType(klass.getPackageName(), klass.getSimpleName());
 	}
 
 	/**
@@ -84,12 +93,12 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 		verifyAsValue(Integer.class, JValueFactory.create((int) testValues[7]));
 		verifyAsValue(Long.class, JValueFactory.create((long) testValues[8]));
 		verifyAsValue(Short.class, JValueFactory.create((short) testValues[9]));
-		verifyAsValue(ClassType.class, JValueFactory.create(new ClassType(getClass())));
+		verifyAsValue(ClassType.class, JValueFactory.create(create(getClass())));
 
 		// Everything else generates an exception
-		type = new ClassType(JBase.class);
+		type = create(JBase.class);
 		verifyDataState(JBase.class);
-		Assertions.assertThrows(DefinitionException.class, () -> type.asValue(new ClassType(getClass())));
+		Assertions.assertThrows(DefinitionException.class, () -> type.asValue(create(getClass())));
 	}
 
 	/**
@@ -98,21 +107,21 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	@Test
 	public void testIsTypeOf() {
 		// Expected to be false
-		Assertions.assertFalse(type.isTypeOf(new ClassType(getClass())));
+		Assertions.assertFalse(type.isTypeOf(create(getClass())));
 		Assertions.assertFalse(type.isTypeOf(123));
 		Assertions.assertFalse(type.isTypeOf("abc123"));
-		Assertions.assertFalse(new ClassType(Integer.class).isTypeOf("abc123"));
-		Assertions.assertFalse(new ClassType(String.class).isTypeOf(123));
-		Assertions.assertFalse(new ClassType(ClassType.class).isTypeOf(new JGeneric()));
-		Assertions.assertFalse(new ClassType(JGeneric.class).isTypeOf(new ClassType(JGeneric.class)));
+		Assertions.assertFalse(create(Integer.class).isTypeOf("abc123"));
+		Assertions.assertFalse(create(String.class).isTypeOf(123));
+		Assertions.assertFalse(create(ClassType.class).isTypeOf(new JGeneric()));
+		Assertions.assertFalse(create(JGeneric.class).isTypeOf(create(JGeneric.class)));
 
 		// Expected to be true
 		for (VisibilityType t : VisibilityType.values())
 			Assertions.assertTrue(type.isTypeOf(t));
-		Assertions.assertTrue(new ClassType(Integer.class).isTypeOf(123));
-		Assertions.assertTrue(new ClassType(String.class).isTypeOf("abc123"));
-		Assertions.assertTrue(new ClassType(ClassType.class).isTypeOf(new ClassType(JGeneric.class)));
-		Assertions.assertTrue(new ClassType(JGeneric.class).isTypeOf(new JGeneric()));
+		Assertions.assertTrue(create(Integer.class).isTypeOf(123));
+		Assertions.assertTrue(create(String.class).isTypeOf("abc123"));
+		Assertions.assertTrue(create(ClassType.class).isTypeOf(create(JGeneric.class)));
+		Assertions.assertTrue(create(JGeneric.class).isTypeOf(new JGeneric()));
 	}
 
 	/**
@@ -123,15 +132,15 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 		type = buildClass(JBase.class);
 
 		// Expected to be false
-		Assertions.assertFalse(type.isTypeOf(new ClassType(getClass())));
+		Assertions.assertFalse(type.isTypeOf(create(getClass())));
 		Assertions.assertFalse(type.isTypeOf(123));
 		Assertions.assertFalse(type.isTypeOf("abc123"));
-		Assertions.assertFalse(new ClassType(Integer.class).isTypeOf("abc123"));
-		Assertions.assertFalse(new ClassType(String.class).isTypeOf(123));
-		Assertions.assertFalse(new ClassType(ClassType.class).isTypeOf(new JGeneric()));
-		Assertions.assertFalse(new ClassType(JGeneric.class).isTypeOf(new ClassType(JGeneric.class)));
-		Assertions.assertFalse(type.isTypeOf(new ClassType(JGeneric.class)));
-		Assertions.assertFalse(type.isTypeOf(buildClass(new ClassType("a.b.c.D"))));
+		Assertions.assertFalse(create(Integer.class).isTypeOf("abc123"));
+		Assertions.assertFalse(create(String.class).isTypeOf(123));
+		Assertions.assertFalse(create(ClassType.class).isTypeOf(new JGeneric()));
+		Assertions.assertFalse(create(JGeneric.class).isTypeOf(create(JGeneric.class)));
+		Assertions.assertFalse(type.isTypeOf(create(JGeneric.class)));
+		Assertions.assertFalse(type.isTypeOf(buildClass(new ClassType("a.b.c", "D"))));
 		Assertions.assertFalse(type.isTypeOf(new JBase("") {
 			@Override
 			public String generateSelf(Set<ClassType> classImports) {
@@ -144,12 +153,12 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 		}));
 
 		// Expected to be true
-		Assertions.assertTrue(type.isTypeOf(new ClassType(JBase.class)));
-		Assertions.assertTrue(type.isTypeOf(new ClassType(JAnnotation.class)));
-		Assertions.assertTrue(type.isTypeOf(new ClassType(JType.class)));
-		Assertions.assertTrue(type.isTypeOf(new ClassType(JParameter.class)));
-		Assertions.assertTrue(type.isTypeOf(new ClassType(JVisibleType.class)));
-		Assertions.assertTrue(type.isTypeOf(new ClassType(JClass.class)));
+		Assertions.assertTrue(type.isTypeOf(create(JBase.class)));
+		Assertions.assertTrue(type.isTypeOf(create(JAnnotation.class)));
+		Assertions.assertTrue(type.isTypeOf(create(JType.class)));
+		Assertions.assertTrue(type.isTypeOf(create(JParameter.class)));
+		Assertions.assertTrue(type.isTypeOf(create(JVisibleType.class)));
+		Assertions.assertTrue(type.isTypeOf(create(JClass.class)));
 		Assertions.assertTrue(type.isTypeOf(buildClass(JBase.class)));
 		Assertions.assertTrue(type.isTypeOf(buildClass(JAnnotation.class)));
 		Assertions.assertTrue(type.isTypeOf(buildClass(JType.class)));
@@ -166,7 +175,7 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	 * @param expectedValue {@link JValue} that is expected to be produced
 	 */
 	private <T> void verifyAsValue(Class<T> valueClass, JValue<?, ?> expectedValue) {
-		type = new ClassType(valueClass);
+		type = create(valueClass);
 		verifyDataState(valueClass);
 
 		for (int i = 0; i < allToTest.length; i++) {
@@ -187,19 +196,9 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	 */
 	@Test
 	public void testCtor() {
-		TendrilAssert.assertImportData(JType.class, new ClassType(JType.class));
-		TendrilAssert.assertImportData("a.b.c.d", "EfGh", new ClassType("a.b.c.d.EfGh"));
+		TendrilAssert.assertImportData(JType.class, create(JType.class));
+		TendrilAssert.assertImportData("a.b.c.d", "EfGh", new ClassType("a.b.c.d", "EfGh"));
 		TendrilAssert.assertImportData("1.2.3.4", "Abcd", new ClassType("1.2.3.4", "Abcd"));
-	}
-
-	/**
-	 * Verify that a new class data is properly generated from an existing one when a class name suffix is supplied
-	 */
-	@Test
-	public void testGenerateFromSuffix() {
-		TendrilAssert.assertImportData(VisibilityType.class.getPackageName(), VisibilityType.class.getSimpleName() + "Suffix", type.generateFromClassSuffix("Suffix"));
-		TendrilAssert.assertImportData("a.b.c.d", "EfGhQwerty", new ClassType("a.b.c.d.EfGh").generateFromClassSuffix("Qwerty"));
-		TendrilAssert.assertImportData("1.2.3.4", "AbcdEfgh", new ClassType("1.2.3.4", "Abcd").generateFromClassSuffix("Efgh"));
 	}
 
 	/**
@@ -207,27 +206,25 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	 */
 	@Test
 	public void testAssignableFrom() {
-		ClassType lhs = new ClassType("a.b.c.d.E");
+		ClassType lhs = new ClassType("a.b.c.d", "E");
 
 		// These are expected to fail
 		for (PrimitiveType pd : PrimitiveType.values())
 			Assertions.assertFalse(lhs.isAssignableFrom(pd));
 		Assertions.assertFalse(lhs.isAssignableFrom(VoidType.INSTANCE));
-		Assertions.assertFalse(lhs.isAssignableFrom(new ClassType("a.b.c.D")));
-		Assertions.assertFalse(lhs.isAssignableFrom(new ClassType(JType.class)));
-		Assertions.assertFalse(lhs.isAssignableFrom(new ClassType("a.b.c.d.e")));
-		Assertions.assertFalse(lhs.isAssignableFrom(new ClassType(JVisibleType.class)));
-		Assertions.assertFalse(lhs.isAssignableFrom(new ClassType(JField.class)));
+		Assertions.assertFalse(lhs.isAssignableFrom(new ClassType("a.b.c", "D")));
+		Assertions.assertFalse(lhs.isAssignableFrom(create(JType.class)));
+		Assertions.assertFalse(lhs.isAssignableFrom(new ClassType("a.b.c.d", "e")));
+		Assertions.assertFalse(lhs.isAssignableFrom(create(JVisibleType.class)));
+		Assertions.assertFalse(lhs.isAssignableFrom(create(JField.class)));
 
 		// These are expected to pass
-		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType("a.b.c.d.E")));
 		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType("a.b.c.d", "E")));
-		lhs = new ClassType(JType.class);
-		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(JType.class)));
-		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(JType.class.getName())));
+		lhs = create(JType.class);
+		Assertions.assertTrue(lhs.isAssignableFrom(create(JType.class)));
 		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(JType.class.getPackageName(), JType.class.getSimpleName())));
-		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(JVisibleType.class)));
-		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(JField.class)));
+		Assertions.assertTrue(lhs.isAssignableFrom(create(JVisibleType.class)));
+		Assertions.assertTrue(lhs.isAssignableFrom(create(JField.class)));
 	}
 
 	/**
@@ -236,43 +233,42 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	@Test
 	public void testAssignableFromWhenClass() {
 		// Class<JType>
-		ClassType lhs = buildClass(new ClassType(JType.class));
+		ClassType lhs = buildClass(create(JType.class));
 
 		// Expected to fail
 		for (PrimitiveType pd : PrimitiveType.values())
 			Assertions.assertFalse(lhs.isAssignableFrom(pd));
 		Assertions.assertFalse(lhs.isAssignableFrom(VoidType.INSTANCE));
-		Assertions.assertFalse(lhs.isAssignableFrom(new ClassType("a.b.c.D")));
-		Assertions.assertFalse(lhs.isAssignableFrom(buildClass(new ClassType("a.b.c.D"))));
+		Assertions.assertFalse(lhs.isAssignableFrom(buildClass(new ClassType("a.b.c", "D"))));
 		Assertions.assertFalse(lhs.isAssignableFrom(buildClass(VoidType.class)));
 
 		// Expected to pass
-		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(JType.class)));
-		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(JVisibleType.class)));
-		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(JField.class)));
+		Assertions.assertTrue(lhs.isAssignableFrom(create(JType.class)));
+		Assertions.assertTrue(lhs.isAssignableFrom(create(JVisibleType.class)));
+		Assertions.assertTrue(lhs.isAssignableFrom(create(JField.class)));
 		Assertions.assertTrue(lhs.isAssignableFrom(buildClass(JType.class)));
 		Assertions.assertTrue(lhs.isAssignableFrom(buildClass(JVisibleType.class)));
 		Assertions.assertTrue(lhs.isAssignableFrom(buildClass(JField.class)));
 
 		// When generics are different, can't assign
-		lhs = new ClassType(List.class);
-		lhs.addGeneric(GenericFactory.create(new ClassType(JType.class)));
-		ClassType rhs = new ClassType(List.class);
-		rhs.addGeneric(GenericFactory.create(new ClassType(Integer.class)));
+		lhs = create(List.class);
+		lhs.addGeneric(GenericFactory.create(create(JType.class)));
+		ClassType rhs = create(List.class);
+		rhs.addGeneric(GenericFactory.create(create(Integer.class)));
 		Assertions.assertFalse(lhs.isAssignableFrom(rhs));
 		// And must have the same number of generics
-		rhs = new ClassType(List.class);
-		rhs.addGeneric(GenericFactory.create(new ClassType(JType.class)));
-		rhs.addGeneric(GenericFactory.create(new ClassType(JType.class)));
+		rhs = create(List.class);
+		rhs.addGeneric(GenericFactory.create(create(JType.class)));
+		rhs.addGeneric(GenericFactory.create(create(JType.class)));
 		Assertions.assertFalse(lhs.isAssignableFrom(rhs));
 		// Must be identical, assignable is insufficient
-		rhs = new ClassType(List.class);
-		rhs.addGeneric(GenericFactory.create(new ClassType(JVisibleType.class)));
+		rhs = create(List.class);
+		rhs.addGeneric(GenericFactory.create(create(JVisibleType.class)));
 		Assertions.assertFalse(lhs.isAssignableFrom(rhs));
 
 		// When generics are the same, can assign
-		rhs = new ClassType(List.class);
-		rhs.addGeneric(GenericFactory.create(new ClassType(JType.class)));
+		rhs = create(List.class);
+		rhs.addGeneric(GenericFactory.create(create(JType.class)));
 		Assertions.assertTrue(lhs.isAssignableFrom(rhs));
 	}
 
@@ -283,7 +279,7 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	 * @return {@link ClassType} representation
 	 */
 	private ClassType buildClass(Class<?> klass) {
-		return buildClass(new ClassType(klass));
+		return buildClass(create(klass));
 	}
 
 	/**
@@ -293,7 +289,7 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	 * @return {@link ClassType} representation
 	 */
 	private ClassType buildClass(Type generic) {
-		ClassType type = new ClassType(Class.class);
+		ClassType type = create(Class.class);
 		type.addGeneric(GenericFactory.create(generic));
 		return type;
 	}
@@ -317,29 +313,17 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	 */
 	@Test
 	public void testFullyQualifiedName() {
-		ClassType data = new ClassType(JType.class);
+		ClassType data = create(JType.class);
 		Assertions.assertEquals(JType.class.getName(), data.getFullyQualifiedName());
 		Assertions.assertEquals(JType.class.getName(), data.toString());
 
-		data = new ClassType("a.b.c.d.EfGh");
+		data = new ClassType("a.b.c.d", "EfGh");
 		Assertions.assertEquals("a.b.c.d.EfGh", data.getFullyQualifiedName());
 		Assertions.assertEquals("a.b.c.d.EfGh", data.toString());
 
 		data = new ClassType("1.2.3.4", "Abcd");
 		Assertions.assertEquals("1.2.3.4.Abcd", data.getFullyQualifiedName());
 		Assertions.assertEquals("1.2.3.4.Abcd", data.toString());
-	}
-
-	/**
-	 * Verify that a class that appears in the default package generates an exception
-	 */
-	@Test
-	public void testClassInDefaultPackage() {
-		Assertions.assertThrows(DefinitionException.class, () -> new ClassType("SomeClass"));
-		Assertions.assertThrows(DefinitionException.class, () -> new ClassType(null, "SomeOtherClass"));
-		Assertions.assertThrows(DefinitionException.class, () -> new ClassType("", "YetOtherClass"));
-		Assertions.assertThrows(DefinitionException.class, () -> new ClassType(" ", "MyClass"));
-		Assertions.assertThrows(DefinitionException.class, () -> new ClassType("        ", "MyOtherClass"));
 	}
 
 	/**
@@ -358,20 +342,18 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	@SuppressWarnings("unlikely-arg-type")
 	@Test
 	public void testEquals() {
-		ClassType lhs = new ClassType("a.b.c.d.E");
+		ClassType lhs = new ClassType("a.b.c.d", "E");
 
 		// These are expected to fail
 		Assertions.assertFalse(lhs.equals("abc123"));
-		Assertions.assertFalse(lhs.equals(new ClassType("a.b.c.D")));
-		Assertions.assertFalse(lhs.equals(new ClassType(JType.class)));
-		Assertions.assertFalse(lhs.equals(new ClassType("a.b.c.d.e")));
+		Assertions.assertFalse(lhs.equals(new ClassType("a.b.c", "D")));
+		Assertions.assertFalse(lhs.equals(create(JType.class)));
+		Assertions.assertFalse(lhs.equals(new ClassType("a.b.c.d", "e")));
 
 		// These are expected to pass
-		Assertions.assertTrue(lhs.equals(new ClassType("a.b.c.d.E")));
 		Assertions.assertTrue(lhs.equals(new ClassType("a.b.c.d", "E")));
-		lhs = new ClassType(JType.class);
-		Assertions.assertTrue(lhs.equals(new ClassType(JType.class)));
-		Assertions.assertTrue(lhs.equals(new ClassType(JType.class.getName())));
+		lhs = create(JType.class);
+		Assertions.assertTrue(lhs.equals(create(JType.class)));
 		Assertions.assertTrue(lhs.equals(new ClassType(JType.class.getPackageName(), JType.class.getSimpleName())));
 	}
 
@@ -382,11 +364,11 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	public void testGetDefinedClass() {
 		// For a valid class... no exception is to be thrown
 		try {
-			Assertions.assertEquals(ClassType.class, new ClassType(ClassType.class).getDefinedClass());
-			Assertions.assertEquals(Integer.class, new ClassType(Integer.class).getDefinedClass());
-			Assertions.assertEquals(Type.class, new ClassType(Type.class).getDefinedClass());
-			Assertions.assertEquals(Override.class, new ClassType(Override.class).getDefinedClass());
-			Assertions.assertEquals(AbstractUnitTest.class, new ClassType(AbstractUnitTest.class).getDefinedClass());
+			Assertions.assertEquals(ClassType.class, create(ClassType.class).getDefinedClass());
+			Assertions.assertEquals(Integer.class, create(Integer.class).getDefinedClass());
+			Assertions.assertEquals(Type.class, create(Type.class).getDefinedClass());
+			Assertions.assertEquals(Override.class, create(Override.class).getDefinedClass());
+			Assertions.assertEquals(AbstractUnitTest.class, create(AbstractUnitTest.class).getDefinedClass());
 		} catch (ClassNotFoundException e) {
 			Assertions.fail(e);
 		}

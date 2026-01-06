@@ -41,6 +41,7 @@ import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JClassEnum;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValueFactory;
 
 /**
@@ -76,7 +77,7 @@ public class QualifierEnumProcessor extends AnnotationFromEnumProcessor {
         JClassEnum enumClass = (JClassEnum) currentClass;
         // Generate an annotation for each value, rather than one for the whole enum
         for (EnumerationEntry entry: enumClass.getEnumerations()) {
-            ClassType type = new ClassType(currentClassType.getPackageName(), entry.getName());
+            ClassType type = TypeFactory.createClassType(currentClassType.getPackageName(), entry.getName());
             writeCode(new ClassDefinition (type, generateCode(type)));
         }
         return null;

@@ -88,7 +88,7 @@ public class VoidTypeTest extends SharedTypeTest<VoidType> {
         // Anything else should fail
         Assertions.assertFalse(VoidType.INSTANCE.equals(PrimitiveType.BOOLEAN));
         Assertions.assertFalse(VoidType.INSTANCE.equals("abc123"));
-        Assertions.assertFalse(VoidType.INSTANCE.equals(new ClassType("a.b.c.d.E")));
+        Assertions.assertFalse(VoidType.INSTANCE.equals(TypeFactory.createClassType("a.b.c.d.E")));
     }
     
     /**

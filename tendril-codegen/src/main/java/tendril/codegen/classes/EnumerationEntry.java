@@ -21,6 +21,7 @@ import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValue;
 import tendril.util.TendrilStringUtil;
 
@@ -42,7 +43,7 @@ public class EnumerationEntry {
      * @return {@link EnumerationEntry}
      */
     public static EnumerationEntry from(Enum<?> value) {
-        return from(new ClassType(value.getClass()), value);
+        return from(TypeFactory.createClassType(value.getClass()), value);
     }
 
     /**

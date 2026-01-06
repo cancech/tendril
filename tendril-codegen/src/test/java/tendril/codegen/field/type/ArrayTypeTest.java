@@ -111,9 +111,9 @@ public class ArrayTypeTest extends AbstractUnitTest {
         verifyNoInteractions(mockType);
 
         // False if the type says so
-        when(mockType.isAssignableFrom(new ClassType(String.class))).thenReturn(false);
+        when(mockType.isAssignableFrom(TypeFactory.createClassType(String.class))).thenReturn(false);
         Assertions.assertFalse(type.isTypeOf(new String[] {}));
-        verify(mockType).isAssignableFrom(new ClassType(String.class));
+        verify(mockType).isAssignableFrom(TypeFactory.createClassType(String.class));
         
         // True if the type says so
         when(mockType.isAssignableFrom(PrimitiveType.INT)).thenReturn(true);
@@ -182,7 +182,7 @@ public class ArrayTypeTest extends AbstractUnitTest {
      */
     @Test
     public void testAsClassType() {
-        Assertions.assertEquals(new ClassType(Array.class), type.asClassType());
+        Assertions.assertEquals(TypeFactory.createClassType(Array.class), type.asClassType());
     }
     
     /**
@@ -192,6 +192,6 @@ public class ArrayTypeTest extends AbstractUnitTest {
     public void testToString() {
         Assertions.assertEquals("mockType[]", type.toString());
         Assertions.assertEquals("int[]", new ArrayType<>(PrimitiveType.INT).toString());
-        Assertions.assertEquals("a.b.c.D[]", new ArrayType<>(new ClassType("a.b.c.D")).toString());
+        Assertions.assertEquals("a.b.c.D[]", new ArrayType<>(TypeFactory.createClassType("a.b.c.D")).toString());
     }
 }

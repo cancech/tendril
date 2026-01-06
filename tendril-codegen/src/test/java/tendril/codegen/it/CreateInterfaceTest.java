@@ -31,6 +31,7 @@ import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JClassInterface;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.codegen.generics.GenericFactory;
 import tendril.codegen.generics.GenericType;
@@ -49,7 +50,7 @@ public class CreateInterfaceTest {
      */
     @Test
     public void cannotCreatePrivateOrProtected() {
-        ClassBuilder builder = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y"));
+        ClassBuilder builder = ClassBuilder.forInterface(TypeFactory.createClassType("q.w.e.r.t", "Y"));
         ClassAssert.assertInstance(JClassInterface.class, builder.setVisibility(VisibilityType.PUBLIC).build());
         ClassAssert.assertInstance(JClassInterface.class, builder.setVisibility(VisibilityType.PACKAGE_PRIVATE).build());
         Assertions.assertThrows(DefinitionException.class, () -> builder.setVisibility(VisibilityType.PROTECTED).build());
@@ -61,7 +62,7 @@ public class CreateInterfaceTest {
      */
     @Test
     public void cannotAddInvalidMethods() {
-        ClassBuilder builder = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE);
+        ClassBuilder builder = ClassBuilder.forInterface(TypeFactory.createClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE);
         Assertions.assertThrows(DefinitionException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "privateNoCodeNotAllowed").setVisibility(VisibilityType.PRIVATE).finish());
         Assertions.assertThrows(DefinitionException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "protectedNotAllowed").setVisibility(VisibilityType.PROTECTED).finish());
         Assertions.assertThrows(DefinitionException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "packagePrivateNotAllowed").setVisibility(VisibilityType.PACKAGE_PRIVATE).finish());
@@ -72,7 +73,7 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createEmptyInterface() {
-        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).build();
+        JClass iface = ClassBuilder.forInterface(TypeFactory.createClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package q.w.e.r.t;");
@@ -91,8 +92,8 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createAnnotatedInterface() {
-        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE)
-                .addAnnotation(JAnnotationFactory.create(new ClassType("this.that", "Something"), Map.of("val1", JValueFactory.create("string"), "val2", JValueFactory.create(123))))
+        JClass iface = ClassBuilder.forInterface(TypeFactory.createClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE)
+                .addAnnotation(JAnnotationFactory.create(TypeFactory.createClassType("this.that", "Something"), Map.of("val1", JValueFactory.create("string"), "val2", JValueFactory.create(123))))
                 .addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123")))
                 .build();
 
@@ -117,7 +118,7 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createInterfaceWithFields() {
-        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).build();
+        JClass iface = ClassBuilder.forInterface(TypeFactory.createClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package q.w.e.r.t;");
@@ -136,9 +137,9 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createInterfaceWithMethods() {
-        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE)
+        JClass iface = ClassBuilder.forInterface(TypeFactory.createClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE)
                 .buildMethod("voidMethod").setVisibility(VisibilityType.PUBLIC)
-                    .buildParameter(new ClassType(String.class), "stringParam")
+                    .buildParameter(TypeFactory.createClassType(String.class), "stringParam")
                         .addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).finish()
                     .finish()
                 .buildMethod(String.class, "annotatedMethod").addAnnotation(JAnnotationFactory.create(Deprecated.class)).addCode("abc123", "321cba").setVisibility(VisibilityType.PUBLIC).finish()
@@ -170,8 +171,8 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createInterfaceExtendingInterface() {
-        JClass parentCls = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Z")).build();
-        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).extendsClass(parentCls).build();
+        JClass parentCls = ClassBuilder.forInterface(TypeFactory.createClassType("q.w.e.r.t", "Z")).build();
+        JClass iface = ClassBuilder.forInterface(TypeFactory.createClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).extendsClass(parentCls).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package q.w.e.r.t;");
@@ -191,11 +192,11 @@ public class CreateInterfaceTest {
     @Test
     public void testCreateSimpleGeneric() {
         GenericType genericT = GenericFactory.create("T");
-        GenericType genericU = GenericFactory.createExtends("U", new ClassType("a", "B"));
-        GenericType superType = GenericFactory.createSuper(new ClassType("z.x.c", "V"));
-        ClassType listClass = new ClassType(List.class);
+        GenericType genericU = GenericFactory.createExtends("U", TypeFactory.createClassType("a", "B"));
+        GenericType superType = GenericFactory.createSuper(TypeFactory.createClassType("z.x.c", "V"));
+        ClassType listClass = TypeFactory.createClassType(List.class);
         listClass.addGeneric(superType);
-        JClass abstractCls = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).addGeneric(genericT)
+        JClass abstractCls = ClassBuilder.forInterface(TypeFactory.createClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).addGeneric(genericT)
                 .buildMethod("abc123").setVisibility(VisibilityType.PUBLIC).addGeneric(genericU).buildParameter(genericT, "t").finish().buildParameter(genericU, "u").finish()
                     .buildParameter(listClass, "list").finish().addCode("a", "b", "c").finish()
                 .buildField(genericT, "tField").finish()
@@ -232,18 +233,18 @@ public class CreateInterfaceTest {
      */
     @Test
     public void createInterfaceWithAnnotationsAndMethods() {
-        JClass ifaceZCls = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Z")).build();
-        JClass ifaceFCls = ClassBuilder.forInterface(new ClassType("a.b.c.d.e", "F")).build();
-        JClass ifaceWsxCls = ClassBuilder.forInterface(new ClassType("q.a.z", "Wsx")).build();
-        JClass iface = ClassBuilder.forInterface(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE)
+        JClass ifaceZCls = ClassBuilder.forInterface(TypeFactory.createClassType("q.w.e.r.t", "Z")).build();
+        JClass ifaceFCls = ClassBuilder.forInterface(TypeFactory.createClassType("a.b.c.d.e", "F")).build();
+        JClass ifaceWsxCls = ClassBuilder.forInterface(TypeFactory.createClassType("q.a.z", "Wsx")).build();
+        JClass iface = ClassBuilder.forInterface(TypeFactory.createClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE)
                 .extendsClass(ifaceZCls)
                 .extendsClass(ifaceFCls)
                 .extendsClass(ifaceWsxCls)
                 .buildMethod("voidMethod").setVisibility(VisibilityType.PUBLIC)
-                    .buildParameter(new ClassType(String.class), "stringParam").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).finish()
+                    .buildParameter(TypeFactory.createClassType(String.class), "stringParam").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).finish()
                     .finish()
                 .buildMethod(String.class, "annotatedMethod").setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Deprecated.class)).addCode("abc123", "321cba").finish()
-                .addAnnotation(JAnnotationFactory.create(new ClassType("this.that", "Something"), Map.of("val1", JValueFactory.create("string"), "val2", JValueFactory.create(123))))
+                .addAnnotation(JAnnotationFactory.create(TypeFactory.createClassType("this.that", "Something"), Map.of("val1", JValueFactory.create("string"), "val2", JValueFactory.create(123))))
                 .addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123")))
                 .build();
 

@@ -34,6 +34,7 @@ import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -58,7 +59,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testMustHaveOneRecipeType_Fails() {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type);
         
         // No recipe type indicated
@@ -74,7 +75,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testClassMustNotAbstract_Fails() {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forAbstractClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
@@ -85,7 +86,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testClassMustNotInterface_Fails() {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forInterface(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
@@ -96,7 +97,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testClassMustNotAnnotation_Fails() {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forAnnotation(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
@@ -107,7 +108,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testMustHaveOnlyOneNonAnnotatedConstructor_Fails() {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         // No constructor
@@ -129,7 +130,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testMustHaveOnlyOneInjectAnnotatedConstructor_Fails() {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         // No constructor
@@ -153,7 +154,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testPostConstructMustNotBePrivate_Fails() {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
@@ -169,7 +170,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testPostConstructMustNotBeVoid_Fails() {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).emptyImplementation().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
@@ -184,7 +185,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testPostConstructMustNotTakeAnyParameter_Fails() {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
@@ -202,7 +203,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testSingleAnnotatedConstructorNoPostConstruct_Passes() throws TendrilException {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
@@ -217,7 +218,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testSingleAnnotatedConstructorValidPostConstruct_Passes() throws TendrilException {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
@@ -233,7 +234,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testSingleViableConstructorNoPostConstruct_Passes() throws TendrilException {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
@@ -249,7 +250,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testSingleViableConstructorValidPostConstruct_Passes() throws TendrilException {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();

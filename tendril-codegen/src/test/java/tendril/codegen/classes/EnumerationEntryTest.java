@@ -30,6 +30,7 @@ import org.mockito.Mock;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValue;
 import tendril.test.AbstractUnitTest;
 
@@ -136,7 +137,7 @@ public class EnumerationEntryTest extends AbstractUnitTest {
     public void testFrom() {
         // When ClassType is derived
         EnumerationEntry entry = EnumerationEntry.from(TypeKind.BYTE);
-        Assertions.assertEquals(new ClassType(TypeKind.class), entry.getEnclosingClass());
+        Assertions.assertEquals(TypeFactory.createClassType(TypeKind.class), entry.getEnclosingClass());
         Assertions.assertEquals(TypeKind.BYTE.name(), entry.getName());
         Assertions.assertIterableEquals(Collections.emptyList(), entry.getParameters());
 

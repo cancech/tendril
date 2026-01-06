@@ -28,6 +28,7 @@ import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.codegen.generics.GenericFactory;
 import tendril.codegen.generics.GenericType;
@@ -47,7 +48,7 @@ public class CreateAbstractClassTest {
      */
     @Test
     public void testCreateEmptyAbstractClass() {
-        JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).build();
+        JClass abstractCls = ClassBuilder.forAbstractClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
@@ -66,7 +67,7 @@ public class CreateAbstractClassTest {
      */
     @Test
     public void testCreateEmptyAnnotatedAbstractClass() {
-        JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+        JClass abstractCls = ClassBuilder.forAbstractClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
                 .addAnnotation(JAnnotationFactory.create(Deprecated.class, Map.of("since", JValueFactory.create("yesterday"), "forRemoval", JValueFactory.create(true))))
                 .addAnnotation(JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", JValueFactory.create("qwerty"), "valInt", JValueFactory.create(789)))).build();
 
@@ -90,8 +91,8 @@ public class CreateAbstractClassTest {
      */
     @Test
     public void testCreateAbstractClassWithFields() {
-        JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
-                .buildField(new ClassType("q.a.z", "Wsx"), "field1").setVisibility(VisibilityType.PACKAGE_PRIVATE).finish()
+        JClass abstractCls = ClassBuilder.forAbstractClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+                .buildField(TypeFactory.createClassType("q.a.z", "Wsx"), "field1").setVisibility(VisibilityType.PACKAGE_PRIVATE).finish()
                 .buildField(PrimitiveType.BOOLEAN, "field2").setVisibility(VisibilityType.PUBLIC).setStatic(true).setFinal(true).setValue(JValueFactory.create(false)).finish()
                 .build();
 
@@ -118,12 +119,12 @@ public class CreateAbstractClassTest {
     @Test
     public void testCreateAbstractClassOnlyAbstractMethods() {
 
-        JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+        JClass abstractCls = ClassBuilder.forAbstractClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
                 .buildMethod(PrimitiveType.FLOAT, "floatMethod").setVisibility(VisibilityType.PROTECTED)
                     .buildParameter(PrimitiveType.SHORT, "shortParam").finish().finish()
                 .buildMethod(VisibilityType.class, "visibilityMethod").setVisibility(VisibilityType.PUBLIC).finish()
                 .buildMethod(String.class, "stringMethod").setVisibility(VisibilityType.PACKAGE_PRIVATE)
-                    .buildParameter(new ClassType(String.class), "param1")
+                    .buildParameter(TypeFactory.createClassType(String.class), "param1")
                         .addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class))
                         .addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123"))).finish()
                     .buildParameter(PrimitiveType.DOUBLE, "param2").finish()
@@ -155,9 +156,9 @@ public class CreateAbstractClassTest {
      */
     @Test
     public void testCreateAbstractClassOnlyConcreteMethods() {
-        JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+        JClass abstractCls = ClassBuilder.forAbstractClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
                 .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED)
-                    .buildParameter(new ClassType(String.class), "strParam").finish()
+                    .buildParameter(TypeFactory.createClassType(String.class), "strParam").finish()
                     .emptyImplementation().finish()
                 .buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
                     .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish().build();
@@ -190,10 +191,10 @@ public class CreateAbstractClassTest {
      */
     @Test
     public void testCreateAbstractClassWithParents() {
-        JClass parentCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
-        JClass ifaceYCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
-        JClass ifaceQwertyCls = ClassBuilder.forConcreteClass(new ClassType("a.s.d.f", "Qwerty")).build();
-        JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+        JClass parentCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).build();
+        JClass ifaceYCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).build();
+        JClass ifaceQwertyCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("a.s.d.f", "Qwerty")).build();
+        JClass abstractCls = ClassBuilder.forAbstractClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
                 .extendsClass(parentCls).implementsInterface(ifaceYCls).implementsInterface(ifaceQwertyCls).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
@@ -215,10 +216,10 @@ public class CreateAbstractClassTest {
      */
     @Test
     public void testCreateAbstractWithConstructors() {
-        JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+        JClass abstractCls = ClassBuilder.forAbstractClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
                 .buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().finish()
                 .buildConstructor().setVisibility(VisibilityType.PROTECTED)
-                    .buildParameter(new ClassType(String.class), "strParam").finish()
+                    .buildParameter(TypeFactory.createClassType(String.class), "strParam").finish()
                     .addCode("a", "b", "c", "d").finish()
                 .buildConstructor().setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
                     .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish().build();
@@ -259,11 +260,11 @@ public class CreateAbstractClassTest {
     @Test
     public void testCreateSimpleGeneric() {
         GenericType genericT = GenericFactory.create("T");
-        GenericType genericU = GenericFactory.createExtends("U", new ClassType("a", "B"));
-        GenericType superType = GenericFactory.createSuper(new ClassType("z.x.c", "V"));
-        ClassType listClass = new ClassType(List.class);
+        GenericType genericU = GenericFactory.createExtends("U", TypeFactory.createClassType("a", "B"));
+        GenericType superType = GenericFactory.createSuper(TypeFactory.createClassType("z.x.c", "V"));
+        ClassType listClass = TypeFactory.createClassType(List.class);
         listClass.addGeneric(superType);
-        JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PROTECTED).addGeneric(genericT)
+        JClass abstractCls = ClassBuilder.forAbstractClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PROTECTED).addGeneric(genericT)
                 .buildMethod("abc123").addGeneric(genericU).buildParameter(genericT, "t").finish().buildParameter(genericU, "u").finish()
                     .buildParameter(listClass, "list").finish().finish()
                 .buildField(genericT, "tField").finish()
@@ -297,40 +298,40 @@ public class CreateAbstractClassTest {
     @Test
     public void testCreateComplexAbstractClass() {
         GenericType generic1 = GenericFactory.create("T");
-        GenericType generic2 = GenericFactory.createExtends("U", new ClassType("a.b.c", "D"));
-        GenericType generic3 = GenericFactory.create(new ClassType("a.s.d", "F"));
-        ClassType listClass = new ClassType(List.class);
-        listClass.addGeneric(GenericFactory.createSuper(new ClassType("z.x.c", "V")));
+        GenericType generic2 = GenericFactory.createExtends("U", TypeFactory.createClassType("a.b.c", "D"));
+        GenericType generic3 = GenericFactory.create(TypeFactory.createClassType("a.s.d", "F"));
+        ClassType listClass = TypeFactory.createClassType(List.class);
+        listClass.addGeneric(GenericFactory.createSuper(TypeFactory.createClassType("z.x.c", "V")));
         
-        JClass parentCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).addGeneric(generic1).build();
-        JClass ifaceYCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).addGeneric(generic2).build();
-        JClass ifaceQwertyCls = ClassBuilder.forConcreteClass(new ClassType("a.s.d.f", "Qwerty")).addGeneric(generic3).build();
+        JClass parentCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).addGeneric(generic1).build();
+        JClass ifaceYCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).addGeneric(generic2).build();
+        JClass ifaceQwertyCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("a.s.d.f", "Qwerty")).addGeneric(generic3).build();
         
-        JClass abstractCls = ClassBuilder.forAbstractClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+        JClass abstractCls = ClassBuilder.forAbstractClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
                 .addGeneric(generic1).addGeneric(generic2)
                 .extendsClass(parentCls).implementsInterface(ifaceYCls).implementsInterface(ifaceQwertyCls)
                 .buildMethod(PrimitiveType.FLOAT, "floatMethod").setVisibility(VisibilityType.PROTECTED)
                     .buildParameter(PrimitiveType.SHORT, "shortParam").finish().finish()
                 .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED)
-                    .buildParameter(new ClassType(String.class), "strParam").finish()
+                    .buildParameter(TypeFactory.createClassType(String.class), "strParam").finish()
                     .emptyImplementation().finish()
                 .addAnnotation(JAnnotationFactory.create(Deprecated.class, Map.of("since", JValueFactory.create("yesterday"), "forRemoval", JValueFactory.create(true))))
                 .buildMethod(VisibilityType.class, "visibilityMethod").setVisibility(VisibilityType.PUBLIC).finish()
                 .buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
                     .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
                 .buildMethod(String.class, "stringMethod").setVisibility(VisibilityType.PACKAGE_PRIVATE)
-                    .buildParameter(new ClassType(String.class), "param1")
+                    .buildParameter(TypeFactory.createClassType(String.class), "param1")
                         .addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class))
                         .addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123"))).finish()
                     .buildParameter(PrimitiveType.DOUBLE, "param2").finish().finish()
                 .addAnnotation(JAnnotationFactory.create(TestMultiAttrsAnnotation.class, Map.of("valStr", JValueFactory.create("qwerty"), "valInt", JValueFactory.create(789))))
                 .buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().finish()
                 .buildConstructor().setVisibility(VisibilityType.PROTECTED)
-                    .buildParameter(new ClassType(String.class), "strParam").finish()
+                    .buildParameter(TypeFactory.createClassType(String.class), "strParam").finish()
                     .addCode("a", "b", "c", "d").finish()
                 .buildConstructor().setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
                     .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
-                .buildField(new ClassType("q.a.z", "Wsx"), "field1").setVisibility(VisibilityType.PACKAGE_PRIVATE).finish()
+                .buildField(TypeFactory.createClassType("q.a.z", "Wsx"), "field1").setVisibility(VisibilityType.PACKAGE_PRIVATE).finish()
                 .buildField(PrimitiveType.BOOLEAN, "field2").setVisibility(VisibilityType.PUBLIC).setStatic(true).setFinal(true).setValue(JValueFactory.create(false)).finish()
                 .buildField(generic1, "tField").finish()
                 .buildField(listClass, "listField").finish()

@@ -32,6 +32,7 @@ import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JParameter;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.codegen.generics.GenericFactory;
 import tendril.context.Engine;
@@ -79,10 +80,10 @@ class DuplicateSiblingRecipeGenerator extends BeanRecipeGenerator {
 				mappings.add("\"" + name + "\", " + name + ".class");
 			}
 
-			ClassType qualifierClass = new ClassType(Class.class);
+			ClassType qualifierClass = TypeFactory.createClassType(Class.class);
 			qualifierClass.addGeneric(GenericFactory.createWildcard());
-			ClassType mapType = new ClassType(Map.class);
-			mapType.addGeneric(GenericFactory.create(new ClassType(String.class)));
+			ClassType mapType = TypeFactory.createClassType(Map.class);
+			mapType.addGeneric(GenericFactory.create(TypeFactory.createClassType(String.class)));
 			mapType.addGeneric(GenericFactory.create(qualifierClass));
 			
 			builder.buildField(mapType, "copyQualifiers").setVisibility(VisibilityType.PRIVATE).setFinal(true)
@@ -101,7 +102,7 @@ class DuplicateSiblingRecipeGenerator extends BeanRecipeGenerator {
         generateMethodConsumers(ctorCode);
         ctorCode.add("getDescription().addQualifier(copyQualifiers.get(siblingCopy.name()));");
 
-        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).buildParameter(new ClassType(Engine.class), "engine").finish()
+        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish()
         	.buildParameter(blueprintType, "siblingCopy").finish().addCode(ctorCode.toArray(new String[ctorCode.size()])).finish();
     }
 	

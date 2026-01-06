@@ -67,7 +67,7 @@ public abstract class JAnnotationFactory {
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(Class<? extends Annotation> annotationClass) {
-        return createMarker(annotationClass, new ClassType(annotationClass));
+        return createMarker(annotationClass, TypeFactory.createClassType(annotationClass));
     }
 
     /**
@@ -77,7 +77,7 @@ public abstract class JAnnotationFactory {
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(String fullyQualifiedName) {
-        return create(new ClassType(fullyQualifiedName));
+        return create(TypeFactory.createClassType(fullyQualifiedName));
     }
 
     /**
@@ -88,7 +88,7 @@ public abstract class JAnnotationFactory {
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(String packageName, String className) {
-        return create(new ClassType(packageName, className));
+        return create(TypeFactory.createClassType(packageName, className));
     }
 
     /**
@@ -143,7 +143,7 @@ public abstract class JAnnotationFactory {
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(Class<? extends Annotation> annotationClass, JValue<?, ?> value) {
-        return createDefaultValue(annotationClass, new ClassType(annotationClass), value);
+        return createDefaultValue(annotationClass, TypeFactory.createClassType(annotationClass), value);
     }
 
     /**
@@ -154,7 +154,7 @@ public abstract class JAnnotationFactory {
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(String fullyQualifiedName, JValue<?, ?> value) {
-        return create(new ClassType(fullyQualifiedName), value);
+        return create(TypeFactory.createClassType(fullyQualifiedName), value);
     }
 
     /**
@@ -166,7 +166,7 @@ public abstract class JAnnotationFactory {
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(String packageName, String className, JValue<?, ?> value) {
-        return create(new ClassType(packageName, className), value);
+        return create(TypeFactory.createClassType(packageName, className), value);
     }
 
     /**
@@ -272,7 +272,7 @@ public abstract class JAnnotationFactory {
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(Class<? extends Annotation> annotationClass, Map<String, JValue<?, ?>> values) {
-        return createMultiValue(annotationClass, new ClassType(annotationClass), values);
+        return createMultiValue(annotationClass, TypeFactory.createClassType(annotationClass), values);
     }
 
     /**
@@ -283,7 +283,7 @@ public abstract class JAnnotationFactory {
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(String fullyQualifiedName, Map<String, JValue<?, ?>> values) {
-        return create(new ClassType(fullyQualifiedName), values);
+        return create(TypeFactory.createClassType(fullyQualifiedName), values);
     }
 
     /**
@@ -295,7 +295,7 @@ public abstract class JAnnotationFactory {
      * @return {@link JAnnotation}
      */
     public static JAnnotation create(String packageName, String className, Map<String, JValue<?, ?>> values) {
-        return create(new ClassType(packageName, className), values);
+        return create(TypeFactory.createClassType(packageName, className), values);
     }
 
     /**

@@ -39,6 +39,7 @@ import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.type.VoidType;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.ClassAssert;
@@ -174,7 +175,7 @@ public class ClassBuilderTest extends AbstractUnitTest {
     @Test
     public void testCreateClassMethodBuilder() {
         Assertions.assertEquals(mockMethodBuilder, builder.buildMethod(PrimitiveType.class, "classMethod"));
-        verify(mockMethodBuilder).setType(new ClassType(PrimitiveType.class));
+        verify(mockMethodBuilder).setType(TypeFactory.createClassType(PrimitiveType.class));
     }
     
     /**
@@ -321,7 +322,7 @@ public class ClassBuilderTest extends AbstractUnitTest {
         ArgumentCaptor<JAnnotation> captor = ArgumentCaptor.forClass(JAnnotation.class);
         verify(mockClass).add(captor.capture());
         CollectionAssert.assertSize(1, captor.getAllValues());
-        Assertions.assertEquals(new ClassType(Generated.class), captor.getValue().getType());
+        Assertions.assertEquals(TypeFactory.createClassType(Generated.class), captor.getValue().getType());
     }
 
 }

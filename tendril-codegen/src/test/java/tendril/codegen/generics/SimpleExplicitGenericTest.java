@@ -31,6 +31,7 @@ import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.test.AbstractUnitTest;
 
@@ -173,7 +174,7 @@ class SimpleExplicitGenericTest extends AbstractUnitTest {
     public void testEquals() {
         Assertions.assertTrue(gen.equals(new SimpleExplicitGeneric(mockClassType)));
 
-        Assertions.assertFalse(gen.equals(new SimpleExplicitGeneric(new ClassType("a.b.c.D"))));
+        Assertions.assertFalse(gen.equals(new SimpleExplicitGeneric(TypeFactory.createClassType("a.b.c.D"))));
         Assertions.assertFalse(gen.equals(Integer.valueOf(123)));
     }
 }

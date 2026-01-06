@@ -31,6 +31,7 @@ import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.context.Engine;
 
 /**
@@ -100,7 +101,7 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 	@Override
 	protected void generateCreateInstance(ClassBuilder builder) throws TendrilException {
 		builder.buildMethod(creatorType, "createInstance").setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
-				.buildParameter(new ClassType(Engine.class), "engine").finish().addCode("return null;").finish();
+				.buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish().addCode("return null;").finish();
 	}
 
 	/**
@@ -112,7 +113,7 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 	protected String[] nestedRecipesCode() {
 		ClassType siblingType = RecipeGenerator.getSiblingRecipeType(creatorType);
 		externalImports.add(siblingType);
-		externalImports.add(new ClassType(HashMap.class));
+		externalImports.add(TypeFactory.createClassType(HashMap.class));
 		externalImports.add(blueprintType);
 		List<String> code = new ArrayList<>();
 		code.add("Map<String, AbstractRecipe<?>> recipes = new HashMap<>();");

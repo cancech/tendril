@@ -28,6 +28,7 @@ import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.test.helper.TestEnum;
 
 /**
@@ -69,7 +70,7 @@ public class JValueFactoryTest extends SharedJValueTest {
      */
     @Test
     public void testCreatedValues() {
-    	ClassType classType = new ClassType(ClassType.class);
+    	ClassType classType = TypeFactory.createClassType(ClassType.class);
         lastImport = classType;
     	assertCode("ClassType.class", JValueFactory.create(classType));
     	
@@ -85,7 +86,7 @@ public class JValueFactoryTest extends SharedJValueTest {
         assertCode("10", JValueFactory.create((byte) Byte.valueOf("10")));
         verifyMockImports();
 
-        lastImport = new ClassType(VisibilityType.class);
+        lastImport = TypeFactory.createClassType(VisibilityType.class);
         assertCode("VisibilityType.PACKAGE_PRIVATE", JValueFactory.create(VisibilityType.PACKAGE_PRIVATE));
         verifyMockImports();
         
@@ -117,7 +118,7 @@ public class JValueFactoryTest extends SharedJValueTest {
         assertCode("{123456l, 234567l, 345678l, 456789l}", JValueFactory.createArray(123456l, 234567l, 345678l, 456789l));
         assertCode("{(short) 1, (short) 2, (short) 3, (short) 4}", JValueFactory.createArray((short) 1, (short)2, (short) 3, (short) 4));
 
-        lastImport = new ClassType(TestEnum.class);
+        lastImport = TypeFactory.createClassType(TestEnum.class);
         timesImported = 3;
         assertCode("{TestEnum.VALUE1, TestEnum.VALUE2, TestEnum.VALUE3}", JValueFactory.createArray(TestEnum.values()));
         verifyMockImports();

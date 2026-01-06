@@ -29,6 +29,7 @@ import org.mockito.Mock;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.type.TypeFactory;
 
 /**
  * Test case for {@link JValue}
@@ -195,8 +196,8 @@ public class JValueTest extends SharedJValueTest {
         Assertions.assertFalse(JValueFactory.create((short) 1.23).equals(VisibilityType.PRIVATE));
         Assertions.assertFalse(JValueFactory.create((short) 1.23).equals(JValueFactory.create((short) 2.34)));
 
-        Assertions.assertFalse(JValueFactory.create("abc").equals(new JValueSimple<ClassType, String>(new ClassType(String.class), "abc", "\"", "a")));
-        Assertions.assertFalse(JValueFactory.create("abc").equals(new JValueSimple<ClassType, String>(new ClassType(String.class), "abc", "a", "\"")));
+        Assertions.assertFalse(JValueFactory.create("abc").equals(new JValueSimple<ClassType, String>(TypeFactory.createClassType(String.class), "abc", "\"", "a")));
+        Assertions.assertFalse(JValueFactory.create("abc").equals(new JValueSimple<ClassType, String>(TypeFactory.createClassType(String.class), "abc", "a", "\"")));
 
         Assertions.assertFalse(JValueFactory.createArray(false, true, false).equals(JValueFactory.createArray(true, true, true)));
         Assertions.assertFalse(JValueFactory.createArray(false, true, false).equals(JValueFactory.createArray(false, true)));

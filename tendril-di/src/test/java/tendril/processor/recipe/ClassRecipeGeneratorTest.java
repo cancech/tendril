@@ -27,6 +27,7 @@ import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -75,11 +76,11 @@ public class ClassRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testCannotBeAbstract() {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forAbstractClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         TestClassRecipeGenerator generator = new TestClassRecipeGenerator(type, builder.build());
-        Assertions.assertThrows(TendrilException.class, () -> generator.generate(new ClassType("a.b.c.D"), false));
+        Assertions.assertThrows(TendrilException.class, () -> generator.generate(TypeFactory.createClassType("a.b.c.D"), false));
         Assertions.assertFalse(generator.populateCalled);
     }
 
@@ -88,11 +89,11 @@ public class ClassRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testCannotBeInterface() {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forInterface(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         TestClassRecipeGenerator generator = new TestClassRecipeGenerator(type, builder.build());
-        Assertions.assertThrows(TendrilException.class, () -> generator.generate(new ClassType("a.b.c.D"), false));
+        Assertions.assertThrows(TendrilException.class, () -> generator.generate(TypeFactory.createClassType("a.b.c.D"), false));
         Assertions.assertFalse(generator.populateCalled);
     }
 
@@ -101,11 +102,11 @@ public class ClassRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testCannotBeAnnotation() {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forAnnotation(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         TestClassRecipeGenerator generator = new TestClassRecipeGenerator(type, builder.build());
-        Assertions.assertThrows(TendrilException.class, () -> generator.generate(new ClassType("a.b.c.D"), false));
+        Assertions.assertThrows(TendrilException.class, () -> generator.generate(TypeFactory.createClassType("a.b.c.D"), false));
         Assertions.assertFalse(generator.populateCalled);
     }
 
@@ -115,11 +116,11 @@ public class ClassRecipeGeneratorTest extends AbstractUnitTest {
      */
     @Test
     public void testMustBeConcrete() throws TendrilException {
-        ClassType type = new ClassType("q.w.e.Rty");
+        ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         TestClassRecipeGenerator generator = new TestClassRecipeGenerator(type, builder.build());
-        Assertions.assertFalse(generator.generate(new ClassType("a.b.c.D"), false).getCode().isBlank());
+        Assertions.assertFalse(generator.generate(TypeFactory.createClassType("a.b.c.D"), false).getCode().isBlank());
         Assertions.assertTrue(generator.populateCalled);
     }
 }

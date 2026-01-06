@@ -32,6 +32,7 @@ import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.generics.GenericFactory;
 
 /**
@@ -69,9 +70,9 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
      * @param builder {@link ClassBuilder} where the recipe is being defined
      */
     private void generateNestedRecipes(ClassBuilder builder) {
-        ClassType returnType = new ClassType(Map.class);
-        returnType.addGeneric(GenericFactory.create(new ClassType(String.class)));
-        ClassType absRecipeType = new ClassType(AbstractRecipe.class);
+        ClassType returnType = TypeFactory.createClassType(Map.class);
+        returnType.addGeneric(GenericFactory.create(TypeFactory.createClassType(String.class)));
+        ClassType absRecipeType = TypeFactory.createClassType(AbstractRecipe.class);
         absRecipeType.addGeneric(GenericFactory.createWildcard());
         returnType.addGeneric(GenericFactory.create(absRecipeType));
 
@@ -84,7 +85,7 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
      * @return {@link String}[] containing the necessary code
      */
     protected String[] nestedRecipesCode() {
-        externalImports.add(new ClassType(HashMap.class));
+        externalImports.add(TypeFactory.createClassType(HashMap.class));
         List<String> code = new ArrayList<>();
         code.add("Map<String, AbstractRecipe<?>> recipes = new HashMap<>();");
 

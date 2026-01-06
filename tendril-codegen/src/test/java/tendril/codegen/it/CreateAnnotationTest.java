@@ -28,6 +28,7 @@ import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JClassAnnotation;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValueFactory;
 import tendril.codegen.generics.GenericFactory;
 import tendril.test.assertions.ClassAssert;
@@ -44,7 +45,7 @@ public class CreateAnnotationTest {
      */
     @Test
     public void cannotCreatePrivateOrProtected() {
-        ClassBuilder builder = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D"));
+        ClassBuilder builder = ClassBuilder.forAnnotation(TypeFactory.createClassType("a.b.c", "D"));
         ClassAssert.assertInstance(JClassAnnotation.class, builder.setVisibility(VisibilityType.PUBLIC).build());
         ClassAssert.assertInstance(JClassAnnotation.class, builder.setVisibility(VisibilityType.PACKAGE_PRIVATE).build());
         Assertions.assertThrows(DefinitionException.class, () -> builder.setVisibility(VisibilityType.PROTECTED).build());
@@ -56,7 +57,7 @@ public class CreateAnnotationTest {
      */
     @Test
     public void cannotAddInvalidMethods() {
-        ClassBuilder builder = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC);
+        ClassBuilder builder = ClassBuilder.forAnnotation(TypeFactory.createClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC);
         Assertions.assertThrows(DefinitionException.class, () -> builder.buildMethod("voidNotAllowed").finish());
         Assertions.assertThrows(DefinitionException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "implementationNotAllowed").emptyImplementation().finish());
         Assertions.assertThrows(DefinitionException.class, () -> builder.buildMethod(PrimitiveType.BOOLEAN, "implementationNotAllowed").addCode("").finish());
@@ -70,7 +71,7 @@ public class CreateAnnotationTest {
      */
     @Test
     public void createEmptyAnnotation() {
-        JClass annotation = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC).build();
+        JClass annotation = ClassBuilder.forAnnotation(TypeFactory.createClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC).build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package a.b.c;");
@@ -89,8 +90,8 @@ public class CreateAnnotationTest {
      */
     @Test
     public void createAnnotatedAnnotation() {
-        JClass annotation = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC).build();
-        annotation.add(JAnnotationFactory.create(new ClassType("d.e.f", "G")));
+        JClass annotation = ClassBuilder.forAnnotation(TypeFactory.createClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC).build();
+        annotation.add(JAnnotationFactory.create(TypeFactory.createClassType("d.e.f", "G")));
         annotation.add(JAnnotationFactory.create(TestMarkerAnnotation.class));
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
@@ -114,11 +115,11 @@ public class CreateAnnotationTest {
      */
     @Test
     public void createAnnotationWithMethods() {
-    	ClassType jclassType = new ClassType(JClass.class);
-    	ClassType type = new ClassType(Class.class);
+    	ClassType jclassType = TypeFactory.createClassType(JClass.class);
+    	ClassType type = TypeFactory.createClassType(Class.class);
     	type.addGeneric(GenericFactory.create(jclassType));
     	
-        JClass annotation = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC)
+        JClass annotation = ClassBuilder.forAnnotation(TypeFactory.createClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC)
                 .buildMethod(String.class, "strMethod").setDefaultValue(JValueFactory.create("abc123")).finish()
                 .buildMethod(Integer.class, "intMethod").finish()
                 .buildMethod(type, "classValue").setDefaultValue(JValueFactory.create(jclassType)).finish()
@@ -149,9 +150,9 @@ public class CreateAnnotationTest {
      */
     @Test
     public void createComplexAnnotation() {
-        JClass annotation = ClassBuilder.forAnnotation(new ClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC)
+        JClass annotation = ClassBuilder.forAnnotation(TypeFactory.createClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC)
                 .buildMethod(String.class, "strMethod").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).finish()
-                .addAnnotation(JAnnotationFactory.create(new ClassType("d.e.f", "G")))
+                .addAnnotation(JAnnotationFactory.create(TypeFactory.createClassType("d.e.f", "G")))
                 .buildMethod(PrimitiveType.INT, "intMethod").addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class)).setDefaultValue(JValueFactory.create(123456)).finish()
                 .addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class))
                 .build();

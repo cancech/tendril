@@ -60,6 +60,7 @@ import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.generics.GenericFactory;
 import tendril.context.Engine;
@@ -136,7 +137,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @param klass {@link Class} which is to be imported
      */
     protected void addImport(Class<?> klass) {
-        externalImports.add(new ClassType(klass));
+        externalImports.add(TypeFactory.createClassType(klass));
     }
     
     /**
@@ -266,7 +267,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
         if (!(itemType instanceof ClassType))
             throw new InvalidConfigurationException("@" + InjectAll.class.getSimpleName() + " can be applied to " + itemType.getSimpleName() + ", it must be applied to classes");
         ClassType classType = (ClassType) itemType;
-        if (!classType.equals(new ClassType(List.class)))
+        if (!classType.equals(TypeFactory.createClassType(List.class)))
             throw new InvalidConfigurationException("@" + InjectAll.class.getSimpleName() + " applied to " + classType.getSimpleName() + ", it must be a " + List.class.getSimpleName());
         
         // The bean type is the first generic applied to it
@@ -279,7 +280,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @param builder {@link ClassBuilder} where the recipe is being defined
      */
     protected void generateRecipeDescriptor(ClassBuilder builder) {
-        ClassType descriptorClass = new ClassType(Descriptor.class);
+        ClassType descriptorClass = TypeFactory.createClassType(Descriptor.class);
         descriptorClass.addGeneric(GenericFactory.create(creatorType));
         
         builder.buildMethod("setupDescriptor").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PROTECTED)
@@ -294,7 +295,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @param builder {@link ClassBuilder} where the recipe is being defined
      */
     protected void generateRecipeRequirements(ClassBuilder builder) {
-        ClassType recipeClass = new ClassType(Requirement.class);
+        ClassType recipeClass = TypeFactory.createClassType(Requirement.class);
         
         builder.buildMethod("setupRequirement").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PROTECTED)
         .buildParameter(recipeClass, "requirement").finish()
@@ -332,7 +333,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
         
         // Add the method to the recipe
         builder.buildMethod(creatorType, "createInstance").setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
-            .buildParameter(new ClassType(Engine.class), "engine").finish()
+            .buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish()
             .addCode(lines.toArray(new String[lines.size()])).finish();
     }
 
@@ -354,7 +355,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @return {@link String} containing the code defining the dependency
      */
     protected String getDependencyDescriptor(JType<?> field, Type beanType) {
-        externalImports.add(new ClassType(Descriptor.class));
+        externalImports.add(TypeFactory.createClassType(Descriptor.class));
         String desc = "new " + Descriptor.class.getSimpleName() + "<>(" + beanType.getSimpleName() + ".class)";
         return desc + joinLines(getDescriptorLines(field), ".", "", "\n            ");
     }
@@ -391,7 +392,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
     private List<String> getDescriptorLines(JBase element) {
         List<String> lines = new ArrayList<>();
 
-        ClassType namedType = new ClassType(Named.class);
+        ClassType namedType = TypeFactory.createClassType(Named.class);
         for (JAnnotation a : element.getAnnotations()) {
             if (a.getType().equals(namedType)) {
                 lines.add("setName(\"" + a.getValue(a.getAttributes().get(0)).getValue() + "\")");
@@ -436,7 +437,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      */
     private void populateEnvironmentReqs(List<String> lines, JBase element, Class<? extends Annotation> annotation, String methodName, boolean individually) {
         // Account for any requirements
-        ClassType reqAnnotation = new ClassType(annotation);
+        ClassType reqAnnotation = TypeFactory.createClassType(annotation);
         for (JAnnotation a: element.getAnnotations()) {
             if (a.getType().equals(reqAnnotation)) {
                 @SuppressWarnings("unchecked")
