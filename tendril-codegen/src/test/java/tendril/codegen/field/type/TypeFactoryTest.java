@@ -346,9 +346,7 @@ public class TypeFactoryTest extends AbstractUnitTest {
 		TendrilAssert.assertImportData("1.2.3.4", "AbcdEfgh", TypeFactory.createClassType(TypeFactory.createClassType("1.2.3.4", "Abcd"), "Efgh"));
 		
 		// Generics applied to the ClassType
-		ClassType original = TypeFactory.createClassType("1.2.3.4", "Abcd");
-		original.addGeneric(GenericFactory.create("T"));
-		original.addGeneric(GenericFactory.createWildcard());
+		ClassType original = TypeFactory.createClassType("1.2.3.4", "Abcd", GenericFactory.create("T"), GenericFactory.createWildcard());
 		original.addGeneric(GenericFactory.createExtends("U", original));
 		
 		ClassType suffix = TypeFactory.createClassType(original, "Efgh");

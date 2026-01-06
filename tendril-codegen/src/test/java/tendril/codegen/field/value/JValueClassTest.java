@@ -81,8 +81,6 @@ public class JValueClassTest extends SharedJValueTest {
 	 * @return {@link ClassType}
 	 */
 	private ClassType buildClass(Class<?> klass) {
-		ClassType type = TypeFactory.createClassType(Class.class);
-		type.addGeneric(GenericFactory.create(TypeFactory.createClassType(klass)));
-		return type;
+		return TypeFactory.createClassType(Class.class, GenericFactory.create(TypeFactory.createClassType(klass)));
 	}
 }

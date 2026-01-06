@@ -116,8 +116,7 @@ public class CreateAnnotationTest {
     @Test
     public void createAnnotationWithMethods() {
     	ClassType jclassType = TypeFactory.createClassType(JClass.class);
-    	ClassType type = TypeFactory.createClassType(Class.class);
-    	type.addGeneric(GenericFactory.create(jclassType));
+    	ClassType type = TypeFactory.createClassType(Class.class, GenericFactory.create(jclassType));
     	
         JClass annotation = ClassBuilder.forAnnotation(TypeFactory.createClassType("a.b.c", "D")).setVisibility(VisibilityType.PUBLIC)
                 .buildMethod(String.class, "strMethod").setDefaultValue(JValueFactory.create("abc123")).finish()

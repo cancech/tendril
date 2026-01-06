@@ -113,26 +113,28 @@ public abstract class TypeFactory {
      * Create a {@link ClassType} from the specified {@link Class}
      * 
      * @param klass {@link Class} to use as the basis for the {@link ClassType}
+     * @param generics {@link GenericType}... listing what generics to apply to the {@link ClassType}
      * @return {@link ClassType} for the {@link Class}
      */
-    public static ClassType createClassType(Class<?> klass) {
-    	return createClassType(klass.getPackageName(), klass.getSimpleName());
+    public static ClassType createClassType(Class<?> klass, GenericType... generics) {
+    	return createClassType(klass.getPackageName(), klass.getSimpleName(), generics);
     }
     
     /**
      * Create a {@link ClassType} from the specified fully qualified class name
      * 
      * @param fullyQualifiedName {@link String} of the class
+     * @param generics {@link GenericType}... listing what generics to apply to the {@link ClassType}
      * @return {@link ClassType} for the fully qualified class name
      */
-    public static ClassType createClassType(String fullyQualifiedName) {
+    public static ClassType createClassType(String fullyQualifiedName, GenericType... generics) {
         int lastDot = fullyQualifiedName.lastIndexOf('.');
         if (lastDot <= 0)
             throw new DefinitionException(fullyQualifiedName, "Invalid fully qualified class \"" + fullyQualifiedName + "\". Hint: default package is not supported");
 
         String packageName = fullyQualifiedName.substring(0, lastDot);
         String className = fullyQualifiedName.substring(lastDot + 1);
-        return createClassType(packageName, className);
+        return createClassType(packageName, className, generics);
     }
     
     /**
@@ -140,13 +142,19 @@ public abstract class TypeFactory {
      * 
      * @param packageName {@link String} the name of the package in which the class appears
      * @param className {@link String} the name of the class
+     * @param generics {@link GenericType}... listing what generics to apply to the {@link ClassType}
      * @return {@link ClassType} for the class details
      */
-    public static ClassType createClassType(String packageName, String className) {
+    public static ClassType createClassType(String packageName, String className, GenericType... generics) {
         if (packageName == null || packageName.isBlank())
             throw new DefinitionException(className, "Invalid package \"" + packageName + "\" - valid (non default) package is required");
         
-        return new ClassType(packageName, className);
+        // Create the type and apply the generics
+        ClassType type = new ClassType(packageName, className);
+        for (GenericType g: generics)
+        	type.addGeneric(g);
+        
+        return type;
     }
     
     /**

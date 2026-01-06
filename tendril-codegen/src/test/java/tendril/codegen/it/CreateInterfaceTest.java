@@ -193,9 +193,7 @@ public class CreateInterfaceTest {
     public void testCreateSimpleGeneric() {
         GenericType genericT = GenericFactory.create("T");
         GenericType genericU = GenericFactory.createExtends("U", TypeFactory.createClassType("a", "B"));
-        GenericType superType = GenericFactory.createSuper(TypeFactory.createClassType("z.x.c", "V"));
-        ClassType listClass = TypeFactory.createClassType(List.class);
-        listClass.addGeneric(superType);
+        ClassType listClass = TypeFactory.createClassType(List.class, GenericFactory.createSuper(TypeFactory.createClassType("z.x.c", "V")));
         JClass abstractCls = ClassBuilder.forInterface(TypeFactory.createClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PACKAGE_PRIVATE).addGeneric(genericT)
                 .buildMethod("abc123").setVisibility(VisibilityType.PUBLIC).addGeneric(genericU).buildParameter(genericT, "t").finish().buildParameter(genericU, "u").finish()
                     .buildParameter(listClass, "list").finish().addCode("a", "b", "c").finish()

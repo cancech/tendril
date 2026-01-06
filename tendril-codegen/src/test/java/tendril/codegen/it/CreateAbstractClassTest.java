@@ -261,9 +261,7 @@ public class CreateAbstractClassTest {
     public void testCreateSimpleGeneric() {
         GenericType genericT = GenericFactory.create("T");
         GenericType genericU = GenericFactory.createExtends("U", TypeFactory.createClassType("a", "B"));
-        GenericType superType = GenericFactory.createSuper(TypeFactory.createClassType("z.x.c", "V"));
-        ClassType listClass = TypeFactory.createClassType(List.class);
-        listClass.addGeneric(superType);
+        ClassType listClass = TypeFactory.createClassType(List.class, GenericFactory.createSuper(TypeFactory.createClassType("z.x.c", "V")));
         JClass abstractCls = ClassBuilder.forAbstractClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).setVisibility(VisibilityType.PROTECTED).addGeneric(genericT)
                 .buildMethod("abc123").addGeneric(genericU).buildParameter(genericT, "t").finish().buildParameter(genericU, "u").finish()
                     .buildParameter(listClass, "list").finish().finish()
@@ -300,8 +298,7 @@ public class CreateAbstractClassTest {
         GenericType generic1 = GenericFactory.create("T");
         GenericType generic2 = GenericFactory.createExtends("U", TypeFactory.createClassType("a.b.c", "D"));
         GenericType generic3 = GenericFactory.create(TypeFactory.createClassType("a.s.d", "F"));
-        ClassType listClass = TypeFactory.createClassType(List.class);
-        listClass.addGeneric(GenericFactory.createSuper(TypeFactory.createClassType("z.x.c", "V")));
+        ClassType listClass = TypeFactory.createClassType(List.class, GenericFactory.createSuper(TypeFactory.createClassType("z.x.c", "V")));
         
         JClass parentCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).addGeneric(generic1).build();
         JClass ifaceYCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).addGeneric(generic2).build();

@@ -70,12 +70,7 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
      * @param builder {@link ClassBuilder} where the recipe is being defined
      */
     private void generateNestedRecipes(ClassBuilder builder) {
-        ClassType returnType = TypeFactory.createClassType(Map.class);
-        returnType.addGeneric(GenericFactory.create(TypeFactory.createClassType(String.class)));
-        ClassType absRecipeType = TypeFactory.createClassType(AbstractRecipe.class);
-        absRecipeType.addGeneric(GenericFactory.createWildcard());
-        returnType.addGeneric(GenericFactory.create(absRecipeType));
-
+        ClassType returnType = TypeFactory.createClassType(Map.class, GenericFactory.create(TypeFactory.createClassType(String.class)), GenericFactory.create(TypeFactory.createClassType(AbstractRecipe.class, GenericFactory.createWildcard())));
         builder.buildMethod(returnType, "getNestedRecipes").setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(Override.class)).addCode(nestedRecipesCode()).finish();
     }
 

@@ -80,11 +80,8 @@ class DuplicateSiblingRecipeGenerator extends BeanRecipeGenerator {
 				mappings.add("\"" + name + "\", " + name + ".class");
 			}
 
-			ClassType qualifierClass = TypeFactory.createClassType(Class.class);
-			qualifierClass.addGeneric(GenericFactory.createWildcard());
-			ClassType mapType = TypeFactory.createClassType(Map.class);
-			mapType.addGeneric(GenericFactory.create(TypeFactory.createClassType(String.class)));
-			mapType.addGeneric(GenericFactory.create(qualifierClass));
+			ClassType qualifierClass = TypeFactory.createClassType(Class.class, GenericFactory.createWildcard());
+			ClassType mapType = TypeFactory.createClassType(Map.class, GenericFactory.create(TypeFactory.createClassType(String.class)), GenericFactory.create(qualifierClass));
 			
 			builder.buildField(mapType, "copyQualifiers").setVisibility(VisibilityType.PRIVATE).setFinal(true)
 				.setCustomInitialization("Map.of(" + TendrilStringUtil.join(mappings) + ")").finish();

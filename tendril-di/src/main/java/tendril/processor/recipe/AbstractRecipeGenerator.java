@@ -280,11 +280,8 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @param builder {@link ClassBuilder} where the recipe is being defined
      */
     protected void generateRecipeDescriptor(ClassBuilder builder) {
-        ClassType descriptorClass = TypeFactory.createClassType(Descriptor.class);
-        descriptorClass.addGeneric(GenericFactory.create(creatorType));
-        
         builder.buildMethod("setupDescriptor").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PROTECTED)
-            .buildParameter(descriptorClass, "descriptor").finish()
+            .buildParameter(TypeFactory.createClassType(Descriptor.class, GenericFactory.create(creatorType)), "descriptor").finish()
             .addCode(wrapLines(getDescriptorLines(creator), "descriptor.", ";"))
             .finish();
     }

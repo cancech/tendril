@@ -93,8 +93,7 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
      * @param builder {@link ClassBuilder} where the recipe class is being defined
      */
     private void generateConstructor(ClassType configType, ClassBuilder builder) {
-        ClassType configRecipeType = TypeFactory.createClassType(ConfigurationRecipe.class);
-        configRecipeType.addGeneric(GenericFactory.create(configType));
+        ClassType configRecipeType = TypeFactory.createClassType(ConfigurationRecipe.class, GenericFactory.create(configType));
         
         // Instance field for the config
         builder.buildField(configRecipeType, "config").setVisibility(VisibilityType.PRIVATE).setFinal(true).finish();

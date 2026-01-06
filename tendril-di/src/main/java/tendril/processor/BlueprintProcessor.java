@@ -100,14 +100,11 @@ public class BlueprintProcessor extends QualifierEnumProcessor {
      * @throws ClassNotFoundException if the sourceEnum representing as unknown type
      */
     private String generateBlueprintCode(ClassType qualifier) {
-    	ClassType type = TypeFactory.createClassType(Class.class);
-    	type.addGeneric(GenericFactory.create(currentClass));
-    	
         JClass cls = ClassBuilder.forAnnotation(qualifier).setVisibility(VisibilityType.PUBLIC)
                 .addAnnotation(JAnnotationFactory.create(Retention.class, JValueFactory.create(RetentionPolicy.RUNTIME)))
                 .addAnnotation(JAnnotationFactory.create(Target.class, JValueFactory.createArray(ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER)))
                 .addAnnotation(JAnnotationFactory.create(GeneratedBlueprint.class))
-                .buildMethod(type, "enumClass").setDefaultValue(JValueFactory.create(currentClassType)).finish()
+                .buildMethod(TypeFactory.createClassType(Class.class, GenericFactory.create(currentClass)), "enumClass").setDefaultValue(JValueFactory.create(currentClassType)).finish()
                 .build();
         return cls.generateCode();
     }
