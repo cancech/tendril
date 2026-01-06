@@ -22,6 +22,7 @@ import javax.lang.model.type.WildcardType;
 
 import tendril.codegen.DefinitionException;
 import tendril.codegen.generics.GenericFactory;
+import tendril.codegen.generics.GenericType;
 
 /**
  * Factory to facilitate the creation of {@link Type} instances
@@ -156,6 +157,11 @@ public abstract class TypeFactory {
      * @return {@link ClassType} of the new class
      */
     public static ClassType createClassType(ClassType original, String classSuffix) {
-        return new ClassType(original.getPackageName(), original.getClassName() + classSuffix);
+    	ClassType newClass = createClassType(original.getPackageName(), original.getClassName() + classSuffix);
+    	for (GenericType g: original.getGenerics()) {
+    		newClass.addGeneric(g);
+    	}
+    	
+    	return newClass;
     }
 }

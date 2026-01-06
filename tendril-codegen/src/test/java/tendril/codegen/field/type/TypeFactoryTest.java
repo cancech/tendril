@@ -318,14 +318,9 @@ public class TypeFactoryTest extends AbstractUnitTest {
      */
     @Test
     public void testCreateClassType() {
-    	verifyClassType("a.b.c", "D", TypeFactory.createClassType("a.b.c.D"));
-    	verifyClassType("a.b.c", "D", TypeFactory.createClassType("a.b.c", "D"));
-    	verifyClassType(TypeFactory.class.getPackageName(), TypeFactory.class.getSimpleName(), TypeFactory.createClassType(TypeFactory.class));
-    }
-    
-    private void verifyClassType(String expectedPackage, String expectedName, ClassType actual) {
-    	Assertions.assertEquals(expectedPackage, actual.getPackageName());
-    	Assertions.assertEquals(expectedName, actual.getClassName());
+    	TendrilAssert.assertImportData("a.b.c", "D", TypeFactory.createClassType("a.b.c.D"));
+    	TendrilAssert.assertImportData("a.b.c", "D", TypeFactory.createClassType("a.b.c", "D"));
+    	TendrilAssert.assertImportData(TypeFactory.class.getPackageName(), TypeFactory.class.getSimpleName(), TypeFactory.createClassType(TypeFactory.class));
     }
     
 	/**
@@ -345,9 +340,20 @@ public class TypeFactoryTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testGenerateFromSuffix() {
+		// No generic applied to the ClassType
 		TendrilAssert.assertImportData(VisibilityType.class.getPackageName(), VisibilityType.class.getSimpleName() + "Suffix", TypeFactory.createClassType(TypeFactory.createClassType(VisibilityType.class), "Suffix"));
 		TendrilAssert.assertImportData("a.b.c.d", "EfGhQwerty", TypeFactory.createClassType(TypeFactory.createClassType("a.b.c.d", "EfGh"), "Qwerty"));
 		TendrilAssert.assertImportData("1.2.3.4", "AbcdEfgh", TypeFactory.createClassType(TypeFactory.createClassType("1.2.3.4", "Abcd"), "Efgh"));
+		
+		// Generics applied to the ClassType
+		ClassType original = TypeFactory.createClassType("1.2.3.4", "Abcd");
+		original.addGeneric(GenericFactory.create("T"));
+		original.addGeneric(GenericFactory.createWildcard());
+		original.addGeneric(GenericFactory.createExtends("U", original));
+		
+		ClassType suffix = TypeFactory.createClassType(original, "Efgh");
+		TendrilAssert.assertImportData("1.2.3.4", "AbcdEfgh", suffix);
+		CollectionAssert.assertEquals(original.getGenerics(), suffix.getGenerics());
 	}
 	
     /**
