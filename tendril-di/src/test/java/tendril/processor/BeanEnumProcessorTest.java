@@ -95,6 +95,7 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
         verify(mockAnnotatedClass).getPackageName();
         verify(mockAnnotatedClass).getClassName();
         verify(mockAnnotatedClass).getSimpleName();
+        verify(mockAnnotatedClass).getGenerics();
 
         // The code which should be generated
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
