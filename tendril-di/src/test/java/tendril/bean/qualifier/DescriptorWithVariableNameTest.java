@@ -36,7 +36,7 @@ import tendril.test.recipe.StringTestRecipe;
 /**
  * Test class for {@link Descriptor}
  */
-public class DescriptorTest extends AbstractUnitTest {
+public class DescriptorWithVariableNameTest extends AbstractUnitTest {
 
     // Instance to test
     private Descriptor<SingleCtorBean> descriptor;
@@ -46,7 +46,7 @@ public class DescriptorTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
-        descriptor = new Descriptor<>(SingleCtorBean.class);
+        descriptor = new Descriptor<>(SingleCtorBean.class, "variableName");
     }
 
     /**
@@ -367,28 +367,28 @@ public class DescriptorTest extends AbstractUnitTest {
     @Test
     public void testToString() {
         // No name
-        Descriptor<?> descriptor = new Descriptor<>(Double1TestRecipe.class);
-        assertDescriptorToStringMatches(descriptor, Double1TestRecipe.class, null);
-        descriptor = new Descriptor<>(StringTestRecipe.class);
-        assertDescriptorToStringMatches(descriptor, StringTestRecipe.class, null);
+        Descriptor<?> descriptor = new Descriptor<>(Double1TestRecipe.class, "abc123");
+        assertDescriptorToStringMatches(descriptor, Double1TestRecipe.class, "abc123", null);
+        descriptor = new Descriptor<>(StringTestRecipe.class, "qwerty");
+        assertDescriptorToStringMatches(descriptor, StringTestRecipe.class, "qwerty", null);
         
         // With a concrete name
-        descriptor = new Descriptor<>(Double1TestRecipe.class).setName("abc123");
-        assertDescriptorToStringMatches(descriptor, Double1TestRecipe.class, "abc123");
-        descriptor = new Descriptor<>(StringTestRecipe.class).setName("qwerty");
-        assertDescriptorToStringMatches(descriptor, StringTestRecipe.class, "qwerty");
+        descriptor = new Descriptor<>(Double1TestRecipe.class, "asd").setName("abc123");
+        assertDescriptorToStringMatches(descriptor, Double1TestRecipe.class, "asd", "abc123");
+        descriptor = new Descriptor<>(StringTestRecipe.class, "qaz").setName("qwerty");
+        assertDescriptorToStringMatches(descriptor, StringTestRecipe.class, "qaz", "qwerty");
         
         // With one enum qualifier
-        descriptor = new Descriptor<>(Double1TestRecipe.class).setName("abc123").addEnumQualifier(PrimitiveType.INT);
-        assertDescriptorToStringMatches(descriptor, Double1TestRecipe.class, "abc123", PrimitiveType.INT);
-        descriptor = new Descriptor<>(StringTestRecipe.class).setName("qwerty").addEnumQualifier(PrimitiveType.FLOAT);
-        assertDescriptorToStringMatches(descriptor, StringTestRecipe.class, "qwerty", PrimitiveType.FLOAT);
+        descriptor = new Descriptor<>(Double1TestRecipe.class, "zzz").setName("abc123").addEnumQualifier(PrimitiveType.INT);
+        assertDescriptorToStringMatches(descriptor, Double1TestRecipe.class, "zzz", "abc123", PrimitiveType.INT);
+        descriptor = new Descriptor<>(StringTestRecipe.class, "sdfg").setName("qwerty").addEnumQualifier(PrimitiveType.FLOAT);
+        assertDescriptorToStringMatches(descriptor, StringTestRecipe.class, "sdfg", "qwerty", PrimitiveType.FLOAT);
         
         // With multiple enum qualifiers
-        descriptor = new Descriptor<>(Double1TestRecipe.class).setName("abc123").addEnumQualifier(PrimitiveType.INT).addEnumQualifier(PrimitiveType.LONG).addEnumQualifier(PrimitiveType.BOOLEAN);
-        assertDescriptorToStringMatches(descriptor, Double1TestRecipe.class, "abc123", PrimitiveType.INT, PrimitiveType.LONG, PrimitiveType.BOOLEAN);
-        descriptor = new Descriptor<>(StringTestRecipe.class).setName("qwerty").addEnumQualifier(PrimitiveType.FLOAT).addEnumQualifier(PrimitiveType.SHORT).addEnumQualifier(PrimitiveType.CHAR);
-        assertDescriptorToStringMatches(descriptor, StringTestRecipe.class, "qwerty", PrimitiveType.FLOAT, PrimitiveType.SHORT, PrimitiveType.CHAR);
+        descriptor = new Descriptor<>(Double1TestRecipe.class, "qwedsf").setName("abc123").addEnumQualifier(PrimitiveType.INT).addEnumQualifier(PrimitiveType.LONG).addEnumQualifier(PrimitiveType.BOOLEAN);
+        assertDescriptorToStringMatches(descriptor, Double1TestRecipe.class, "qwedsf", "abc123", PrimitiveType.INT, PrimitiveType.LONG, PrimitiveType.BOOLEAN);
+        descriptor = new Descriptor<>(StringTestRecipe.class, "dsdf").setName("qwerty").addEnumQualifier(PrimitiveType.FLOAT).addEnumQualifier(PrimitiveType.SHORT).addEnumQualifier(PrimitiveType.CHAR);
+        assertDescriptorToStringMatches(descriptor, StringTestRecipe.class, "dsdf", "qwerty", PrimitiveType.FLOAT, PrimitiveType.SHORT, PrimitiveType.CHAR);
     }
     
     /**
@@ -396,12 +396,13 @@ public class DescriptorTest extends AbstractUnitTest {
      * 
      * @param actualDescriptor {@link Descriptor} to check
      * @param recipe {@link Class} that the descriptor is describing
+     * @param variableName {@link String} the name of the variable
      * @param name {@link String} the expected name of the bean
      * @param qualifiers {@link Enum}... that are expected to be used as qualifiers
      */
-    private void assertDescriptorToStringMatches(Descriptor<?> actualDescriptor, Class<?> recipe, String name, Enum<?>...qualifiers) {
+    private void assertDescriptorToStringMatches(Descriptor<?> actualDescriptor, Class<?> recipe, String variableName, String name, Enum<?>...qualifiers) {
         String actual = actualDescriptor.toString();
-        String expected = "Bean type " + recipe.getSimpleName();
+        String expected = recipe.getSimpleName() + " " + variableName;
         if (name == null) {
             Assertions.assertEquals(expected, actual.toString());
             return;

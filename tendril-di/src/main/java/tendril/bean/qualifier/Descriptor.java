@@ -31,6 +31,8 @@ public class Descriptor<BEAN_TYPE> {
     
     /** The {@link Class} of the bean */
     private final Class<BEAN_TYPE> beanClass;
+    /** The name of the variable to which the bean is being assigned */
+    private final String variableName;
     /** The name of the bean */
     private String name = "";
     /** List of enums that have been applied as qualifiers on the bean */
@@ -44,7 +46,18 @@ public class Descriptor<BEAN_TYPE> {
      * @param beanClass {@link Class} of the bean that is described
      */
     public Descriptor(Class<BEAN_TYPE> beanClass) {
+        this(beanClass, "");
+    }
+    
+    /**
+     * CTOR
+     * 
+     * @param beanClass {@link Class} of the bean that is described
+     * @param variableName {@link String} the name of the variable/field the descriptor relates to
+     */
+    public Descriptor(Class<BEAN_TYPE> beanClass, String variableName) {
         this.beanClass = beanClass;
+        this.variableName = variableName;
     }
     
     /**
@@ -161,7 +174,12 @@ public class Descriptor<BEAN_TYPE> {
      */
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder("Bean type " + beanClass.getSimpleName());
+        StringBuilder str = new StringBuilder();
+        
+        if (variableName.isBlank())
+        	str.append("Bean type " + beanClass.getSimpleName());
+        else
+        	str.append(beanClass.getSimpleName() + " " + variableName);
         
         if (!name.isEmpty())
             str.append(" named \"" + name + "\"");
