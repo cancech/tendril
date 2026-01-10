@@ -38,19 +38,18 @@ Values can be added to some elements, such as fields and annotations. Values are
 A comprehensive example is the following
 ```java
 GenericType genericT = GenericFactory.create("T");
-GenericType genericU = GenericFactory.createExtends("U", new ClassType("a", "B"));
-GenericType superType = GenericFactory.createSuper(new ClassType("z.x.c", "V"));
-ClassType listClass = new ClassType(List.class);
-listClass.addGeneric(superType);
+GenericType genericU = GenericFactory.createExtends("U", TypeFactory.createClassType("a", "B"));
+ClassType listClass = TypeFactory.createClassType(List.class, GenericFactory.createSuper(TypeFactory.createClassType("z.x.c", "V")));
+ClassType stringClass = TypeFactory.createClassType(String.class);
 
-JClass parentCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
-JClass ifaceYCls = ClassBuilder.forConcreteClass(new ClassType("q.w.e.r.t", "Y")).build();
-JClass ifaceFCls = ClassBuilder.forConcreteClass(new ClassType("a.b.c.d", "F")).build();
-JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
+JClass parentCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).build();
+JClass ifaceYCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("q.w.e.r.t", "Y")).build();
+JClass ifaceFCls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("a.b.c.d", "F")).build();
+JClass cls = ClassBuilder.forConcreteClass(TypeFactory.createClassType("z.x.c.v", "B")).setVisibility(VisibilityType.PROTECTED)
   .extendsClass(parentCls)
   .implementsInterface(ifaceYCls).implementsInterface(ifaceFCls)
   .buildMethod(PrimitiveType.CHAR, "charMethod").setVisibility(VisibilityType.PROTECTED)
-      .buildParameter(new ClassType(String.class), "strParam").finish().emptyImplementation().finish()
+      .buildParameter(stringClass, "strParam").finish().emptyImplementation().finish()
   .addAnnotation(JAnnotationFactory.create(Deprecated.class, Map.of("since", JValueFactory.create("yesterday"), "forRemoval", JValueFactory.create(true))))
   .buildMethod(PrimitiveType.LONG, "longMethod").setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
       .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish()
@@ -59,7 +58,7 @@ JClass cls = ClassBuilder.forConcreteClass(new ClassType("z.x.c.v", "B")).setVis
   .buildField(VisibilityType.class, "enumField").setVisibility(VisibilityType.PRIVATE).setValue(JValueFactory.create(VisibilityType.PACKAGE_PRIVATE)).finish()
   .buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().finish()
   .buildConstructor().addGeneric(genericU).setVisibility(VisibilityType.PROTECTED)
-      .buildParameter(new ClassType(String.class), "strParam").finish()
+      .buildParameter(stringClass, "strParam").finish()
       .buildParameter(genericU, "u").finish()
       .addCode("a", "b", "c", "d").finish()
   .buildConstructor().setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
