@@ -503,8 +503,7 @@ public class MyBean {
 }
 ```
 
-This will trigger the creation of as many unique beans as there are values in the enum. Any qualifiers and restrictions can be placed onto the blueprint bean as per any other bean and these will be applied to all copies. Unlike regular beans, the qualifier generated for each enum value will automatically be applied to the bean created for the specific duplicate. 
-Dependencies that are outside of the duplicate can be injected as-per normal using the traditional mechanisms.
+This will trigger the creation of as many unique beans as there are values in the enum. Any qualifiers and restrictions can be placed onto the blueprint bean as per any other bean and these will be applied to all copies. Unlike regular beans, the qualifier generated for each enum value will automatically be applied to the bean created for the specific duplicate. Dependencies that are outside of the duplicate can be injected as-per normal using the traditional mechanisms.
 
 ```java
 @MyDuplicatesBlueprint
@@ -542,7 +541,7 @@ public class MyConsumer {
 ```
 
 ### Injecting the Blueprint
-As the copies are all identical with the exception of the blueprint enum value that is used to generate it, any unique values for the copy must be provided via the enum and these values need to be made available to the bean. This can be done by *injecting* the enum and annotating with `@Sibling`. This can be done via the constructor, instance field, or method.
+As the copies are all identical with the exception of the blueprint enum value used to generate it, any unique values for the copy must be provided via the enum and these values need to be made available to the bean. This can be done by *injecting* the enum and annotating it with `@Sibling`. This can be done via the constructor, instance field, or method.
 
 ```java
 @MyDuplicatesBlueprint
@@ -564,7 +563,76 @@ public class MyBean {
 }
 ```
 
-This inject the specific enum value that was used to produce the copy, and it can then be used within the bean in whatever manner necessary to configure or otherwise handle itself appropriately.
+This will inject the specific enum value that was used to produce the copy, and it can then be used within the bean in whatever manner necessary to configure or otherwise handle itself appropriately.
+
+### Injecting Sibling Beans
+If an explicit instance of a duplicate bean is required, then the qualifier of the duplicate can be used directly (whether within a duplicate or outside of it).
+
+```java
+@MyDuplicatesBlueprint
+@Singleton
+public class BeanA {
+
+}
+
+@MyDuplicatesBlueprint
+@Singleton
+public class BeanB {
+
+	@Inject
+	@COPY_1 // This will always inject the COPY_1 instance of BeanA
+	BeanA beanA;
+}
+```
+
+However, when it becomes necessary to inject other beans which belong to the same sibling this will fall short as this is hardcoded to a given instance. If the duplicate belong to the same sibling is required, then the `@Sibling` annotation can be employed. This will provide the instance of the bean which belongs to the same copy.
+
+```java
+@MyDuplicatesBlueprint
+@Singleton
+public class BeanA {
+
+}
+
+@MyDuplicatesBlueprint
+@Singleton
+public class BeanB {
+
+	@Inject
+	@Sibling
+	BeanA beanA;
+}
+```
+
+Thus, now when `BeanB` is created for `COPY_1` then `COPY_1` instance of `BeanA` will be provided (and so on for `COPY_2`, `COPY_3`, and so on).
+
+Note that this mechanism relies on simply *replacing* the `@Sibling` with the appropriate qualifier for the sibling, meaning that appropriate differentiation techniques must still be employed if there are multiple copies of the bean within the sibling.
+
+```java
+@MyDuplicatesBlueprint
+@Singleton
+@Primary // Prioritize BeanA over ChildA for injection
+public class BeanA {
+
+}
+
+@MyDuplicatesBlueprint
+@Singleton
+public class ChildA extends BeanA {
+
+}
+
+@MyDuplicatesBlueprint
+@Singleton
+public class BeanB {
+
+	@Inject
+	@Sibling
+	BeanA beanA;
+	// Without making BeanA @Primary, Tendril will report an error during injection
+	// as both BeanA and ChildA will be valid injections
+}
+```
 
 ## Transferable Annotations
 Certain annotations (namely Qualifiers and Requirements) are transferable, which in this context means that they can be applied anywhere in the annotation hierarchy and have an effect on the element (namely Bean and Configuration) as if they were applied to the element directly. Thus, common combinations can be placed into a shared/reusable annotation which is then applied to the appropriate Beans or Configurations, avoiding the need to "redefine" the combination in multiple places. Note that the reusable annotation must include `@Retention(RetentionPolicy.RUNTIME)` and have the appropriate `@Target` configured for its various use cases. This allows for defining custom annotation, and refactoring these transferable annotations away from concrete Beans or Configurations.

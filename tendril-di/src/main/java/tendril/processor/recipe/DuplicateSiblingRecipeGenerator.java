@@ -25,6 +25,7 @@ import tendril.annotationprocessor.exception.InvalidConfigurationException;
 import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.duplicate.Sibling;
 import tendril.bean.recipe.Injector;
+import tendril.codegen.JBase;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
@@ -118,6 +119,19 @@ class DuplicateSiblingRecipeGenerator extends BeanRecipeGenerator {
 	        ctorLines.add("});");
 		} else
 			super.generateFieldInjection(field, fieldTypeName, ctorLines);
+	}
+	
+	/**
+	 * If an @Sibling annotation is present, this is "converted" to the appropriate qualifier for the sibling.
+	 * 
+	 * @see tendril.processor.recipe.AbstractRecipeGenerator#getDescriptorLines(tendril.codegen.JBase)
+	 */
+	@Override
+	protected List<String> getDescriptorLines(JBase element) {
+		List<String> lines = super.getDescriptorLines(element);
+		if (element.hasAnnotation(Sibling.class))
+			lines.add("addQualifier(copyQualifiers.get(siblingCopy.name()))");
+		return lines;
 	}
 	
 	/**

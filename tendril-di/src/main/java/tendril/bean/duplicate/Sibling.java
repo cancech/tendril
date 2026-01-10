@@ -27,6 +27,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target({ ElementType.CONSTRUCTOR, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER })
 public @interface Sibling {
-	// TODO Allow for sibling injection
 	// TODO Allow for config duplicates
 }

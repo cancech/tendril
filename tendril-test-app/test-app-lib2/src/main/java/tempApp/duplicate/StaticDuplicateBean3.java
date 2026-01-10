@@ -15,12 +15,22 @@ public class StaticDuplicateBean3 {
 	@Message
 	String message;
 	
+	@Inject
+	@Sibling
+	StaticDuplicateBean bean;
+	
+	@Inject
+	@Sibling
+	StaticDuplicateBean2 bean2;
+	
 	private final StaticDuplicate blueprint;
 	private final String ctorMsg;
+	private final StaticDuplicateBean ctorBean;
 	
-	StaticDuplicateBean3(@Sibling StaticDuplicate blueprint, @Message String msg) {
+	StaticDuplicateBean3(@Sibling StaticDuplicate blueprint, @Message String msg, @Sibling StaticDuplicateBean ctorBean) {
 		this.blueprint = blueprint;
 		ctorMsg = msg;
+		this.ctorBean = ctorBean;
 	}
 	
 	public int getInteger() {
@@ -41,5 +51,13 @@ public class StaticDuplicateBean3 {
 	
 	public String getMessage() {
 		return message;
+	}
+	
+	public boolean isCorrectSibling() {
+		return blueprint == bean.getBlueprint() && blueprint == bean2.getBlueprint();
+	}
+	
+	public boolean isCorrectBean(StaticDuplicateBean expected) {
+		return expected == bean && expected == ctorBean;
 	}
 }

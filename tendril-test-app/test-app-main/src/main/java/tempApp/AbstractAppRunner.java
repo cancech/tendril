@@ -348,6 +348,18 @@ public abstract class AbstractAppRunner implements TendrilRunner {
         assertion(allBean3Copies.contains(bean3Copy1), "bean3Copy1 is not contained in allBean3Copies");
         assertion(allBean3Copies.contains(bean3Copy2), "bean3Copy2 is not contained in allBean3Copies");
         assertion(allBean3Copies.contains(bean3Copy3), "bean3Copy3 is not contained in allBean3Copies");
+        
+        // Make sure that the correct siblings have been provided
+        assertion(bean1Copy1.isCorrectSibling(), "Wrong sibling provided to bean1Copy1");
+        assertion(bean1Copy2.isCorrectSibling(), "Wrong sibling provided to bean1Copy2");
+        assertion(bean1Copy3.isCorrectSibling(), "Wrong sibling provided to bean1Copy3");
+
+        assertion(bean3Copy1.isCorrectSibling(), "Wrong sibling provided to bean3Copy1");
+        assertion(bean3Copy1.isCorrectBean(bean1Copy1), "Wrong sibling provided to bean3Copy1");
+        assertion(bean3Copy2.isCorrectSibling(), "Wrong sibling provided to bean3Copy2");
+        assertion(bean3Copy2.isCorrectBean(bean1Copy2), "Wrong sibling provided to bean3Copy2");
+        assertion(bean3Copy3.isCorrectSibling(), "Wrong sibling provided to bean3Copy3");
+        assertion(bean3Copy3.isCorrectBean(bean1Copy3), "Wrong sibling provided to bean3Copy3");
     }
 
     private  static void assertion(boolean value, String msg) {

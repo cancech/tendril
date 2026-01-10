@@ -379,14 +379,12 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
     }
 
     /**
-     * Get the code through which the name is applied to the Descriptor
+     * Get the code through which the {@link Descriptor} is updated
      * 
-     * @param element {@link JBase} whose name it being determined
-     * @param names   {@link List} of {@link Named} annotation that have been applied to the element
+     * @param element {@link JBase} whose {@link Descriptor} is to be generated
      * @return {@link List} of {@link String}s containing the code with the appropriate descriptor update
-     * @throws TendrilException if more than one name is applied to the bean
      */
-    private List<String> getDescriptorLines(JBase element) {
+    protected List<String> getDescriptorLines(JBase element) {
         List<String> lines = new ArrayList<>();
 
         ClassType namedType = TypeFactory.createClassType(Named.class);

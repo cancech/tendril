@@ -19,12 +19,20 @@ public class StaticDuplicateBean {
 	@Message
 	String message;
 	
+	@Inject
+	@Sibling
+	StaticDuplicateBean2 bean2;
+	
 	private final StaticDuplicate ctorBlueprint;
 	private final String ctorMsg;
 	
 	StaticDuplicateBean(@Sibling StaticDuplicate blueprint, @Message String msg) {
 		ctorBlueprint = blueprint;
 		ctorMsg = msg;
+	}
+	
+	public StaticDuplicate getBlueprint() {
+		return blueprint;
 	}
 	
 	public boolean isSameBlueprint() {
@@ -49,5 +57,9 @@ public class StaticDuplicateBean {
 	
 	public String getMessage() {
 		return message;
+	}
+	
+	public boolean isCorrectSibling() {
+		return blueprint == bean2.getBlueprint();
 	}
 }
