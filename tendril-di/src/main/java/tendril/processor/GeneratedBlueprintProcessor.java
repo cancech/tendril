@@ -15,12 +15,16 @@
  */
 package tendril.processor;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
 import com.google.auto.service.AutoService;
@@ -32,10 +36,12 @@ import tendril.annotationprocessor.exception.InvalidConfigurationException;
 import tendril.annotationprocessor.exception.MissingAnnotationException;
 import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Bean;
+import tendril.bean.Configuration;
 import tendril.bean.duplicate.GeneratedBlueprint;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.generics.GenericType;
 import tendril.processor.recipe.RecipeGenerator;
 
@@ -46,13 +52,41 @@ import tendril.processor.recipe.RecipeGenerator;
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
 public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTendrilProcessor {
+	/** Cache of the blueprint annotations that have been processed, removing the need to determine the associated blueprint Enum each time */
+	private final Map<ClassType, ClassType> blueprintCache = new HashMap<>();
+	
+	/** The type of the blueprint Enum that is currently being processed */
+	private ClassType currentBlueprintType = null;
+	/** Exception received when determining the Enum blueprint type. As the method doing that work cannot throw an exception, this is kept until later when it can be thrown */
+	private Exception annotationRetrieveException = null;
 
 	/**
 	 * CTOR
 	 */
 	public GeneratedBlueprintProcessor() {
+		blueprintCache.put(TypeFactory.createClassType(GeneratedBlueprint.class), null);
 	}
 	
+	/**
+	 * Prior to performing the processing, determine what the blueprint Enum is as it will apply to all types from this iteration of processing.
+	 *  
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#findAndProcessElements(javax.lang.model.element.TypeElement, java.util.function.Consumer)
+	 */
+	@Override
+	public void findAndProcessElements(TypeElement annotation, Consumer<? super Element> consume) {
+		try {
+			currentBlueprintType = retrieveBlueprint(annotation);
+		} catch (Exception e) {
+			annotationRetrieveException = e;
+		}
+		super.findAndProcessElements(annotation, consume);
+	}
+	
+	/**
+	 * Ensure that the type is not also annotated as a bean. Thrown an exception caused by conflicting definitions if true.
+	 * 
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
+	 */
 	@Override
 	protected void validateType(TypeElement type) throws TendrilException {
 		super.validateType(type);
@@ -65,10 +99,12 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 	 */
 	@Override
 	protected ClassDefinition processType() throws TendrilException {
+		if (annotationRetrieveException != null)
+			throw new TendrilException("Unable to process " + currentClassType.getFullyQualifiedName() + " - unable to retreive the blueprint annotation", annotationRetrieveException);
+		
 		try {
-			ClassType blueprintType = retrieveBlueprint();
-			writeCode(RecipeGenerator.generateDuplicateSiblingBean(blueprintType, currentClassType, currentClass, processingEnv.getMessager()));
-			return RecipeGenerator.generateDuplicateBean(blueprintType, currentClassType, currentClass, processingEnv.getMessager());
+			writeCode(RecipeGenerator.generateDuplicateSiblingBean(currentBlueprintType, currentClassType, currentClass, processingEnv.getMessager()));
+			return RecipeGenerator.generateDuplicateBean(currentBlueprintType, currentClassType, currentClass, processingEnv.getMessager());
 		} catch (Exception e) {
 			throw new TendrilException("Unable to process " + currentClassType.getFullyQualifiedName(), e);
 		}
@@ -77,13 +113,18 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 	/**
 	 * Retrieve the blueprint enum which is driving the duplication process
 	 * 
+	 * @param annotation {@link TypeElement} of the annotation being processed
 	 * @return {@link ClassType} of the blueprint annotation
 	 * @throws MissingAnnotationException
 	 * @throws TendrilException
 	 * @throws ClassNotFoundException
 	 */
-	private ClassType retrieveBlueprint() throws MissingAnnotationException, TendrilException, ClassNotFoundException {
-		JClass annotationClass = ElementLoader.retrieveClass(currentAnnotation);
+	private ClassType retrieveBlueprint(TypeElement annotation) throws MissingAnnotationException, TendrilException, ClassNotFoundException {
+		JClass annotationClass = ElementLoader.retrieveClass(annotation);
+		ClassType annotationType = annotationClass.getType();
+		if (blueprintCache.containsKey(annotationType))
+			return blueprintCache.get(annotationType);
+		
 		// Make sure that the enumClass method is present
 		List<JMethod<?>> methods = annotationClass.getMethods("enumClass");
 		if (methods.isEmpty())
@@ -98,7 +139,9 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 			if (generics.size() != 1)
 				throw new TendrilException(exceptionMsg);
 
-			return generics.get(0).asClassType();
+			ClassType blueprintType = generics.get(0).asClassType();
+			blueprintCache.put(annotationType, blueprintType);
+			return blueprintType;
 		} else
 			throw new TendrilException(exceptionMsg);
 	}
