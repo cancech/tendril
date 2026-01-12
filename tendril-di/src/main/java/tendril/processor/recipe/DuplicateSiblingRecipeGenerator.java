@@ -27,14 +27,12 @@ import tendril.bean.duplicate.Sibling;
 import tendril.bean.recipe.Injector;
 import tendril.codegen.JBase;
 import tendril.codegen.VisibilityType;
-import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JParameter;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.TypeFactory;
-import tendril.codegen.field.value.JValueFactory;
 import tendril.codegen.generics.GenericFactory;
 import tendril.context.Engine;
 import tendril.processor.BlueprintProcessor;
@@ -67,8 +65,7 @@ class DuplicateSiblingRecipeGenerator extends BeanRecipeGenerator {
     protected void generateConstructor(ClassBuilder builder) throws InvalidConfigurationException {
 
         // Instance field for the type that is being built
-        builder.buildField(blueprintType, "siblingCopy").setVisibility(VisibilityType.PRIVATE).setFinal(true)
-        	.addAnnotation(JAnnotationFactory.create(SuppressWarnings.class, Map.of("value", JValueFactory.create("unused")))).finish();
+        builder.buildField(blueprintType, "siblingCopy").setVisibility(VisibilityType.PRIVATE).setFinal(true).finish();
         
         // Instance field for the map of qualifying annotations for each copy
         try {
@@ -98,7 +95,7 @@ class DuplicateSiblingRecipeGenerator extends BeanRecipeGenerator {
         ctorCode.add("this.siblingCopy = siblingCopy;");
         generateFieldConsumers(ctorCode);
         generateMethodConsumers(ctorCode);
-        ctorCode.add("getDescription().addQualifier(copyQualifiers.get(siblingCopy.name()));");
+        ctorCode.add("getDescription().addQualifier(copyQualifiers.get(this.siblingCopy.name()));");
 
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish()
         	.buildParameter(blueprintType, "siblingCopy").finish().addCode(ctorCode.toArray(new String[ctorCode.size()])).finish();
