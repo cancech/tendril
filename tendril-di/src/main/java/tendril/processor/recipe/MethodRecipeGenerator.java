@@ -81,7 +81,7 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
     @Override
     protected void populateBuilder(ClassBuilder builder) throws InvalidConfigurationException {
         // Build up the contents of the recipe
-        generateConstructor(configType, builder);
+        generateConstructor(TypeFactory.createClassType(ConfigurationRecipe.class, GenericFactory.create(configType)), builder);
         generateRecipeDescriptor(builder);
         generateRecipeRequirements(builder);
         generateCreateInstance(beanCreator, builder);
@@ -90,11 +90,11 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
     /**
      * Generate the constructor for the recipe
      * 
+     * @param configRecipeType {@link ClassType} indicating the class where the recipe for the config is defined
      * @param builder {@link ClassBuilder} where the recipe class is being defined
+     * @throws InvalidConfigurationException if attempting to generate for a method that is improperly configured
      */
-    private void generateConstructor(ClassType configType, ClassBuilder builder) {
-        ClassType configRecipeType = TypeFactory.createClassType(ConfigurationRecipe.class, GenericFactory.create(configType));
-        
+    protected void generateConstructor(ClassType configRecipeType, ClassBuilder builder) throws InvalidConfigurationException {
         // Instance field for the config
         builder.buildField(configRecipeType, "config").setVisibility(VisibilityType.PRIVATE).setFinal(true).finish();
         // Add the constructor

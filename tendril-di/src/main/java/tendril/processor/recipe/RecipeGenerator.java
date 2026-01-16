@@ -138,8 +138,24 @@ public final class RecipeGenerator {
      * @throws TendrilException when an issue generating the recipe is encountered
      */
     public static ClassDefinition generateDuplicateSiblingBean(ClassType blueprintType, ClassType siblingType, JClass sibling, Messager messager) throws TendrilException {
-    	DuplicateSiblingRecipeGenerator generator = new DuplicateSiblingRecipeGenerator(siblingType, sibling, messager, blueprintType);
+    	DuplicateSiblingClassRecipeGenerator generator = new DuplicateSiblingClassRecipeGenerator(siblingType, sibling, messager, blueprintType);
     	return generator.generate(getSiblingRecipeType(siblingType), false);
+    }
+    
+    /**
+     * Generate the recipe which will trigger the creation of all copies of the duplicated beans within a Configuration
+     * 
+     * @param blueprintType {@link ClassType} of the {@link Enum} which drives the duplication
+     * @param configType {@link ClassType} of the config where the bean is created
+     * @param sibling {@link JMethod} which creates the bean to be duplicated
+     * @param messager {@link Messager} for the annotation processing
+     * @return {@link ClassDefinition}
+     * @throws TendrilException when an issue generating the recipe is encountered
+     */
+    public static ClassDefinition generateDuplicateSiblingBean(ClassType blueprintType, ClassType configType, JMethod<?> sibling, Messager messager) throws TendrilException {
+    	ClassType beanType = sibling.getType().asClassType();
+    	DuplicateSiblingMethodRecipeGenerator generator = new DuplicateSiblingMethodRecipeGenerator(configType, beanType, sibling, messager, blueprintType);
+    	return generator.generate(getSiblingRecipeType(configType, sibling), false);
     }
     
     /**
@@ -166,12 +182,23 @@ public final class RecipeGenerator {
     }
     
     /**
+     * Derive the recipe class for the sibling bean which is defined within a configuration
+     * 
+     * @param configType {@link ClassType} defining the configuration
+     * @param creator {@link JMethod} where the bean is created
+     * @return {@link ClassType}
+     */
+    public static ClassType getSiblingRecipeType(ClassType configType, JMethod<?> creator) {
+    	return getSiblingRecipeType(TypeFactory.createClassType(configType, creator.getName()));
+    }
+    
+    /**
      * Derive the recipe class for the sibling bean
      * 
      * @param siblingType {@link ClassType} indicating the class of the sibling bean
      * @return {@link ClassType}
      */
-    static ClassType getSiblingRecipeType(ClassType siblingType) {
+    public static ClassType getSiblingRecipeType(ClassType siblingType) {
     	return getRecipeType(TypeFactory.createClassType(siblingType, "Sibling"));
     }
 }

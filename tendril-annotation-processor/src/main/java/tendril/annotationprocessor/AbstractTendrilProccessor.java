@@ -240,8 +240,10 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * override to perform whichever checks are appropriate. Throw an appropriate exception if validation fails.
      * 
      * Note that for validation the currentMethod instance field should be used (currentClass represents the class containing the method)
+     * 
+     * @throws TendrilException if there is an issue with validation
      */
-    protected void validateMethod() {
+    protected void validateMethod() throws TendrilException {
         // Do nothing by default
     }
 

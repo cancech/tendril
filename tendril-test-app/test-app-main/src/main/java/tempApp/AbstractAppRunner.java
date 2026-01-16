@@ -21,6 +21,7 @@ import java.util.List;
 import tempApp.duplicate.StaticDuplicateBean;
 import tempApp.duplicate.StaticDuplicateBean2;
 import tempApp.duplicate.StaticDuplicateBean3;
+import tempApp.duplicate.StringInterface;
 import tempApp.id.MyType;
 import tempApp.id.MyTypeId;
 import tendril.bean.Inject;
@@ -169,6 +170,18 @@ public abstract class AbstractAppRunner implements TendrilRunner {
     StaticDuplicateBean3 bean3Copy3;
     @InjectAll
     List<StaticDuplicateBean3> allBean3Copies;
+
+    @Inject
+    @COPY_1
+    StringInterface strIf1;
+    @Inject
+    @COPY_2
+    StringInterface strIf2;
+    @Inject
+    @COPY_3
+    StringInterface strIf3;
+    @InjectAll
+    List<StringInterface> strIfaces;
     
     private FactoryClass factoryBean5;
     private final Class<? extends AbstractAppRunner> actualRunner;
@@ -360,6 +373,16 @@ public abstract class AbstractAppRunner implements TendrilRunner {
         assertion(bean3Copy2.isCorrectBean(bean1Copy2), "Wrong sibling provided to bean3Copy2");
         assertion(bean3Copy3.isCorrectSibling(), "Wrong sibling provided to bean3Copy3");
         assertion(bean3Copy3.isCorrectBean(bean1Copy3), "Wrong sibling provided to bean3Copy3");
+        
+        // Make sure that the config duplicates are properly received
+        assertion("First".equals(strIf1.getValue()), "Expected First but received " + strIf1.getValue());
+        assertion("Second".equals(strIf2.getValue()), "Expected Second but received " + strIf2.getValue());
+        assertion("Third".equals(strIf3.getValue()), "Expected Third but received " + strIf3.getValue());
+
+        assertion(strIfaces.size() == 3, "Expected to receive three copies, but received " + strIfaces.size());
+        assertion(strIfaces.contains(strIf1), "strIf1 is not contained in strIfaces");
+        assertion(strIfaces.contains(strIf2), "strIf2 is not contained in strIfaces");
+        assertion(strIfaces.contains(strIf3), "strIf3 is not contained in strIfaces");
     }
 
     private  static void assertion(boolean value, String msg) {

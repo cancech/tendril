@@ -3,6 +3,7 @@ package tendril.processor;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 
 import org.junit.jupiter.api.Assertions;
@@ -20,6 +21,8 @@ public class GeneratedBlueprintProcessorTest extends AbstractUnitTest {
 	private TypeElement mockAnnotation;
 	@Mock
 	private TypeElement mockType;
+	@Mock
+	private Name mockName;
 	
 	// Instance to test
 	private GeneratedBlueprintProcessor processor;
@@ -58,8 +61,10 @@ public class GeneratedBlueprintProcessorTest extends AbstractUnitTest {
 	@Test
 	public void testValidateWithBean() {
 		when(mockType.getAnnotationsByType(Bean.class)).thenReturn(new Bean[1]);
+		when(mockType.getQualifiedName()).thenReturn(mockName);
 		Assertions.assertThrows(TendrilException.class, () -> processor.validateType(mockType));
 		verify(mockType).getAnnotationsByType(Bean.class);
+		verify(mockType).getQualifiedName();
 		verify(mockAnnotation).getSimpleName();
 	}
 }
