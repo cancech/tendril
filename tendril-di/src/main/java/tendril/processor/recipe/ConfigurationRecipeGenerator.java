@@ -119,8 +119,6 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 	 * @return {@link JAnnotation} which triggers duplication (or null if not applicable)
 	 */
 	private JAnnotation duplicationAnnotation(JMethod<?> method) {
-		// TODO see if this is something that can be done automatically when loading the class details?
-		// Such as apply the GeneratedBlueprint to the method itself if an annotation contains it?
 		for (JAnnotation a : method.getAnnotations()) {
 			if (a.hasAnnotation(GeneratedBlueprint.class))
 				return a;
