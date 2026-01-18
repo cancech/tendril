@@ -383,6 +383,10 @@ public abstract class AbstractAppRunner implements TendrilRunner {
         assertion(strIfaces.contains(strIf1), "strIf1 is not contained in strIfaces");
         assertion(strIfaces.contains(strIf2), "strIf2 is not contained in strIfaces");
         assertion(strIfaces.contains(strIf3), "strIf3 is not contained in strIfaces");
+        
+        // Verify that the RunnableConfig is properly processed
+        RunnableConfig.assertTimesValidateCalled(1);
+        RunnableConfig.assertTimesMethodInjectCalled(1);
     }
 
     private  static void assertion(boolean value, String msg) {
