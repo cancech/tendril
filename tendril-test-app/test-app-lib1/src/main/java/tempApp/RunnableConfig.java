@@ -42,6 +42,11 @@ public class RunnableConfig {
 			throw new AssertionError("RunnableConfig::methodInject() expected to be called " + expected + " times, but was called " + timesMethodInjectCalled + " times");
 	}
 	
+	public static void reset() {
+		timesValidateCalled = 0;
+		timesMethodInjectCalled = 0;
+	}
+	
 	@Inject
 	@Message
 	String msg = null;

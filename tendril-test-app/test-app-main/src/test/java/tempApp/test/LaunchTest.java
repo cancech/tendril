@@ -24,6 +24,7 @@ import tempApp.AppRunner2;
 import tempApp.FactoryClass;
 import tempApp.MultiEnvBean1;
 import tempApp.MultiEnvBean2;
+import tempApp.RunnableConfig;
 import tempApp.SingletonClass;
 import tempApp.TempManager;
 import tendril.context.ApplicationContext;
@@ -40,6 +41,7 @@ public class LaunchTest {
         TempManager.reset();
         AbstractAppRunner.reset();
         AbstractAppRunner.reset();
+        RunnableConfig.reset();
     }
 
     @Test
