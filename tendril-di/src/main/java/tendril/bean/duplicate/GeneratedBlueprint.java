@@ -26,4 +26,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE })
 public @interface GeneratedBlueprint {
+	// TODO Add support for inherited types, user still specifies the Enum, but this can inherit from other items and duplication can proceed on those inherited items.
 }
