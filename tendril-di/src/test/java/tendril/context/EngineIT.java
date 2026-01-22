@@ -195,7 +195,7 @@ public class EngineIT extends AbstractUnitTest {
 	 */
 	@Test
 	public void testAEnvironmentSpecified() {
-		engine.setEnvironments("A");
+		engine.addEnvironments("A");
 		try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
 			registry.when(RegistryFile::read)
 					.thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), RequiresARecipe.class.getName(), RequiresBRecipe.class.getName(), RequiresABRecipe.class.getName(),
@@ -223,7 +223,7 @@ public class EngineIT extends AbstractUnitTest {
 	 */
 	@Test
 	public void testBEnvironmentSpecified() {
-		engine.setEnvironments("B");
+		engine.addEnvironments("B");
 		try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
 			registry.when(RegistryFile::read)
 					.thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), RequiresARecipe.class.getName(), RequiresBRecipe.class.getName(), RequiresABRecipe.class.getName(),
@@ -250,7 +250,7 @@ public class EngineIT extends AbstractUnitTest {
 	 */
 	@Test
 	public void testABEnvironmentSpecified() {
-		engine.setEnvironments("A", "B");
+		engine.addEnvironments("A", "B");
 		try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
 			registry.when(RegistryFile::read)
 					.thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), RequiresARecipe.class.getName(), RequiresBRecipe.class.getName(), RequiresABRecipe.class.getName(),
@@ -280,7 +280,7 @@ public class EngineIT extends AbstractUnitTest {
 	@Test
 	public void testCannotChangeEnvironmentsAfterEngineInit() {
 		testABEnvironmentSpecified();
-		Assertions.assertThrows(RuntimeException.class, () -> engine.setEnvironments("qwerty"));
+		Assertions.assertThrows(RuntimeException.class, () -> engine.addEnvironments("qwerty"));
 	}
 
 	/**
@@ -379,5 +379,44 @@ public class EngineIT extends AbstractUnitTest {
 		Assertions.assertEquals(1, engine.getBeanCount());
 		Assertions.assertEquals(FallbackStringRecipe2.VALUE, engine.getBean(new Descriptor<>(String.class)));
 		CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(String.class)), FallbackStringRecipe2.VALUE);
+	}
+	
+	/**
+	 * Verify that the engine will read environments from the environments property
+	 */
+	@Test
+	public void testEnvironmentProperty() {
+		// Verify that if the property is empty/missing, no environments are set
+		System.clearProperty("environments");
+		CollectionAssert.assertEmpty(new Engine().getEnvironments());
+		System.setProperty("environments", "");
+		CollectionAssert.assertEmpty(new Engine().getEnvironments());
+		System.setProperty("environments", "   		   ");
+		CollectionAssert.assertEmpty(new Engine().getEnvironments());
+		
+		// Verify a single environment can be set
+		System.setProperty("environments", "abc");
+		CollectionAssert.assertEquivalent(Collections.singletonList("abc"), new Engine().getEnvironments());
+		
+		// Verify two environments can be set
+		System.setProperty("environments", "abc,def");
+		CollectionAssert.assertEquivalent(Arrays.asList("abc", "def"), new Engine().getEnvironments());
+		
+		// Verify multiple environments can be set
+		System.setProperty("environments", "abc,def,123,qwerty,asdf,wasd,zxcv");
+		CollectionAssert.assertEquivalent(Arrays.asList("abc", "def", "123", "qwerty", "asdf", "wasd", "zxcv"), new Engine().getEnvironments());
+		
+		// Verify can mix and match property environments and code ones
+		System.setProperty("environments", "abc");
+		engine = new Engine();
+		CollectionAssert.assertEquivalent(Collections.singletonList("abc"), engine.getEnvironments());
+		engine.addEnvironments("def", "ghi");
+		CollectionAssert.assertEquivalent(Arrays.asList("abc", "def", "ghi"), engine.getEnvironments());
+		engine.addEnvironments("123", "345", "678", "901");
+		CollectionAssert.assertEquivalent(Arrays.asList("abc", "def", "ghi", "123", "345", "678", "901"), engine.getEnvironments());
+
+		// Verify that if the property is empty/missing, no environments are set
+		System.clearProperty("environments");
+		CollectionAssert.assertEmpty(new Engine().getEnvironments());
 	}
 }

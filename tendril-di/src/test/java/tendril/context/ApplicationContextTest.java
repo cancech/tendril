@@ -295,9 +295,9 @@ public class ApplicationContextTest extends AbstractUnitTest {
     @Test
     public void testEnvironments() {
         ctx.setEnvironments("a");
-        verify(mockEngine).setEnvironments("a");
+        verify(mockEngine).addEnvironments("a");
 
         ctx.setEnvironments("a", "b", "c");
-        verify(mockEngine).setEnvironments("a", "b", "c");
+        verify(mockEngine).addEnvironments("a", "b", "c");
     }
 }

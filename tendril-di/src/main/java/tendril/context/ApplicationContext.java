@@ -64,7 +64,7 @@ public class ApplicationContext {
      * @param envs {@link String}... indicating what all environments are to be used
      */
     public void setEnvironments(String...envs) {
-        engine.setEnvironments(envs);
+        engine.addEnvironments(envs);
     }
 
     /**

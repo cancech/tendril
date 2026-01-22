@@ -98,15 +98,29 @@ In this situation, the `Configuration` will be initialized before any beans it p
 Requirements can be placed on Beans and Configurations to limit under what circumstance they will be created. For example to use a different bean in a development, production, or test environment with little to no changes required in the code itself. Note that when a requirement is applied to a `Configuration` directly, it is implicitly applied to all Beans within (the whole `Configuration` will not be employed if the `Configuration` requirements are not met). Any requirements applied to Beans defined within a `Configuration` are in effect applied on top of the `Configuration` requirements. Multiples requirements can be applied, with them acting additively (i.e.: all specified requirements must be met).
 
 #### Environments
-The simplest manner in which to achieve this control is through the use of environments. Different environments can be specified when creating the `ApplicationContext` and requirements can be applied to Beans and Configurations to account for them.
+The simplest manner in which to achieve this control is through the use of environments. Different environments can be specified when creating the `ApplicationContext` and requirements can be applied to Beans and Configurations to account for them. There are two way in which to specify environments:
+
+1. Java `environments` property
+2. In the code.
+
+Regardless of the approach taken, the effect is cumulative; meaning that all environments specified via property and code are all applied. **_There is not means of removing an environment once it has been specified._**
+
+##### Environments via Property
+The `environments` property is loaded by the `Engine` on initialization to determine what the "preset" environments are. The value that is specified within the `environments` property will be applied to the runtime context, multiple environments can be supplied by using a comma separated list. For example to specify a single _envA_ the following JVM argument can be passed `-Denvironments=envA`. _envA_, _envB_, and _envC_ can be passed as follows `-Denvironments=envA,envB,envC`. The benefit of this approach is that it can be specified outside of the code/application, meaning that it is relatively easy for someone who cannot make any changes to the code have control over which environments are specified.
+
+#### Environments via Code
+The alternative approach, would be to specify the environments via code as part of `ApplicationContext` initialization. 
 
 ```java
 ApplicationContext ctx = new ApplicationContext();
-ctx.setEnvironments("a", "b", "c");
+ctx.addEnvironments("a", "b", "c");
 ctx.start();
 ```
 
-Any number of environments can be provided to `setEnvironments()`. To apply requirements on a Bean or Configuration the following annotations can be used:
+Any number of environments can be provided to `addEnvironments()` and it can be called multiple times. The only limitation is, that it can only be called prior to starting the context. Once the context has been started, the environments become fixed and no more can be added.
+
+#### Restricting Bean Creation via Environments
+To apply requirements on a Bean or Configuration the following annotations can be used:
 
 * `@RequiresEnv` and specify one (or more) environments, *all of which* must be applied for the Bean or Configuration to be allowed to be created.
 * `@RequiresOneOfEnv` and specify one (or more) environments, *at least one of which* must be applied for the Bean or Configuration to be allowed to be created.

@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -46,7 +45,7 @@ public class Engine {
 	/** All recipes that have been registered */
 	private final List<AbstractRecipe<?>> recipes = new ArrayList<>();
 	/** List of environments that are applied to the context */
-	private List<String> environments = Collections.emptyList();
+	private List<String> environments = new ArrayList<>();
 	/** Flag for whether or not the engine has been started */
 	private boolean isStarted = false;
 
@@ -54,6 +53,9 @@ public class Engine {
 	 * CTOR
 	 */
 	public Engine() {
+		String cliEnvs = System.getProperty("environments");
+		if (cliEnvs != null && !cliEnvs.isBlank())
+			addEnvironments(cliEnvs.split(","));
 	}
 
 	/**
@@ -61,15 +63,23 @@ public class Engine {
 	 * 
 	 * @param envs {@link String}... that are applied
 	 */
-	void setEnvironments(String... envs) {
-		// TODO initialize from environment variables/flags?
+	void addEnvironments(String... envs) {
 		// Environments can only be set before starting the engine
 		if (isStarted)
 			throw new RuntimeException("Environments can only be set before starting the context");
 
-		environments = Arrays.asList(envs);
+		environments.addAll(Arrays.asList(envs));
 	}
 
+	/**
+	 * Get the current list of environments for the context
+	 * 
+	 * @return {@link List} of applied {@link String} environment names
+	 */
+	List<String> getEnvironments() {
+		return environments;
+	}
+	
 	/**
 	 * Initialize the engine by reading the list of all known recipes and registering them with the engine. Each recipe object is created, though the bean contained within is not created until it
 	 * becomes necessary to do so (i.e.: accessed by a Consumer).
