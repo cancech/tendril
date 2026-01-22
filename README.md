@@ -103,7 +103,7 @@ The simplest manner in which to achieve this control is through the use of envir
 1. Java `environments` property
 2. In the code.
 
-Regardless of the approach taken, the effect is cumulative; meaning that all environments specified via property and code are all applied. **_There is not means of removing an environment once it has been specified._**
+Regardless of the approach taken, the effect is cumulative; meaning that all environments specified via property and code are all applied. **_There is no means of removing an environment once it has been specified._**
 
 ##### Environments via Property
 The `environments` property is loaded by the `Engine` on initialization to determine what the "preset" environments are. The value that is specified within the `environments` property will be applied to the runtime context, multiple environments can be supplied by using a comma separated list. For example to specify a single _envA_ the following JVM argument can be passed `-Denvironments=envA`. _envA_, _envB_, and _envC_ can be passed as follows `-Denvironments=envA,envB,envC`. The benefit of this approach is that it can be specified outside of the code/application, meaning that it is relatively easy for someone who cannot make any changes to the code have control over which environments are specified.
