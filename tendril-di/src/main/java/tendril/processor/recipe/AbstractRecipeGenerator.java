@@ -101,6 +101,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * part of the class/method/field signature.
      */
     protected final Set<ClassType> externalImports = new HashSet<>();
+    // TODO remove imports and switch to using fully qualified name only
 
     /**
      * CTOR
