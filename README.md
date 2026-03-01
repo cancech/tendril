@@ -486,7 +486,12 @@ List<BeanA> allMyQualifierBeanA;
 In the code snippet above `allBeanA` will contain the `BeanA` and `BeanB` beans, as both can be cast to `BeanA`. `BeanC` will not be included as there are `@Primary` (BeanA) and `Basic` (BeanB) beans that meet the injection criteria. On the other hand, `allMyQualifierBeanA` will include only `BeanC`, as that is the only bean which can be cast to `BeanA` and includes the qualifier `@MyQualifier`.
 
 ## Duplicating Beans
-It is possible to create multiple copies of "the same" bean, such that the same definition mechanism is employed for all. This takes a *cookie cutter* approach, where a blueprint is employed to define how many copies are to be produced and what the distinctions between them are and `Tendril` will automatically produce and provide the appropriate beans. The blueprint is `Enum` driven, any enum can be used it just needs to be annotated with `@Blueprint` and each value within the blueprint enum will be then to define a specific copy. Any desired characteristics which are unique to a given copy can be included in the enum, thus allowing for distinct variations between different copies with the only limitation being dictated by the enum construct itself.
+It is possible to create multiple copies of "the same" bean, such that the same definition mechanism is employed for all. This takes a *cookie cutter* approach, where a *blueprint* is employed to define how many copies are to be produced and what the distinctions between them are and `Tendril` will automatically produce and provide the appropriate beans. There are two approaches which can be taken, with the only difference between them being how the blueprints are defined. Once the blueprints are defined, the rest of the mechanism surrounding them is identical.
+
+### Defining Blueprints
+
+#### Static Blueprints
+A *static blueprint* is one where the number of copies and their details are *fixed* at compile time. Ergo, the code is written to include a fixed number of copies and those are the only copies which can ever exist for a given blueprint. It is `Enum` driven, any enum can be used - it just needs to be annotated with `@Blueprint`, with each value within the blueprint enum used to define a specific copy. Thus if three copies are desired, the enum must be defined with three values. Any desired characteristics which are unique to a given copy can be included in the enum, thus allowing for distinct variations between different copies with the only limitation being dictated by the enum construct itself.
 
 ```java
 @Blueprint
@@ -507,7 +512,7 @@ public enum MyDuplicates {
 }
 ```
 
-From this two things will be generated: a blueprint annotation and qualifier for each duplicate (enum value). The blueprint annotation will take the name of the enum and append `Blueprint` to it (thus `@MyDuplicatesBlueprint` in this example) and can be used instead of `@Bean` to define a bean which is to be duplicated. Note that the `quantifier` must still be included as per a regular bean.
+From this two things will be generated: a blueprint annotation and a qualifier for each duplicate (enum value). The blueprint annotation will take the name of the enum and append `Blueprint` to it (thus `@MyDuplicatesBlueprint` in this example) and can be used instead of `@Bean` to define a bean which is to be duplicated. Note that the `quantifier` must still be included as per a regular bean.
 
 ```java
 @MyDuplicatesBlueprint
@@ -517,7 +522,7 @@ public class MyBean {
 }
 ```
 
-This will trigger the creation of as many unique beans as there are values in the enum. Any qualifiers and restrictions can be placed onto the blueprint bean as per any other bean and these will be applied to all copies. Unlike regular beans, the qualifier generated for each enum value will automatically be applied to the bean created for the specific duplicate. Dependencies that are outside of the duplicate can be injected as-per normal using the traditional mechanisms.
+This will trigger the creation of as many unique beans as there are values in the enum. Any qualifiers and restrictions can be placed onto the blueprint bean as per any other bean and these will be applied to all copies. Additionally, the qualifier generated for each enum value will automatically be applied to the bean created for the specific duplicate, thus allowing external parties to retrieve the a specific instance using the qualifier (i.e.: `@COPY_1` to retrieve the duplicate created for `MyDuplicates.COPY_1` in this example). Dependencies that are outside of the duplicate can be injected as-per normal using traditional mechanisms.
 
 ```java
 @MyDuplicatesBlueprint
@@ -554,8 +559,59 @@ public class MyConsumer {
 }
 ```
 
+Static duplicates are far simpler to define, use, and maintain. Consequently it is recommended that they be employed, provided defining the copies using an enum is a viable option in the use case.
+
+#### Dynamic Blueprints
+Unlike *static blueprints* which are defined at compile type, *dynamic blueprints* are defined at runtime. This means that there is not a fixed number of copies in the code, nor what their specific characteristics are. Where *static duplicates* are defined by an Enum, *dynamic duplicates* are defined using a standard class with the only stipulation being that it also must be annotated with `@Blueprint` and it must implemenet the `BlueprintDriver` interface.
+
+```java
+// Minimal example
+@Blueprint
+public class MyDuplicates implements BlueprintDriver {
+
+	private final String name;
+	
+	public MyDuplicates(String name) {
+		this.name = name;
+	}
+	
+	@Override
+	public String getName() {
+		return name;
+	}
+
+}
+```
+
+Any other/additional details can be incorporated and it will be up to the client code to perform any necessary validation and processing of the additional data. Ultimately the manner in which the details of the duplicates are presented are largely the same, however where *static blueprints* can rely on the enum values to dictate and initialize the duplication details, the same cannot apply for *dynamic blueprints*. Rather, the client code must provide the specific characteristics for each duplicate at runtime prior to starting the application. This is done via the `ApplicationContext`.
+
+```java
+ApplicationContext ctx = new ApplicationContext();
+ctx.addDynamicDuplicate(new MyDuplicates("abc123");
+ctx.addDynamicDuplicate(new MyDuplicates("def456");
+ctx.addDynamicDuplicate(new MyDuplicates("ghi789");
+ctx.start();
+```
+
+The appropriate blueprint annotation is generated in the same manner `<class>Blueprint`, hence `@MyDuplicatesBlueprint` in this case. However, since the number and details of the blueprint copies are not known it is not possible to generate equivalent `qualifiers` for all of the copies as is the case with the *static blueprints*. Instead the `BlueprintDriver::getName()` is employed to apply a unique name to each copy for a given blueprint. This is applied in the same manner as if `@Named(BlueprintDriver::getName())` were called, and it can then also be used to retrieve unique copies for a given blueprint. To this end, it is necessary that the name be unique for every copy for a given blueprint, though the name can be reused across different blueprints.
+
+```java
+ApplicationContext ctx = new ApplicationContext();
+// Unique to MyDuplicates - this is fine
+ctx.addDynamicDuplicate(new MyDuplicates("a");
+ctx.addDynamicDuplicate(new MyDuplicates("b");
+ctx.addDynamicDuplicate(new MyDuplicates("c");
+
+// This will fail as a copy names "a" already exists
+ctx.addDynamicDuplicate(new MyDuplicates("a");
+
+// This is fine as there is no "an" in MyOtherDuplicates as of yet
+ctx.addDynamicDuplicate(new MyOtherDuplicates("a");
+ctx.start();
+```
+
 ### Injecting the Blueprint
-As the copies are all identical with the exception of the blueprint enum value used to generate it, any unique values for the copy must be provided via the enum and these values need to be made available to the bean. This can be done by *injecting* the enum and annotating it with `@Sibling`. This can be done via the constructor, instance field, or method.
+Regardless of the approach taken (dynamic vs static), any unique values for the copy must be provided via the blueprint (Class or Enum) and these values need to be made available to the bean. This can be done by *injecting* the Blueprint and annotating it with `@Sibling`. This can be done via the constructor, instance field, or method.
 
 ```java
 @MyDuplicatesBlueprint
@@ -577,7 +633,7 @@ public class MyBean {
 }
 ```
 
-This will inject the specific enum value that was used to produce the copy, and it can then be used within the bean in whatever manner necessary to configure or otherwise handle itself appropriately.
+This will inject the specific Blueprint instance that was used to produce the copy, and it can then be used within the bean in whatever manner necessary to configure or otherwise handle itself appropriately.
 
 ### Injecting Sibling Beans
 If an explicit instance of a duplicate bean is required, then the qualifier of the duplicate can be used directly (whether within a duplicate or outside of it).

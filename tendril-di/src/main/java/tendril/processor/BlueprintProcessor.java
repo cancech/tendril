@@ -13,12 +13,16 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.TypeElement;
 
 import com.google.auto.service.AutoService;
 
 import tendril.annotationprocessor.ClassDefinition;
+import tendril.annotationprocessor.exception.InvalidTypeException;
 import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.duplicate.Blueprint;
+import tendril.bean.duplicate.BlueprintDriver;
 import tendril.bean.duplicate.GeneratedBlueprint;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
@@ -30,8 +34,8 @@ import tendril.codegen.field.value.JValueFactory;
 import tendril.codegen.generics.GenericFactory;
 
 /**
- * Processor for enumerations annotated with @{@link Blueprint}. This will generated qualifiers for the enumeration (akin to {@link QualifierEnumProcessor} as well as the 
- * blueprint annotation which can then be employed on beans to indicate that they are to be duplicated
+ * Processor for enumerations annotated with @{@link Blueprint}. This will generated qualifiers for the enumeration (akin to {@link QualifierEnumProcessor} as well as the blueprint annotation which
+ * can then be employed on beans to indicate that they are to be duplicated
  */
 @SupportedAnnotationTypes("tendril.bean.duplicate.Blueprint")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
@@ -39,9 +43,24 @@ import tendril.codegen.generics.GenericFactory;
 public class BlueprintProcessor extends QualifierEnumProcessor {
 	/** Map of all annotation class types that have been generated (so far) */
 	private static final Map<ClassType, List<ClassType>> generatedAnnotations = new HashMap<>();
+	/** All of the dynamic blueprints which have been processed thus far */
+	private static final List<ClassType> classBlueprints = new ArrayList<>();
 	/** The blueprint class that is generated */
 	private ClassType generatedBlueprintClass;
-	
+
+	/** Flag for whether the element being process is an enum */
+	private boolean isEnum = false;
+
+	/**
+	 * Check if the blueprint class is derived from an {@link Enum} or a standard class.
+	 * 
+	 * @param blueprintClass {@link ClassType} of the blueprint to check
+	 * @return boolean true if it is derived from an {@link Enum}
+	 */
+	public static boolean isEnumDerived(ClassType blueprintClass) {
+		return !classBlueprints.contains(blueprintClass);
+	}
+
 	/**
 	 * Get a list of qualifier annotation class types that have been generated from the specified blueprint enumeration
 	 * 
@@ -63,21 +82,45 @@ public class BlueprintProcessor extends QualifierEnumProcessor {
 	}
 
 	/**
+	 * The processor allows for either an {@link Enum} or a standard {@link Class} to be used. Depending on which it is, different processing paths are followed, but both are valid and supported.
+	 * 
+	 * @see tendril.annotationprocessor.AnnotationFromEnumProcessor#validateType(javax.lang.model.element.TypeElement)
+	 */
+	@Override
+	protected void validateType(TypeElement type) throws TendrilException {
+		if (type.getKind() == ElementKind.ENUM) {
+			isEnum = true;
+			// An enum must not implement the BlueprintDriver interface
+			if (isTypeOf(type, BlueprintDriver.class))
+				throw new InvalidTypeException(type + " must not inherit the " + BlueprintDriver.class + " interface");
+		} else if (type.getKind() == ElementKind.CLASS) {
+			isEnum = false;
+			// A standard class must implement the BlueprintDriver interface
+			if (!isTypeOf(type, BlueprintDriver.class))
+				throw new InvalidTypeException(type + " must inherit the " + BlueprintDriver.class + " interface");
+		} else
+			throw new InvalidTypeException("Unable to use " + type.getQualifiedName() + " - Must be an enum or class");
+	}
+
+	/**
 	 * @see tendril.processor.QualifierEnumProcessor#processType()
 	 */
 	@Override
 	protected ClassDefinition processType() throws TendrilException {
 		generatedBlueprintClass = TypeFactory.createClassType(currentClassType, "Blueprint");
-        
-		// Generate qualifiers for each of the entries
-		super.processType();
-		
+
+		// Generate qualifiers for each of the Enum entries
+		if (isEnum)
+			super.processType();
+		else
+			classBlueprints.add(currentClassType);
+
 		// Generate the bean duplication annotation for the type
 		ClassDefinition definition = new ClassDefinition(generatedBlueprintClass, generateBlueprintCode(generatedBlueprintClass));
 		generatedBlueprintClass = null;
 		return definition;
 	}
-	
+
 	/**
 	 * @see tendril.processor.QualifierEnumProcessor#generateCode(tendril.codegen.field.type.ClassType)
 	 */
@@ -86,27 +129,25 @@ public class BlueprintProcessor extends QualifierEnumProcessor {
 		if (!generatedAnnotations.containsKey(currentClassType))
 			generatedAnnotations.put(currentClassType, new ArrayList<>());
 		generatedAnnotations.get(currentClassType).add(type);
-		
+
 		return super.generateCode(type);
 	}
-	
-    /**
-     * Generate the code for the {@link Blueprint} {@link Enum}, where each entry in the {@link Enum} is the template for a copy of a bean, which is annotated as one
-     * which is to be duplicated with this {@link Blueprint}.
-     * 
-     * @param qualifier {@link ClassType} representing the qualifier annotation that is to be created
-     * @param sourceEnum {@link ClassType} representing the {@link Enum} that is to be used as the ID
-     * @return {@link String} containing the generated code
-     * @throws ClassNotFoundException if the sourceEnum representing as unknown type
-     */
-    private String generateBlueprintCode(ClassType qualifier) {
-        JClass cls = ClassBuilder.forAnnotation(qualifier).setVisibility(VisibilityType.PUBLIC)
-                .addAnnotation(JAnnotationFactory.create(Retention.class, JValueFactory.create(RetentionPolicy.RUNTIME)))
-                .addAnnotation(JAnnotationFactory.create(Target.class, JValueFactory.createArray(ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER)))
-                .addAnnotation(JAnnotationFactory.create(GeneratedBlueprint.class))
-                .buildMethod(TypeFactory.createClassType(Class.class, GenericFactory.create(currentClass)), "enumClass").setDefaultValue(JValueFactory.create(currentClassType)).finish()
-                .build();
-        return cls.generateCode();
-    }
+
+	/**
+	 * Generate the code for the {@link Blueprint} {@link Enum}, where each entry in the {@link Enum} is the template for a copy of a bean, which is annotated as one which is to be duplicated with
+	 * this {@link Blueprint}.
+	 * 
+	 * @param qualifier  {@link ClassType} representing the qualifier annotation that is to be created
+	 * @param sourceEnum {@link ClassType} representing the {@link Enum} that is to be used as the ID
+	 * @return {@link String} containing the generated code
+	 * @throws ClassNotFoundException if the sourceEnum representing as unknown type
+	 */
+	private String generateBlueprintCode(ClassType qualifier) {
+		JClass cls = ClassBuilder.forAnnotation(qualifier).setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(Retention.class, JValueFactory.create(RetentionPolicy.RUNTIME)))
+				.addAnnotation(JAnnotationFactory.create(Target.class, JValueFactory.createArray(ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER)))
+				.addAnnotation(JAnnotationFactory.create(GeneratedBlueprint.class)).buildMethod(TypeFactory.createClassType(Class.class, GenericFactory.create(currentClass)), "driver")
+				.setDefaultValue(JValueFactory.create(currentClassType)).finish().build();
+		return cls.generateCode();
+	}
 
 }

@@ -127,8 +127,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * @param type {@link Type} to potentially import
      */
     protected void addImport(Type type) {
-        if (type instanceof ClassType)
-            externalImports.add((ClassType) type);
+    	type.registerImport(externalImports);
     }
 
     /**
@@ -265,10 +264,10 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
         // InjectAll must be applied to a List
         Type itemType = item.getType();
         if (!(itemType instanceof ClassType))
-            throw new InvalidConfigurationException("@" + InjectAll.class.getSimpleName() + " can be applied to " + itemType.getSimpleName() + ", it must be applied to classes");
+            throw new InvalidConfigurationException("@" + InjectAll.class.getSimpleName() + " cannot be applied to " + itemType.getSimpleName() + ", it must be applied to classes");
         ClassType classType = (ClassType) itemType;
         if (!classType.equals(TypeFactory.createClassType(List.class)))
-            throw new InvalidConfigurationException("@" + InjectAll.class.getSimpleName() + " applied to " + classType.getSimpleName() + ", it must be a " + List.class.getSimpleName());
+            throw new InvalidConfigurationException("@" + InjectAll.class.getSimpleName() + " cannot be applied to " + classType.getSimpleName() + ", it must be a " + List.class.getSimpleName());
         
         // The bean type is the first generic applied to it
         return classType.getGenerics().getFirst();

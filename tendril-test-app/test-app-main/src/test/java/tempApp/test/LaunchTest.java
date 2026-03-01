@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import tempApp.AbstractAppRunner;
 import tempApp.AppRunner1;
 import tempApp.AppRunner2;
+import tempApp.DuplicationDetails;
 import tempApp.FactoryClass;
 import tempApp.MultiEnvBean1;
 import tempApp.MultiEnvBean2;
@@ -52,6 +53,9 @@ public class LaunchTest {
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("lowercase", "qwerty", "AppRunner1", "production");
+        ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
+        ctx.addDynamicBlueprint(new DuplicationDetails("b", 234, 2.34));
+        ctx.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -69,6 +73,9 @@ public class LaunchTest {
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("uppercase", "qwerty", "AppRunner1", "production");
+        ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
+        ctx.addDynamicBlueprint(new DuplicationDetails("b", 234, 2.34));
+        ctx.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -86,6 +93,12 @@ public class LaunchTest {
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("lowercase", "qwerty", "test");
+        ctx.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
+        ctx.addDynamicBlueprint(new DuplicationDetails("e", 432, 4.32));
+        ctx.addDynamicBlueprint(new DuplicationDetails("f", 543, 5.43));
+        ctx.addDynamicBlueprint(new DuplicationDetails("g", 654, 6.54));
+        ctx.addDynamicBlueprint(new DuplicationDetails("h", 765, 7.65));
+        ctx.addDynamicBlueprint(new DuplicationDetails("i", 876, 8.76));
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -103,6 +116,12 @@ public class LaunchTest {
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("uppercase", "qwerty", "test");
+        ctx.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
+        ctx.addDynamicBlueprint(new DuplicationDetails("e", 432, 4.32));
+        ctx.addDynamicBlueprint(new DuplicationDetails("f", 543, 5.43));
+        ctx.addDynamicBlueprint(new DuplicationDetails("g", 654, 6.54));
+        ctx.addDynamicBlueprint(new DuplicationDetails("h", 765, 7.65));
+        ctx.addDynamicBlueprint(new DuplicationDetails("i", 876, 8.76));
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -120,6 +139,12 @@ public class LaunchTest {
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("lowercase", "abc123", "test");
+        ctx.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
+        ctx.addDynamicBlueprint(new DuplicationDetails("e", 432, 4.32));
+        ctx.addDynamicBlueprint(new DuplicationDetails("f", 543, 5.43));
+        ctx.addDynamicBlueprint(new DuplicationDetails("g", 654, 6.54));
+        ctx.addDynamicBlueprint(new DuplicationDetails("h", 765, 7.65));
+        ctx.addDynamicBlueprint(new DuplicationDetails("i", 876, 8.76));
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -137,6 +162,12 @@ public class LaunchTest {
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("uppercase", "abc123", "test");
+        ctx.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
+        ctx.addDynamicBlueprint(new DuplicationDetails("e", 432, 4.32));
+        ctx.addDynamicBlueprint(new DuplicationDetails("f", 543, 5.43));
+        ctx.addDynamicBlueprint(new DuplicationDetails("g", 654, 6.54));
+        ctx.addDynamicBlueprint(new DuplicationDetails("h", 765, 7.65));
+        ctx.addDynamicBlueprint(new DuplicationDetails("i", 876, 8.76));
         ctx.start();
         
         // Ensure everything created the expected number of times

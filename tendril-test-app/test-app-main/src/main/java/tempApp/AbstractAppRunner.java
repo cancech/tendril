@@ -18,6 +18,7 @@ package tempApp;
 import java.util.ArrayList;
 import java.util.List;
 
+import tempApp.duplicate.DynamicDuplicate;
 import tempApp.duplicate.StaticDuplicateBean;
 import tempApp.duplicate.StaticDuplicateBean2;
 import tempApp.duplicate.StaticDuplicateBean3;
@@ -183,11 +184,16 @@ public abstract class AbstractAppRunner implements TendrilRunner {
     @InjectAll
     List<StringInterface> strIfaces;
     
+    private final DuplicationDetails[] expectedDynamicDuplicates;
+    @InjectAll
+    List<DynamicDuplicate> dynamicDuplicates;
+    
     private FactoryClass factoryBean5;
     private final Class<? extends AbstractAppRunner> actualRunner;
 
-    AbstractAppRunner(Class<? extends AbstractAppRunner> concreteRunner) {
+    AbstractAppRunner(Class<? extends AbstractAppRunner> concreteRunner, DuplicationDetails...dynamicDuplicateDetails) {
         this.actualRunner = concreteRunner;
+        this.expectedDynamicDuplicates = dynamicDuplicateDetails;
         instances++;
     }
 
@@ -384,12 +390,31 @@ public abstract class AbstractAppRunner implements TendrilRunner {
         assertion(strIfaces.contains(strIf2), "strIf2 is not contained in strIfaces");
         assertion(strIfaces.contains(strIf3), "strIf3 is not contained in strIfaces");
         
+        // Make sure that the dynamic duplicates are all accounted for
+        assertion(dynamicDuplicates.size() == expectedDynamicDuplicates.length, "Expected to receive " + expectedDynamicDuplicates.length + " copies, but received " + dynamicDuplicates.size());
+        for (DuplicationDetails d: expectedDynamicDuplicates) {
+        	String dName = d.getName();
+    		boolean found = false;
+        	for (DynamicDuplicate dAll: dynamicDuplicates) {
+        		if (dName.equals(dAll.getName())) {
+        			found = true;
+        			assertion(d.getInt() == dAll.getInt(), "Mismatch for dynamic duplicate " + dName + " expected " + d.getInt() + " but got " + dAll.getInt());
+        			assertion(d.getDouble() == dAll.getDouble(), "Mismatch for dynamic duplicate " + dName + " expected " + d.getDouble() + " but got " + dAll.getDouble());
+        			assertion(dAll.getBean1() == bean1Copy1, "Mismatch for dynamic duplicate " + dName + " bean1 is different");
+        			assertion(dAll.getBean2() != bean2Copy2, "Mismatch for dynamic duplicate " + dName + " bean2 is the same");
+        			assertion(dAll.getBean2().isEquivalent(bean2Copy2), "Mismatch for dynamic duplicate " + dName + " bean2 is not equivalent");
+        			assertion(dAll.getBean3() == bean3Copy3, "Mismatch for dynamic duplicate " + dName + " bean3 is different");
+        		}
+        	}
+    		assertion(found, "Unable to find expected dynamic duplicate " + dName);
+        }
+        
         // Verify that the RunnableConfig is properly processed
         RunnableConfig.assertTimesValidateCalled(1);
         RunnableConfig.assertTimesMethodInjectCalled(1);
     }
 
-    private  static void assertion(boolean value, String msg) {
+    protected static void assertion(boolean value, String msg) {
         if (!value)
             throw new AssertionError(msg);
     }

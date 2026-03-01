@@ -27,12 +27,15 @@ import tendril.bean.duplicate.Sibling;
 import tendril.bean.recipe.Injector;
 import tendril.codegen.JBase;
 import tendril.codegen.VisibilityType;
+import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
+import tendril.codegen.classes.FieldBuilder;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JParameter;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.TypeFactory;
+import tendril.codegen.field.value.JValueFactory;
 import tendril.codegen.generics.GenericFactory;
 import tendril.context.Engine;
 import tendril.processor.BlueprintProcessor;
@@ -44,6 +47,8 @@ import tendril.util.TendrilStringUtil;
 class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 	/** The type of the enum which drives the duplication */
 	private final ClassType blueprintType;
+	/** Flag for whether the sibling instance field was used in the generated code */
+	private boolean siblingUsed = false;
 
 	/**
 	 * CTOR
@@ -59,33 +64,50 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 	}
 	
 	/**
+	 * Delay the creation of the siblingCopy instance field until the end so that we know whether or not it has been used.
+	 * 
+	 * @see tendril.processor.recipe.BeanRecipeGenerator#populateBuilder(tendril.codegen.classes.ClassBuilder)
+	 */
+	@Override
+	protected void populateBuilder(ClassBuilder builder) throws TendrilException {
+		super.populateBuilder(builder);
+		
+        // Instance field for the type that is being built
+        FieldBuilder<ClassType> fieldBuilder = builder.buildField(blueprintType, "siblingCopy").setVisibility(VisibilityType.PRIVATE).setFinal(true);
+        if (!siblingUsed)
+        	fieldBuilder.addAnnotation(JAnnotationFactory.create(SuppressWarnings.class, JValueFactory.create("unused")));
+        fieldBuilder.finish();
+	}
+	
+	/**
 	 * @see tendril.processor.recipe.ClassRecipeGenerator#generateConstructor(tendril.codegen.classes.ClassBuilder)
 	 */
 	@Override
     protected void generateConstructor(ClassBuilder builder) throws InvalidConfigurationException {
-
-        // Instance field for the type that is being built
-        builder.buildField(blueprintType, "siblingCopy").setVisibility(VisibilityType.PRIVATE).setFinal(true).finish();
+		boolean derivedFromEnum = BlueprintProcessor.isEnumDerived(blueprintType);
         
         // Instance field for the map of qualifying annotations for each copy
-        try {
-    		addImport(Map.class);
-			List<ClassType> generatedAnnotations = BlueprintProcessor.getGeneratedAnnotations(blueprintType);
-			List<String> mappings = new ArrayList<>();
-			for (ClassType aType: generatedAnnotations) {
-				addImport(aType);
-				String name = aType.getSimpleName();
-				mappings.add("\"" + name + "\", " + name + ".class");
-			}
-
-			ClassType qualifierClass = TypeFactory.createClassType(Class.class, GenericFactory.createWildcard());
-			ClassType mapType = TypeFactory.createClassType(Map.class, GenericFactory.create(TypeFactory.createClassType(String.class)), GenericFactory.create(qualifierClass));
-			
-			builder.buildField(mapType, "copyQualifiers").setVisibility(VisibilityType.PRIVATE).setFinal(true)
-				.setCustomInitialization("Map.of(" + TendrilStringUtil.join(mappings) + ")").finish();
-        } catch (TendrilException ex) {
-        	messager.printError("No blueprint qualifier annotations exist for " + blueprintType.getFullyQualifiedName());
-        	throw new InvalidConfigurationException("No blueprint qualifier annotations exist for " + blueprintType.getFullyQualifiedName(), ex);
+        if (derivedFromEnum) {
+	        try {
+	    		addImport(Map.class);
+				List<ClassType> generatedAnnotations = BlueprintProcessor.getGeneratedAnnotations(blueprintType);
+				List<String> mappings = new ArrayList<>();
+				for (ClassType aType: generatedAnnotations) {
+					addImport(aType);
+					String name = aType.getSimpleName();
+					mappings.add("\"" + name + "\", " + name + ".class");
+				}
+	
+				ClassType qualifierClass = TypeFactory.createClassType(Class.class, GenericFactory.createWildcard());
+				ClassType mapType = TypeFactory.createClassType(Map.class, GenericFactory.create(TypeFactory.createClassType(String.class)), GenericFactory.create(qualifierClass));
+				if (derivedFromEnum) {
+					builder.buildField(mapType, "copyQualifiers").setVisibility(VisibilityType.PRIVATE).setFinal(true)
+						.setCustomInitialization("Map.of(" + TendrilStringUtil.join(mappings) + ")").finish();
+				}
+	        } catch (TendrilException ex) {
+	        	messager.printError("No blueprint qualifier annotations exist for " + blueprintType.getFullyQualifiedName());
+	        	throw new InvalidConfigurationException("No blueprint qualifier annotations exist for " + blueprintType.getFullyQualifiedName(), ex);
+	        }
         }
 		
 		
@@ -95,7 +117,10 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
         ctorCode.add("this.siblingCopy = siblingCopy;");
         generateFieldConsumers(ctorCode);
         generateMethodConsumers(ctorCode);
-        ctorCode.add("getDescription().addQualifier(copyQualifiers.get(this.siblingCopy.name()));");
+        if (derivedFromEnum)
+        	ctorCode.add("getDescription().addQualifier(copyQualifiers.get(siblingCopy.name()));");
+        else
+        	ctorCode.add("getDescription().setName(siblingCopy.getName());");
 
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish()
         	.buildParameter(blueprintType, "siblingCopy").finish().addCode(ctorCode.toArray(new String[ctorCode.size()])).finish();
@@ -108,6 +133,7 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 	protected void generateFieldInjection(JField<?> field, String fieldTypeName, List<String> ctorLines) {
 		if (field.getType().equals(blueprintType) && field.hasAnnotation(Sibling.class)) {
             addImport(Injector.class);
+            siblingUsed = true;
 	        ctorLines.add("registerInjector(new " + Injector.class.getSimpleName() + "<" + creatorType.getSimpleName() + ">() {");
 	        ctorLines.add("    @Override");
 	        ctorLines.add("    public void inject(" + creatorType.getSimpleName() + " consumer, Engine engine) {");
@@ -126,8 +152,10 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 	@Override
 	protected List<String> getDescriptorLines(JBase element) {
 		List<String> lines = super.getDescriptorLines(element);
-		if (element.hasAnnotation(Sibling.class))
+		if (element.hasAnnotation(Sibling.class)) {
+			siblingUsed = true;
 			lines.add("addQualifier(copyQualifiers.get(siblingCopy.name()))");
+		}
 		return lines;
 	}
 	
@@ -136,8 +164,10 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 	 */
 	@Override
 	protected String createParameterInjectionCodeRhs(JParameter<?> param) throws InvalidConfigurationException {
-		if (param.getType().equals(blueprintType) && param.hasAnnotation(Sibling.class))
+		if (param.getType().equals(blueprintType) && param.hasAnnotation(Sibling.class)) {
+			siblingUsed = true;
 			return "siblingCopy";
+		}
 		return super.createParameterInjectionCodeRhs(param);
 	}
 }

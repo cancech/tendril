@@ -21,10 +21,12 @@ import java.util.HashSet;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import tendril.BeanRetrievalException;
+import tendril.bean.duplicate.BlueprintDriver;
 import tendril.bean.qualifier.Descriptor;
 import tendril.processor.registration.RegistryFile;
 import tendril.test.AbstractUnitTest;
@@ -59,6 +61,44 @@ import tendril.test.recipe.TestConfigRecipe;
  * Test case for the {@link Engine}
  */
 public class EngineIT extends AbstractUnitTest {
+
+	// Blueprint Drivers to use for testing
+	private interface Level1 extends BlueprintDriver {
+	}
+
+	private interface Level2 extends Level1 {
+	}
+
+	private interface Level3 extends Level2 {
+	}
+
+	private interface SeparateLevel1 extends BlueprintDriver {
+	}
+
+	private interface SeparateLevel2 extends SeparateLevel1 {
+	}
+
+	// Mocks to use for testing
+	@Mock
+	private Level1 mockLevel11Driver;
+	@Mock
+	private Level1 mockLevel12Driver;
+	@Mock
+	private Level2 mockLevel21Driver;
+	@Mock
+	private Level2 mockLevel22Driver;
+	@Mock
+	private Level3 mockLevel31Driver;
+	@Mock
+	private Level3 mockLevel32Driver;
+	@Mock
+	private SeparateLevel1 mockSeparateLevel11Driver;
+	@Mock
+	private SeparateLevel1 mockSeparateLevel12Driver;
+	@Mock
+	private SeparateLevel2 mockSeparateLevel21Driver;
+	@Mock
+	private SeparateLevel2 mockSeparateLevel22Driver;
 
 	// Instance to test
 	private Engine engine;
@@ -380,7 +420,7 @@ public class EngineIT extends AbstractUnitTest {
 		Assertions.assertEquals(FallbackStringRecipe2.VALUE, engine.getBean(new Descriptor<>(String.class)));
 		CollectionAssert.assertEquivalent(engine.getAllBeans(new Descriptor<>(String.class)), FallbackStringRecipe2.VALUE);
 	}
-	
+
 	/**
 	 * Verify that the engine will read environments from the environments property
 	 */
@@ -393,19 +433,19 @@ public class EngineIT extends AbstractUnitTest {
 		CollectionAssert.assertEmpty(new Engine().getEnvironments());
 		System.setProperty("environments", "   		   ");
 		CollectionAssert.assertEmpty(new Engine().getEnvironments());
-		
+
 		// Verify a single environment can be set
 		System.setProperty("environments", "abc");
 		CollectionAssert.assertEquivalent(Collections.singletonList("abc"), new Engine().getEnvironments());
-		
+
 		// Verify two environments can be set
 		System.setProperty("environments", "abc,def");
 		CollectionAssert.assertEquivalent(Arrays.asList("abc", "def"), new Engine().getEnvironments());
-		
+
 		// Verify multiple environments can be set
 		System.setProperty("environments", "abc,def,123,qwerty,asdf,wasd,zxcv");
 		CollectionAssert.assertEquivalent(Arrays.asList("abc", "def", "123", "qwerty", "asdf", "wasd", "zxcv"), new Engine().getEnvironments());
-		
+
 		// Verify can mix and match property environments and code ones
 		System.setProperty("environments", "abc");
 		engine = new Engine();
@@ -418,5 +458,30 @@ public class EngineIT extends AbstractUnitTest {
 		// Verify that if the property is empty/missing, no environments are set
 		System.clearProperty("environments");
 		CollectionAssert.assertEmpty(new Engine().getEnvironments());
+	}
+
+	/**
+	 * Verify that the dynamic blueprints are properly stored and retrieved
+	 */
+	@Test
+	public void testDynamicBlueprints() {
+		engine.addDynamicBlueprint(mockLevel11Driver);
+		engine.addDynamicBlueprint(mockLevel12Driver);
+		engine.addDynamicBlueprint(mockLevel21Driver);
+		engine.addDynamicBlueprint(mockLevel22Driver);
+		engine.addDynamicBlueprint(mockLevel31Driver);
+		engine.addDynamicBlueprint(mockLevel32Driver);
+		engine.addDynamicBlueprint(mockSeparateLevel11Driver);
+		engine.addDynamicBlueprint(mockSeparateLevel12Driver);
+		engine.addDynamicBlueprint(mockSeparateLevel21Driver);
+		engine.addDynamicBlueprint(mockSeparateLevel22Driver);
+
+		CollectionAssert.assertEquivalent(engine.getBlueprints(Level3.class), mockLevel31Driver, mockLevel32Driver);
+		CollectionAssert.assertEquivalent(engine.getBlueprints(Level2.class), mockLevel21Driver, mockLevel22Driver, mockLevel31Driver, mockLevel32Driver);
+		CollectionAssert.assertEquivalent(engine.getBlueprints(Level1.class), mockLevel11Driver, mockLevel12Driver, mockLevel21Driver, mockLevel22Driver, mockLevel31Driver, mockLevel32Driver);
+		CollectionAssert.assertEquivalent(engine.getBlueprints(SeparateLevel2.class), mockSeparateLevel21Driver, mockSeparateLevel22Driver);
+		CollectionAssert.assertEquivalent(engine.getBlueprints(SeparateLevel1.class), mockSeparateLevel11Driver, mockSeparateLevel12Driver, mockSeparateLevel21Driver, mockSeparateLevel22Driver);
+		CollectionAssert.assertEquivalent(engine.getBlueprints(BlueprintDriver.class), mockLevel11Driver, mockLevel12Driver, mockLevel21Driver, mockLevel22Driver, mockLevel31Driver, mockLevel32Driver,
+				mockSeparateLevel11Driver, mockSeparateLevel12Driver, mockSeparateLevel21Driver, mockSeparateLevel22Driver);
 	}
 }

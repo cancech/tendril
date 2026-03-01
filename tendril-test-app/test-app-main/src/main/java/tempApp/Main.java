@@ -11,6 +11,9 @@ public class Main {
 	    
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("uppercase", "qwerty", "AppRunner1", "production");
+        ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
+        ctx.addDynamicBlueprint(new DuplicationDetails("b", 234, 2.34));
+        ctx.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
         ctx.start();
 	}
 	

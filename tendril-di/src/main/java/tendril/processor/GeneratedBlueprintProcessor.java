@@ -201,15 +201,15 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 		if (blueprintCache.containsKey(annotationType))
 			return blueprintCache.get(annotationType);
 
-		// Make sure that the enumClass method is present
-		List<JMethod<?>> methods = annotationClass.getMethods("enumClass");
+		// Make sure that the driver method is present
+		List<JMethod<?>> methods = annotationClass.getMethods("driver");
 		if (methods.isEmpty())
-			throw new TendrilException(createExceptionMessage(annotationClass, "does not have the required enumClass() method"));
+			throw new TendrilException(createExceptionMessage(annotationClass, "does not have the required driver() method"));
 		else if (methods.size() > 1)
-			throw new TendrilException(createExceptionMessage(annotationClass, "must have exactly one enumClass() method"));
+			throw new TendrilException(createExceptionMessage(annotationClass, "must have exactly one driver() method"));
 
 		// Get the type of enumeration that is employed for the blueprint
-		String exceptionMsg = createExceptionMessage(annotationClass, "enumClass() method must return a Class<? extends Enum<?>>");
+		String exceptionMsg = createExceptionMessage(annotationClass, "driver() method must return a Class<? extends Enum<?>>");
 		if (methods.get(0).getType() instanceof ClassType type && Class.class.getName().equals(type.getFullyQualifiedName())) {
 			List<GenericType> generics = type.getGenerics();
 			if (generics.size() != 1)

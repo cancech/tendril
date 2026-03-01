@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tendril.TendrilStartupException;
+import tendril.bean.duplicate.BlueprintDriver;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.context.launch.TendrilRunner;
 import tendril.processor.registration.RunnerFile;
@@ -66,6 +67,19 @@ public class ApplicationContext {
     public void setEnvironments(String...envs) {
         engine.addEnvironments(envs);
     }
+    
+    /**
+     * Add a class based dynamic blueprint
+     * 
+     * @param driver {@link BlueprintDriver} the dynamic blueprint to add
+     */
+    public void addDynamicBlueprint(BlueprintDriver driver) {
+    	Class<?> blueprintClass = driver.getClass();
+    	if (blueprintClass.isEnum())
+    		throw new TendrilStartupException(blueprintClass.getName() + " is an enum, only regular classes can be used as dynamic blueprints.");
+    	
+    	engine.addDynamicBlueprint(driver);
+    }
 
     /**
      * Start the context and trigger execution via the defined {@link TendrilRunner}
@@ -93,6 +107,5 @@ public class ApplicationContext {
                 SecurityException | ClassNotFoundException e) {
             throw new TendrilStartupException(e);
         }
-    }
-    
+	}
 }

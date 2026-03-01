@@ -33,6 +33,7 @@ import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.context.Engine;
+import tendril.processor.BlueprintProcessor;
 
 /**
  * Generator for "entry" recipe for blueprint driven duplicates. Much like a configuration recipe, this is not a recipe for a bean as such, but rather an entry point for
@@ -117,11 +118,37 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 		externalImports.add(blueprintType);
 		List<String> code = new ArrayList<>();
 		code.add("Map<String, AbstractRecipe<?>> recipes = new HashMap<>();");
-		code.add("for(" + blueprintType.getClassName() + " copy: " + blueprintType.getClassName() + ".values()) {");
-		code.add("	recipes.put(copy.name(), new " + siblingType.getClassName() + "(engine, copy));");
+		
+		if (BlueprintProcessor.isEnumDerived(blueprintType))
+			addEnumLines(siblingType, code);
+		else
+			addClassLines(siblingType, code);
+		
 		code.add("}");
-
 		code.add("return recipes;");
 		return code.toArray(new String[code.size()]);
+	}
+	
+	/**
+	 * Add the lines which are necessary for a Enum based blueprint
+	 * 
+	 * @param siblingType {@link ClassType} the recipe that is to create each sibling
+	 * @param code {@link List} of {@link String}s where the CTOR code is being collected
+	 */
+	private void addEnumLines(ClassType siblingType, List<String> code) {
+		code.add("for(" + blueprintType.getClassName() + " copy: " + blueprintType.getClassName() + ".values()) {");
+		code.add("	recipes.put(copy.name(), new " + siblingType.getClassName() + "(engine, copy));");
+	}
+	
+	/**
+	 * Add the lines which are necessary for a Class based blueprint
+	 * 
+	 * @param siblingType {@link ClassType} the recipe that is to create each sibling
+	 * @param code {@link List} of {@link String}s where the CTOR code is being collected
+	 */
+	private void addClassLines(ClassType siblingType, List<String> code) {
+		// TODO add check that name doesn't exist
+		code.add("for(" + blueprintType.getClassName() + " copy: " + "engine.getBlueprints(" + blueprintType.getClassName() + ".class)) {");
+		code.add("	recipes.put(copy.getName(), new " + siblingType.getClassName() + "(engine, copy));");
 	}
 }

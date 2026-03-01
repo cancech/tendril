@@ -19,12 +19,15 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import tendril.BeanRetrievalException;
 import tendril.bean.Fallback;
 import tendril.bean.Primary;
+import tendril.bean.duplicate.BlueprintDriver;
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.ConfigurationRecipe;
@@ -42,6 +45,10 @@ public class Engine {
 	/** Logger for creating log messages when running */
 	private static Logger LOGGER = Logger.getLogger(Engine.class.getSimpleName());
 
+	/** List of all dynamic blueprints which have been added */
+	private final List<BlueprintDriver> dynamicBlueprints = new ArrayList<>();
+	/** Cache of all blueprints which have been added for a given class type */
+	private final Map<Class<? extends BlueprintDriver>, List<BlueprintDriver>> dynamicBlueprintsForClass = new HashMap<>();
 	/** All recipes that have been registered */
 	private final List<AbstractRecipe<?>> recipes = new ArrayList<>();
 	/** List of environments that are applied to the context */
@@ -79,7 +86,7 @@ public class Engine {
 	List<String> getEnvironments() {
 		return environments;
 	}
-	
+
 	/**
 	 * Initialize the engine by reading the list of all known recipes and registering them with the engine. Each recipe object is created, though the bean contained within is not created until it
 	 * becomes necessary to do so (i.e.: accessed by a Consumer).
@@ -243,8 +250,8 @@ public class Engine {
 	}
 
 	/**
-	 * Get all beans that match the provided descriptor. The {@link List} can be empty if there are no matches. All matching {@link Primary} and basic (no explicit type) beans will be returned, {@link Fallback}
-	 * beans will only be included if there are no {@link Primary} or basic matches.
+	 * Get all beans that match the provided descriptor. The {@link List} can be empty if there are no matches. All matching {@link Primary} and basic (no explicit type) beans will be returned,
+	 * {@link Fallback} beans will only be included if there are no {@link Primary} or basic matches.
 	 * 
 	 * @param <BEAN_TYPE> indicating the type of the beans that are to be retrieved
 	 * @param descriptor  {@link Descriptor} containing the description of the beans that are to be retrieved
@@ -255,19 +262,19 @@ public class Engine {
 		RecipeSearchResult<BEAN_TYPE> matchingRecipes = findRecipes(descriptor);
 		addAll(beans, matchingRecipes.getPrimaryRecipes());
 		addAll(beans, matchingRecipes.getBasicRecipes());
-		
+
 		if (beans.isEmpty())
 			addAll(beans, matchingRecipes.getFallbackRecipes());
 
 		return beans;
 	}
-	
+
 	/**
 	 * Create all of the beans from the specified recipe list and add them to the destination bean list.
 	 * 
 	 * @param <BEAN_TYPE> indicating the type of the beans that are to be retrieved
-	 * @param to {@link List} destination for the beans that were created from the recipes
-	 * @param from {@link List} of {@link AbstractRecipe} instances which dictate what beans are to be created and how
+	 * @param to          {@link List} destination for the beans that were created from the recipes
+	 * @param from        {@link List} of {@link AbstractRecipe} instances which dictate what beans are to be created and how
 	 */
 	private <BEAN_TYPE> void addAll(List<BEAN_TYPE> to, List<AbstractRecipe<BEAN_TYPE>> from) {
 		for (AbstractRecipe<BEAN_TYPE> r : from)
@@ -297,5 +304,52 @@ public class Engine {
 		});
 
 		return foundRecipes;
+	}
+
+	/**
+	 * Add a dynamic blueprint into circulation
+	 * 
+	 * @param driver {@link BlueprintDriver} to add
+	 */
+	void addDynamicBlueprint(BlueprintDriver driver) {
+		// Blueprints can only be added before starting the engine
+		if (isStarted)
+			throw new RuntimeException("Blueprints can only be added before starting the context");
+
+		dynamicBlueprints.add(driver);
+	}
+
+	/**
+	 * Get all dynamic blueprints which have been applied for the given {@code BLUEPRINT_TYPE}. This will include all blueprints which are <i>castable</i> to the indicated {@link Class} not just those
+	 * which are the exact {@link Class}.
+	 * 
+	 * @param <BLUEPRINT_TYPE> The {@link BlueprintDriver} implementing class which is to be retrieved
+	 * @param blueprintClass   {@link Class} representing the type which is desired
+	 * @return {@link List} of dynamic blueprints which are castable to the desired type
+	 */
+	@SuppressWarnings("unchecked")
+	public <BLUEPRINT_TYPE extends BlueprintDriver> List<BLUEPRINT_TYPE> getBlueprints(Class<BLUEPRINT_TYPE> blueprintClass) {
+		cacheBlueprintsForClass(blueprintClass);
+		return (List<BLUEPRINT_TYPE>) dynamicBlueprintsForClass.get(blueprintClass);
+	}
+
+	/**
+	 * Update the cache so that blueprints for the indicated {@link Class} can be easily retrieved in the future.
+	 * 
+	 * @param blueprintClass {@link Class} of the blueprint which is to be cached
+	 */
+	private void cacheBlueprintsForClass(Class<? extends BlueprintDriver> blueprintClass) {
+		// Nothing to do if this had been cached previously
+		if (dynamicBlueprintsForClass.containsKey(blueprintClass))
+			return;
+
+		// Find all classes which can be cast to the desired blueprint class
+		List<BlueprintDriver> matches = new ArrayList<>();
+		for (BlueprintDriver b : dynamicBlueprints) {
+			if (blueprintClass.isInstance(b))
+				matches.add(b);
+		}
+		// Save them for future retrieval
+		dynamicBlueprintsForClass.put(blueprintClass, matches);
 	}
 }

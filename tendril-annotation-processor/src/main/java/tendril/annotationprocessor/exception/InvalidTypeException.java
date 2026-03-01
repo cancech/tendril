@@ -18,7 +18,7 @@ package tendril.annotationprocessor.exception;
 /**
  * Exception to be thrown when an invalid type is encountered
  */
-public class InvalidTypeException extends TendrilException{
+public class InvalidTypeException extends TendrilException {
     /** Serial ID */
     private static final long serialVersionUID = -3513542401048886484L;
 

@@ -32,10 +32,11 @@ While the mechanism employed is simple enough, it does translate into a fair bit
 |---       |---      |---        |
 |`@Bean` | `Recipe` class for the Bean|`Quantifiers`, `qualifiers`, and `@Inject` are processed to determine the details of the `Recipe`|
 |`@BeanIdEnum`| `<Enum>Id` annotation| Takes a single value, which the an `Enum` instance, and is annotated with `@EnumQualifier` such that is can be used as a `qualifier`|
-|`@Blueprint`|`<Enum>Blueprint` and `<Enum-Value>` qualifiers|Performs the same as `@QualifierEnum` as well the blueprint enumeration for the creation of duplicate beans.|
+|`@Blueprint`|When applied to a Class: `<Class>Blueprint`|Generates the `<Class>Blueprint` annotation which can be applied to duplicate a bean per the specific blueprint.|
+|`@Blueprint`|When applied to an Enum: `<Enum>Blueprint` and `<Enum-Value>` qualifiers|Performs the same as `@QualifierEnum` as well the blueprint enumeration for the creation of duplicate beans.|
 |`@Configuration`|`Recipe` class for the `Configuration` as well as `Recipes` for each `@Bean` annotated method|Performs largely the same steps as the `@Bean` processor, within the context of a `Configuration`|
 |`@EnumQualifier`|N/A|As the `<Enum>Id` is generated, this tracks when such a `qualifier` is generated, allowing `Recipes` that rely on it to be generated|
-|`@GeneratedBlueprint`|N/A|As the `<Enum>Blueprint` is generated, this is applied to it to denote it as an annotation which was generated from a blueprint|
+|`@GeneratedBlueprint`|N/A|As the `<Class/Enum>Blueprint` is generated, this is applied to it to denote it as an annotation which was generated from a blueprint|
 |`@QualifierEnum`|`<Enum-Value>`|Generates qualifier annotations for each value of the enum to which the `@QualifierEnum` annotation is applied|
 |`@Registry`|`META-INF/tendril/registry`|All known `Recipes` are registered in the `META-INF` such that the `Engine` can find and load all of them|
 |`@Runner`|`META-INF/tendril/runner`|The found `Runner` is registered in the `META-INF` so that the `ApplicationContext` can find it|
