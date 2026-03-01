@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.annotation.processing.Messager;
 
+import tendril.TendrilStartupException;
 import tendril.annotationprocessor.exception.InvalidConfigurationException;
 import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.recipe.AbstractRecipe;
@@ -147,8 +148,11 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 	 * @param code {@link List} of {@link String}s where the CTOR code is being collected
 	 */
 	private void addClassLines(ClassType siblingType, List<String> code) {
-		// TODO add check that name doesn't exist
+		externalImports.add(TypeFactory.createClassType(TendrilStartupException.class));
 		code.add("for(" + blueprintType.getClassName() + " copy: " + "engine.getBlueprints(" + blueprintType.getClassName() + ".class)) {");
+		code.add("	String copyName = copy.getName();");
+		code.add("	if (recipes.containsKey(copyName))");
+		code.add("		throw new TendrilStartupException(\"" + blueprintType + " has more than one copies named \" + copyName);");
 		code.add("	recipes.put(copy.getName(), new " + siblingType.getClassName() + "(engine, copy));");
 	}
 }

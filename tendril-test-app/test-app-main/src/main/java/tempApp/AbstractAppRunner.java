@@ -44,6 +44,16 @@ public abstract class AbstractAppRunner implements TendrilRunner {
     private static int timesRun = 0;
     private static int timesAllInjectorRun = 0;
 
+    public static void assertNever() {
+        assertion(instances == 0, "instances should be 0, but was " + instances);
+        assertion(timesDoSomething == 0, "instances should be 0, but was " + timesDoSomething);
+        assertion(timesDoSomethingElse == 0, "instances should be 0, but was " + timesDoSomethingElse);
+        assertion(timesDoNothing == 0, "instances should be 0, but was " + timesDoNothing);
+        assertion(timesEnumInjector == 0, "instances should be 0, but was " + timesEnumInjector);
+        assertion(timesRun == 0, "instances should be 0, but was " + timesRun);
+        assertion(timesAllInjectorRun == 0, "instances should be 0, but was " + timesAllInjectorRun);
+    }
+
     public static void assertSingleton() {
         assertion(instances == 1, "instances should be 1, but was " + instances);
         assertion(timesDoSomething == 1, "instances should be 1, but was " + timesDoSomething);

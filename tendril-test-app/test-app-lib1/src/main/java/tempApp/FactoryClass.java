@@ -13,6 +13,11 @@ public class FactoryClass {
     private static int numClasses = 0;
     private static int numPostConstruct = 0;
     
+    public static void assertNever() {
+        assert(numClasses == 0);
+        assert(numPostConstruct == numClasses);
+    }
+    
     public static void assertFactory() {
         assert(numClasses > 1);
         assert(numPostConstruct == numClasses);

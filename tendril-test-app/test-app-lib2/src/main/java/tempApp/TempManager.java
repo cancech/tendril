@@ -20,6 +20,14 @@ public class TempManager {
     private static int numVal2Instances = 0;
     private static int numTempQualifierInstances = 0;
     
+    public static void assertNever() {
+        assert(numInstances == 0);
+        assert(numPostConstruct == 0);
+        assert(numVal1Instances == 0);
+        assert(numVal2Instances == 0);
+        assert(numTempQualifierInstances == 0);
+    }
+    
     public static void assertSingleton() {
         assert(numInstances == 1);
         assert(numPostConstruct == 1);

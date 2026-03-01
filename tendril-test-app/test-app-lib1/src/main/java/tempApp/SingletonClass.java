@@ -15,6 +15,13 @@ public class SingletonClass {
     private static int numTimesPost2Called = 0;
     private static int numTimesPost3Called = 0;
     
+    public static void assertNever() {
+        assert(numInstances == 0);
+        assert(numTimesPost1Called == 0);
+        assert(numTimesPost2Called == 0);
+        assert(numTimesPost3Called == 0);
+    }
+    
     public static void assertSingleton() {
         assert(numInstances == 1);
         assert(numTimesPost1Called == 1);

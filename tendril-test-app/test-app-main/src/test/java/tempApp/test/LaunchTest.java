@@ -16,6 +16,7 @@
 package tempApp.test;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import tempApp.AbstractAppRunner;
@@ -28,6 +29,7 @@ import tempApp.MultiEnvBean2;
 import tempApp.RunnableConfig;
 import tempApp.SingletonClass;
 import tempApp.TempManager;
+import tendril.TendrilStartupException;
 import tendril.context.ApplicationContext;
 
 /**
@@ -84,6 +86,24 @@ public class LaunchTest {
         TempManager.assertSingleton();
         AbstractAppRunner.assertSingleton();
     }
+
+    @Test
+    public void testAppRunner1DuplicateDynamicBlueprintName() {
+        AbstractAppRunner.expectedMessage = "qwerty";
+        AbstractAppRunner.expectedRunner = AppRunner1.class;
+        AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
+        
+        ApplicationContext ctx = new ApplicationContext();
+        ctx.setEnvironments("lowercase", "qwerty", "AppRunner1", "production");
+        ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
+        ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
+        Assertions.assertThrows(TendrilStartupException.class, () -> ctx.start());
+
+        // Everything should fail before any beans are created
+        SingletonClass.assertNever();
+        FactoryClass.assertNever();
+        TempManager.assertNever();
+        AbstractAppRunner.assertNever();    }
 
     @Test
     public void testAppRunner2LowercaseQwerty() {
