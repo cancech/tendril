@@ -15,8 +15,12 @@
  */
 package tempApp;
 
+import java.util.List;
+import java.util.Map;
+
 import tempApp.duplicate.DynamicDuplicate;
 import tendril.bean.Inject;
+import tendril.bean.InjectAll;
 import tendril.bean.qualifier.Named;
 import tendril.bean.requirement.RequiresNotEnv;
 import tendril.context.launch.Runner;
@@ -24,7 +28,9 @@ import tendril.context.launch.Runner;
 @Runner
 @RequiresNotEnv("AppRunner1")
 public class AppRunner2 extends AbstractAppRunner {
-	
+
+	private int timesVerifyDynamicDuplicatesCalled = 0;
+
 	@Inject
 	@Named("d")
 	DynamicDuplicate dDup;
@@ -43,21 +49,23 @@ public class AppRunner2 extends AbstractAppRunner {
 	@Inject
 	@Named("i")
 	DynamicDuplicate iDup;
-    
-    public AppRunner2() {
-        super(AppRunner2.class, new DuplicationDetails("d", 321, 3.21), new DuplicationDetails("e", 432, 4.32), new DuplicationDetails("f", 543, 5.43),
-        		new DuplicationDetails("g", 654, 6.54), new DuplicationDetails("h", 765, 7.65), new DuplicationDetails("i", 876, 8.76));
-    }
-    
-    @Override
-    public void run() {
-    	super.run();
 
-    	assertion(dynamicDuplicates.contains(dDup), "Duplicate D is not present in dynamicDuplicates");
-    	assertion(dynamicDuplicates.contains(eDup), "Duplicate E is not present in dynamicDuplicates");
-    	assertion(dynamicDuplicates.contains(fDup), "Duplicate F is not present in dynamicDuplicates");
-    	assertion(dynamicDuplicates.contains(gDup), "Duplicate G is not present in dynamicDuplicates");
-    	assertion(dynamicDuplicates.contains(hDup), "Duplicate H is not present in dynamicDuplicates");
-    	assertion(dynamicDuplicates.contains(iDup), "Duplicate I is not present in dynamicDuplicates");
-    }
+	public AppRunner2() {
+		super(AppRunner2.class, new DuplicationDetails("d", 321, 3.21), new DuplicationDetails("e", 432, 4.32), new DuplicationDetails("f", 543, 5.43), new DuplicationDetails("g", 654, 6.54),
+				new DuplicationDetails("h", 765, 7.65), new DuplicationDetails("i", 876, 8.76));
+	}
+
+	@Inject
+	void verifyDynamicDuplicateInjection(@InjectAll List<DynamicDuplicate> all, @Named("d") DynamicDuplicate d, @Named("e") DynamicDuplicate e, @Named("f") DynamicDuplicate f,
+			@Named("g") DynamicDuplicate g, @Named("h") DynamicDuplicate h, @Named("i") DynamicDuplicate i) {
+		timesVerifyDynamicDuplicatesCalled++;
+	}
+
+	@Override
+	public void run() {
+		super.run();
+		assertion(timesVerifyDynamicDuplicatesCalled == 1, "verifyDynamicDuplicateInjection() was expected to be called once, but was called " + timesVerifyDynamicDuplicatesCalled + " times");
+		assertDynamicDuplicatesInAll(Map.of("D", dDup, "E", eDup, "F", fDup, "G", gDup, "H", hDup, "I", iDup));
+		System.out.println("Dynamic duplicates validated!");
+	}
 }
