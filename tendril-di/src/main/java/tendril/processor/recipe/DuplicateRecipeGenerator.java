@@ -125,7 +125,6 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 		else
 			addClassLines(siblingType, code);
 		
-		code.add("}");
 		code.add("return recipes;");
 		return code.toArray(new String[code.size()]);
 	}
@@ -137,7 +136,7 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 	 * @param code {@link List} of {@link String}s where the CTOR code is being collected
 	 */
 	private void addEnumLines(ClassType siblingType, List<String> code) {
-		code.add("for(" + blueprintType.getClassName() + " copy: " + blueprintType.getClassName() + ".values()) {");
+		code.add("for(" + blueprintType.getClassName() + " copy: " + blueprintType.getClassName() + ".values())");
 		code.add("	recipes.put(copy.name(), new " + siblingType.getClassName() + "(engine, copy));");
 	}
 	
@@ -149,10 +148,11 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 	 */
 	private void addClassLines(ClassType siblingType, List<String> code) {
 		externalImports.add(TypeFactory.createClassType(TendrilStartupException.class));
-		code.add("for(" + blueprintType.getClassName() + " copy: " + "engine.getBlueprints(" + blueprintType.getClassName() + ".class)) {");
+		code.add("for(" + blueprintType.getSimpleName() + " copy: engine.getBlueprints(" + blueprintType.getClassName() + ".class)) {");
 		code.add("	String copyName = copy.getName();");
 		code.add("	if (recipes.containsKey(copyName))");
 		code.add("		throw new TendrilStartupException(\"" + blueprintType + " has more than one copies named \" + copyName);");
-		code.add("	recipes.put(copy.getName(), new " + siblingType.getClassName() + "(engine, copy));");
+		code.add("	recipes.put(copy.getName(), new " + siblingType.getSimpleName() + "(engine, copy));");
+		code.add("}");
 	}
 }

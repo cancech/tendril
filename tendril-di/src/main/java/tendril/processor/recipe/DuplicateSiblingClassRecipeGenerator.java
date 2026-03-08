@@ -47,6 +47,8 @@ import tendril.util.TendrilStringUtil;
 class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 	/** The type of the enum which drives the duplication */
 	private final ClassType blueprintType;
+	/** Flag for whether the blueprint is enum derived */
+	private final boolean derivedFromEnum;
 	/** Flag for whether the sibling instance field was used in the generated code */
 	private boolean siblingUsed = false;
 
@@ -61,6 +63,8 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 	DuplicateSiblingClassRecipeGenerator(ClassType beanType, JClass bean, Messager messager, ClassType blueprintType) {
 		super(beanType, bean, messager);
 		this.blueprintType = blueprintType;
+		
+		derivedFromEnum = BlueprintProcessor.isEnumDerived(blueprintType);
 	}
 	
 	/**
@@ -84,8 +88,6 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 	 */
 	@Override
     protected void generateConstructor(ClassBuilder builder) throws InvalidConfigurationException {
-		boolean derivedFromEnum = BlueprintProcessor.isEnumDerived(blueprintType);
-        
         // Instance field for the map of qualifying annotations for each copy
         if (derivedFromEnum) {
 	        try {
@@ -100,10 +102,8 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 	
 				ClassType qualifierClass = TypeFactory.createClassType(Class.class, GenericFactory.createWildcard());
 				ClassType mapType = TypeFactory.createClassType(Map.class, GenericFactory.create(TypeFactory.createClassType(String.class)), GenericFactory.create(qualifierClass));
-				if (derivedFromEnum) {
-					builder.buildField(mapType, "copyQualifiers").setVisibility(VisibilityType.PRIVATE).setFinal(true)
-						.setCustomInitialization("Map.of(" + TendrilStringUtil.join(mappings) + ")").finish();
-				}
+				builder.buildField(mapType, "copyQualifiers").setVisibility(VisibilityType.PRIVATE).setFinal(true)
+					.setCustomInitialization("Map.of(" + TendrilStringUtil.join(mappings) + ")").finish();
 	        } catch (TendrilException ex) {
 	        	messager.printError("No blueprint qualifier annotations exist for " + blueprintType.getFullyQualifiedName());
 	        	throw new InvalidConfigurationException("No blueprint qualifier annotations exist for " + blueprintType.getFullyQualifiedName(), ex);
@@ -154,7 +154,10 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 		List<String> lines = super.getDescriptorLines(element);
 		if (element.hasAnnotation(Sibling.class)) {
 			siblingUsed = true;
-			lines.add("addQualifier(copyQualifiers.get(siblingCopy.name()))");
+			if (derivedFromEnum)
+				lines.add("addQualifier(copyQualifiers.get(siblingCopy.name()))");
+			else
+				lines.add("setName(siblingCopy.getName())");
 		}
 		return lines;
 	}

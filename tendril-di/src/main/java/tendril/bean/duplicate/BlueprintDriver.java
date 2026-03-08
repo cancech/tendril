@@ -6,7 +6,6 @@ package tendril.bean.duplicate;
  */
 public interface BlueprintDriver {
 
-	// TODO expand test to validate usage in methods, parameters, and the like
 	// TODO allow for blueprint class inheritance to be used.
 
 	/**

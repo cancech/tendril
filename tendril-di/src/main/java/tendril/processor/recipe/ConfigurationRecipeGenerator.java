@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.annotation.processing.Messager;
 
+import tendril.TendrilStartupException;
 import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Bean;
 import tendril.bean.Configuration;
@@ -36,6 +37,7 @@ import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.generics.GenericFactory;
+import tendril.processor.BlueprintProcessor;
 import tendril.processor.GeneratedBlueprintProcessor;
 
 /**
@@ -103,8 +105,21 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 				ClassType blueprintType = GeneratedBlueprintProcessor.getBlueprintForAnnotation(duplicateAnnotation.getType());
 				externalImports.add(blueprintType);
 				ClassType nestedRecipeType = RecipeGenerator.getSiblingRecipeType(creatorType, method);
-				code.add("for (" + blueprintType.getSimpleName() + " b : " + blueprintType.getSimpleName() + ".values())");
-				code.add("    recipes.put(\"" + method.getName() + "\" + b.name()" + ", new " + nestedRecipeType.getSimpleName() + "(this, engine, b));");
+				
+				// Enum based duplicates iterate through enum values
+				if (BlueprintProcessor.isEnumDerived(blueprintType)) {
+					code.add("for(" + blueprintType.getClassName() + " b : " + blueprintType.getClassName() + ".values())");
+					code.add("    recipes.put(\"" + method.getName() + "\" + b.name()" + ", new " + nestedRecipeType.getClassName() + "(this, engine, b));");
+				} else {
+					// Class based duplicates get the blueprints from the engine
+					externalImports.add(TypeFactory.createClassType(TendrilStartupException.class));
+					code.add("for(" + blueprintType.getSimpleName() + " b: engine.getBlueprints(" + blueprintType.getClassName() + ".class)) {");
+					code.add("	String copyName = \"" + method.getName() + "\" + b.getName();");
+					code.add("	if (recipes.containsKey(copyName))");
+					code.add("		throw new TendrilStartupException(\"" + blueprintType + " has more than one copies named \" + copyName);");
+					code.add("    recipes.put(copyName, new " + nestedRecipeType.getSimpleName() + "(this, engine, b));");
+					code.add("}");
+				}
 			}
 		}
 
@@ -126,5 +141,4 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 
 		return null;
 	}
-
 }

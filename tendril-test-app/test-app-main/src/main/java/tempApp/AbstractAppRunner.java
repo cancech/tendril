@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import tempApp.duplicate.DynamicDuplicate;
+import tempApp.duplicate.Printer;
 import tempApp.duplicate.StaticDuplicateBean;
 import tempApp.duplicate.StaticDuplicateBean2;
 import tempApp.duplicate.StaticDuplicateBean3;
@@ -194,6 +195,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	StringInterface strIf3;
 	@InjectAll
 	List<StringInterface> strIfaces;
+	
+	@InjectAll
+	List<Printer> allPrinters;
 
 	private final DuplicationDetails[] expectedDynamicDuplicates;
 	@InjectAll
@@ -423,6 +427,13 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		// Verify that the RunnableConfig is properly processed
 		RunnableConfig.assertTimesValidateCalled(1);
 		RunnableConfig.assertTimesMethodInjectCalled(1);
+		
+		// Verify the printers
+		int expectedPrinters = expectedDynamicDuplicates.length + StaticDuplicate.values().length; 
+		int actualPrinters = allPrinters.size();
+		assertion(actualPrinters == expectedPrinters, "Expected " + expectedPrinters + " printer, but received " + actualPrinters);
+		for (Printer p: allPrinters)
+			p.print();
 	}
 
 	protected static void assertion(boolean value, String msg) {
