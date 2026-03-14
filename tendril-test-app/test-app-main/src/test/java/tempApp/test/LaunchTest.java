@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import tempApp.AbstractAppRunner;
 import tempApp.AppRunner1;
 import tempApp.AppRunner2;
+import tempApp.ClassDuplicate;
 import tempApp.DuplicationDetails;
 import tempApp.FactoryClass;
 import tempApp.MultiEnvBean1;
@@ -58,6 +59,8 @@ public class LaunchTest {
         ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
         ctx.addDynamicBlueprint(new DuplicationDetails("b", 234, 2.34));
         ctx.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t1"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t2"));
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -78,6 +81,8 @@ public class LaunchTest {
         ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
         ctx.addDynamicBlueprint(new DuplicationDetails("b", 234, 2.34));
         ctx.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t1"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t2"));
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -119,6 +124,10 @@ public class LaunchTest {
         ctx.addDynamicBlueprint(new DuplicationDetails("g", 654, 6.54));
         ctx.addDynamicBlueprint(new DuplicationDetails("h", 765, 7.65));
         ctx.addDynamicBlueprint(new DuplicationDetails("i", 876, 8.76));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t1"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t2"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t3"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t4"));
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -142,6 +151,10 @@ public class LaunchTest {
         ctx.addDynamicBlueprint(new DuplicationDetails("g", 654, 6.54));
         ctx.addDynamicBlueprint(new DuplicationDetails("h", 765, 7.65));
         ctx.addDynamicBlueprint(new DuplicationDetails("i", 876, 8.76));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t1"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t2"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t3"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t4"));
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -165,6 +178,10 @@ public class LaunchTest {
         ctx.addDynamicBlueprint(new DuplicationDetails("g", 654, 6.54));
         ctx.addDynamicBlueprint(new DuplicationDetails("h", 765, 7.65));
         ctx.addDynamicBlueprint(new DuplicationDetails("i", 876, 8.76));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t1"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t2"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t3"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t4"));
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -188,6 +205,10 @@ public class LaunchTest {
         ctx.addDynamicBlueprint(new DuplicationDetails("g", 654, 6.54));
         ctx.addDynamicBlueprint(new DuplicationDetails("h", 765, 7.65));
         ctx.addDynamicBlueprint(new DuplicationDetails("i", 876, 8.76));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t1"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t2"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t3"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("t4"));
         ctx.start();
         
         // Ensure everything created the expected number of times

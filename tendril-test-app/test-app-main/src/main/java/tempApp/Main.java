@@ -14,6 +14,8 @@ public class Main {
         ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
         ctx.addDynamicBlueprint(new DuplicationDetails("b", 234, 2.34));
         ctx.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
+        ctx.addDynamicBlueprint(new ClassDuplicate("c1"));
+        ctx.addDynamicBlueprint(new ClassDuplicate("c2"));
         ctx.start();
 	}
 	

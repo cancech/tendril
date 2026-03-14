@@ -3,8 +3,12 @@ package tempApp.duplicate;
 import java.util.List;
 
 import tempApp.COPY_1;
+import tempApp.ClassDuplicate;
+import tempApp.ClassDuplicateBlueprint;
 import tempApp.DuplicationDetails;
 import tempApp.DuplicationDetailsBlueprint;
+import tempApp.EnumDuplicate;
+import tempApp.EnumDuplicateBlueprint;
 import tempApp.Message;
 import tempApp.StaticDuplicate;
 import tempApp.StaticDuplicateBlueprint;
@@ -23,7 +27,7 @@ public class CombinedConfiguration1 {
 	@Singleton
 	Printer dynamicPrinter(@InjectAll List<DynamicDuplicate> allDynamicDups, @Sibling DuplicationDetails details, @Sibling DynamicDuplicate siblingDup) {
 		return () -> {
-			System.out.println("Combined Dynamic Printer for " + details.getName() + " - there are " + allDynamicDups.size() + " DynamicDuplicates and my sibling is " + siblingDup.getName());
+			System.out.println("Combined1 Dynamic Printer for " + details.getName() + " - there are " + allDynamicDups.size() + " DynamicDuplicates and my sibling is " + siblingDup.getName());
 		};
 	}
 
@@ -31,7 +35,23 @@ public class CombinedConfiguration1 {
 	@Singleton
 	Printer staticPrinter(@Sibling StaticDuplicate details, @Sibling StaticDuplicateBean bean, @Sibling StaticDuplicateBean2 bean2, @Sibling StaticDuplicateBean3 bean3) {
 		return () -> {
-			System.out.println("Combined Dynamic Printer for " + details + " with siblings " + bean.getString() + ", " + bean2.getString() + ", " + bean3.getString());
+			System.out.println("Combined1 Dynamic Printer for " + details + " with siblings " + bean.getString() + ", " + bean2.getString() + ", " + bean3.getString());
+		};
+	}
+
+	@EnumDuplicateBlueprint
+	@Singleton
+	Printer enumPrinter(@Sibling EnumDuplicate details) {
+		return () -> {
+			System.out.println("Combined1 Enum Printer for " + details);
+		};
+	}
+
+	@ClassDuplicateBlueprint
+	@Singleton
+	Printer classPrinter(@Sibling ClassDuplicate details) {
+		return () -> {
+			System.out.println("Combined2 Class Printer for " + details);
 		};
 	}
 	

@@ -21,31 +21,7 @@ import tendril.bean.Singleton;
 import tendril.bean.duplicate.Sibling;
 
 @Configuration
-public class CombinedConfiguration2 {
-
-	@StaticDuplicateBlueprint
-	@Singleton
-	Printer staticPrinter(@Sibling StaticDuplicate details, @Sibling StaticDuplicateBean bean, @Sibling StaticDuplicateBean2 bean2, @Sibling StaticDuplicateBean3 bean3) {
-		return () -> {
-			System.out.println("Combined2 Printer for " + details + " with siblings " + bean.getString() + ", " + bean2.getString() + ", " + bean3.getString());
-		};
-	}
-
-	@DuplicationDetailsBlueprint
-	@Singleton
-	Printer dynamicPrinter(@InjectAll List<DynamicDuplicate> allDynamicDups, @Sibling DuplicationDetails details, @Sibling DynamicDuplicate siblingDup) {
-		return () -> {
-			System.out.println("Combined2 Printer for " + details.getName() + " - there are " + allDynamicDups.size() + " DynamicDuplicates and my sibling is " + siblingDup.getName());
-		};
-	}
-
-	@EnumDuplicateBlueprint
-	@Singleton
-	Printer enumPrinter(@Sibling EnumDuplicate details) {
-		return () -> {
-			System.out.println("Combined2 Enum Printer for " + details);
-		};
-	}
+public class CombinedConfiguration3 {
 
 	@ClassDuplicateBlueprint
 	@Singleton
@@ -54,12 +30,36 @@ public class CombinedConfiguration2 {
 			System.out.println("Combined2 Class Printer for " + details);
 		};
 	}
+
+	@EnumDuplicateBlueprint
+	@Singleton
+	Printer enumPrinter(@Sibling EnumDuplicate details) {
+		return () -> {
+			System.out.println("Combined3 Enum Printer for " + details);
+		};
+	}
+
+	@StaticDuplicateBlueprint
+	@Singleton
+	Printer staticPrinter(@Sibling StaticDuplicate details, @Sibling StaticDuplicateBean bean, @Sibling StaticDuplicateBean2 bean2, @Sibling StaticDuplicateBean3 bean3) {
+		return () -> {
+			System.out.println("Combined3 Printer for " + details + " with siblings " + bean.getString() + ", " + bean2.getString() + ", " + bean3.getString());
+		};
+	}
+
+	@DuplicationDetailsBlueprint
+	@Singleton
+	Printer dynamicPrinter(@InjectAll List<DynamicDuplicate> allDynamicDups, @Sibling DuplicationDetails details, @Sibling DynamicDuplicate siblingDup) {
+		return () -> {
+			System.out.println("Combined3 Printer for " + details.getName() + " - there are " + allDynamicDups.size() + " DynamicDuplicates and my sibling is " + siblingDup.getName());
+		};
+	}
 	
 	@Bean
 	@Singleton
 	Printer bean1Copy1Printer(@COPY_1 StaticDuplicateBean bean1Copy1) {
 		return () -> {
-			System.out.println("Combined2 Printer for Copy 1 of StaticDuplicateBean: " + bean1Copy1.getString());
+			System.out.println("Combined3 Printer for Copy 1 of StaticDuplicateBean: " + bean1Copy1.getString());
 		};
 	}
 	

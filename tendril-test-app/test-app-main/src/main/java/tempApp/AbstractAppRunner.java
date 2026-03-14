@@ -199,6 +199,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	@InjectAll
 	List<Printer> allPrinters;
 
+	private final int numOfClassDuplicates;
 	private final DuplicationDetails[] expectedDynamicDuplicates;
 	@InjectAll
 	List<DynamicDuplicate> dynamicDuplicates;
@@ -206,8 +207,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	private FactoryClass factoryBean5;
 	private final Class<? extends AbstractAppRunner> actualRunner;
 
-	AbstractAppRunner(Class<? extends AbstractAppRunner> concreteRunner, DuplicationDetails... dynamicDuplicateDetails) {
+	AbstractAppRunner(Class<? extends AbstractAppRunner> concreteRunner, int numOfClassDuplicates, DuplicationDetails... dynamicDuplicateDetails) {
 		this.actualRunner = concreteRunner;
+		this.numOfClassDuplicates = numOfClassDuplicates;
 		this.expectedDynamicDuplicates = dynamicDuplicateDetails;
 		instances++;
 	}
@@ -429,7 +431,8 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		RunnableConfig.assertTimesMethodInjectCalled(1);
 		
 		// Verify the printers
-		int expectedPrinters = (expectedDynamicDuplicates.length + StaticDuplicate.values().length) * 3 + 6; 
+		int expectedPrinters = expectedDynamicDuplicates.length + StaticDuplicate.values().length // What is explicitly provided individually outside of configs
+				+ (numOfClassDuplicates + expectedDynamicDuplicates.length + StaticDuplicate.values().length + EnumDuplicate.values().length + 3) * 3; // what is provided by the combined configs 
 		int actualPrinters = allPrinters.size();
 		assertion(actualPrinters == expectedPrinters, "Expected " + expectedPrinters + " printer, but received " + actualPrinters);
 		for (Printer p: allPrinters)
