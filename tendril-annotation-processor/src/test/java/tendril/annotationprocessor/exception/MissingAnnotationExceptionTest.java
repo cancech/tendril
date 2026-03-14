@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -42,28 +43,42 @@ public class MissingAnnotationExceptionTest extends AbstractUnitTest {
     private Name mockName;
     @Mock
     private Element mockElement;
+    @Mock
+    private ClassType mockAnnotationType;
     
-    // Instance to test
-    private MissingAnnotationException exception;
-
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
      */
     @Override
     protected void prepareTest() {
-        when(mockMissingType.asElement()).thenReturn(mockMissingElement);
-        when(mockMissingElement.getSimpleName()).thenReturn(mockName);
-        exception = new MissingAnnotationException(mockMissingType, mockElement);
-        verify(mockMissingType).asElement();
-        verify(mockMissingElement).getSimpleName();
+    	// Not required
     }
 
     /**
      * Verify that the exception properly represents the information
      */
     @Test
-    public void testException() {
+    public void testDeclaredTypeException() {
+        when(mockMissingType.asElement()).thenReturn(mockMissingElement);
+        when(mockMissingElement.getSimpleName()).thenReturn(mockName);
+        MissingAnnotationException exception = new MissingAnnotationException(mockMissingType, mockElement);
+        verify(mockMissingType).asElement();
+        verify(mockMissingElement).getSimpleName();
+    	
         Assertions.assertEquals("Unable to find a definition for the annotation mockMissingType applied to mockElement", exception.getMessage());
         Assertions.assertEquals("mockName", exception.getMissingAnnotationName());
+    }
+
+    /**
+     * Verify that the exception properly represents the information
+     */
+    @Test
+    public void testClassTypeException() {
+        when(mockAnnotationType.getSimpleName()).thenReturn("blah");
+        MissingAnnotationException exception = new MissingAnnotationException("type", mockAnnotationType);
+        verify(mockAnnotationType).getSimpleName();
+    	
+        Assertions.assertEquals("Unknown type annotation mockAnnotationType", exception.getMessage());
+        Assertions.assertEquals("blah", exception.getMissingAnnotationName());
     }
 }

@@ -19,6 +19,4 @@ public class DynamicDuplicateConfiguration {
 			System.out.println("DynamicPrinter for " + details.getName() + " - there are " + allDynamicDups.size() + " DynamicDuplicates and my sibling is " + siblingDup.getName());
 		};
 	}
-	
-	// TODO add test with dynamic and static in the same config
 }

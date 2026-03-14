@@ -232,7 +232,7 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 	public static ClassType getBlueprintForAnnotation(ClassType annotationType) throws TendrilException {
 		ClassType blueprintType = blueprintCache.get(annotationType);
 		if (blueprintType == null)
-			throw new TendrilException("Unknown Blueprint annotation " + annotationType);
+			throw new MissingAnnotationException("Blueprint", annotationType);
 		return blueprintType;
 	}
 

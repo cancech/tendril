@@ -429,7 +429,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		RunnableConfig.assertTimesMethodInjectCalled(1);
 		
 		// Verify the printers
-		int expectedPrinters = expectedDynamicDuplicates.length + StaticDuplicate.values().length; 
+		int expectedPrinters = (expectedDynamicDuplicates.length + StaticDuplicate.values().length) * 3 + 6; 
 		int actualPrinters = allPrinters.size();
 		assertion(actualPrinters == expectedPrinters, "Expected " + expectedPrinters + " printer, but received " + actualPrinters);
 		for (Printer p: allPrinters)

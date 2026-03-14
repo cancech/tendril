@@ -18,10 +18,12 @@ package tendril.annotationprocessor.exception;
 import javax.lang.model.element.Element;
 import javax.lang.model.type.DeclaredType;
 
+import tendril.codegen.field.type.ClassType;
+
 /**
  * Exception which is to be thrown when an annotation fails to be resolved/found.
  */
-public class MissingAnnotationException extends Exception {
+public class MissingAnnotationException extends TendrilException {
     /** Serial UID */
     private static final long serialVersionUID = -7150861364083782309L;
 
@@ -37,6 +39,17 @@ public class MissingAnnotationException extends Exception {
     public MissingAnnotationException(DeclaredType missingType, Element appliedTo) {
         super("Unable to find a definition for the annotation " + missingType + " applied to " + appliedTo);
         this.annotationName = missingType.asElement().getSimpleName().toString();
+    }
+    
+    /**
+     * CTOR
+     * 
+     * @param annotationType {@link String} the type or category of annotation which is missing
+     * @param annotationName {@link ClassType} representing the missing annotation
+     */
+    public MissingAnnotationException(String annotationType, ClassType annotationName) {
+    	super("Unknown " + annotationType + " annotation " + annotationName);
+    	this.annotationName = annotationName.getSimpleName();
     }
 
     /**

@@ -150,7 +150,7 @@ public class ClassConverter {
         
         try {
             builder.extendsClass(ElementLoader.retrieveClass(parentElement));
-        } catch (MissingAnnotationException | TendrilException e) {
+        } catch (MissingAnnotationException e) {
             throw new TendrilException("Failed to determine parent for " + element, e);
         }
     }
