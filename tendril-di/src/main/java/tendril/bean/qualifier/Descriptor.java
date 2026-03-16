@@ -21,6 +21,7 @@ import java.util.Set;
 import tendril.context.ApplicationContext;
 import tendril.context.Engine;
 import tendril.util.TendrilStringUtil;
+import tendril.util.TendrilUtil;
 
 /**
  * Description of a bean that is (expected to be) available within the {@link ApplicationContext} and accessible via its {@link Engine}.
@@ -39,6 +40,8 @@ public class Descriptor<BEAN_TYPE> {
     private Set<Enum<?>> enumQualifiers = new HashSet<>();
     /** List of qualifiers that have been applied to the bean */
     private Set<Class<?>> qualifiers = new HashSet<>();
+    /** The blueprint which is used to create this sibling (if it is a sibling) */
+    private Object blueprint = null;
     
     /**
      * CTOR
@@ -129,19 +132,48 @@ public class Descriptor<BEAN_TYPE> {
     }
     
     /**
+     * Set the blueprint that is used to create a sibling. If not specified, then the descriptor is assumed to not describe a sibling.
+     * 
+     * <i>Note: this should only be used from a duplicate bean when indicating the blueprint that the current duplicate was created with.</i>
+     * 
+     * @param blueprint {@link Object} used to create the sibling(s)
+     * @return {@link Descriptor} describing the bean
+     */
+    public Descriptor<BEAN_TYPE> setBlueprint(Object blueprint) {
+    	this.blueprint = blueprint;
+    	return this;
+    }
+    
+    /**
+     * Check if the description has a blueprint associated with it
+     * 
+     * @return {@code boolean true} if a blueprint is associated with the described bean
+     */
+    boolean hasBlueprint() {
+    	return blueprint != null;
+    }
+    
+    /**
+     * Get the blueprint associated with the description
+     * 
+     * @return {@link Object} acting as the blueprint
+     */
+    Object getBlueprint() {
+    	return blueprint;
+    }
+    
+    /**
      * For the purpose of equality, the defined class need not be 100% equal, so long as the other class is assignable from this one.
      * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Descriptor))
-            return false;
+        if (obj instanceof Descriptor<?> other)
+            return other.beanClass.isAssignableFrom(beanClass) && other.name.equals(name) && other.enumQualifiers.size() == enumQualifiers.size() &&
+            enumQualifiers.containsAll(other.enumQualifiers) && qualifiers.containsAll(other.qualifiers) && TendrilUtil.objectEquals(blueprint, other.blueprint);
 
-        Descriptor<?> other = (Descriptor<?>) obj;
-        
-        return other.beanClass.isAssignableFrom(beanClass) && other.name.equals(name) && other.enumQualifiers.size() == enumQualifiers.size() &&
-                enumQualifiers.containsAll(other.enumQualifiers) && qualifiers.containsAll(other.qualifiers);
+        return false;
     }
 
     /**
@@ -165,6 +197,9 @@ public class Descriptor<BEAN_TYPE> {
         
         if (!other.qualifiers.isEmpty() && !qualifiers.containsAll(other.qualifiers))
             return false;
+        
+        if (other.blueprint != null && !other.blueprint.equals(blueprint))
+        	return false;
         
         return true;
     }
@@ -192,6 +227,9 @@ public class Descriptor<BEAN_TYPE> {
             str.append(" Qualifiers[");
             str.append(TendrilStringUtil.join(qualifiers, e -> "@" + e.getSimpleName()));
             str.append("]");
+        }
+        if (blueprint != null) {
+        	str.append(" Duplicate[" + blueprint + "]");
         }
         
         return str.toString();

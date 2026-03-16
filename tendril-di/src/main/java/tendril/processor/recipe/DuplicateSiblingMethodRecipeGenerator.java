@@ -107,10 +107,15 @@ public class DuplicateSiblingMethodRecipeGenerator extends MethodRecipeGenerator
         ctorCode.add("super(engine, " + creatorType.getSimpleName() + ".class, " + isPrimary + ", " + isFallback + ");");
         ctorCode.add("this.config = config;");
         ctorCode.add("this.siblingCopy = siblingCopy;");
+
+        // This must be done here rather than as part of setupDescriptor as siblingCopy is not yet initialized in setupDescriptor
+        String siblingDescription = "getDescription().setBlueprint(siblingCopy)";
         if (derivedFromEnum)
-        	ctorCode.add("getDescription().addQualifier(copyQualifiers.get(this.siblingCopy.name()));");
+        	siblingDescription += ".addQualifier(copyQualifiers.get(siblingCopy.name()));";
         else
-        	ctorCode.add("getDescription().setName(siblingCopy.getName());");
+        	siblingDescription += ".setName(siblingCopy.getName());";
+        ctorCode.add(siblingDescription);
+        
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC)
             .buildParameter(configRecipeType, "config").finish()
             .buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish()
@@ -128,8 +133,9 @@ public class DuplicateSiblingMethodRecipeGenerator extends MethodRecipeGenerator
 	protected List<String> getDescriptorLines(JBase element) {
 		List<String> lines = super.getDescriptorLines(element);
 		if (element.hasAnnotation(Sibling.class)) {
+			// TODO provide warning if @Named is also applied
 			siblingUsed = true;
-			// TODO retrieve based on the blueprint instance?
+			lines.add("setBlueprint(siblingCopy)");
 			if (derivedFromEnum)
 				lines.add("addQualifier(copyQualifiers.get(siblingCopy.name()))");
 			else

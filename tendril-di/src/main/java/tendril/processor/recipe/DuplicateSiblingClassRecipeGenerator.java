@@ -117,10 +117,14 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
         ctorCode.add("this.siblingCopy = siblingCopy;");
         generateFieldConsumers(ctorCode);
         generateMethodConsumers(ctorCode);
+        
+        // This must be done here rather than as part of setupDescriptor as siblingCopy is not yet initialized in setupDescriptor
+        String siblingDescription = "getDescription().setBlueprint(siblingCopy)";
         if (derivedFromEnum)
-        	ctorCode.add("getDescription().addQualifier(copyQualifiers.get(siblingCopy.name()));");
+        	siblingDescription += ".addQualifier(copyQualifiers.get(siblingCopy.name()));";
         else
-        	ctorCode.add("getDescription().setName(siblingCopy.getName());");
+        	siblingDescription += ".setName(siblingCopy.getName());";
+        ctorCode.add(siblingDescription);
 
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish()
         	.buildParameter(blueprintType, "siblingCopy").finish().addCode(ctorCode.toArray(new String[ctorCode.size()])).finish();
@@ -154,6 +158,7 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 		List<String> lines = super.getDescriptorLines(element);
 		if (element.hasAnnotation(Sibling.class)) {
 			siblingUsed = true;
+			lines.add("setBlueprint(siblingCopy)");
 			if (derivedFromEnum)
 				lines.add("addQualifier(copyQualifiers.get(siblingCopy.name()))");
 			else

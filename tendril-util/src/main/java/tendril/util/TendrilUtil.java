@@ -80,4 +80,17 @@ public abstract class TendrilUtil {
         
         return false;
     }
+    
+    /**
+     * Check if two objects are equal via {@code lhs.equals(rhs)}, accounting for the fact that one (or both) may be null.
+     * 
+     * @param lhs {@link Object} on the left side of the comparison (whose {@code equals} method will be called)
+     * @param rhs {@link Object} on the right side of the comparison (arguments in the {@code equals} method call)
+     * @return boolean true if the lhs equals rhs
+     */
+    public static boolean objectEquals(Object lhs, Object rhs) {
+    	if (lhs == null)
+    		return rhs == null;
+    	return lhs.equals(rhs);
+    }
 }

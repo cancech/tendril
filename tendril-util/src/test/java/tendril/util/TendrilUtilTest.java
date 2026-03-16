@@ -109,4 +109,24 @@ public class TendrilUtilTest extends AbstractUnitTest {
         Assertions.assertFalse(TendrilUtil.containsAny(Arrays.asList("a", "b", "c"), Collections.emptyList()));
         Assertions.assertFalse(TendrilUtil.containsAny(Collections.emptyList(), Collections.emptyList()));
     }
+    
+    /**
+     * Verify that objectEquals works as expected
+     */
+    @Test
+    public void testObjectEquals() {
+    	// When it passes
+    	Assertions.assertTrue(TendrilUtil.objectEquals(null, null));
+    	Assertions.assertTrue(TendrilUtil.objectEquals("abc123", "abc123"));
+    	Assertions.assertTrue(TendrilUtil.objectEquals(123, 123));
+    	
+    	// When it fails
+    	Assertions.assertFalse(TendrilUtil.objectEquals("abc123", null));
+    	Assertions.assertFalse(TendrilUtil.objectEquals(null, "abc123"));
+    	Assertions.assertFalse(TendrilUtil.objectEquals(123, "abc123"));
+    	Assertions.assertFalse(TendrilUtil.objectEquals("abc123", 123));
+    	Assertions.assertFalse(TendrilUtil.objectEquals("abc123", "321cba"));
+    	Assertions.assertFalse(TendrilUtil.objectEquals(321, 123));
+    	Assertions.assertFalse(TendrilUtil.objectEquals(123, 321));
+    }
 }
