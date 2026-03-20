@@ -196,7 +196,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
 
             List<JParameter<?>> params = method.getParameters();
             if (params.isEmpty())
-                messager.printWarning(creatorType.getFullyQualifiedName() + "::" + method.getName() + " has no parameters, this is a meaningless injection. Use @" + 
+                messager.printWarning(method.getFullElementPath() + " has no parameters, this is a meaningless injection. Use @" + 
                         PostConstruct.class.getSimpleName() + " instead");
 
             addParameterInjection(ctorLines, method.getParameters(), "        ", "        consumer." + method.getName());

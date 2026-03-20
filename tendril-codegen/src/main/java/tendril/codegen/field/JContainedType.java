@@ -31,12 +31,29 @@ public abstract class JContainedType<DATA_TYPE extends Type> extends JType<DATA_
     }
     
     /**
-     * Get the container in which this type is contained
+     * Check if the type is located within a container
      * 
-     * @return {@link JContainedType} containing this type
+     * @return boolean true if it is
      */
-    public JContainedType<?> getContainer() {
-    	return parentContainer;
+    public boolean isInContainer() {
+    	return parentContainer != null;
     }
-
+    
+    /**
+     * @see tendril.codegen.JBase#getFullElementPath()
+     */
+    @Override
+    public String getFullElementPath() {
+    	String containerPath = isInContainer() ? parentContainer.getFullElementPath() + "::" : "";
+    	return containerPath + getElementPath();
+    }
+    
+    /**
+     * Get the path of the current element
+     * 
+     * @return {@link String} the path of the current element
+     */
+    protected String getElementPath() {
+    	return name;
+    }
 }

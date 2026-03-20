@@ -39,6 +39,7 @@ import tendril.codegen.JBase;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.method.JConstructor;
 import tendril.codegen.classes.method.JMethod;
+import tendril.codegen.field.JContainedType;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
@@ -138,6 +139,8 @@ public class JClassTest extends AbstractUnitTest {
     private GenericType mockGeneric2;
     @Mock
     private GenericType mockGeneric3;
+    @Mock
+    private JContainedType<Type> mockContainer;
 
     // Helper to match the generate code
     private MultiLineStringMatcher strMatcher;
@@ -1073,6 +1076,15 @@ public class JClassTest extends AbstractUnitTest {
     	jclass.setParentClass(mockParentClass);
     	
     	CollectionAssert.assertEquivalent(jclass.getMethods("a"), mockClassMethod, mockPrimitiveMethod, mockVoidMethod);
+    }
+    
+    /**
+     * Verify the element path
+     */
+    @Test
+    public void testGetElementPath() {
+    	Assertions.assertEquals("packagename.className", jclass.getElementPath());
+        verify(mockClassType).getFullyQualifiedName();
     }
 
     /**

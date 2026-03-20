@@ -28,7 +28,9 @@ import org.mockito.Mock;
 
 import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
+import tendril.codegen.field.JContainedType;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.Type;
 import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
 
@@ -72,6 +74,8 @@ public class JConstructorTest extends AbstractUnitTest {
     private GenericType mockGeneric2;
     @Mock
     private GenericType mockGeneric3;
+    @Mock
+    private JContainedType<Type> mockContainer;
     
     // Instance to test
     private JConstructor ctor;
@@ -168,5 +172,18 @@ public class JConstructorTest extends AbstractUnitTest {
         Assertions.assertFalse(ctor.isFinal());
         ctor.setFinal(false);
         Assertions.assertFalse(ctor.isFinal());
+    }
+    
+    /**
+     * Verify that the correct element path is produced
+     */
+    @Test
+    public void testElementPath() {
+    	// Name when not in a container
+    	Assertions.assertEquals("MockClass", ctor.getElementPath());
+    	
+    	// <CTOR> when in a container
+    	ctor.setContainer(mockContainer);
+    	Assertions.assertEquals("<CTOR>", ctor.getElementPath());
     }
 }

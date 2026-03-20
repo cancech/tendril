@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import tendril.codegen.field.JContainedType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.generics.GenericType;
@@ -84,6 +85,8 @@ public class JMethodTest extends AbstractMethodTest {
     private GenericType mockGeneric2;
     @Mock
     private GenericType mockGeneric3;
+    @Mock
+    private JContainedType<Type> mockContainer;
     
     // Instance to test
     private TestJMethod method;
@@ -159,5 +162,13 @@ public class JMethodTest extends AbstractMethodTest {
         verify(mockGeneric3).generateDefinition();
         verify(mockReturnType).getSimpleName();
         method.verifyCalled(1, true);
+    }
+    
+    /**
+     * Verify that the element path is properly produced
+     */
+    @Test
+    public void testGetElementPath() {
+    	Assertions.assertEquals("method_name()", method.getElementPath());
     }
 }

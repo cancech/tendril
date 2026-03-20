@@ -110,9 +110,8 @@ public class AnnotationFromEnumProcessorTest extends AbstractUnitTest {
      */
     @Test
     public void testProcessMethod() {
-        when(mockAnnotatedMethod.getName()).thenReturn("mockMethod");
+        when(mockAnnotatedMethod.getFullElementPath()).thenReturn("methodPath");
         Assertions.assertThrows(TendrilException.class, () -> processor.processMethod());
-        verify(mockAnnotatedClass).getFullyQualifiedName();
-        verify(mockAnnotatedMethod).getName();
+        verify(mockAnnotatedMethod).getFullElementPath();
     }
 }

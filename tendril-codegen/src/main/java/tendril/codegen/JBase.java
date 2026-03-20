@@ -159,6 +159,15 @@ public abstract class JBase extends JGeneric {
         appendSelf(builder, classImports);
     }
 
+	/**
+	 * Get the "full path" for how to reach the element
+	 * 
+	 * @return {@link String} with the full path to reach the element
+	 */
+    public String getFullElementPath() {
+    	return name;
+    }
+    
     /**
      * Generate the appropriate code that is specific and unique to this element. {@code generate()} takes care of the common portions of code generation, with this method performing what is unique to
      * this particular element. Can be thought of an as wrapper for generating the code and appending it directly to the larger code.

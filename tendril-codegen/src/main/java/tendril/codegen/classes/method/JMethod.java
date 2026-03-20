@@ -70,4 +70,12 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends JAbstractMethodE
             return " {";
         return ";";
     }
+    
+    /**
+     * @see tendril.codegen.field.JContainedType#getElementPath()
+     */
+    @Override
+    protected String getElementPath() {
+    	return name + "()";
+    }
 }

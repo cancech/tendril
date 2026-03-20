@@ -73,4 +73,14 @@ public class JConstructor extends JAbstractMethodElement<ClassType> {
         
         return visibility.getKeyword() + getGenericsDefinitionKeyword(false) + getName() + "(" + generateParameters(classImports) + ") {";
     }
+
+    /**
+     * @see tendril.codegen.field.JContainedType#getElementPath()
+     */
+	@Override
+	protected String getElementPath() {
+		if (isInContainer())
+			return "<CTOR>";
+		return name;
+	}
 }

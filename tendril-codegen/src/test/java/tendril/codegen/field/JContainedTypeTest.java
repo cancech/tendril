@@ -1,5 +1,8 @@
 package tendril.codegen.field;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
@@ -69,15 +72,38 @@ public class JContainedTypeTest extends AbstractUnitTest {
 	@Test
 	public void testContainer() {
 		// Null by default
-		Assertions.assertNull(element.getContainer());
+		Assertions.assertFalse(element.isInContainer());
 		
 		// Can be set
 		element.setContainer(mockContainer1);
-		Assertions.assertEquals(mockContainer1, element.getContainer());
+		Assertions.assertTrue(element.isInContainer());
 		
 		// Can be overridden
 		element.setContainer(mockContainer2);
-		Assertions.assertEquals(mockContainer2, element.getContainer());
+		Assertions.assertTrue(element.isInContainer());
+		
+		// Can be reset
+		element.setContainer(null);
+		Assertions.assertFalse(element.isInContainer());
+	}
+	
+	/**
+	 * Verify that the container path can be derived
+	 */
+	@Test
+	public void testFullPathNoContainer() {
+		Assertions.assertEquals("ContainedElement", element.getFullElementPath());
+	}
+	
+	/**
+	 * Verify that the container path can be derived
+	 */
+	@Test
+	public void testFullPathHasContainer() {
+		when(mockContainer1.getFullElementPath()).thenReturn("CONTAINER");
+		element.setContainer(mockContainer1);
+		Assertions.assertEquals("CONTAINER::ContainedElement", element.getFullElementPath());
+		verify(mockContainer1).getFullElementPath();
 	}
 
 }

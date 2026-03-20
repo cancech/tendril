@@ -485,4 +485,12 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
     protected void processFields(CodeBuilder builder, Set<ClassType> classImports) {
         processElements(builder, classImports, fields);
     }
+    
+    /**
+     * @see tendril.codegen.field.JContainedType#getElementPath()
+     */
+    @Override
+    protected String getElementPath() {
+    	return type.getFullyQualifiedName();
+    }
 }

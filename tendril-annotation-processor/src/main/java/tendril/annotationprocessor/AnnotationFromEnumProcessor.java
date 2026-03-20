@@ -25,39 +25,38 @@ import tendril.annotationprocessor.exception.InvalidTypeException;
 import tendril.annotationprocessor.exception.TendrilException;
 
 /**
- * Base processor which can be used to generate annotations from values defined in an {@link Enum} 
+ * Base processor which can be used to generate annotations from values defined in an {@link Enum}
  */
 public abstract class AnnotationFromEnumProcessor extends AbstractTendrilProccessor {
-    /** The name of the annotation which the processor is looking for */
-    private final String annotationName;
+	/** The name of the annotation which the processor is looking for */
+	private final String annotationName;
 
-    /**
-     * CTOR
-     * 
-     * @param processorAnnotation {@link Class} of the {@link Annotation} that the processor is operating on
-     */
-    public AnnotationFromEnumProcessor(Class<? extends Annotation> processorAnnotation) {
-        this.annotationName = processorAnnotation.getName();
-    }
+	/**
+	 * CTOR
+	 * 
+	 * @param processorAnnotation {@link Class} of the {@link Annotation} that the processor is operating on
+	 */
+	public AnnotationFromEnumProcessor(Class<? extends Annotation> processorAnnotation) {
+		this.annotationName = processorAnnotation.getName();
+	}
 
-    /**
-     * The annotated {@link TypeElement} must be an {@link Enum}
-     * 
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
-     */
-    @Override
-    protected void validateType(TypeElement type) throws TendrilException {
-        if (type.getKind() != ElementKind.ENUM)
-            throw new InvalidTypeException("Unable to use " + type.getQualifiedName() + " - Must be an enum");
-    }
-    
-    /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
-     */
-    @Override
-    protected ClassDefinition processMethod() throws TendrilException {
-        throw new InvalidConfigurationException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
-                annotationName + " - cannot be applied to a method");
-    }
-    
+	/**
+	 * The annotated {@link TypeElement} must be an {@link Enum}
+	 * 
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
+	 */
+	@Override
+	protected void validateType(TypeElement type) throws TendrilException {
+		if (type.getKind() != ElementKind.ENUM)
+			throw new InvalidTypeException("Unable to use " + type.getQualifiedName() + " - Must be an enum");
+	}
+
+	/**
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
+	 */
+	@Override
+	protected ClassDefinition processMethod() throws TendrilException {
+		throw new InvalidConfigurationException(currentMethod.getFullElementPath() + annotationName + " - cannot be applied to a method");
+	}
+
 }

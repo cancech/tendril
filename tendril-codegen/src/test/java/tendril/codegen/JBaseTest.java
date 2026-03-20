@@ -310,4 +310,12 @@ public class JBaseTest extends AbstractUnitTest {
         element.generate(mockCodeBuilder, mockImports);
         element.verifyTimesCalled(1, 0);
     }
+    
+    /**
+     * Verify the Full element path is properly produced
+     */
+    @Test
+    public void testGetFullElementPath() {
+    	Assertions.assertEquals("MyElementName", element.getFullElementPath());
+    }
 }

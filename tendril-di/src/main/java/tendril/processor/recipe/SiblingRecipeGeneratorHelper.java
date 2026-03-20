@@ -207,7 +207,7 @@ class SiblingRecipeGeneratorHelper {
 	 */
 	private void checkIfNamed(JBase element) {
 		if (!derivedFromEnum && creator.hasAnnotation(Named.class)) {
-			messager.printWarning(generator.getFullElementName(element) + " has an @Named annotation applied when it is to be derived from the blueprint " + blueprintType);
+			messager.printWarning(element.getFullElementPath() + " has an @Named annotation applied when it is to be derived from the blueprint " + blueprintType);
 		}
 	}
 
