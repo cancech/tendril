@@ -23,8 +23,7 @@ import tendril.codegen.field.type.Type;
  * 
  * @param <DATA_TYPE> extending {@link Type} indicating the type of data the element represents
  */
-public abstract class JVisibleType<DATA_TYPE extends Type> extends JType<DATA_TYPE> {
-
+public abstract class JVisibleType<DATA_TYPE extends Type> extends JContainedType<DATA_TYPE> {
     /** The visibility of the method */
     protected VisibilityType visibility = VisibilityType.PACKAGE_PRIVATE;
     /** Flag for whether or not the element is static */
@@ -87,5 +86,4 @@ public abstract class JVisibleType<DATA_TYPE extends Type> extends JType<DATA_TY
         
         return "static ";
     }
-    
 }

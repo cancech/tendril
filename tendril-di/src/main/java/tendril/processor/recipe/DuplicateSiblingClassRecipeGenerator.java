@@ -50,7 +50,7 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 	 */
 	DuplicateSiblingClassRecipeGenerator(ClassType beanType, JClass bean, Messager messager, ClassType blueprintType) {
 		super(beanType, bean, messager);
-		siblingHelper = new SiblingRecipeGeneratorHelper(beanType, blueprintType, messager, this);
+		siblingHelper = new SiblingRecipeGeneratorHelper(bean, beanType, blueprintType, messager, this);
 	}
 
 	/**

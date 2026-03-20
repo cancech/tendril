@@ -111,8 +111,10 @@ public abstract class NestedClassMethodElementBuilder<DATA_TYPE extends Type, EL
     @Override
     protected ELEMENT applyDetails(ELEMENT element) {
         super.applyDetails(element);
-        for (JParameter<?> param : parameters)
+        for (JParameter<?> param : parameters) {
             element.addParameter(param);
+            param.setContainer(element);
+        }
 
         return element;
     }

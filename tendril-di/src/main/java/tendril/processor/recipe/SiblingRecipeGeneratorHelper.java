@@ -9,6 +9,7 @@ import javax.annotation.processing.Messager;
 import tendril.annotationprocessor.exception.InvalidConfigurationException;
 import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.duplicate.Sibling;
+import tendril.bean.qualifier.Named;
 import tendril.bean.recipe.Injector;
 import tendril.codegen.JBase;
 import tendril.codegen.VisibilityType;
@@ -16,7 +17,9 @@ import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.ConstructorBuilder;
 import tendril.codegen.classes.FieldBuilder;
+import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JParameter;
+import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.TypeFactory;
@@ -31,13 +34,17 @@ import tendril.util.TendrilStringUtil;
  * {@link DuplicateSiblingMethodRecipeGenerator}.
  */
 class SiblingRecipeGeneratorHelper {
-	private final ClassType creatorType;
+	/** The element that is triggering bean creation */
+	private final JBase creator;
+	/** The type of the bean that is being created */
+	private final ClassType beanType;
 	/** The type of the enum which drives the duplication */
 	private final ClassType blueprintType;
 	/** Flag for whether the blueprint is enum derived */
 	private final boolean derivedFromEnum;
 	/** Messager through which to provide "proper" feedback */
 	private final Messager messager;
+	/** The generator which is preparing the recipe proper */
 	private final AbstractRecipeGenerator<?> generator;
 
 	/** Flag for whether the sibling instance field was used in the generated code */
@@ -46,13 +53,15 @@ class SiblingRecipeGeneratorHelper {
 	/**
 	 * CTOR
 	 * 
-	 * @param creatorType   {@link ClassType} which is triggering the creation
+	 * @param creator       {@link JBase} that is triggering the bean's creation
+	 * @param beanType      {@link ClassType} the type of bean
 	 * @param blueprintType {@link ClassType} of the enum which drives the duplication
 	 * @param messager      {@link Messager} that is used by the annotation processor
 	 * @param generator     {@link AbstractRecipeGenerator} which is generating the recipe the helper is helping with
 	 */
-	SiblingRecipeGeneratorHelper(ClassType creatorType, ClassType blueprintType, Messager messager, AbstractRecipeGenerator<?> generator) {
-		this.creatorType = creatorType;
+	SiblingRecipeGeneratorHelper(JBase creator, ClassType beanType, ClassType blueprintType, Messager messager, AbstractRecipeGenerator<?> generator) {
+		this.creator = creator;
+		this.beanType = beanType;
 		this.blueprintType = blueprintType;
 		this.messager = messager;
 		this.generator = generator;
@@ -125,6 +134,9 @@ class SiblingRecipeGeneratorHelper {
 		// Assign the instance field copy
 		ctorCode.add("this.siblingCopy = siblingCopy;");
 
+		// @Named should not be applied
+		checkIfNamed(creator);
+
 		// This must be done here rather than as part of setupDescriptor as siblingCopy is not yet initialized in setupDescriptor
 		String siblingDescription = "getDescription().setBlueprint(siblingCopy)";
 		if (derivedFromEnum)
@@ -154,11 +166,14 @@ class SiblingRecipeGeneratorHelper {
 		if (!field.getType().equals(blueprintType) || !field.hasAnnotation(Sibling.class))
 			return false;
 
+		// @Named should not be applied
+		checkIfNamed(field);
+
 		generator.addImport(Injector.class);
 		siblingUsed = true;
-		ctorLines.add("registerInjector(new " + Injector.class.getSimpleName() + "<" + creatorType.getSimpleName() + ">() {");
+		ctorLines.add("registerInjector(new " + Injector.class.getSimpleName() + "<" + beanType.getSimpleName() + ">() {");
 		ctorLines.add("    @Override");
-		ctorLines.add("    public void inject(" + creatorType.getSimpleName() + " consumer, Engine engine) {");
+		ctorLines.add("    public void inject(" + beanType.getSimpleName() + " consumer, Engine engine) {");
 		ctorLines.add("        consumer." + field.getName() + " = siblingCopy;");
 		ctorLines.add("    }");
 		ctorLines.add("});");
@@ -176,13 +191,47 @@ class SiblingRecipeGeneratorHelper {
 		if (!element.hasAnnotation(Sibling.class))
 			return;
 
-		// TODO provide warning if @Named is also applied
+		// @Named should not be applied
+		checkIfNamed(element);
+
 		siblingUsed = true;
 		lines.add("setBlueprint(siblingCopy)");
 		if (derivedFromEnum)
 			lines.add("addQualifier(copyQualifiers.get(siblingCopy.name()))");
 		else
 			lines.add("setName(siblingCopy.getName())");
+	}
+
+	/**
+	 * Check if the {@link Named} annotation is applied to the element
+	 * 
+	 * @param element {@link JBase} to check
+	 */
+	private void checkIfNamed(JBase element) {
+		if (!derivedFromEnum && creator.hasAnnotation(Named.class)) {
+			messager.printWarning(getFullElementName(element) + " has an @Named annotation applied when it is to be derived from the blueprint " + blueprintType);
+		}
+	}
+
+	/**
+	 * Get the "full name" (including how to reach the element)
+	 * 
+	 * @param element {@link JBase} whose name is desired
+	 * @return {@link String} with the full path to reach and the  name of the element
+	 */
+	private String getFullElementName(JBase element) {
+		if (element == null)
+			return "";
+		else if (element instanceof JClass klass)
+			return klass.getType().getFullyQualifiedName();
+		else if (element instanceof JMethod<?> method)
+			return getFullElementName(method.getContainer()) + "::" + method.getName() + "()";
+		else if (element instanceof JField<?> field)
+			return getFullElementName(field.getContainer()) + "::" + field.getName();
+		else if (element instanceof JParameter<?> param)
+			return getFullElementName(param.getContainer()) + "::" + param.getName();
+
+		return "Unknown element [" + element + "]";
 	}
 
 	/**

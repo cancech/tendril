@@ -19,12 +19,14 @@ import tendril.bean.Configuration;
 import tendril.bean.InjectAll;
 import tendril.bean.Singleton;
 import tendril.bean.duplicate.Sibling;
+import tendril.bean.qualifier.Named;
 
 @Configuration
 public class CombinedConfiguration1 {
 
 	@DuplicationDetailsBlueprint
 	@Singleton
+	@Named("Prints a warning")
 	Printer dynamicPrinter(@InjectAll List<DynamicDuplicate> allDynamicDups, @Sibling DuplicationDetails details, @Sibling DynamicDuplicate siblingDup) {
 		return () -> {
 			System.out.println("Combined1 Dynamic Printer for " + details.getName() + " - there are " + allDynamicDups.size() + " DynamicDuplicates and my sibling is " + siblingDup.getName());

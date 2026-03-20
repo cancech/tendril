@@ -20,7 +20,7 @@ import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.annotation.JAnnotation;
-import tendril.codegen.field.JType;
+import tendril.codegen.field.JContainedType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.util.TendrilStringUtil;
@@ -30,7 +30,7 @@ import tendril.util.TendrilStringUtil;
  * 
  * @param <DATA_TYPE> representing the {@link Type} of the parameter
  */
-public class JParameter<DATA_TYPE extends Type> extends JType<DATA_TYPE> {
+public class JParameter<DATA_TYPE extends Type> extends JContainedType<DATA_TYPE> {
 
     /**
      * CTOR

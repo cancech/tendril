@@ -6,9 +6,11 @@ import tempApp.StaticDuplicateBlueprint;
 import tendril.bean.Inject;
 import tendril.bean.Singleton;
 import tendril.bean.duplicate.Sibling;
+import tendril.bean.qualifier.Named;
 
 @StaticDuplicateBlueprint
 @Singleton
+@Named("StaticDuplicateBean")
 public class StaticDuplicateBean {
 
 	@Inject

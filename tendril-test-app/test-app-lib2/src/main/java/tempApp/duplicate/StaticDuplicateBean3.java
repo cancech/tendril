@@ -6,6 +6,7 @@ import tempApp.StaticDuplicateBlueprint;
 import tendril.bean.Inject;
 import tendril.bean.Singleton;
 import tendril.bean.duplicate.Sibling;
+import tendril.bean.qualifier.Named;
 
 @StaticDuplicateBlueprint
 @Singleton
@@ -17,6 +18,7 @@ public class StaticDuplicateBean3 {
 	
 	@Inject
 	@Sibling
+	@Named("StaticDuplicateBean")
 	StaticDuplicateBean bean;
 	
 	@Inject
@@ -27,7 +29,7 @@ public class StaticDuplicateBean3 {
 	private final String ctorMsg;
 	private final StaticDuplicateBean ctorBean;
 	
-	StaticDuplicateBean3(@Sibling StaticDuplicate blueprint, @Message String msg, @Sibling StaticDuplicateBean ctorBean) {
+	StaticDuplicateBean3(@Sibling StaticDuplicate blueprint, @Message String msg, @Sibling @Named("StaticDuplicateBean") StaticDuplicateBean ctorBean) {
 		this.blueprint = blueprint;
 		ctorMsg = msg;
 		this.ctorBean = ctorBean;

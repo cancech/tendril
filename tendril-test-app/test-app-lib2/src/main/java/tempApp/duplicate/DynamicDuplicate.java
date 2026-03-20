@@ -8,9 +8,11 @@ import tempApp.DuplicationDetailsBlueprint;
 import tendril.bean.Inject;
 import tendril.bean.Singleton;
 import tendril.bean.duplicate.Sibling;
+import tendril.bean.qualifier.Named;
 
 @DuplicationDetailsBlueprint
 @Singleton
+@Named("Generates a warning")
 public class DynamicDuplicate {
 	
 	private final DuplicationDetails ctorDetails;
@@ -20,6 +22,7 @@ public class DynamicDuplicate {
 	
 	@Inject
 	@Sibling
+	@Named("This be a warning")
 	DuplicationDetails details;
 
 	@Inject

@@ -112,6 +112,12 @@ public class NestedClassMethodElementBuilderTest extends AbstractUnitTest {
     @Mock
     private JAnnotation mockAnnotation3;
     @Mock
+    private JParameter<Type> mockParameter1;
+    @Mock
+    private JParameter<Type> mockParameter2;
+    @Mock
+    private JParameter<Type> mockParameter3;
+    @Mock
     private JValue<Type, ?> mockValue;
 
     // Instance to test
@@ -179,6 +185,28 @@ public class NestedClassMethodElementBuilderTest extends AbstractUnitTest {
 
         // Make sure that nothing in the build chain is called
         builder.verifyTimesCalled(0, 0);
+    }
+    
+    /**
+     * Verify that can add parameters to the method
+     */
+    @Test
+    public void testApplyDetailsWithParameters() {
+    	builder.addParameter(mockParameter1);
+    	builder.addParameter(mockParameter2);
+    	builder.addParameter(mockParameter3);
+    	
+    	builder.applyDetails(mockElement);
+        verify(mockElement).setFinal(false);
+        verify(mockElement).setStatic(false);
+        verify(mockElement).setVisibility(VisibilityType.PACKAGE_PRIVATE);
+
+    	verify(mockElement).addParameter(mockParameter1);
+    	verify(mockElement).addParameter(mockParameter2);
+    	verify(mockElement).addParameter(mockParameter3);
+    	verify(mockParameter1).setContainer(mockElement);
+    	verify(mockParameter2).setContainer(mockElement);
+    	verify(mockParameter3).setContainer(mockElement);
     }
 
     /**

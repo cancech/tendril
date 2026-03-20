@@ -220,6 +220,9 @@ public class ClassBuilderTest extends AbstractUnitTest {
         verify(mockClass).addMethod(mockMethod1);
         verify(mockClass).addMethod(mockMethod2);
         verify(mockClass).addMethod(mockMethod3);
+        verify(mockMethod1).setContainer(mockClass);
+        verify(mockMethod2).setContainer(mockClass);
+        verify(mockMethod3).setContainer(mockClass);
     }
     
     /**
@@ -237,6 +240,9 @@ public class ClassBuilderTest extends AbstractUnitTest {
         verify(mockClass).addField(mockField1);
         verify(mockClass).addField(mockField2);
         verify(mockClass).addField(mockField3);
+        verify(mockField1).setContainer(mockClass);
+        verify(mockField2).setContainer(mockClass);
+        verify(mockField3).setContainer(mockClass);
     }
     
     /**
@@ -292,6 +298,16 @@ public class ClassBuilderTest extends AbstractUnitTest {
         verify(mockClass).addConstructor(mockCtor1);
         verify(mockClass).addConstructor(mockCtor2);
         verify(mockClass).addConstructor(mockCtor3);
+        
+        verify(mockMethod1).setContainer(mockClass);
+        verify(mockMethod2).setContainer(mockClass);
+        verify(mockMethod3).setContainer(mockClass);
+        verify(mockField1).setContainer(mockClass);
+        verify(mockField2).setContainer(mockClass);
+        verify(mockField3).setContainer(mockClass);
+        verify(mockCtor1).setContainer(mockClass);
+        verify(mockCtor2).setContainer(mockClass);
+        verify(mockCtor3).setContainer(mockClass);
     }
     
     /**
