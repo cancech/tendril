@@ -51,9 +51,9 @@ import tendril.codegen.generics.GenericType;
 import tendril.processor.recipe.RecipeGenerator;
 
 /**
- * Processor for the {@link GeneratedBlueprint} annotation, which will generate an appropriate recipe for each of the duplicates that the blueprint aims to produce.
- * Registers with the {@link ElementLoader} to notify when it generates annotations, allowing for other annotation processors to resume their operations, if they are
- * stalled waiting for a blueprint annotation to be generated. 
+ * Processor for the {@link GeneratedBlueprint} annotation, which will generate an appropriate recipe for each of the duplicates that the blueprint aims to produce. Registers with the
+ * {@link ElementLoader} to notify when it generates annotations, allowing for other annotation processors to resume their operations, if they are stalled waiting for a blueprint annotation to be
+ * generated.
  */
 @SupportedAnnotationTypes("tendril.bean.duplicate.GeneratedBlueprint")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
@@ -62,12 +62,12 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 	/** Cache of the blueprint annotations that have been processed, removing the need to determine the associated blueprint Enum each time */
 	private static final Map<ClassType, ClassType> blueprintCache = new HashMap<>();
 	/** Listeners to be notified when an annotation is generated */
-    private final List<AnnotationGeneratedListener> listeners = new ArrayList<>();
-    /** Set of all annotations that have been generated. Used as a way of tracking which generated annotations have already notified */
-    private final Set<ClassType> announcedGeneratedAnnotations = new HashSet<>();
-	
-    /** The generated annotation that is currently being processed */
-    private ClassType annotationType;
+	private final List<AnnotationGeneratedListener> listeners = new ArrayList<>();
+	/** Set of all annotations that have been generated. Used as a way of tracking which generated annotations have already notified */
+	private final Set<ClassType> announcedGeneratedAnnotations = new HashSet<>();
+
+	/** The generated annotation that is currently being processed */
+	private ClassType annotationType;
 	/** The type of the blueprint Enum that is currently being processed */
 	private ClassType currentBlueprintType = null;
 	/** Exception received when determining the Enum blueprint type. As the method doing that work cannot throw an exception, this is kept until later when it can be thrown */
@@ -80,7 +80,7 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 		// Prevent the processing of the GeneratedBlueprint
 		blueprintCache.put(TypeFactory.createClassType(GeneratedBlueprint.class), null);
 		// Register this processor as an annotation generator
-        ElementLoader.getGeneratedAnnotationHandler().registerLoader(this);
+		ElementLoader.getGeneratedAnnotationHandler().registerLoader(this);
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 	public void addListener(AnnotationGeneratedListener listener) {
 		listeners.add(listener);
 	}
-	
+
 	/**
 	 * Announce that an annotation has been generated
 	 */
@@ -98,15 +98,15 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 		// Make sure that it's not one that's been announced previously
 		if (announcedGeneratedAnnotations.contains(annotationType))
 			return;
-		
+
 		// Track the announcement and announce the new annotation
 		announcedGeneratedAnnotations.add(annotationType);
 		listeners.forEach(listener -> listener.annotationGenerated(annotationType));
 	}
-	
+
 	/**
 	 * Prior to performing the processing, determine what the blueprint Enum is as it will apply to all types from this iteration of processing.
-	 *  
+	 * 
 	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#findAndProcessElements(javax.lang.model.element.TypeElement, java.util.function.Consumer)
 	 */
 	@Override
@@ -119,7 +119,7 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 		}
 		super.findAndProcessElements(annotation, consume);
 	}
-	
+
 	/**
 	 * Ensure that the type is not also annotated as a bean. Thrown an exception caused by conflicting definitions if true.
 	 * 
@@ -131,17 +131,18 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 		if (type.getAnnotationsByType(Bean.class).length != 0)
 			throwBeanAnnotationPresentException(type.getQualifiedName().toString());
 	}
-	
+
 	/**
 	 * Helper which throws an exception indicating that the generated blueprint annotation is applied along side @Bean
-	 *  
+	 * 
 	 * @param typeName {@link String} the name of the type which is triggering the exception
 	 * @throws TendrilException indicating which type has the @Bean annotation applied
 	 */
 	private void throwBeanAnnotationPresentException(String typeName) throws TendrilException {
-		throw new TendrilException("Unable to process " + typeName + ", it has both @Bean and @" + currentAnnotation.getSimpleName() + " annotations applied. Only one of these can be applied to a bean.");
+		throw new TendrilException(
+				"Unable to process " + typeName + ", it has both @Bean and @" + currentAnnotation.getSimpleName() + " annotations applied. Only one of these can be applied to a bean.");
 	}
-	
+
 	/**
 	 * Ensure that the type is not also annotated as a bean. Thrown an exception caused by conflicting definitions if true.
 	 * 
@@ -151,7 +152,7 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 	protected void validateMethod() throws TendrilException {
 		super.validateMethod();
 		if (currentMethod.hasAnnotation(Bean.class))
-			throwBeanAnnotationPresentException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() + "()");
+			throwBeanAnnotationPresentException(currentMethod.getFullElementPath());
 	}
 
 	/**
@@ -161,7 +162,7 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 	protected ClassDefinition processType() throws TendrilException {
 		if (annotationRetrieveException != null)
 			throw new TendrilException("Unable to process " + currentClassType.getFullyQualifiedName() + " - unable to retreive the blueprint annotation", annotationRetrieveException);
-		
+
 		try {
 			writeCode(RecipeGenerator.generateDuplicateSiblingBean(currentBlueprintType, currentClassType, currentClass, processingEnv.getMessager()));
 			return RecipeGenerator.generateDuplicateBean(currentBlueprintType, currentClassType, currentClass, processingEnv.getMessager());
@@ -178,10 +179,9 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 		if (annotationRetrieveException != null)
 			throw new TendrilException("Unable to process " + currentClassType.getFullyQualifiedName() + " - unable to retreive the blueprint annotation", annotationRetrieveException);
 
-        // A separate processor handles configurations, this "merely" generates the recipe for the bean that the method is producing
-        if (!currentClass.hasAnnotation(Configuration.class))
-            throw new InvalidConfigurationException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() + 
-                    "() - Blueprint methods cannot be outside of a configuration");
+		// A separate processor handles configurations, this "merely" generates the recipe for the bean that the method is producing
+		if (!currentClass.hasAnnotation(Configuration.class))
+			throw new InvalidConfigurationException(currentMethod.getFullElementPath() + " - Blueprint methods cannot be outside of a configuration");
 
 		return RecipeGenerator.generateDuplicateSiblingBean(currentBlueprintType, currentClassType, currentMethod, processingEnv.getMessager());
 	}
@@ -221,7 +221,7 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 		} else
 			throw new TendrilException(exceptionMsg);
 	}
-	
+
 	/**
 	 * Get the blueprint type (enum) that is associated with a blueprint annotation.
 	 * 

@@ -38,47 +38,46 @@ import tendril.bean.recipe.Registry;
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
 public class RegistryProcessor extends AbstractTendrilProccessor {
-    /** List of all recipes that are to be registered */
-    private final List<String> registers = new ArrayList<>();
+	/** List of all recipes that are to be registered */
+	private final List<String> registers = new ArrayList<>();
 
-    /**
-     * CTOR
-     */
-    public RegistryProcessor() {
-    }
+	/**
+	 * CTOR
+	 */
+	public RegistryProcessor() {
+	}
 
-    /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
-     */
-    @Override
-    protected ClassDefinition processType() {
-        registers.add(currentClassType.getFullyQualifiedName());
-        return null;
-    }
+	/**
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
+	 */
+	@Override
+	protected ClassDefinition processType() {
+		registers.add(currentClassType.getFullyQualifiedName());
+		return null;
+	}
 
-    /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
-     */
-    @Override
-    protected ClassDefinition processMethod() throws TendrilException {
-        throw new InvalidConfigurationException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
-                " - Registry cannot be a method");
-    }
+	/**
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
+	 */
+	@Override
+	protected ClassDefinition processMethod() throws TendrilException {
+		throw new InvalidConfigurationException(currentMethod.getFullElementPath() + " - Registry cannot be a method");
+	}
 
-    /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#errorRaised()
-     */
-    @Override
-    protected void errorRaised() {
-        processingOver();
-    }
+	/**
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#errorRaised()
+	 */
+	@Override
+	protected void errorRaised() {
+		processingOver();
+	}
 
-    /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processingOver()
-     */
-    @Override
-    protected void processingOver() {
-        super.processingOver();
-        writeResourceFile(RegistryFile.PATH, registers);
-    }
+	/**
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#processingOver()
+	 */
+	@Override
+	protected void processingOver() {
+		super.processingOver();
+		writeResourceFile(RegistryFile.PATH, registers);
+	}
 }

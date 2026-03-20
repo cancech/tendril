@@ -188,7 +188,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
             }
 
             if (!method.getType().isVoid())
-                LOGGER.warning(creatorType.getSimpleName() + "::" + method.getName() + " consumer has a non-void return type");
+                LOGGER.warning(method.getFullElementPath() + " consumer has a non-void return type");
 
             ctorLines.add("registerInjector(new Injector<" + creatorType.getSimpleName() + ">() {");
             ctorLines.add("    @Override");
@@ -318,7 +318,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * @throws InvalidConfigurationException indicating why {@link PostConstruct} processing failed
      */
     private void throwPostConstructError(JMethod<?> method, String reason) throws InvalidConfigurationException {
-        throw new InvalidConfigurationException("@" + PostConstruct.class.getSimpleName() + " method " + creatorType.getFullyQualifiedName() + "::" + method.getName() + "() " + reason);
+        throw new InvalidConfigurationException("@" + PostConstruct.class.getSimpleName() + " method " + method.getFullElementPath() + " " + reason);
     }
 
 }

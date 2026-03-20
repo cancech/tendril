@@ -118,11 +118,15 @@ public class AbstractRecipeGeneratorTest extends AbstractUnitTest {
 		// Nothing printed when @Sibling not present
 		when(mockElement.hasAnnotation(Sibling.class)).thenReturn(false);
 		generator.warnSiblingInjection(mockElement);
+		verify(mockElement).hasAnnotation(Sibling.class);
 		verify(mockMessager, never()).printWarning(anyString());
 		
 		// Warning printed when @Sibling not present
 		when(mockElement.hasAnnotation(Sibling.class)).thenReturn(true);
+		when(mockElement.getFullElementPath()).thenReturn("ElementPath");
 		generator.warnSiblingInjection(mockElement);
-		verify(mockMessager).printWarning("Unknown element [mockElement] has an @Sibling annotation but this is not supported for this bean and thus ignored.");
+		verify(mockMessager).printWarning("ElementPath has an @Sibling annotation but this is not supported for this bean and thus ignored.");
+		verify(mockElement, times(2)).hasAnnotation(Sibling.class);
+		verify(mockElement).getFullElementPath();
 	}
 }

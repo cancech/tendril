@@ -42,58 +42,57 @@ import tendril.processor.recipe.RecipeGenerator;
 @AutoService(Processor.class)
 public class RunnerProcessor extends AbstractDelayedAnnotationTendrilProcessor {
 
-    /** The class that is the recipe for the runner */
-    private List<String> runners = new ArrayList<>();
-    
-    /**
-     * CTOR
-     */
-    public RunnerProcessor() {
-    }
-    
-    /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
-     * 
-     * @throws TendrilException if the annotated type does not implement the {@link TendrilRunner} interface
-     */
-    @Override
-    protected void validateType(TypeElement type) throws TendrilException {
-        if (!isTypeOf(type, TendrilRunner.class))
-            throw new InvalidConfigurationException(type.getQualifiedName() + " must implement the " + TendrilRunner.class.getSimpleName() + " interface");
-    }
+	/** The class that is the recipe for the runner */
+	private List<String> runners = new ArrayList<>();
 
-    /**
-     * @see tendril.processor.BeanProcessor#processType()
-     * 
-     * @throws TendrilException if multiple @{@link Runner}s were defined
-     */
-    @Override
-    protected ClassDefinition processType() throws TendrilException {
-        ClassDefinition generatedDef = RecipeGenerator.generate(currentClassType, currentClass, processingEnv.getMessager(), false);
-        runners.add(generatedDef.getType().getFullyQualifiedName());
-        return generatedDef;
-    }
+	/**
+	 * CTOR
+	 */
+	public RunnerProcessor() {
+	}
 
-    /**
-     * @see tendril.processor.BeanProcessor#processMethod()
-     * @throws TendrilException if the annotation is applied to a method
-     */
-    @Override
-    protected ClassDefinition processMethod() throws TendrilException {
-        throw new InvalidConfigurationException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
-                " - Runner cannot be a method");
-    }
+	/**
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)
+	 * 
+	 * @throws TendrilException if the annotated type does not implement the {@link TendrilRunner} interface
+	 */
+	@Override
+	protected void validateType(TypeElement type) throws TendrilException {
+		if (!isTypeOf(type, TendrilRunner.class))
+			throw new InvalidConfigurationException(type.getQualifiedName() + " must implement the " + TendrilRunner.class.getSimpleName() + " interface");
+	}
 
-    /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processingOver()
-     */
-    @Override
-    protected void processingOver() {
-        super.processingOver();
-        
-        // Nothing to be done if no runner was found
-        if (runners == null)
-            return;
-        writeResourceFile(RunnerFile.PATH, runners);
-    }
+	/**
+	 * @see tendril.processor.BeanProcessor#processType()
+	 * 
+	 * @throws TendrilException if multiple @{@link Runner}s were defined
+	 */
+	@Override
+	protected ClassDefinition processType() throws TendrilException {
+		ClassDefinition generatedDef = RecipeGenerator.generate(currentClassType, currentClass, processingEnv.getMessager(), false);
+		runners.add(generatedDef.getType().getFullyQualifiedName());
+		return generatedDef;
+	}
+
+	/**
+	 * @see tendril.processor.BeanProcessor#processMethod()
+	 * @throws TendrilException if the annotation is applied to a method
+	 */
+	@Override
+	protected ClassDefinition processMethod() throws TendrilException {
+		throw new InvalidConfigurationException(currentMethod.getFullElementPath() + " - Runner cannot be a method");
+	}
+
+	/**
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#processingOver()
+	 */
+	@Override
+	protected void processingOver() {
+		super.processingOver();
+
+		// Nothing to be done if no runner was found
+		if (runners == null)
+			return;
+		writeResourceFile(RunnerFile.PATH, runners);
+	}
 }

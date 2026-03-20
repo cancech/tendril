@@ -40,33 +40,31 @@ import tendril.processor.recipe.RecipeGenerator;
 @AutoService(Processor.class)
 public class BeanProcessor extends AbstractDelayedAnnotationTendrilProcessor {
 
+	/**
+	 * CTOR - will be annotated as a {@link Registry}
+	 */
+	public BeanProcessor() {
+		// Disable JAnnotationFactory logging to keep the output cleaner
+		JAnnotationFactory.setLoggingEnabled(false);
+	}
 
-    /**
-     * CTOR - will be annotated as a {@link Registry}
-     */
-    public BeanProcessor() {
-    	// Disable JAnnotationFactory logging to keep the output cleaner
-    	JAnnotationFactory.setLoggingEnabled(false);
-    }
-    
-    /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
-     */
-    @Override
-    protected ClassDefinition processType() throws TendrilException {
-        return RecipeGenerator.generate(currentClassType, currentClass, processingEnv.getMessager());
-    }
+	/**
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
+	 */
+	@Override
+	protected ClassDefinition processType() throws TendrilException {
+		return RecipeGenerator.generate(currentClassType, currentClass, processingEnv.getMessager());
+	}
 
-    /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
-     */
-    @Override
-    protected ClassDefinition processMethod() throws TendrilException {
-        // A separate processor handles configurations, this "merely" generates the recipe for the bean that the method is producing
-        if (!currentClass.hasAnnotation(Configuration.class))
-            throw new InvalidConfigurationException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() + 
-                    "() - Bean methods cannot be outside of a configuration");
+	/**
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
+	 */
+	@Override
+	protected ClassDefinition processMethod() throws TendrilException {
+		// A separate processor handles configurations, this "merely" generates the recipe for the bean that the method is producing
+		if (!currentClass.hasAnnotation(Configuration.class))
+			throw new InvalidConfigurationException(currentMethod.getFullElementPath() + "() - Bean methods cannot be outside of a configuration");
 
-        return RecipeGenerator.generate(currentClassType, currentMethod, processingEnv.getMessager());
-    }
+		return RecipeGenerator.generate(currentClassType, currentMethod, processingEnv.getMessager());
+	}
 }

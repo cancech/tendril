@@ -37,26 +37,25 @@ import tendril.processor.recipe.RecipeGenerator;
 @AutoService(Processor.class)
 public class ConfigurationProcessor extends AbstractDelayedAnnotationTendrilProcessor {
 
-    /**
-     * CTOR
-     */
-    public ConfigurationProcessor() {
-    }
-    
-    /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
-     */
-    @Override
-    protected ClassDefinition processType() throws TendrilException {
-        return RecipeGenerator.generateConfiguration(currentClassType, currentClass, processingEnv.getMessager());
-    }
+	/**
+	 * CTOR
+	 */
+	public ConfigurationProcessor() {
+	}
 
-    /**
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
-     */
-    @Override
-    protected ClassDefinition processMethod() throws TendrilException {
-        throw new InvalidConfigurationException(currentClassType.getFullyQualifiedName() + "::" + currentMethod.getName() +
-                " - Configuration cannot be a method");
-    }
+	/**
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
+	 */
+	@Override
+	protected ClassDefinition processType() throws TendrilException {
+		return RecipeGenerator.generateConfiguration(currentClassType, currentClass, processingEnv.getMessager());
+	}
+
+	/**
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
+	 */
+	@Override
+	protected ClassDefinition processMethod() throws TendrilException {
+		throw new InvalidConfigurationException(currentMethod.getFullElementPath() + " - Configuration cannot be a method");
+	}
 }

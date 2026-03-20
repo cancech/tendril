@@ -32,78 +32,73 @@ import tendril.context.Engine;
  * Generator for recipes where the bean is created by a method in a configuration
  */
 public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
-    
-    /** The type of the configuration class containing the method */
-    private final ClassType configType;
-    /** The method which is to create the bean */
-    private final JMethod<?> beanCreator;
 
-    /**
-     * CTOR
-     * 
-     * @param configType {@link ClassType} indicating the configuration class
-     * @param beanType {@link ClassType} of the bean which is to be produced
-     * @param beanCreator {@link JMethod} which is to produce the bean
-     * @param messager {@link Messager} that is used by the annotation processor
-     */
-    MethodRecipeGenerator(ClassType configType, ClassType beanType, JMethod<?> beanCreator, Messager messager) {
-        super(beanType, beanCreator, messager);
-        this.configType = configType;
-        this.beanCreator = beanCreator;
-    }
+	/** The type of the configuration class containing the method */
+	private final ClassType configType;
+	/** The method which is to create the bean */
+	private final JMethod<?> beanCreator;
 
-    /**
-     * @see tendril.processor.recipe.AbstractRecipeGenerator#validateCreator()
-     */
-    @Override
-    protected void validateCreator() throws TendrilException {
-        if (beanCreator.isStatic())
-            throwValidationException("static");
-        if (beanCreator.getVisibility() == VisibilityType.PRIVATE)
-            throwValidationException("private");
-    }
-    
-    /**
-     * Helper to throw an exception if class validation fails
-     * 
-     * @param reason {@link String} cause of the failure
-     * @throws InvalidConfigurationException 
-     */
-    private void throwValidationException(String reason) throws InvalidConfigurationException {
-        throw new InvalidConfigurationException(configType.getFullyQualifiedName() + "::" + beanCreator.getName() +
-                " cannot be be used to create a bean because it is " + reason);
-    }
+	/**
+	 * CTOR
+	 * 
+	 * @param configType  {@link ClassType} indicating the configuration class
+	 * @param beanType    {@link ClassType} of the bean which is to be produced
+	 * @param beanCreator {@link JMethod} which is to produce the bean
+	 * @param messager    {@link Messager} that is used by the annotation processor
+	 */
+	MethodRecipeGenerator(ClassType configType, ClassType beanType, JMethod<?> beanCreator, Messager messager) {
+		super(beanType, beanCreator, messager);
+		this.configType = configType;
+		this.beanCreator = beanCreator;
+	}
 
-    /**
-     * @see tendril.processor.recipe.AbstractRecipeGenerator#populateBuilder(tendril.codegen.classes.ClassBuilder)
-     * @throws InvalidConfigurationException if the annotate code is improperly configured
-     */
-    @Override
-    protected void populateBuilder(ClassBuilder builder) throws InvalidConfigurationException {
-        // Build up the contents of the recipe
-        generateConstructor(TypeFactory.createClassType(ConfigurationRecipe.class, GenericFactory.create(configType)), builder);
-        generateRecipeDescriptor(builder);
-        generateRecipeRequirements(builder);
-        generateCreateInstance(beanCreator, builder);
-    }
-    
-    /**
-     * Generate the constructor for the recipe
-     * 
-     * @param configRecipeType {@link ClassType} indicating the class where the recipe for the config is defined
-     * @param builder {@link ClassBuilder} where the recipe class is being defined
-     * @throws InvalidConfigurationException if attempting to generate for a method that is improperly configured
-     */
-    protected void generateConstructor(ClassType configRecipeType, ClassBuilder builder) throws InvalidConfigurationException {
-        // Instance field for the config
-        builder.buildField(configRecipeType, "config").setVisibility(VisibilityType.PRIVATE).setFinal(true).finish();
-        // Add the constructor
-        builder.buildConstructor().setVisibility(VisibilityType.PUBLIC)
-            .buildParameter(configRecipeType, "config").finish()
-            .buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish()
-            .addCode("super(engine, " + creatorType.getSimpleName() + ".class, " + isPrimary + ", " + isFallback + ");",
-                     "this.config = config;")
-            .finish();
-    }
+	/**
+	 * @see tendril.processor.recipe.AbstractRecipeGenerator#validateCreator()
+	 */
+	@Override
+	protected void validateCreator() throws TendrilException {
+		if (beanCreator.isStatic())
+			throwValidationException("static");
+		if (beanCreator.getVisibility() == VisibilityType.PRIVATE)
+			throwValidationException("private");
+	}
+
+	/**
+	 * Helper to throw an exception if class validation fails
+	 * 
+	 * @param reason {@link String} cause of the failure
+	 * @throws InvalidConfigurationException
+	 */
+	private void throwValidationException(String reason) throws InvalidConfigurationException {
+		throw new InvalidConfigurationException(beanCreator.getFullElementPath() + " cannot be be used to create a bean because it is " + reason);
+	}
+
+	/**
+	 * @see tendril.processor.recipe.AbstractRecipeGenerator#populateBuilder(tendril.codegen.classes.ClassBuilder)
+	 * @throws InvalidConfigurationException if the annotate code is improperly configured
+	 */
+	@Override
+	protected void populateBuilder(ClassBuilder builder) throws InvalidConfigurationException {
+		// Build up the contents of the recipe
+		generateConstructor(TypeFactory.createClassType(ConfigurationRecipe.class, GenericFactory.create(configType)), builder);
+		generateRecipeDescriptor(builder);
+		generateRecipeRequirements(builder);
+		generateCreateInstance(beanCreator, builder);
+	}
+
+	/**
+	 * Generate the constructor for the recipe
+	 * 
+	 * @param configRecipeType {@link ClassType} indicating the class where the recipe for the config is defined
+	 * @param builder          {@link ClassBuilder} where the recipe class is being defined
+	 * @throws InvalidConfigurationException if attempting to generate for a method that is improperly configured
+	 */
+	protected void generateConstructor(ClassType configRecipeType, ClassBuilder builder) throws InvalidConfigurationException {
+		// Instance field for the config
+		builder.buildField(configRecipeType, "config").setVisibility(VisibilityType.PRIVATE).setFinal(true).finish();
+		// Add the constructor
+		builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).buildParameter(configRecipeType, "config").finish().buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish()
+				.addCode("super(engine, " + creatorType.getSimpleName() + ".class, " + isPrimary + ", " + isFallback + ");", "this.config = config;").finish();
+	}
 
 }
