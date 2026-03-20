@@ -56,7 +56,9 @@ import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JParameter;
+import tendril.codegen.classes.method.JConstructor;
 import tendril.codegen.classes.method.JMethod;
+import tendril.codegen.field.JField;
 import tendril.codegen.field.JType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
@@ -251,8 +253,31 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      */
     protected void warnSiblingInjection(JBase element) {
     	if (element.hasAnnotation(Sibling.class))
-    		messager.printWarning(creatorType.getFullyQualifiedName() + " injection " + element.getName() + " has an @Sibling annotation but this is not supported for this bean and thus ignored.");
+    		messager.printWarning(getFullElementName(element) + " has an @Sibling annotation but this is not supported for this bean and thus ignored.");
     }
+    
+	/**
+	 * Get the "full name" (including how to reach the element)
+	 * 
+	 * @param element {@link JBase} whose name is desired
+	 * @return {@link String} with the full path to reach and the  name of the element
+	 */
+	String getFullElementName(JBase element) {
+		if (element == null)
+			return "";
+		else if (element instanceof JClass klass)
+			return klass.getType().getFullyQualifiedName();
+		else if (element instanceof JMethod<?> method)
+			return getFullElementName(method.getContainer()) + "::" + method.getName() + "()";
+		else if (element instanceof JConstructor ctor)
+			return getFullElementName(ctor.getContainer()) + "::" + ctor.getName() + "()";
+		else if (element instanceof JField<?> field)
+			return getFullElementName(field.getContainer()) + "::" + field.getName();
+		else if (element instanceof JParameter<?> param)
+			return getFullElementName(param.getContainer()) + "::" + param.getName();
+
+		return "Unknown element [" + element + "]";
+	}
     
     /**
      * Perform validation of the item to make sure that it can be used for InjectAll injection and determines what exact type is to be injected

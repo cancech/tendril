@@ -17,9 +17,7 @@ import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.ConstructorBuilder;
 import tendril.codegen.classes.FieldBuilder;
-import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.JParameter;
-import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.TypeFactory;
@@ -209,29 +207,8 @@ class SiblingRecipeGeneratorHelper {
 	 */
 	private void checkIfNamed(JBase element) {
 		if (!derivedFromEnum && creator.hasAnnotation(Named.class)) {
-			messager.printWarning(getFullElementName(element) + " has an @Named annotation applied when it is to be derived from the blueprint " + blueprintType);
+			messager.printWarning(generator.getFullElementName(element) + " has an @Named annotation applied when it is to be derived from the blueprint " + blueprintType);
 		}
-	}
-
-	/**
-	 * Get the "full name" (including how to reach the element)
-	 * 
-	 * @param element {@link JBase} whose name is desired
-	 * @return {@link String} with the full path to reach and the  name of the element
-	 */
-	private String getFullElementName(JBase element) {
-		if (element == null)
-			return "";
-		else if (element instanceof JClass klass)
-			return klass.getType().getFullyQualifiedName();
-		else if (element instanceof JMethod<?> method)
-			return getFullElementName(method.getContainer()) + "::" + method.getName() + "()";
-		else if (element instanceof JField<?> field)
-			return getFullElementName(field.getContainer()) + "::" + field.getName();
-		else if (element instanceof JParameter<?> param)
-			return getFullElementName(param.getContainer()) + "::" + param.getName();
-
-		return "Unknown element [" + element + "]";
 	}
 
 	/**

@@ -7,6 +7,7 @@ import javax.annotation.processing.Messager;
 
 import tendril.annotationprocessor.exception.InvalidConfigurationException;
 import tendril.bean.Configuration;
+import tendril.bean.duplicate.Sibling;
 import tendril.codegen.JBase;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.ClassBuilder;
@@ -89,6 +90,16 @@ public class DuplicateSiblingMethodRecipeGenerator extends MethodRecipeGenerator
 		if (siblingHelper.isSiblingParameter(param))
 			return siblingHelper.getSiblingCopyFieldName();
 		return super.createParameterInjectionCodeRhs(param);
+	}
+	
+	/**
+	 * Does nothing, as the {@link Sibling} annotation is meaningful for duplicate sibling generation
+	 * 
+	 * @see tendril.processor.recipe.AbstractRecipeGenerator#warnSiblingInjection(tendril.codegen.JBase)
+	 */
+	@Override
+	protected void warnSiblingInjection(JBase element) {
+		// Do nothing - no need for the warning as the annotation is actually meaningful here
 	}
 
 }
