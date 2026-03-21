@@ -610,6 +610,97 @@ ctx.addDynamicDuplicate(new MyOtherDuplicates("a");
 ctx.start();
 ```
 
+##### Nested Dynamic Blueprint
+Beyond the ability to define blueprints at runtime, dynamic blueprints also allow for blueprints to support inheritance where one blueprint can inherit from another. This allows for a nesting effect where a child duplicate can expand on the details of a parent and treat the duplicates of the parent as a sibling. These can be defined in the same project, or span across projects, so long as they are on the same classpath. To do so, the parent must implement `BlueprintDriver` and be annotated with `@Blueprint` the same way as any other dynamic duplicate. _Note: A `BasicBlueprintDriver` exists which can be used handle the mandatory blueprint name._ The child blueprint can then extend the parent blueprint and add any additional values as/if necessary.
+
+```java
+@Blueprint
+public class Parent extends BasicBlueprintDriver {
+	private final int number;
+	
+	public Parent(String name, int number) {
+		super(name);
+		this.number = number;
+	}
+	
+	public int getNumber() {
+		return number;
+	}
+}
+
+@Blueprint
+public class Child extends Parent {
+	private final double dbl;
+	
+	public Parent(String name, int number, double dbl) {
+		super(name, number);
+		this.dbl = dbl;
+	}
+	
+	public double getDouble() {
+		return dbl;
+	}
+}
+```
+
+With the blueprint hierarchy thus established, we can continue on to build up the specific bean as per any other blueprint
+
+```java
+@ParentBlueprint
+@Singleton
+public class ParentDuplicate {
+	// snip
+}
+
+@ChildBlueprint
+@Singleton
+public class ChildDuplicate {
+	// snip
+}
+```
+
+with the expected duplicates of both `ParentDuplicate` and `ChildDuplicate` created as expected. By placing the blueprints into this hierarchy it does however mean, that for every `ChildBlueprint` a corresponding `ParentBlueprint` instance will be created, thus allowing the _parent to be injected as a sibling into the child_ and creating this nesting of duplicates.
+
+```java
+@ChildBlueprint
+@Singleton
+public class ChildDuplicate {
+
+	@Inject
+	@Sibling
+	ParentDuplicate parent;
+}
+```
+
+Note that this is a "one way street" as there is no guarantee that every `ParentDuplicate` has a corresponding `ChildDuplicate` as there may very well be parent instances that are created independently of the child. Thus attempting to `inject` a child into the parent is only possible if there a ***guarantee*** in the client code that the only parent instances are created in response to the child duplicates.
+
+```java
+@ParentBlueprint
+@Singleton
+public class ParentDuplicate {
+	
+	@Inject
+	@Sibling
+	ChildDuplicate child;
+}
+
+// The will work as there are no explicit Parent duplicates
+ApplicationContext ctx = new ApplicationContext();
+ctx.addDynamicDuplicate(new Child("a", 1, 1.0);
+ctx.addDynamicDuplicate(new Child("b", 2, 2.0);
+ctx.addDynamicDuplicate(new Child("c", 3, 3.0);
+ctx.start();
+
+
+// Adding a single Parent duplicate will break as parent d has not corresponding child
+ApplicationContext ctx = new ApplicationContext();
+ctx.addDynamicDuplicate(new Child("a", 1, 1.0);
+ctx.addDynamicDuplicate(new Child("b", 2, 2.0);
+ctx.addDynamicDuplicate(new Child("c", 3, 3.0);
+ctx.addDynamicDuplicate(new Parent("d", 4);
+ctx.start();
+```
+
 ### Injecting the Blueprint
 Regardless of the approach taken (dynamic vs static), any unique values for the copy must be provided via the blueprint (Class or Enum) and these values need to be made available to the bean. This can be done by *injecting* the Blueprint and annotating it with `@Sibling`. This can be done via the constructor, instance field, or method.
 

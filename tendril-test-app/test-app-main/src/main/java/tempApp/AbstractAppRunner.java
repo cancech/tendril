@@ -27,6 +27,7 @@ import tempApp.duplicate.StaticDuplicateBean3;
 import tempApp.duplicate.StringInterface;
 import tempApp.id.MyType;
 import tempApp.id.MyTypeId;
+import tempApp.lib1dup.ParentDuplicate;
 import tendril.bean.Inject;
 import tendril.bean.InjectAll;
 import tendril.bean.duplicate.Sibling;
@@ -199,10 +200,13 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	@InjectAll
 	List<Printer> allPrinters;
 
-	private final int numOfClassDuplicates;
-	private final DuplicationDetails[] expectedDynamicDuplicates;
 	@InjectAll
 	List<DynamicDuplicate> dynamicDuplicates;
+	@InjectAll
+	List<ParentDuplicate> parentDuplicates;
+
+	private final int numOfClassDuplicates;
+	private final DuplicationDetails[] expectedDynamicDuplicates;
 
 	private FactoryClass factoryBean5;
 	private final Class<? extends AbstractAppRunner> actualRunner;
@@ -437,6 +441,22 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		assertion(actualPrinters == expectedPrinters, "Expected " + expectedPrinters + " printer, but received " + actualPrinters);
 		for (Printer p: allPrinters)
 			p.print();
+		
+		int childSize = dynamicDuplicates.size();
+		int parentSize = parentDuplicates.size();
+		assertion(childSize == parentSize, "Should have " + childSize + " parent duplicates, but have " + parentSize);
+		
+		for (DynamicDuplicate d: dynamicDuplicates) {
+			boolean found = false;
+			for (ParentDuplicate p: parentDuplicates) {
+				if (p.isSameBlueprint(d.getBlueprint())) {
+					found = true;
+					break;
+				}
+			}
+			
+			assertion(found, "Unable to find parent duplicate for " + d.getName());
+		}
 	}
 
 	protected static void assertion(boolean value, String msg) {

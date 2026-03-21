@@ -6,8 +6,6 @@ package tendril.bean.duplicate;
  */
 public interface BlueprintDriver {
 
-	// TODO allow for blueprint class inheritance to be used.
-
 	/**
 	 * Get the name for the {@link Sibling}. Note that the {@code Name} <b>must be unique</b> for a given {@link BlueprintDriver} implementation. This means that every class that implements
 	 * {@link BlueprintDriver} (whether directly or indirectly) must supply a unique name within the context of that class. What this means in practice is that while different {@link BlueprintDriver}s

@@ -5,6 +5,7 @@ import tempApp.COPY_2;
 import tempApp.COPY_3;
 import tempApp.DuplicationDetails;
 import tempApp.DuplicationDetailsBlueprint;
+import tempApp.lib1dup.ParentDuplicate;
 import tendril.bean.Inject;
 import tendril.bean.Singleton;
 import tendril.bean.duplicate.Sibling;
@@ -24,6 +25,10 @@ public class DynamicDuplicate {
 	@Sibling
 	@Named("This be a warning")
 	DuplicationDetails details;
+	
+	@Inject
+	@Sibling
+	ParentDuplicate parentDuplicate;
 
 	@Inject
 	public DynamicDuplicate(@Sibling DuplicationDetails details, @COPY_1 StaticDuplicateBean bean1, @COPY_2 StaticDuplicateBean2 bean2, @COPY_3 StaticDuplicateBean3 bean3) {
@@ -33,8 +38,12 @@ public class DynamicDuplicate {
 		this.bean3 = bean3;
 	}
 	
+	public DuplicationDetails getBlueprint() {
+		return details;
+	}
+	
 	public boolean isSameBlueprint() {
-		return ctorDetails.getName().equals(details.getName()) && ctorDetails.getInt() == details.getInt() && ctorDetails.getDouble() == details.getDouble();
+		return ctorDetails == details && parentDuplicate.isSameBlueprint(ctorDetails);
 	}
 	
 	public String getName() {

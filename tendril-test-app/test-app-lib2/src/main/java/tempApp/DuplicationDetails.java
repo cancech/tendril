@@ -1,24 +1,18 @@
 package tempApp;
 
+import tempApp.lib1dup.Lib1Blueprint;
 import tendril.bean.duplicate.Blueprint;
-import tendril.bean.duplicate.BlueprintDriver;
 
 @Blueprint
-public class DuplicationDetails implements BlueprintDriver {
+public class DuplicationDetails extends Lib1Blueprint {
 
-	private final String name;
 	private final int intValue;
 	private final double dblValue;
 	
 	public DuplicationDetails(String name, int intValue, double dblValue) {
-		this.name = name;
+		super(name);
 		this.intValue = intValue;
 		this.dblValue = dblValue;
-	}
-	
-	//@Override
-	public String getName() {
-		return name;
 	}
 	
 	public int getInt() {
