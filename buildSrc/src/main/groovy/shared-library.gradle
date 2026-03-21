@@ -4,7 +4,7 @@ plugins {
     id 'shared-common'
 }
 
-group='cancech'
+group='io.github.cancech'
 
 java {    
     withJavadocJar()
