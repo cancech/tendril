@@ -3,8 +3,8 @@ name: Compile and Test
 on:
   push:
     paths:
-      - **.java
-      - **.gradle
+      - '**.java'
+      - '**.gradle'
   pull_request:
     branches: [ "main" ]
 
