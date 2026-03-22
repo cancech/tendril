@@ -61,7 +61,6 @@ publishing {
     }
 }
 
-// Trigger pipeline
 signing {
 	def username = findProperty("nexus-username") ?: System.getenv("nexus-username")
 	print "USERNAME: $username"
