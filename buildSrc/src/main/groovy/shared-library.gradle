@@ -33,8 +33,6 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifact sourcesJar
-            artifact javadocJar
             pom {
                 name = '$name'
                 description = '$description'
@@ -64,8 +62,10 @@ publishing {
 }
 
 signing {
-    def signingKey = findProperty("gpg-private-key") ?: System.getenv("gpg-private-key")
-    def signingPassword = findProperty("gpg-passphrase") ?: System.getenv("gpg-passphrase")
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    sign publishing.publications.mavenJava
+	if (!project.gradle.startParameter.taskNames.any { it.contains("publishToMavenLocal") }) {
+	    def signingKey = findProperty("gpg-private-key") ?: System.getenv("gpg-private-key")
+	    def signingPassword = findProperty("gpg-passphrase") ?: System.getenv("gpg-passphrase")
+	    useInMemoryPgpKeys(signingKey, signingPassword)
+	    sign publishing.publications.mavenJava
+	}
 }
