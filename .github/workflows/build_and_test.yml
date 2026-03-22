@@ -3,7 +3,7 @@ name: Compile and Test
 on:
   push:
     paths:
-      - **/src/**
+      - **/*.java
       - **/*.gradle
   pull_request:
     branches: [ "main" ]
