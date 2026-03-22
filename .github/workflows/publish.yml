@@ -1,15 +1,17 @@
 name: Maven Central Publish
+
 on:
   release:
     types: [created]
+
+env:
+  NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}      
+  NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+  GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+  GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
 jobs:
   publish:
-    env:
-      nexus-username: ${{ secrets.NEXUS_USERNAME }}
-      nexus-password: ${{ secrets.NEXUS_PASSWORD }}
-      gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-      gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
-      github-token: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest    
     permissions:
       contents: read    

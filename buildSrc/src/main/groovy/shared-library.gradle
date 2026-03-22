@@ -24,8 +24,8 @@ publishing {
             url = isReleaseVersion ? releaseRepo : snapshotRepo
             
             credentials {
-                username = System.getenv("nexus-username")
-                password = System.getenv("nexus-password")
+                username = findProperty("NEXUS_USERNAME") ?: System.getenv("NEXUS_USERNAME")
+                password = findProperty("NEXUS_PASSWORD") ?: System.getenv("NEXUS_PASSWORD")
             }
         }
     }
@@ -62,14 +62,9 @@ publishing {
 }
 
 signing {
-	def username = findProperty("NEXUS_USERNAME") ?: System.getenv("NEXUS_USERNAME")
-	def usernameCli = findProperty("NEXUS_USERNAME_CLI") ?: System.getenv("NEXUS_USERNAME_CLI")
-	println "USERNAME: $username"
-	println "USERNAME_CLI: $usernameCli"
-	
 	if (!project.gradle.startParameter.taskNames.any { it.contains("publishToMavenLocal") }) {
-	    def signingKey = System.getenv("gpg-private-key")
-	    def signingPassword = System.getenv("gpg-passphrase")
+        def signingKey = findProperty("GPG_PRIVATE_KEY") ?: System.getenv("GPG_PRIVATE_KEY")
+        def signingPassword = findProperty("GPG_PASSPHRASE") ?: System.getenv("GPG_PASSPHRASE")
 	    useInMemoryPgpKeys(signingKey, signingPassword)
 	    sign publishing.publications.mavenJava
 	}
