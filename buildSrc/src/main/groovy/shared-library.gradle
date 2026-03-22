@@ -30,7 +30,6 @@ publishing {
         }
     }
     
-    // Trigger pipeline
     publications {
         mavenJava(MavenPublication) {
             from components.java
