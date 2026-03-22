@@ -2,7 +2,6 @@ plugins {
 	id "java-library"
 	id "maven-publish"
     id 'shared-common'
-    id "com.vanniktech.maven.publish" version "0.36.0"
 }
 
 group='io.github.cancech'
