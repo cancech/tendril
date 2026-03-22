@@ -2,6 +2,7 @@ plugins {
 	id "java-library"
 	id "maven-publish"
     id 'shared-common'
+    id "signing"
 }
 
 group='io.github.cancech'
@@ -11,10 +12,60 @@ java {
     withSourcesJar()
 }
 
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
 publishing {
+    repositories {
+        maven {
+            def releaseRepo = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepo = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            
+            name = "OSSRH"
+            url = isReleaseVersion ? releaseRepo : snapshotRepo
+            
+            credentials {
+                username = findProperty("nexus-username") ?: System.getenv("nexus-username")
+                password = findProperty("nexus-password") ?: System.getenv("nexus-password")
+            }
+        }
+    }
+    
     publications {
         mavenJava(MavenPublication) {
             from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = '$name'
+                description = '$description'
+                url = 'https://github.com/cancech/tendril'
+                packaging = 'jar'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://mit-license.org/'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'cancech'
+                        name = 'Jaroslav Bosak'
+                        organizationUrl = 'https://github.com/cancech/tendril'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/cancech/tendril.git'
+                    developerConnection = 'scm:git:https://github.com/cancech/tendril.git'
+                    url = 'https://github.com/cancech/tendril'
+                }
+            }
         }
     }
+}
+
+signing {
+    def signingKey = findProperty("gpg-private-key") ?: System.getenv("gpg-private-key")
+    def signingPassword = findProperty("gpg-passphrase") ?: System.getenv("gpg-passphrase")
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign publishing.publications.mavenJava
 }

@@ -2,6 +2,8 @@ plugins {
     id 'shared-library'
 }
 
+description='Library which allows for safer Java code generation'
+
 dependencies {
     // Tendril
     api project(':tendril-util')

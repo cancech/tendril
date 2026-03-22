@@ -2,6 +2,8 @@ plugins {
     id 'shared-library'
 }
 
+description='Library which contains shared utilities for the Tendril project'
+
 dependencies {
     // Tendril
     testImplementation project(':tendril-test')
