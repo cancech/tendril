@@ -2,6 +2,9 @@ name: Compile and Test
 
 on:
   push:
+    paths:
+      - **/src/**
+      - **/*.gradle
   pull_request:
     branches: [ "main" ]
 
