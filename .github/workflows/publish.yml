@@ -4,6 +4,12 @@ on:
     types: [created]
 jobs:
   publish:
+    env:
+      nexus-username: ${{ secrets.NEXUS_USERNAME }}
+      nexus-password: ${{ secrets.NEXUS_PASSWORD }}
+      gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+      gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-latest    
     permissions:
       contents: read    
@@ -15,10 +21,4 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
     - name: Maven Library build and publish
-      env:
-        nexus-username: ${{ secrets.NEXUS_USERNAME }}
-        nexus-password: ${{ secrets.NEXUS_PASSWORD }}
-        gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-        gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
       run: ./gradlew publish --no-daemon
