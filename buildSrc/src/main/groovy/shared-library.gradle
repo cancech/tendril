@@ -46,16 +46,26 @@ publishing {
     }
     
     repositories {
+    	// Maven Central
         maven {
+            name = "Maven Central"
             def releaseRepo = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
             def snapshotRepo = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-            
-            name = "central"
             url = isReleaseVersion ? releaseRepo : snapshotRepo
             
             credentials {
                 username = findProperty("NEXUS_USERNAME") ?: System.getenv("NEXUS_USERNAME")
                 password = findProperty("NEXUS_PASSWORD") ?: System.getenv("NEXUS_PASSWORD")
+            }
+        }
+        // GitHub Packages
+        maven {
+        	name = "GitHub"
+        	url = "https://maven.pkg.github.com/cancech/tendril"
+            
+            credentials {
+                username = findProperty("GITHUB_ACTOR") ?: System.getenv("GITHUB_ACTOR")
+                password = findProperty("GITHUB_TOKEN") ?: System.getenv("GITHUB_TOKEN")
             }
         }
     }
