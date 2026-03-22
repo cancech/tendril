@@ -14,22 +14,7 @@ java {
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
-publishing {
-    repositories {
-        maven {
-            def releaseRepo = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotRepo = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-            
-            name = "OSSRH"
-            url = isReleaseVersion ? releaseRepo : snapshotRepo
-            
-            credentials {
-                username = findProperty("NEXUS_USERNAME") ?: System.getenv("NEXUS_USERNAME")
-                password = findProperty("NEXUS_PASSWORD") ?: System.getenv("NEXUS_PASSWORD")
-            }
-        }
-    }
-    
+publishing {   
     publications {
         mavenJava(MavenPublication) {
             from components.java
@@ -53,9 +38,21 @@ publishing {
                 }
                 scm {
                     connection = 'scm:git:https://github.com/cancech/tendril.git'
-                    developerConnection = 'scm:git:https://github.com/cancech/tendril.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:cancech/tendril.git'
                     url = 'https://github.com/cancech/tendril'
                 }
+            }
+        }
+    }
+    
+    repositories {
+        maven {
+            name = "central"
+            url = uri('https://maven.pkg.github.com/cancech/tendril')
+            
+            credentials {
+                username = findProperty("NEXUS_USERNAME") ?: System.getenv("NEXUS_USERNAME")
+                password = findProperty("NEXUS_PASSWORD") ?: System.getenv("NEXUS_PASSWORD")
             }
         }
     }
