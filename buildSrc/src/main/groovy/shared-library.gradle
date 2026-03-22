@@ -62,6 +62,9 @@ publishing {
 }
 
 signing {
+	username = findProperty("nexus-username") ?: System.getenv("nexus-username")
+	print "USERNAME: $username"
+	
 	if (!project.gradle.startParameter.taskNames.any { it.contains("publishToMavenLocal") }) {
 	    def signingKey = findProperty("gpg-private-key") ?: System.getenv("gpg-private-key")
 	    def signingPassword = findProperty("gpg-passphrase") ?: System.getenv("gpg-passphrase")
