@@ -61,7 +61,6 @@ publishing {
     }
 }
 
-// Trigger pipeline
 signing {
 	if (!project.gradle.startParameter.taskNames.any { it.contains("publishToMavenLocal") }) {
 	    def signingKey = findProperty("gpg-private-key") ?: System.getenv("gpg-private-key")
