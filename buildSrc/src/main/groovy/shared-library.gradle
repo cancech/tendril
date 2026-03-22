@@ -62,10 +62,10 @@ publishing {
 }
 
 signing {
-	def username = findProperty("nexus-username") ?: System.getenv("nexus-username")
-	def usernameCli = findProperty("nexus-username-cli") ?: System.getenv("nexus-username-cli")
-	print "USERNAME: $username"
-	print "USERNAME_CLI: $usernameCli"
+	def username = findProperty("NEXUS_USERNAME") ?: System.getenv("NEXUS_USERNAME")
+	def usernameCli = findProperty("NEXUS_USERNAME_CLI") ?: System.getenv("NEXUS_USERNAME_CLI")
+	println "USERNAME: $username"
+	println "USERNAME_CLI: $usernameCli"
 	
 	if (!project.gradle.startParameter.taskNames.any { it.contains("publishToMavenLocal") }) {
 	    def signingKey = System.getenv("gpg-private-key")
