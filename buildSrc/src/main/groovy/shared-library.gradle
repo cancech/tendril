@@ -62,7 +62,7 @@ publishing {
 }
 
 signing {
-	username = System.getenv("nexus-username")
+	def username = System.getenv("nexus-username")
 	print "USERNAME: $username"
 	
 	if (!project.gradle.startParameter.taskNames.any { it.contains("publishToMavenLocal") }) {
