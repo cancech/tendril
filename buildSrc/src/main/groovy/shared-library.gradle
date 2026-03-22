@@ -47,8 +47,11 @@ publishing {
     
     repositories {
         maven {
+            def releaseRepo = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepo = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            
             name = "central"
-            url = uri('https://maven.pkg.github.com/cancech/tendril')
+            url = isReleaseVersion ? releaseRepo : snapshotRepo
             
             credentials {
                 username = findProperty("NEXUS_USERNAME") ?: System.getenv("NEXUS_USERNAME")
