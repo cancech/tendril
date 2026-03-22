@@ -8,10 +8,11 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  nexus-username: ${{secrets.NEXUS_USERNAME}}
+
 jobs:
   build:      
-    env:
-      nexus-username: ${{ secrets.NEXUS_USERNAME }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -28,5 +29,5 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
-    - name: Build with Gradle Wrapper      
-      run: export nexus-username=${{ secrets.NEXUS_USERNAME }} && ./gradlew build
+    - name: Build with Gradle Wrapper
+      run: ./gradlew build -Dnexus-username-cli=${{secrets.NEXUS_USERNAME}}
