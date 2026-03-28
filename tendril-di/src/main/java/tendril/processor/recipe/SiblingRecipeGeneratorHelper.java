@@ -13,7 +13,6 @@ import tendril.bean.qualifier.Named;
 import tendril.bean.recipe.Injector;
 import tendril.codegen.JBase;
 import tendril.codegen.VisibilityType;
-import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.ConstructorBuilder;
 import tendril.codegen.classes.FieldBuilder;
@@ -21,7 +20,6 @@ import tendril.codegen.classes.JParameter;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.TypeFactory;
-import tendril.codegen.field.value.JValueFactory;
 import tendril.codegen.generics.GenericFactory;
 import tendril.processor.BlueprintProcessor;
 import tendril.util.TendrilStringUtil;
@@ -44,9 +42,6 @@ class SiblingRecipeGeneratorHelper {
 	private final Messager messager;
 	/** The generator which is preparing the recipe proper */
 	private final AbstractRecipeGenerator<?> generator;
-
-	/** Flag for whether the sibling instance field was used in the generated code */
-	private boolean siblingUsed = false;
 
 	/**
 	 * CTOR
@@ -87,8 +82,6 @@ class SiblingRecipeGeneratorHelper {
 	 */
 	private void addSiblingCopyField(ClassBuilder builder) {
 		FieldBuilder<ClassType> fieldBuilder = builder.buildField(blueprintType, "siblingCopy").setVisibility(VisibilityType.PRIVATE).setFinal(true);
-		if (!siblingUsed)
-			fieldBuilder.addAnnotation(JAnnotationFactory.create(SuppressWarnings.class, JValueFactory.create("unused")));
 		fieldBuilder.finish();
 	}
 
@@ -136,11 +129,11 @@ class SiblingRecipeGeneratorHelper {
 		checkIfNamed(creator);
 
 		// This must be done here rather than as part of setupDescriptor as siblingCopy is not yet initialized in setupDescriptor
-		String siblingDescription = "getDescription().setBlueprint(siblingCopy)";
+		String siblingDescription = "getDescription().setBlueprint(this.siblingCopy)";
 		if (derivedFromEnum)
-			siblingDescription += ".addQualifier(copyQualifiers.get(siblingCopy.name()));";
+			siblingDescription += ".addQualifier(copyQualifiers.get(this.siblingCopy.name()));";
 		else
-			siblingDescription += ".setName(siblingCopy.getName());";
+			siblingDescription += ".setName(this.siblingCopy.getName());";
 		ctorCode.add(siblingDescription);
 	}
 
@@ -168,7 +161,6 @@ class SiblingRecipeGeneratorHelper {
 		checkIfNamed(field);
 
 		generator.addImport(Injector.class);
-		siblingUsed = true;
 		ctorLines.add("registerInjector(new " + Injector.class.getSimpleName() + "<" + beanType.getSimpleName() + ">() {");
 		ctorLines.add("    @Override");
 		ctorLines.add("    public void inject(" + beanType.getSimpleName() + " consumer, Engine engine) {");
@@ -192,12 +184,11 @@ class SiblingRecipeGeneratorHelper {
 		// @Named should not be applied
 		checkIfNamed(element);
 
-		siblingUsed = true;
-		lines.add("setBlueprint(siblingCopy)");
+		lines.add("setBlueprint(this.siblingCopy)");
 		if (derivedFromEnum)
-			lines.add("addQualifier(copyQualifiers.get(siblingCopy.name()))");
+			lines.add("addQualifier(copyQualifiers.get(this.siblingCopy.name()))");
 		else
-			lines.add("setName(siblingCopy.getName())");
+			lines.add("setName(this.siblingCopy.getName())");
 	}
 
 	/**
@@ -227,6 +218,6 @@ class SiblingRecipeGeneratorHelper {
 	 * @return {@link String} the name of the instance field
 	 */
 	String getSiblingCopyFieldName() {
-		return "siblingCopy";
+		return "this.siblingCopy";
 	}
 }
