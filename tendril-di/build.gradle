@@ -2,8 +2,6 @@ plugins {
     id 'shared-library'
 }
 
-description='Library which performs Dependency Injection'
-
 dependencies {
     // Google Auto-Service	
     implementation 'com.google.auto.service:auto-service-annotations:1.1.1'
@@ -15,5 +13,3 @@ dependencies {
     api project(':tendril-annotation-processor')
     testImplementation project(':tendril-test')
 }
-
-
