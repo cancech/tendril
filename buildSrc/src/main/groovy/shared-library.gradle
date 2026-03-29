@@ -2,7 +2,6 @@ plugins {
 	id "java-library"
 	id "maven-publish"
     id 'shared-common'
-    //id "signing"
     id "org.danilopianini.publish-on-central"
 }
 
