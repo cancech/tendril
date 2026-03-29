@@ -2,7 +2,8 @@ plugins {
 	id "java-library"
 	id "maven-publish"
     id 'shared-common'
-    id "signing"
+    //id "signing"
+    id "org.danilopianini.publish-on-central"
 }
 
 group='io.github.cancech'
@@ -12,7 +13,41 @@ java {
     withSourcesJar()
 }
 
+publishOnCentral {
+    repoOwner.set("cancech")
+    projectDescription.set(project.property('description'))
+    projectLongName.set(project.name)
+    licenseName.set("MIT License")
+    licenseUrl.set("https://mit-license.org/")
+    projectUrl.set("https://github.com/cancech/tendril")
+    scmConnection.set("scm:git:https://github.com/cancech/tendril")
+}
+
+publishing {
+    publications {
+        tasks.withType(MavenPublication) {
+            pom {
+                developers {
+                      developer {
+                          name.set("Jaroslav Bosak")
+                          email.set("cancech@gmail.com")
+                          url.set("https://github.com/cancech/tendril")
+                      }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    def signingKey = findProperty("GPG_PRIVATE_KEY") ?: System.getenv("GPG_PRIVATE_KEY")
+    def signingPassword = findProperty("GPG_PASSPHRASE") ?: System.getenv("GPG_PASSPHRASE")
+    useInMemoryPgpKeys(signingKey, signingPassword)
+}
+
+/*
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
 
 publishing {   
     publications {
@@ -83,4 +118,4 @@ tasks.named('jar', Jar) {
     doLast {
         ant.checksum(file: archiveFile.get())
     }
-}
+}*/

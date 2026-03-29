@@ -7,6 +7,8 @@ on:
 env:
   NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}      
   NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+  MAVEN_CENTRAL_PORTAL_USERNAME: ${{ secrets.NEXUS_USERNAME }}      
+  MAVEN_CENTRAL_PORTAL_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
   GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
   GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   GITHUB_ACTOR: ${{ github.actor }}
@@ -26,4 +28,4 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
     - name: Maven Library build and publish
-      run: ./gradlew publish --no-daemon
+      run: ./gradlew publishAllPublicationsToProjectLocalRepository zipMavenCentralPortalPublication releaseMavenCentralPortalPublication --no-daemon
