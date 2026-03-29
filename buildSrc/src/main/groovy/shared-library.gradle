@@ -37,6 +37,19 @@ publishing {
             }
         }
     }
+    
+    repositories {
+        // GitHub Packages
+        maven {
+        	name = "GitHub"
+        	url = "https://maven.pkg.github.com/cancech/tendril"
+            
+            credentials {
+                username = findProperty("GITHUB_ACTOR") ?: System.getenv("GITHUB_ACTOR")
+                password = findProperty("GITHUB_TOKEN") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }
 
 signing {
