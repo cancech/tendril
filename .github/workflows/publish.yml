@@ -28,4 +28,4 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
     - name: Maven Library build and publish
-      run: ./gradlew publishAllPublicationsToProjectLocalRepository zipMavenCentralPortalPublication releaseMavenCentralPortalPublication --no-daemon --stacktrace
+      run: ./gradlew publishAllPublicationsToProjectLocalRepository zipMavenCentralPortalPublication releaseMavenCentralPortalPublication --no-daemon

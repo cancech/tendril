@@ -25,12 +25,12 @@ publishOnCentral {
 
 publishing {
     publications {
-        tasks.withType(MavenPublication) {
+        withType(MavenPublication) {
             pom {
                 developers {
                       developer {
+                          id.set("cancech")
                           name.set("Jaroslav Bosak")
-                          email.set("cancech@gmail.com")
                           url.set("https://github.com/cancech/tendril")
                       }
                 }
