@@ -1,4 +1,4 @@
-package tendril.context;
+package tendril.context.search;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,29 +7,18 @@ import tendril.bean.Fallback;
 import tendril.bean.Primary;
 import tendril.bean.recipe.AbstractRecipe;
 
-/**
- * Wrapper class for the bean recipes that are found when searching for one or more beans. The matching recipes will be all stored within this result, grouped by their respective type:
- * <ul>
- * 		<li>{@link Primary}</li>
- * 		<li>{@link Fallback}</li>
- * 		<li>Basic (no explicit type)</li>
- * </ul>
- * 
- * @param <BEAN_TYPE> indicating the type of bean that the recipe is to create
- */
-public class RecipeSearchResult<BEAN_TYPE> {
-
+public abstract class RecipeSearchHandler<BEAN_TYPE> {
 	// List of the primary recipes that were found during the search
-	private final List<AbstractRecipe<BEAN_TYPE>> primaryRecipes = new ArrayList<>();
+	protected final List<AbstractRecipe<BEAN_TYPE>> primaryRecipes = new ArrayList<>();
 	// List of the basic (no explicit type) recipes that were found during the search
-	private final List<AbstractRecipe<BEAN_TYPE>> basicRecipes = new ArrayList<>();
+	protected final List<AbstractRecipe<BEAN_TYPE>> basicRecipes = new ArrayList<>();
 	// List of the fallback recipes that were found during the search
-	private final List<AbstractRecipe<BEAN_TYPE>> fallbackRecipes = new ArrayList<>();
-
+	protected final List<AbstractRecipe<BEAN_TYPE>> fallbackRecipes = new ArrayList<>();
+	
 	/**
 	 * CTOR
 	 */
-	RecipeSearchResult() {
+	RecipeSearchHandler() {
 	}
 
 	/**
@@ -37,7 +26,7 @@ public class RecipeSearchResult<BEAN_TYPE> {
 	 * 
 	 * @param recipe {@link AbstractRecipe} for building the {@link Primary} bean
 	 */
-	void addPrimaryRecipe(AbstractRecipe<BEAN_TYPE> recipe) {
+	public void addPrimaryRecipe(AbstractRecipe<BEAN_TYPE> recipe) {
 		primaryRecipes.add(recipe);
 	}
 
@@ -46,7 +35,7 @@ public class RecipeSearchResult<BEAN_TYPE> {
 	 * 
 	 * @param recipe {@link AbstractRecipe} for building the basic bean
 	 */
-	void addBasicRecipe(AbstractRecipe<BEAN_TYPE> recipe) {
+	public void addBasicRecipe(AbstractRecipe<BEAN_TYPE> recipe) {
 		basicRecipes.add(recipe);
 	}
 
@@ -55,7 +44,7 @@ public class RecipeSearchResult<BEAN_TYPE> {
 	 * 
 	 * @param recipe {@link AbstractRecipe} for building the {@link Fallback} bean
 	 */
-	void addFallbackRecipe(AbstractRecipe<BEAN_TYPE> recipe) {
+	public void addFallbackRecipe(AbstractRecipe<BEAN_TYPE> recipe) {
 		fallbackRecipes.add(recipe);
 	}
 	
@@ -112,4 +101,6 @@ public class RecipeSearchResult<BEAN_TYPE> {
 	public List<AbstractRecipe<BEAN_TYPE>> getFallbackRecipes() {
 		return fallbackRecipes;
 	}
+	
+	public abstract RecipeSearchResult<BEAN_TYPE> processResults();
 }

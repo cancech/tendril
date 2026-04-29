@@ -80,7 +80,7 @@ public class ClassRecipeGeneratorTest extends AbstractUnitTest {
         ClassBuilder builder = ClassBuilder.forAbstractClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         TestClassRecipeGenerator generator = new TestClassRecipeGenerator(type, builder.build());
-        Assertions.assertThrows(TendrilException.class, () -> generator.generate(TypeFactory.createClassType("a.b.c.D"), false));
+        Assertions.assertThrows(TendrilException.class, () -> generator.generate(TypeFactory.createClassType("a.b.c.D"), null));
         Assertions.assertFalse(generator.populateCalled);
     }
 
@@ -93,7 +93,7 @@ public class ClassRecipeGeneratorTest extends AbstractUnitTest {
         ClassBuilder builder = ClassBuilder.forInterface(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         TestClassRecipeGenerator generator = new TestClassRecipeGenerator(type, builder.build());
-        Assertions.assertThrows(TendrilException.class, () -> generator.generate(TypeFactory.createClassType("a.b.c.D"), false));
+        Assertions.assertThrows(TendrilException.class, () -> generator.generate(TypeFactory.createClassType("a.b.c.D"), null));
         Assertions.assertFalse(generator.populateCalled);
     }
 
@@ -106,7 +106,7 @@ public class ClassRecipeGeneratorTest extends AbstractUnitTest {
         ClassBuilder builder = ClassBuilder.forAnnotation(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         TestClassRecipeGenerator generator = new TestClassRecipeGenerator(type, builder.build());
-        Assertions.assertThrows(TendrilException.class, () -> generator.generate(TypeFactory.createClassType("a.b.c.D"), false));
+        Assertions.assertThrows(TendrilException.class, () -> generator.generate(TypeFactory.createClassType("a.b.c.D"), null));
         Assertions.assertFalse(generator.populateCalled);
     }
 
@@ -120,7 +120,7 @@ public class ClassRecipeGeneratorTest extends AbstractUnitTest {
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         TestClassRecipeGenerator generator = new TestClassRecipeGenerator(type, builder.build());
-        Assertions.assertFalse(generator.generate(TypeFactory.createClassType("a.b.c.D"), false).getCode().isBlank());
+        Assertions.assertFalse(generator.generate(TypeFactory.createClassType("a.b.c.D"), null).getCode().isBlank());
         Assertions.assertTrue(generator.populateCalled);
     }
 }

@@ -28,6 +28,12 @@ import tempApp.duplicate.StringInterface;
 import tempApp.id.MyType;
 import tempApp.id.MyTypeId;
 import tempApp.lib1dup.ParentDuplicate;
+import tempApp.lib1orig.Original;
+import tempApp.lib1orig.OriginalNamed;
+import tempApp.lib1orig.OriginalOption1;
+import tempApp.lib1replace.Replace;
+import tempApp.lib1replace.ReplaceNamed;
+import tempApp.lib1replace.ReplaceOption1;
 import tendril.bean.Inject;
 import tendril.bean.InjectAll;
 import tendril.bean.duplicate.Sibling;
@@ -204,6 +210,23 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	List<DynamicDuplicate> dynamicDuplicates;
 	@InjectAll
 	List<ParentDuplicate> parentDuplicates;
+	
+	@Inject
+	Original originalBean;
+	@Inject
+	Original originalBean2;
+	@Inject
+	@Option1
+	OriginalOption1 originalOption1Bean;
+	@Inject
+	@Option1
+	OriginalOption1 originalOption1Bean2;
+	@Inject
+	@Named("originalNamed")
+	OriginalNamed originalNamed;
+	@Inject
+	@Named("originalNamed")
+	OriginalNamed originalNamed2;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationDetails[] expectedDynamicDuplicates;
@@ -457,6 +480,18 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 			
 			assertion(found, "Unable to find parent duplicate for " + d.getName());
 		}
+		
+		assertion(originalBean instanceof Replace, "originalBean should be instance of Replace");
+		assertion(originalOption1Bean instanceof ReplaceOption1, "originalBean should be instance of ReplaceOption1");
+		assertion(originalNamed instanceof ReplaceNamed, "originalBean should be instance of ReplaceNamed");
+
+		assertion(originalBean.getInt() == -321, "originalBean should have a value of -321, instead it is " + originalBean.getInt());
+		assertion(originalOption1Bean.getInt() == -432, "originalOption1Bean should have a value of -432, instead it is " + originalOption1Bean.getInt());
+		assertion(originalNamed.getInt() == -543, "originalNamed should have a value of -543, instead it is " + originalNamed.getInt());
+
+		assertion(originalBean != originalBean2, "originalBean is a singleton");
+		assertion(originalOption1Bean != originalOption1Bean2, "originalOption1Bean is a singleton");
+		assertion(originalNamed != originalNamed2, "originalNamed is a singleton");
 	}
 
 	protected static void assertion(boolean value, String msg) {

@@ -78,6 +78,10 @@ public abstract class AbstractDelayedAnnotationTendrilProcessor extends Abstract
         try {
             super.processElement(annotation, element);
         } catch (MissingAnnotationException ex) {
+
+        	if (currentAnnotation.getQualifiedName().toString().equals("tendril.bean.Replaces"))
+        		ex.printStackTrace();
+        	
             // If processing fails due to a missing annotation, save it, so that it can be re-tried once the annotation is generated
             String missingAnnotation = ex.getMissingAnnotationName();
             if (!delayedElements.containsKey(missingAnnotation))

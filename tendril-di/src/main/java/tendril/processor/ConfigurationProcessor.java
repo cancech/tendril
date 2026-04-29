@@ -27,6 +27,7 @@ import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.exception.InvalidConfigurationException;
 import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Configuration;
+import tendril.bean.recipe.Registry;
 import tendril.processor.recipe.RecipeGenerator;
 
 /**
@@ -48,7 +49,7 @@ public class ConfigurationProcessor extends AbstractDelayedAnnotationTendrilProc
 	 */
 	@Override
 	protected ClassDefinition processType() throws TendrilException {
-		return RecipeGenerator.generateConfiguration(currentClassType, currentClass, processingEnv.getMessager());
+		return RecipeGenerator.generateConfiguration(currentClassType, currentClass, processingEnv.getMessager(), Registry.class);
 	}
 
 	/**

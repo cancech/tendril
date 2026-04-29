@@ -15,9 +15,6 @@
  */
 package tendril.processor.registration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -25,10 +22,6 @@ import javax.lang.model.SourceVersion;
 
 import com.google.auto.service.AutoService;
 
-import tendril.annotationprocessor.AbstractTendrilProccessor;
-import tendril.annotationprocessor.ClassDefinition;
-import tendril.annotationprocessor.exception.InvalidConfigurationException;
-import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.recipe.Registry;
 
 /**
@@ -37,47 +30,9 @@ import tendril.bean.recipe.Registry;
 @SupportedAnnotationTypes("tendril.bean.recipe.Registry")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class RegistryProcessor extends AbstractTendrilProccessor {
-	/** List of all recipes that are to be registered */
-	private final List<String> registers = new ArrayList<>();
-
-	/**
-	 * CTOR
-	 */
+public class RegistryProcessor extends AbstractRegistryProcessor {
+	
 	public RegistryProcessor() {
-	}
-
-	/**
-	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#processType()
-	 */
-	@Override
-	protected ClassDefinition processType() {
-		registers.add(currentClassType.getFullyQualifiedName());
-		return null;
-	}
-
-	/**
-	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#processMethod()
-	 */
-	@Override
-	protected ClassDefinition processMethod() throws TendrilException {
-		throw new InvalidConfigurationException(currentMethod.getFullElementPath() + " - Registry cannot be a method");
-	}
-
-	/**
-	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#errorRaised()
-	 */
-	@Override
-	protected void errorRaised() {
-		processingOver();
-	}
-
-	/**
-	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#processingOver()
-	 */
-	@Override
-	protected void processingOver() {
-		super.processingOver();
-		writeResourceFile(RegistryFile.PATH, registers);
+		super("Registry", RegistryFile.PATH);
 	}
 }

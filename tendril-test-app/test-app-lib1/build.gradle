@@ -6,4 +6,6 @@ plugins {
 dependencies {
     implementation project(':tendril-di')
     annotationProcessor project(':tendril-di')
+    
+    testImplementation project(':tendril-test')
 }

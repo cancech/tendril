@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import tendril.BeanRetrievalException;
@@ -32,7 +33,13 @@ import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.ConfigurationRecipe;
 import tendril.bean.requirement.Requirement;
+import tendril.context.search.AllRecipeSearchHandler;
+import tendril.context.search.RecipeSearchHandler;
+import tendril.context.search.RecipeSearchResult;
+import tendril.context.search.SearchType;
+import tendril.context.search.SingleRecipeSearchHandler;
 import tendril.processor.registration.RegistryFile;
+import tendril.processor.registration.ReplacementRegistryFile;
 import tendril.util.TendrilStringUtil;
 import tendril.util.TendrilUtil;
 
@@ -96,24 +103,33 @@ public class Engine {
 
 		LOGGER.fine("Initializing with environments [" + TendrilStringUtil.join(environments) + "]");
 		try {
-			for (String recipe : RegistryFile.read()) {
-				try {
-					// Add the recipe from the registry file
-					Object instance = Class.forName(recipe).getDeclaredConstructor(Engine.class).newInstance(this);
-					if (!tryAddConfiguration(recipe, instance))
-						tryAddRecipe(recipe, instance);
-				} catch (ClassCastException e) {
-					LOGGER.severe(recipe + " is not a proper recipe (does not extend " + AbstractRecipe.class.getName() + ")");
-				} catch (ClassNotFoundException e) {
-					LOGGER.severe("Unable to find class " + recipe);
-				} catch (NoSuchMethodException | InstantiationException | IllegalArgumentException | InvocationTargetException e) {
-					LOGGER.severe("Unable to create " + recipe);
-				} catch (IllegalAccessException | SecurityException e) {
-					LOGGER.severe("Unable to access " + recipe);
-				}
-			}
+			// First load all "original" recipes
+			processRegistry(RegistryFile.read(), (recipe, instance) -> {
+				if (!tryAddConfiguration(recipe, instance))
+					tryAddRecipe(recipe, instance);
+			});
+
+			// Replace those which have available replacements
+			processRegistry(ReplacementRegistryFile.read(), (recipe, instance) -> tryReplaceRecipe(recipe, instance));
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void processRegistry(Set<String> recipes, RecipeLoader loader) {
+		for (String recipe : recipes) {
+			try {
+				// Add the recipe from the registry file
+				loader.load(recipe, Class.forName(recipe).getDeclaredConstructor(Engine.class).newInstance(this));
+			} catch (ClassCastException e) {
+				LOGGER.severe(recipe + " is not a proper recipe (does not extend " + AbstractRecipe.class.getName() + ")");
+			} catch (ClassNotFoundException e) {
+				LOGGER.severe("Unable to find class " + recipe);
+			} catch (NoSuchMethodException | InstantiationException | IllegalArgumentException | InvocationTargetException e) {
+				LOGGER.severe("Unable to create " + recipe);
+			} catch (IllegalAccessException | SecurityException e) {
+				LOGGER.severe("Unable to access " + recipe);
+			}
 		}
 	}
 
@@ -190,6 +206,30 @@ public class Engine {
 		}
 	}
 
+	private void tryReplaceRecipe(String name, Object object) {
+		if (object instanceof AbstractRecipe recipe) {
+			if (requirementsMet(recipe)) {
+				Descriptor<?> description = recipe.getDescription();
+				RecipeSearchResult<?> result = findOriginalRecipes(description, SearchType.SINGLE_BEAN);
+				List<?> matches = result.getRecipes();
+				if (matches.isEmpty())
+					throw new BeanRetrievalException(description);
+				if (matches.size() > 1)
+					throw new BeanRetrievalException(description, result);
+
+				System.err.println("************************************");
+				System.err.println("************************************");
+				System.err.println("WANT TO REPLACE " + ((AbstractRecipe<?>)matches.get(0)).getDescription() + " with " + recipe.getDescription());
+				System.err.println("************************************");
+				System.err.println("************************************");
+			} else {
+				LOGGER.fine("Replacement bean requirements not met" + recipe);
+			}
+		} else {
+			LOGGER.severe("Unable to load malformed recipe " + name);
+		}
+	}
+
 	/**
 	 * Get the number of beans that are registered with the engine
 	 * 
@@ -220,14 +260,8 @@ public class Engine {
 	 * @throws BeanRetrievalException if there is an issue retrieving the desired bean
 	 */
 	public <BEAN_TYPE> BEAN_TYPE getBean(Descriptor<BEAN_TYPE> descriptor) {
-		RecipeSearchResult<BEAN_TYPE> matchingRecipes = findRecipes(descriptor);
-
-		if (matchingRecipes.hasPrimaryRecipes())
-			return getBean(descriptor, matchingRecipes.getPrimaryRecipes(), Primary.class.getSimpleName());
-		if (matchingRecipes.hasBasicRecipes())
-			return getBean(descriptor, matchingRecipes.getBasicRecipes(), "basic");
-
-		return getBean(descriptor, matchingRecipes.getFallbackRecipes(), Fallback.class.getSimpleName());
+		RecipeSearchResult<BEAN_TYPE> matchingRecipes = findRecipes(descriptor, SearchType.SINGLE_BEAN);
+		return getBean(descriptor, matchingRecipes.getRecipes(), matchingRecipes.getType());
 	}
 
 	/**
@@ -259,26 +293,9 @@ public class Engine {
 	 */
 	public <BEAN_TYPE> List<BEAN_TYPE> getAllBeans(Descriptor<BEAN_TYPE> descriptor) {
 		List<BEAN_TYPE> beans = new ArrayList<>();
-		RecipeSearchResult<BEAN_TYPE> matchingRecipes = findRecipes(descriptor);
-		addAll(beans, matchingRecipes.getPrimaryRecipes());
-		addAll(beans, matchingRecipes.getBasicRecipes());
-
-		if (beans.isEmpty())
-			addAll(beans, matchingRecipes.getFallbackRecipes());
-
+		RecipeSearchResult<BEAN_TYPE> matchingRecipes = findRecipes(descriptor, SearchType.ALL_BEANS);
+		matchingRecipes.getRecipes().forEach(r -> beans.add(r.get()));
 		return beans;
-	}
-
-	/**
-	 * Create all of the beans from the specified recipe list and add them to the destination bean list.
-	 * 
-	 * @param <BEAN_TYPE> indicating the type of the beans that are to be retrieved
-	 * @param to          {@link List} destination for the beans that were created from the recipes
-	 * @param from        {@link List} of {@link AbstractRecipe} instances which dictate what beans are to be created and how
-	 */
-	private <BEAN_TYPE> void addAll(List<BEAN_TYPE> to, List<AbstractRecipe<BEAN_TYPE>> from) {
-		for (AbstractRecipe<BEAN_TYPE> r : from)
-			to.add(r.get());
 	}
 
 	/**
@@ -287,11 +304,12 @@ public class Engine {
 	 * 
 	 * @param <BEAN_TYPE> indicating the type of the beans that are to be retrieved
 	 * @param descriptor  {@link Descriptor} containing the description of the beans that are to be retrieved
+	 * @param type        {@link SearchType} indicating the type of recipe search that is to be performed
 	 * @return {@link RecipeSearchResult} containing all of the matching recipes
 	 */
 	@SuppressWarnings("unchecked")
-	private <BEAN_TYPE> RecipeSearchResult<BEAN_TYPE> findRecipes(Descriptor<BEAN_TYPE> descriptor) {
-		RecipeSearchResult<BEAN_TYPE> foundRecipes = new RecipeSearchResult<>();
+	private <BEAN_TYPE> RecipeSearchResult<BEAN_TYPE> findRecipes(Descriptor<BEAN_TYPE> descriptor, SearchType type) {
+		RecipeSearchHandler<BEAN_TYPE> foundRecipes = type == SearchType.SINGLE_BEAN ? new SingleRecipeSearchHandler<>() : new AllRecipeSearchHandler<>();
 		recipes.forEach((r) -> {
 			if (r.getDescription().matches(descriptor)) {
 				if (r.isPrimary())
@@ -303,7 +321,24 @@ public class Engine {
 			}
 		});
 
-		return foundRecipes;
+		return foundRecipes.processResults();
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <BEAN_TYPE> RecipeSearchResult<BEAN_TYPE> findOriginalRecipes(Descriptor<BEAN_TYPE> descriptor, SearchType type) {
+		RecipeSearchHandler<BEAN_TYPE> foundRecipes = type == SearchType.SINGLE_BEAN ? new SingleRecipeSearchHandler<>() : new AllRecipeSearchHandler<>();
+		recipes.forEach((r) -> {
+			if (r.getDescription().replacedBy(descriptor)) {
+				if (r.isPrimary())
+					foundRecipes.addPrimaryRecipe((AbstractRecipe<BEAN_TYPE>) r);
+				else if (r.isFallback())
+					foundRecipes.addFallbackRecipe((AbstractRecipe<BEAN_TYPE>) r);
+				else
+					foundRecipes.addBasicRecipe((AbstractRecipe<BEAN_TYPE>) r);
+			}
+		});
+
+		return foundRecipes.processResults();
 	}
 
 	/**
@@ -351,5 +386,9 @@ public class Engine {
 		}
 		// Save them for future retrieval
 		dynamicBlueprintsForClass.put(blueprintClass, matches);
+	}
+
+	private interface RecipeLoader {
+		void load(String recipeName, Object recipe);
 	}
 }

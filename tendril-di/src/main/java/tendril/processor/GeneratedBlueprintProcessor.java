@@ -43,6 +43,7 @@ import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Bean;
 import tendril.bean.Configuration;
 import tendril.bean.duplicate.GeneratedBlueprint;
+import tendril.bean.recipe.Registry;
 import tendril.codegen.classes.JClass;
 import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
@@ -165,7 +166,7 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 
 		try {
 			writeCode(RecipeGenerator.generateDuplicateSiblingBean(currentBlueprintType, currentClassType, currentClass, processingEnv.getMessager()));
-			return RecipeGenerator.generateDuplicateBean(currentBlueprintType, currentClassType, currentClass, processingEnv.getMessager());
+			return RecipeGenerator.generateDuplicateBean(currentBlueprintType, currentClassType, currentClass, processingEnv.getMessager(), Registry.class);
 		} catch (Exception e) {
 			throw new TendrilException("Unable to process " + currentClassType.getFullyQualifiedName(), e);
 		}

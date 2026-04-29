@@ -204,6 +204,25 @@ public class Descriptor<BEAN_TYPE> {
         return true;
     }
     
+    public boolean replacedBy(Descriptor<?> other) {
+        if (!beanClass.isAssignableFrom(other.beanClass))
+            return false;
+        
+        if (!other.name.isBlank() && !other.name.equals(name))
+            return false;
+        
+        if (!other.enumQualifiers.isEmpty() && !enumQualifiers.containsAll(other.enumQualifiers))
+            return false;
+        
+        if (!other.qualifiers.isEmpty() && !qualifiers.containsAll(other.qualifiers))
+            return false;
+        
+        if (other.blueprint != null && !other.blueprint.equals(blueprint))
+        	return false;
+        
+        return true;
+    }
+    
     /**
      * @see java.lang.Object#toString()
      */

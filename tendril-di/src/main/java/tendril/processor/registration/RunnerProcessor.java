@@ -69,7 +69,7 @@ public class RunnerProcessor extends AbstractDelayedAnnotationTendrilProcessor {
 	 */
 	@Override
 	protected ClassDefinition processType() throws TendrilException {
-		ClassDefinition generatedDef = RecipeGenerator.generate(currentClassType, currentClass, processingEnv.getMessager(), false);
+		ClassDefinition generatedDef = RecipeGenerator.generate(currentClassType, currentClass, processingEnv.getMessager(), null);
 		runners.add(generatedDef.getType().getFullyQualifiedName());
 		return generatedDef;
 	}

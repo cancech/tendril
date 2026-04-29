@@ -15,6 +15,8 @@
  */
 package tendril.processor.recipe;
 
+import java.lang.annotation.Annotation;
+
 import javax.annotation.processing.Messager;
 
 import tendril.annotationprocessor.ClassDefinition;
@@ -40,11 +42,12 @@ public final class RecipeGenerator {
      * 
      * @param creator {@link JClass} defining the bean
      * @param messager {@link Messager} that is used by the annotation processor
+     * @param registryAnnotation {@link Class} extending {@link Annotation} to apply as the registry annotation (null if no registration is to be performed)
      * @return {@link ClassDefinition}
      * @throws TendrilException when an issue generating the recipe is encountered
      */
-    public static ClassDefinition generate(JClass creator, Messager messager) throws TendrilException {
-        return generate(creator.getType(), creator, messager, true);
+    public static ClassDefinition generate(JClass creator, Messager messager, Class<? extends Annotation> registryAnnotation) throws TendrilException {
+        return generate(creator.getType(), creator, messager, registryAnnotation);
     }
 
     /**
@@ -53,25 +56,12 @@ public final class RecipeGenerator {
      * @param beanType {@link ClassType} indicating the type of the bean
      * @param creator {@link JClass} defining the bean
      * @param messager {@link Messager} that is used by the annotation processor
+     * @param registryAnnotation {@link Class} extending {@link Annotation} to apply as the registry annotation (null if no registration is to be performed)
      * @return {@link ClassDefinition}
      * @throws TendrilException when an issue generating the recipe is encountered
      */
-    public static ClassDefinition generate(ClassType beanType, JClass creator, Messager messager) throws TendrilException {
-        return generate(beanType, creator, messager, true);
-    }
-
-    /**
-     * Generate the {@link ClassDefinition} for a {@link JClass} which defines and is the bean
-     * 
-     * @param beanType {@link ClassType} indicating the type of the bean
-     * @param creator {@link JClass} defining the bean
-     * @param messager {@link Messager} that is used by the annotation processor
-     * @param annotateRegistry boolean true if the recipe is to be added to the generated registry (false will create the recipe but not register it)
-     * @return {@link ClassDefinition}
-     * @throws TendrilException when an issue generating the recipe is encountered
-     */
-    public static ClassDefinition generate(ClassType beanType, JClass creator, Messager messager, boolean annotateRegistry) throws TendrilException {
-        return new BeanRecipeGenerator(beanType, creator, messager).generate(getRecipeType(beanType), annotateRegistry);
+    public static ClassDefinition generate(ClassType beanType, JClass creator, Messager messager, Class<? extends Annotation> registryAnnotation) throws TendrilException {
+        return new BeanRecipeGenerator(beanType, creator, messager).generate(getRecipeType(beanType), registryAnnotation);
     }
     
     /**
@@ -85,7 +75,7 @@ public final class RecipeGenerator {
      */
     public static ClassDefinition generate(ClassType configType, JMethod<?> creator, Messager messager) throws TendrilException {
         MethodRecipeGenerator generator = new MethodRecipeGenerator(configType, creator.getType().asClassType(), creator, messager);
-        return generator.generate(getRecipeType(configType, creator), false);
+        return generator.generate(getRecipeType(configType, creator), null);
     }
     
     /**
@@ -93,11 +83,12 @@ public final class RecipeGenerator {
      * 
      * @param config {@link JClass} containing the configuration
      * @param messager {@link Messager} that is used by the annotation processor
+     * @param registryAnnotation {@link Class} extending {@link Annotation} to apply as the registry annotation (null if no registration is to be performed)
      * @return {@link ClassDefinition}
      * @throws TendrilException when an issue generating the recipe is encountered
      */
-    public static ClassDefinition generateConfiguration(JClass config, Messager messager) throws TendrilException {
-        return generateConfiguration(config.getType(), config, messager);
+    public static ClassDefinition generateConfiguration(JClass config, Messager messager, Class<? extends Annotation> registryAnnotation) throws TendrilException {
+        return generateConfiguration(config.getType(), config, messager, registryAnnotation);
     }
 
     /**
@@ -106,11 +97,12 @@ public final class RecipeGenerator {
      * @param configType {@link ClassType} of the configuration
      * @param config {@link JClass} containing the configuration
      * @param messager {@link Messager} that is used by the annotation processor
+     * @param registryAnnotation {@link Class} extending {@link Annotation} to apply as the registry annotation (null if no registration is to be performed)
      * @return {@link ClassDefinition}
      * @throws TendrilException when an issue generating the recipe is encountered
      */
-    public static ClassDefinition generateConfiguration(ClassType configType, JClass config, Messager messager) throws TendrilException {
-        return new ConfigurationRecipeGenerator(configType, config, messager).generate(getRecipeType(configType), true);
+    public static ClassDefinition generateConfiguration(ClassType configType, JClass config, Messager messager, Class<? extends Annotation> registryAnnotation) throws TendrilException {
+        return new ConfigurationRecipeGenerator(configType, config, messager).generate(getRecipeType(configType), registryAnnotation);
     }
     
     /**
@@ -120,11 +112,12 @@ public final class RecipeGenerator {
      * @param duplicateType {@link ClassType} of the bean which is to be duplicated
      * @param duplicate {@link JClass} describing the bean which is to be duplicated
      * @param messager {@link Messager} for the annotation processing
+     * @param registryAnnotation {@link Class} extending {@link Annotation} to apply as the registry annotation (null if no registration is to be performed)
      * @return {@link ClassDefinition}
      * @throws TendrilException when an issue generating the recipe is encountered
      */
-    public static ClassDefinition generateDuplicateBean(ClassType blueprintType, ClassType duplicateType, JClass duplicate, Messager messager) throws TendrilException {
-    	return new DuplicateRecipeGenerator(blueprintType, duplicateType, duplicate, messager).generate(getRecipeType(duplicateType), true);
+    public static ClassDefinition generateDuplicateBean(ClassType blueprintType, ClassType duplicateType, JClass duplicate, Messager messager, Class<? extends Annotation> registryAnnotation) throws TendrilException {
+    	return new DuplicateRecipeGenerator(blueprintType, duplicateType, duplicate, messager).generate(getRecipeType(duplicateType), registryAnnotation);
     }
     
     /**
@@ -139,7 +132,7 @@ public final class RecipeGenerator {
      */
     public static ClassDefinition generateDuplicateSiblingBean(ClassType blueprintType, ClassType siblingType, JClass sibling, Messager messager) throws TendrilException {
     	DuplicateSiblingClassRecipeGenerator generator = new DuplicateSiblingClassRecipeGenerator(siblingType, sibling, messager, blueprintType);
-    	return generator.generate(getSiblingRecipeType(siblingType), false);
+    	return generator.generate(getSiblingRecipeType(siblingType), null);
     }
     
     /**
@@ -155,7 +148,7 @@ public final class RecipeGenerator {
     public static ClassDefinition generateDuplicateSiblingBean(ClassType blueprintType, ClassType configType, JMethod<?> sibling, Messager messager) throws TendrilException {
     	ClassType beanType = sibling.getType().asClassType();
     	DuplicateSiblingMethodRecipeGenerator generator = new DuplicateSiblingMethodRecipeGenerator(configType, beanType, sibling, messager, blueprintType);
-    	return generator.generate(getSiblingRecipeType(configType, sibling), false);
+    	return generator.generate(getSiblingRecipeType(configType, sibling), null);
     }
     
     /**

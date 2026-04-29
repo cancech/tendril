@@ -33,6 +33,8 @@ import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValue;
+import tendril.codegen.generics.GenericFactory;
+import tendril.codegen.generics.GenericType;
 import tendril.util.TendrilStringUtil;
 
 /**
@@ -253,8 +255,21 @@ public abstract class JAnnotationFactory {
             if (Void.TYPE.equals(expectedReturn))
                 throw new DefinitionException(annotationClass, "Attribute " + attrName + " cannot be void");
 
+            // Create the appropriate type instance
+            Type returnType = null;
+            if (expectedReturn == Class.class) {
+                java.lang.reflect.Type[] classTypes = expectedReturn.getTypeParameters();
+                GenericType[] generics = new GenericType[classTypes.length];
+                for (int i = 0; i < classTypes.length; i++) {
+                	System.err.println("GENERIC: " + classTypes[i].getTypeName() + " " + classTypes[i].getClass());
+                	generics[i] = GenericFactory.create(classTypes[i].toString());
+                }
+                returnType = TypeFactory.createClassType(annotationClass, generics);
+                System.err.println("JAnnotationFactory::validateCorrectType: returnType = " + returnType + " expectedReturn: " + expectedReturn + " <" + expectedReturn.getTypeParameters().length + ">");
+            } else
+            	returnType = TypeFactory.create(expectedReturn);
+
             // Make sure that this is a correct instance
-            Type returnType = TypeFactory.create(expectedReturn);
             if (!value.isInstanceOf(returnType))
                 throw new DefinitionException(annotationClass, "Incompatible attribute " + attrName + ", expect " + returnType.getSimpleName() + " but got " + value.getType());
         } catch (NoSuchMethodException e) {

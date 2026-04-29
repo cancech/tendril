@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tendril.processor;
+package tendril.processor.registration;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -22,22 +22,17 @@ import javax.lang.model.SourceVersion;
 
 import com.google.auto.service.AutoService;
 
-import tendril.bean.Bean;
-import tendril.bean.recipe.Registry;
+import tendril.bean.recipe.ReplacesRegistry;
 
 /**
- * Processor for the {@link Bean} annotation, which will generate the appropriate Recipe for the specified Provider
+ * Annotation processor for recipes which are annotated with @{@link ReplacesRegistry} and are to be added to the recipe replacement registry
  */
-@SupportedAnnotationTypes("tendril.bean.Bean")
+@SupportedAnnotationTypes("tendril.bean.recipe.ReplacesRegistry")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class BeanProcessor extends AbstactBeanProcessor {
-
-	/**
-	 * CTOR
-	 */
-	public BeanProcessor() {
-		super(Registry.class);
+public class ReplacementRegistryProcessor extends AbstractRegistryProcessor {
+	
+	public ReplacementRegistryProcessor() {
+		super("Replaces Registry", ReplacementRegistryFile.PATH);
 	}
-
 }

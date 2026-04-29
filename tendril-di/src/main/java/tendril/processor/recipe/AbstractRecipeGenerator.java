@@ -42,7 +42,6 @@ import tendril.bean.qualifier.Qualifier;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.ConfigurationRecipe;
 import tendril.bean.recipe.FactoryRecipe;
-import tendril.bean.recipe.Registry;
 import tendril.bean.recipe.SingletonRecipe;
 import tendril.bean.requirement.Requirement;
 import tendril.bean.requirement.RequiresEnv;
@@ -144,11 +143,11 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
      * Generate the recipe class
      * 
      * @param recipeType {@link ClassType} which is to become the recipe
-     * @param annotateRegistry boolean true if the recipe is to be annotated for registration
+     * @param registryAnnotation {@link Class} extending {@link Annotation} to apply as the registry annotation (null if to be skipped)
      * @return {@link ClassDefinition} of the recipe
      * @throws TendrilException if an issue is encountered
      */
-    ClassDefinition generate(ClassType recipeType, boolean annotateRegistry) throws TendrilException {
+    ClassDefinition generate(ClassType recipeType, Class<? extends Annotation> registryAnnotation) throws TendrilException {
         validateCreator();
         
         // The parent class
@@ -156,8 +155,8 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 
         // Configure the basic information about the recipe
         ClassBuilder clsBuilder = ClassBuilder.forConcreteClass(recipeType).setVisibility(VisibilityType.PUBLIC).extendsClass(parent);
-        if (annotateRegistry)
-            clsBuilder.addAnnotation(JAnnotationFactory.create(Registry.class));
+        if (registryAnnotation != null)
+            clsBuilder.addAnnotation(JAnnotationFactory.create(registryAnnotation));
         
         populateBuilder(clsBuilder);
         return new ClassDefinition(recipeType, clsBuilder.build().generateCode(externalImports));

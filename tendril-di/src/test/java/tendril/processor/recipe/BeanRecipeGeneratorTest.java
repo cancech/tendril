@@ -29,6 +29,7 @@ import tendril.bean.Factory;
 import tendril.bean.Inject;
 import tendril.bean.PostConstruct;
 import tendril.bean.Singleton;
+import tendril.bean.recipe.Registry;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
@@ -63,11 +64,11 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         ClassBuilder builder = ClassBuilder.forConcreteClass(type);
         
         // No recipe type indicated
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
         
         // More than one recipe type indicated
         builder.addAnnotation(JAnnotationFactory.create(Singleton.class)).addAnnotation(JAnnotationFactory.create(Factory.class));
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
     }
     
     /**
@@ -78,7 +79,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forAbstractClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
     }
     
     /**
@@ -89,7 +90,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forInterface(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
     }
     
     /**
@@ -100,7 +101,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         ClassType type = TypeFactory.createClassType("q.w.e.Rty");
         ClassBuilder builder = ClassBuilder.forAnnotation(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
     }
     
     /**
@@ -112,17 +113,17 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         // No constructor
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
         
         // No viable constructor
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).emptyImplementation().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
         
         // More than one constructor
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PROTECTED).emptyImplementation().buildParameter(PrimitiveType.DOUBLE, "param").finish().finish();
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
     }
     
     /**
@@ -134,18 +135,18 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         ClassBuilder builder = ClassBuilder.forConcreteClass(type).addAnnotation(JAnnotationFactory.create(Singleton.class));
         
         // No constructor
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
         
         // No viable constructor
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
         verify(mockMessager, times(2)).printWarning("q.w.e.Rty has a private @Inject constructor");
         
         // More than one constructor
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.DOUBLE, "param").finish().finish();
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
         verify(mockMessager, times(4)).printWarning("q.w.e.Rty has a private @Inject constructor");
     }
     
@@ -161,7 +162,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
         
         builder.buildMethod("method1").setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(PostConstruct.class)).emptyImplementation().finish();
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
         verify(mockMessager, times(2)).printWarning("q.w.e.Rty has a private @Inject constructor");
     }
     
@@ -177,7 +178,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
         
         builder.buildMethod(PrimitiveType.BOOLEAN, "method1").setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(PostConstruct.class)).emptyImplementation().finish();
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
     }
     
     /**
@@ -193,7 +194,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         
         builder.buildMethod("method1").setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(PostConstruct.class))
             .buildParameter(PrimitiveType.LONG, "param").finish().emptyImplementation().finish();
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class));
         verify(mockMessager, times(2)).printWarning("q.w.e.Rty has a private @Inject constructor");
     }
     
@@ -209,7 +210,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
         
-        Assertions.assertFalse(RecipeGenerator.generate(type, builder.build(), mockMessager).getCode().isBlank());
+        Assertions.assertFalse(RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class).getCode().isBlank());
     }
     
     /**
@@ -225,7 +226,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
         
         builder.buildMethod("method1").setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(PostConstruct.class)).emptyImplementation().finish();
-        Assertions.assertFalse(RecipeGenerator.generate(type, builder.build(), mockMessager).getCode().isBlank());
+        Assertions.assertFalse(RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class).getCode().isBlank());
     }
     
     /**
@@ -240,7 +241,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         builder.buildConstructor().setVisibility(VisibilityType.PRIVATE).addAnnotation(JAnnotationFactory.create(Inject.class)).emptyImplementation().buildParameter(PrimitiveType.BOOLEAN, "param").finish().finish();
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
         
-        Assertions.assertFalse(RecipeGenerator.generate(type, builder.build(), mockMessager).getCode().isBlank());
+        Assertions.assertFalse(RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class).getCode().isBlank());
         verify(mockMessager, times(2)).printWarning("q.w.e.Rty has a private @Inject constructor");
     }
     
@@ -257,7 +258,7 @@ public class BeanRecipeGeneratorTest extends AbstractUnitTest {
         builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).emptyImplementation().buildParameter(PrimitiveType.INT, "param").finish().finish();
         
         builder.buildMethod("method1").setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(PostConstruct.class)).emptyImplementation().finish();
-        Assertions.assertFalse(RecipeGenerator.generate(type, builder.build(), mockMessager).getCode().isBlank());
+        Assertions.assertFalse(RecipeGenerator.generate(type, builder.build(), mockMessager, Registry.class).getCode().isBlank());
         verify(mockMessager, times(2)).printWarning("q.w.e.Rty has a private @Inject constructor");
     }
 }

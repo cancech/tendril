@@ -19,11 +19,12 @@ import java.util.List;
 
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
+import tendril.context.search.RecipeSearchResult;
 
 /**
  * Exception to be thrown when there is a failure to retrieve a bean
  */
-public class BeanRetrievalException  extends RuntimeException {
+public class BeanRetrievalException extends RuntimeException {
     /** Serial ID */
     private static final long serialVersionUID = -1120827002093381126L;
 
@@ -59,6 +60,17 @@ public class BeanRetrievalException  extends RuntimeException {
     private static <BEAN_TYPE> String buildMultipleOptionsMessage(Descriptor<BEAN_TYPE> desc, List<AbstractRecipe<BEAN_TYPE>> options, String beanLabel) {
         StringBuilder str = new StringBuilder("Multiple " + beanLabel + " matches available for " + desc.toString() + ":");
         for (AbstractRecipe<?> opt: options)
+            str.append("\n    - " + opt.getDescription());
+        return str.toString();
+    }
+    
+    public BeanRetrievalException(Descriptor<?> desc, RecipeSearchResult<?> result) {
+    	super(buildMultipleOptionsMessage(desc, result));
+    }
+
+    private static String buildMultipleOptionsMessage(Descriptor<?> desc, RecipeSearchResult<?> options) {
+        StringBuilder str = new StringBuilder("Multiple " + options.getType() + " matches available for " + desc.toString() + ":");
+        for (AbstractRecipe<?> opt: options.getRecipes())
             str.append("\n    - " + opt.getDescription());
         return str.toString();
     }

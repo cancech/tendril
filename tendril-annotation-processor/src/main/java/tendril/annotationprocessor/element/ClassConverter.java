@@ -63,6 +63,7 @@ import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
+import tendril.codegen.generics.GenericFactory;
 
 /**
  * Handles the conversion of items from the Annotation Processing {@link Element}s into {@link JBase} representations
@@ -268,6 +269,10 @@ public class ClassConverter {
             try {
                 builder.addAnnotation(buildAnnotation(deriveClassData(annonElement), m, annonElement, new ArrayList<>()));
             } catch (DefinitionException ex) {
+            	if (annonElement.toString().equals("tendril.bean.Replaces")) {
+                	System.err.println("===================== AnnonElement: " + annonElement + " m: " + m);
+            		ex.printStackTrace();
+            	}
                 throw new MissingAnnotationException(m.getAnnotationType(), element);
             }
         }
@@ -291,7 +296,13 @@ public class ClassConverter {
         Map<String, JValue<?, ?>> attributes = new HashMap<>();
         Map<? extends ExecutableElement, ? extends AnnotationValue> mirrorAttributes = mirror.getElementValues();
         for (ExecutableElement attr: mirror.getElementValues().keySet()) {
-            JValue<?, ?> jvalue = createValue(TypeFactory.create(attr.getReturnType()), mirrorAttributes.get(attr).getValue());
+        	Object value = mirrorAttributes.get(attr).getValue();
+        	if (value.getClass().getName().equals("com.sun.tools.javac.code.Type$ClassType"))
+        		value = TypeFactory.createClassType(Class.class, GenericFactory.create(TypeFactory.createClassType(value.toString())));
+        	if (annonType.getFullyQualifiedName().equals("tendril.bean.Replaces")) {
+        		System.err.println("VALUE: " + ((ClassType)value).getSimpleName());
+        	}
+            JValue<?, ?> jvalue = createValue(TypeFactory.create(attr.getReturnType()), value);
             attributes.put(attr.getSimpleName().toString(), jvalue);
             
         }
