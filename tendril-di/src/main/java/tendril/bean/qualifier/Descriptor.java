@@ -163,6 +163,27 @@ public class Descriptor<BEAN_TYPE> {
     }
     
     /**
+     * Updates the current descriptor with the details of another. Specifically this will copy over:
+     * <ul>
+     * 		<li>bean name applied via {@code @Name}</li>
+     * 		<li>blueprint triggering creation</li>
+     * 		<li>all qualifiers (enum and regular)</li>
+     * </ul>
+     * 
+     * @param other {@link Descriptor} from which to update
+     */
+    public void updateFrom(Descriptor<?> other) {
+    	name = other.name;
+    	blueprint = other.blueprint;
+    	
+    	for (Class<?> q: other.qualifiers)
+    		qualifiers.add(q);
+    	
+    	for (Enum<?> e: other.enumQualifiers)
+    		enumQualifiers.add(e);
+    }
+    
+    /**
      * For the purpose of equality, the defined class need not be 100% equal, so long as the other class is assignable from this one.
      * 
      * @see java.lang.Object#equals(java.lang.Object)
@@ -188,7 +209,16 @@ public class Descriptor<BEAN_TYPE> {
     public boolean matches(Descriptor<?> other) {
         if (!other.beanClass.isAssignableFrom(beanClass))
             return false;
-        
+        return metadataMatches(other);
+    }
+    
+    /**
+     * Check if the metadata of this descriptor (name, qualifiers, blueprint) matches the other
+     * 
+     * @param other {@link Descriptor} whose metadata to match against
+     * @return boolean true if it matches
+     */
+    private boolean metadataMatches(Descriptor<?> other) {
         if (!other.name.isBlank() && !other.name.equals(name))
             return false;
         
@@ -204,23 +234,17 @@ public class Descriptor<BEAN_TYPE> {
         return true;
     }
     
+    /**
+     * Check to see if this descriptor represents a bean which can be replaced by the other. This is equivalent to {@code matches()} with the exception that the assignment is
+     * done in the other direction ({@code matches()} check if this can be assigned to the other, whereas {@code replacedBy} checks if the other can be assigned to this).
+     * 
+     * @param other {@link Descriptor} whose metadata to match against
+     * @return boolean true if it can be replaced by the other
+     */
     public boolean replacedBy(Descriptor<?> other) {
         if (!beanClass.isAssignableFrom(other.beanClass))
             return false;
-        
-        if (!other.name.isBlank() && !other.name.equals(name))
-            return false;
-        
-        if (!other.enumQualifiers.isEmpty() && !enumQualifiers.containsAll(other.enumQualifiers))
-            return false;
-        
-        if (!other.qualifiers.isEmpty() && !qualifiers.containsAll(other.qualifiers))
-            return false;
-        
-        if (other.blueprint != null && !other.blueprint.equals(blueprint))
-        	return false;
-        
-        return true;
+        return metadataMatches(other);
     }
     
     /**

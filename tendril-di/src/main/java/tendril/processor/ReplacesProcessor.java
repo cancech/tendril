@@ -19,17 +19,11 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.MirroredTypeException;
 
 import com.google.auto.service.AutoService;
 
-import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Replaces;
 import tendril.bean.recipe.ReplacesRegistry;
-import tendril.codegen.annotation.JAnnotation;
-import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.TypeFactory;
 
 /**
  * Processor for the {@link Replaces} annotation, which will generate the appropriate Recipe for the specified Provider
@@ -45,32 +39,6 @@ public class ReplacesProcessor extends AbstactBeanProcessor {
 	public ReplacesProcessor() {
 		super(ReplacesRegistry.class);
 	}
-
 	
-	@Override
-	protected void validateType(TypeElement type) throws TendrilException {
-		super.validateType(type);
-		
-		Replaces annon = type.getAnnotation(Replaces.class);
-		try {
-			System.err.println("REPLACE VALUE: " + annon.value());
-		} catch (MirroredTypeException ex) {
-			System.err.println("REPLACE EX: " + ex.getTypeMirror());
-		}
-	}
-	
-	@Override
-	protected void validateClass() throws TendrilException {
-		ClassType replacesAnnotation = TypeFactory.createClassType(Replaces.class);
-		for (JAnnotation a: currentClass.getAnnotations()) {
-			System.err.println("==========VALIDATING: " + a);
-			// TODO allow for specific annotation to be retrieved
-			if (a.getType().equals(replacesAnnotation)) {
-				// TODO allow for specific value to be retrieved
-				System.err.println("=========REPLACE VALUE: " + a.getValue(a.getAttributes().get(0)).getValue());
-				break;
-			}
-		}
-		super.validateClass();
-	}
+	// TODO add support for methods
 }

@@ -29,6 +29,7 @@ import tendril.BeanRetrievalException;
 import tendril.bean.duplicate.BlueprintDriver;
 import tendril.bean.qualifier.Descriptor;
 import tendril.processor.registration.RegistryFile;
+import tendril.processor.registration.ReplacementRegistryFile;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.CollectionAssert;
 import tendril.test.recipe.BasicStringRecipe1;
@@ -44,6 +45,8 @@ import tendril.test.recipe.IntTestRecipe;
 import tendril.test.recipe.PrimaryStringRecipe1;
 import tendril.test.recipe.PrimaryStringRecipe2;
 import tendril.test.recipe.PrimaryStringRecipe3;
+import tendril.test.recipe.ReplaceIntRecipe;
+import tendril.test.recipe.ReplaceStringRecipe;
 import tendril.test.recipe.RequiresABRecipe;
 import tendril.test.recipe.RequiresAConfigRecipe;
 import tendril.test.recipe.RequiresANotBRecipe;
@@ -483,5 +486,68 @@ public class EngineIT extends AbstractUnitTest {
 		CollectionAssert.assertEquivalent(engine.getBlueprints(SeparateLevel1.class), mockSeparateLevel11Driver, mockSeparateLevel12Driver, mockSeparateLevel21Driver, mockSeparateLevel22Driver);
 		CollectionAssert.assertEquivalent(engine.getBlueprints(BlueprintDriver.class), mockLevel11Driver, mockLevel12Driver, mockLevel21Driver, mockLevel22Driver, mockLevel31Driver, mockLevel32Driver,
 				mockSeparateLevel11Driver, mockSeparateLevel12Driver, mockSeparateLevel21Driver, mockSeparateLevel22Driver);
+	}
+
+	/**
+	 * Verify that original recipe can be loaded
+	 */
+	@Test
+	public void testOriginalIntRecipe() {
+		try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
+			registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(IntTestRecipe.class.getName(), Double1TestRecipe.class.getName(), BasicStringRecipe1.class.getName())));
+			engine.init();
+		}
+
+		Assertions.assertEquals(3, engine.getBeanCount());
+		Assertions.assertEquals(IntTestRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class)));
+		Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class)));
+		Assertions.assertEquals(BasicStringRecipe1.VALUE, engine.getBean(new Descriptor<>(String.class)));
+	}
+
+	/**
+	 * Verify that a recipe can be replaced if the original is present
+	 */
+	@Test
+	public void testReplacementIntRecipe() {
+		try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
+			try (MockedStatic<ReplacementRegistryFile> replaceRegistry = Mockito.mockStatic(ReplacementRegistryFile.class)) {
+				registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(IntTestRecipe.class.getName(), Double1TestRecipe.class.getName(), BasicStringRecipe1.class.getName())));
+				replaceRegistry.when(ReplacementRegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(ReplaceIntRecipe.class.getName())));
+				engine.init();
+			}
+		}
+
+		Assertions.assertEquals(3, engine.getBeanCount());
+		Assertions.assertEquals(ReplaceIntRecipe.VALUE, engine.getBean(new Descriptor<>(Integer.class)));
+		Assertions.assertEquals(Double1TestRecipe.VALUE, engine.getBean(new Descriptor<>(Double.class)));
+		Assertions.assertEquals(BasicStringRecipe1.VALUE, engine.getBean(new Descriptor<>(String.class)));
+	}
+
+	/**
+	 * Verify that a recipe cannot be replaced if the original is not present
+	 */
+	@Test
+	public void testReplacementIntRecipeNoOriginal() {
+		try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
+			try (MockedStatic<ReplacementRegistryFile> replaceRegistry = Mockito.mockStatic(ReplacementRegistryFile.class)) {
+				registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), BasicStringRecipe1.class.getName())));
+				replaceRegistry.when(ReplacementRegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(ReplaceIntRecipe.class.getName())));
+				Assertions.assertThrows(BeanRetrievalException.class, () -> engine.init());
+			}
+		}
+	}
+
+	/**
+	 * Verify that a recipe cannot be replaced if the there are multiple original matches
+	 */
+	@Test
+	public void testReplacementIntRecipeTooManyOriginals() {
+		try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
+			try (MockedStatic<ReplacementRegistryFile> replaceRegistry = Mockito.mockStatic(ReplacementRegistryFile.class)) {
+				registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(BasicStringRecipe1.class.getName(), BasicStringRecipe2.class.getName(), BasicStringRecipe3.class.getName())));
+				replaceRegistry.when(ReplacementRegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(ReplaceStringRecipe.class.getName())));
+				Assertions.assertThrows(BeanRetrievalException.class, () -> engine.init());
+			}
+		}
 	}
 }

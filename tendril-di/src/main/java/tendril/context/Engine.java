@@ -206,9 +206,16 @@ public class Engine {
 		}
 	}
 
+	/**
+	 * Try to replace an existing recipe with the indicated replacement
+	 * 
+	 * @param name   {@link String} the fully qualified name of the recipe
+	 * @param object {@link Object} replacement recipe instance
+	 */
 	private void tryReplaceRecipe(String name, Object object) {
 		if (object instanceof AbstractRecipe recipe) {
 			if (requirementsMet(recipe)) {
+				// Find the recipe this is to replace
 				Descriptor<?> description = recipe.getDescription();
 				RecipeSearchResult<?> result = findOriginalRecipes(description, SearchType.SINGLE_BEAN);
 				List<?> matches = result.getRecipes();
@@ -216,12 +223,12 @@ public class Engine {
 					throw new BeanRetrievalException(description);
 				if (matches.size() > 1)
 					throw new BeanRetrievalException(description, result);
-
-				System.err.println("************************************");
-				System.err.println("************************************");
-				System.err.println("WANT TO REPLACE " + ((AbstractRecipe<?>)matches.get(0)).getDescription() + " with " + recipe.getDescription());
-				System.err.println("************************************");
-				System.err.println("************************************");
+				
+				// Swap the original recipe for this one
+				AbstractRecipe<?> orig = (AbstractRecipe<?>) matches.get(0);
+				recipes.remove(orig);
+				description.updateFrom(orig.getDescription());
+				recipes.add(recipe);
 			} else {
 				LOGGER.fine("Replacement bean requirements not met" + recipe);
 			}

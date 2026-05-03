@@ -16,7 +16,6 @@
 package tendril.bean.qualifier;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -63,7 +62,8 @@ public class DescriptorWithVariableNameTest extends AbstractUnitTest {
 	public void testDefaultValues() {
 		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
 		Assertions.assertEquals("", descriptor.getName());
-		Assertions.assertEquals(Collections.emptySet(), descriptor.getEnumQualifiers());
+		CollectionAssert.assertEmpty(descriptor.getQualifiers());
+		CollectionAssert.assertEmpty(descriptor.getEnumQualifiers());
 		Assertions.assertFalse(descriptor.hasBlueprint());
 		Assertions.assertNull(descriptor.getBlueprint());
 	}
@@ -76,7 +76,8 @@ public class DescriptorWithVariableNameTest extends AbstractUnitTest {
 		descriptor.setName("SomeBeanName");
 		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
 		Assertions.assertEquals("SomeBeanName", descriptor.getName());
-		Assertions.assertEquals(Collections.emptySet(), descriptor.getEnumQualifiers());
+		CollectionAssert.assertEmpty(descriptor.getQualifiers());
+		CollectionAssert.assertEmpty(descriptor.getEnumQualifiers());
 		Assertions.assertFalse(descriptor.hasBlueprint());
 		Assertions.assertNull(descriptor.getBlueprint());
 	}
@@ -87,7 +88,7 @@ public class DescriptorWithVariableNameTest extends AbstractUnitTest {
 	@Test
 	public void testUpdateEnumQualifiers() {
 		// None by default
-		Assertions.assertEquals(Collections.emptySet(), descriptor.getEnumQualifiers());
+		CollectionAssert.assertEmpty(descriptor.getEnumQualifiers());
 
 		// Can add one
 		descriptor.addEnumQualifier(PrimitiveType.BYTE);
@@ -108,6 +109,7 @@ public class DescriptorWithVariableNameTest extends AbstractUnitTest {
 
 		// No change on unchanged values
 		Assertions.assertEquals("", descriptor.getName());
+		CollectionAssert.assertEmpty(descriptor.getQualifiers());
 		Assertions.assertFalse(descriptor.hasBlueprint());
 		Assertions.assertNull(descriptor.getBlueprint());
 	}
@@ -119,7 +121,8 @@ public class DescriptorWithVariableNameTest extends AbstractUnitTest {
 	@Test
 	public void testUpdateQualifiers() {
 		// None by default
-		Assertions.assertEquals(Collections.emptySet(), descriptor.getQualifiers());
+		CollectionAssert.assertEmpty(descriptor.getQualifiers());
+		CollectionAssert.assertEmpty(descriptor.getEnumQualifiers());
 
 		// Can add one
 		descriptor.addQualifier(PrimitiveType.class);
@@ -140,6 +143,7 @@ public class DescriptorWithVariableNameTest extends AbstractUnitTest {
 
 		// No change on unchanged values
 		Assertions.assertEquals("", descriptor.getName());
+		CollectionAssert.assertEmpty(descriptor.getEnumQualifiers());
 		Assertions.assertFalse(descriptor.hasBlueprint());
 		Assertions.assertNull(descriptor.getBlueprint());
 	}
@@ -158,7 +162,8 @@ public class DescriptorWithVariableNameTest extends AbstractUnitTest {
 
 		// No change on unchanged values
 		Assertions.assertEquals("", descriptor.getName());
-		Assertions.assertEquals(Collections.emptySet(), descriptor.getEnumQualifiers());
+		CollectionAssert.assertEmpty(descriptor.getQualifiers());
+		CollectionAssert.assertEmpty(descriptor.getEnumQualifiers());
 	}
 
 	/**
@@ -494,6 +499,30 @@ public class DescriptorWithVariableNameTest extends AbstractUnitTest {
 		Assertions.assertFalse(lhs.matches(new Descriptor<>(AbstractRecipe.class).addQualifier(Integer.class).addQualifier(Double1TestRecipe.class).setBlueprint(mockBlueprint)));
 		Assertions.assertFalse(lhs.matches(new Descriptor<>(Object.class).addQualifier(String.class).addQualifier(Object.class)));
 	}
+	
+	/**
+	 * Verify that the replacedBy is done properly (note this is identical to matches except for the assignment direction
+	 */
+	@Test
+	public void testReplacedByNoNameNoEnumQualifiersNoQualifiers() {
+		@SuppressWarnings("rawtypes")
+		Descriptor<AbstractRecipe> lhs = new Descriptor<>(AbstractRecipe.class);
+		
+		// Passes if other can be assigned to lhs
+		Assertions.assertTrue(lhs.replacedBy(new Descriptor<>(Double1TestRecipe.class).setName("")));
+		Assertions.assertTrue(lhs.replacedBy(new Descriptor<>(Double2TestRecipe.class)));
+		Assertions.assertTrue(lhs.replacedBy(new Descriptor<>(StringTestRecipe.class)));
+		Assertions.assertTrue(lhs.replacedBy(new Descriptor<>(IntTestRecipe.class)));
+		Assertions.assertTrue(lhs.replacedBy(new Descriptor<>(AbstractRecipe.class)));
+
+		// Fails if a name is applied
+		Assertions.assertFalse(lhs.replacedBy(new Descriptor<>(Double1TestRecipe.class).setName("abc123")));
+		Assertions.assertFalse(lhs.replacedBy(new Descriptor<>(AbstractRecipe.class).setName("321cba")));
+		Assertions.assertFalse(lhs.replacedBy(new Descriptor<>(Object.class).setName("qwerty")));
+
+		// Fails if a different type is requested
+		Assertions.assertFalse(lhs.replacedBy(new Descriptor<>(Object.class).setName("")));
+	}
 
 	/**
 	 * Verify that the toString provides the full details of the bean description
@@ -525,6 +554,188 @@ public class DescriptorWithVariableNameTest extends AbstractUnitTest {
 		descriptor = new Descriptor<>(StringTestRecipe.class, "dsdf").setName("qwerty").addEnumQualifier(PrimitiveType.FLOAT).addEnumQualifier(PrimitiveType.SHORT)
 				.addEnumQualifier(PrimitiveType.CHAR);
 		assertDescriptorToStringMatches(descriptor, StringTestRecipe.class, "dsdf", "qwerty", PrimitiveType.FLOAT, PrimitiveType.SHORT, PrimitiveType.CHAR);
+	}
+	
+	/**
+	 * Verify that the current descriptor can be updated from another
+	 */
+	@Test
+	public void testUpdateDefaultFromOtherHasJustName() {
+		testDefaultValues();
+		
+		// Update from "empty" descriptor
+		descriptor.updateFrom(new Descriptor<>(Double1TestRecipe.class, "abc123"));
+		// Class and variable name are not copied over
+		testDefaultValues();
+	}
+	
+	/**
+	 * Verify that the current descriptor can be updated from another
+	 */
+	@Test
+	public void testUpdateDefaultFromOtherHasNameOnly() {
+		testDefaultValues();
+		
+		// Update from descriptor which has a name
+		Descriptor<Double1TestRecipe> other = new Descriptor<>(Double1TestRecipe.class, "abc123");
+		other.setName("otherName");
+		descriptor.updateFrom(other);
+		
+		// Name was copied over
+		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals("otherName", descriptor.getName());
+		CollectionAssert.assertEmpty(descriptor.getQualifiers());
+		CollectionAssert.assertEmpty(descriptor.getEnumQualifiers());
+		Assertions.assertFalse(descriptor.hasBlueprint());
+		Assertions.assertNull(descriptor.getBlueprint());
+	}
+	
+	/**
+	 * Verify that the current descriptor can be updated from another
+	 */
+	@Test
+	public void testUpdateDefaultFromOtherHasBlueprintOnly() {
+		testDefaultValues();
+		
+		// Update from descriptor which has blueprint
+		Descriptor<Double1TestRecipe> other = new Descriptor<>(Double1TestRecipe.class, "abc123");
+		other.setBlueprint("abc123");
+		descriptor.updateFrom(other);
+		
+		// Name was copied over
+		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals("", descriptor.getName());
+		CollectionAssert.assertEmpty(descriptor.getQualifiers());
+		CollectionAssert.assertEmpty(descriptor.getEnumQualifiers());
+		Assertions.assertTrue(descriptor.hasBlueprint());
+		Assertions.assertEquals("abc123", (String) descriptor.getBlueprint());
+	}
+	
+	/**
+	 * Verify that the current descriptor can be updated from another
+	 */
+	@Test
+	public void testUpdateDefaultFromOtherHasClassQualifierOnly() {
+		testDefaultValues();
+		
+		// Update from descriptor which has class qualifiers
+		Descriptor<Double1TestRecipe> other = new Descriptor<>(Double1TestRecipe.class, "abc123");
+		other.addQualifier(String.class);
+		other.addQualifier(Runnable.class);
+		other.addQualifier(Descriptor.class);
+		descriptor.updateFrom(other);
+		
+		// Qualifiers were copied over
+		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals("", descriptor.getName());
+		CollectionAssert.assertEquivalent(descriptor.getQualifiers(), String.class, Runnable.class, Descriptor.class);
+		CollectionAssert.assertEmpty(descriptor.getEnumQualifiers());
+		Assertions.assertFalse(descriptor.hasBlueprint());
+		Assertions.assertNull(descriptor.getBlueprint());
+	}
+	
+	/**
+	 * Verify that the current descriptor can be updated from another
+	 */
+	@Test
+	public void testUpdateDefaultFromOtherHasEnumQualifierOnly() {
+		testDefaultValues();
+		
+		// Update from descriptor which has enum qualifiers
+		Descriptor<Double1TestRecipe> other = new Descriptor<>(Double1TestRecipe.class, "abc123");
+		other.addEnumQualifier(TestEnum.A);
+		other.addEnumQualifier(TestEnum.B);
+		other.addEnumQualifier(TestEnum.C);
+		other.addEnumQualifier(TestEnum.D);
+		descriptor.updateFrom(other);
+		
+		// Qualifiers were copied over
+		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals("", descriptor.getName());
+		CollectionAssert.assertEmpty(descriptor.getQualifiers());
+		CollectionAssert.assertEquivalent(descriptor.getEnumQualifiers(), TestEnum.A, TestEnum.B, TestEnum.C, TestEnum.D);
+		Assertions.assertFalse(descriptor.hasBlueprint());
+		Assertions.assertNull(descriptor.getBlueprint());
+	}
+	
+	/**
+	 * Verify that the current descriptor can be updated from another
+	 */
+	@Test
+	public void testUpdateDefaultFromOtherHasAll() {
+		testDefaultValues();
+		
+		// Update from descriptor which has enum qualifiers
+		Descriptor<Double1TestRecipe> other = new Descriptor<>(Double1TestRecipe.class, "abc123");
+		other.addEnumQualifier(TestEnum.A);
+		other.addEnumQualifier(TestEnum.B);
+		other.addEnumQualifier(TestEnum.C);
+		other.addEnumQualifier(TestEnum.D);
+		other.addQualifier(String.class);
+		other.addQualifier(Runnable.class);
+		other.addQualifier(Descriptor.class);
+		other.setBlueprint("abc123");
+		other.setName("otherName");
+		descriptor.updateFrom(other);
+		
+		// Qualifiers were copied over
+		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals("otherName", descriptor.getName());
+		CollectionAssert.assertEquivalent(descriptor.getQualifiers(), String.class, Runnable.class, Descriptor.class);
+		CollectionAssert.assertEquivalent(descriptor.getEnumQualifiers(), TestEnum.A, TestEnum.B, TestEnum.C, TestEnum.D);
+		Assertions.assertTrue(descriptor.hasBlueprint());
+		Assertions.assertEquals("abc123", (String) descriptor.getBlueprint());
+	}
+	
+	/**
+	 * Verify that the current descriptor can be updated from another
+	 */
+	@Test
+	public void testUpdateExistingFromOtherHasAll() {
+		// Populate with some initial values
+		Descriptor<SingleCtorBean> descriptor = new Descriptor<SingleCtorBean>(SingleCtorBean.class, "singleCtorBean");
+		descriptor.setName("originalName");
+		descriptor.setBlueprint("originalBlueprint");
+		descriptor.addQualifier(DescriptorWithVariableNameTest.class);
+		descriptor.addQualifier(DescriptorNoVariableNameTest.class);
+		descriptor.addEnumQualifier(TestEnum.E);
+		descriptor.addEnumQualifier(TestEnum.F);
+		descriptor.addEnumQualifier(TestEnum.G);
+		
+		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals("originalName", descriptor.getName());
+		CollectionAssert.assertEquivalent(descriptor.getQualifiers(), DescriptorWithVariableNameTest.class, DescriptorNoVariableNameTest.class);
+		CollectionAssert.assertEquivalent(descriptor.getEnumQualifiers(), TestEnum.E, TestEnum.F, TestEnum.G);
+		Assertions.assertTrue(descriptor.hasBlueprint());
+		Assertions.assertEquals("originalBlueprint", (String) descriptor.getBlueprint());
+		
+		// Update from descriptor which has enum qualifiers
+		Descriptor<Double1TestRecipe> other = new Descriptor<>(Double1TestRecipe.class, "abc123");
+		other.addEnumQualifier(TestEnum.A);
+		other.addEnumQualifier(TestEnum.B);
+		other.addEnumQualifier(TestEnum.C);
+		other.addEnumQualifier(TestEnum.D);
+		other.addQualifier(String.class);
+		other.addQualifier(Runnable.class);
+		other.addQualifier(Descriptor.class);
+		other.setBlueprint("abc123");
+		other.setName("otherName");
+		descriptor.updateFrom(other);
+		
+		// Qualifiers were copied over
+		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals("otherName", descriptor.getName());
+		CollectionAssert.assertEquivalent(descriptor.getQualifiers(), String.class, Runnable.class, Descriptor.class, DescriptorWithVariableNameTest.class, DescriptorNoVariableNameTest.class);
+		CollectionAssert.assertEquivalent(descriptor.getEnumQualifiers(), TestEnum.A, TestEnum.B, TestEnum.C, TestEnum.D, TestEnum.E, TestEnum.F, TestEnum.G);
+		Assertions.assertTrue(descriptor.hasBlueprint());
+		Assertions.assertEquals("abc123", (String) descriptor.getBlueprint());
+	}
+	
+	/**
+	 * Enumeration to use for testing
+	 */
+	private enum TestEnum {
+		A, B, C, D, E, F, G;
 	}
 
 	/**

@@ -795,6 +795,55 @@ public class BeanB {
 }
 ```
 
+## Replacing Beans
+There are situations where different beans are to be used in different circumstances (i.e.: database connection in production and a flat-file loader in dev/test). One option to achieve this would be to use _requirements_, such that a different environment is applied in different circumstances. While this will definitely achieve the desired goal, it can become a bit cumbersome. Specifically the different environments must be applied to the beans and then specified when launching the application, opening the door to errors that commonly occur when values are defined/applied in multiple places. It can also lack the finesse to target specific individual beans, namely all beans employing a different environment are impacted rather than just the specific individual bean that may be desired. In order to target a specific bean, an environment must be defined/applied for that specific bean, which can see the number of environments grow to unmanageable levels very quickly. The other major problem with this approach, is that this only work if you are in a position to modify the original bean. If you are loading a bean from a library that you do not control, you have no ability to add a environmental requirement to said bean.
+
+For all of the above reasons, there exists the ability to replace a single targeted bean with a _like for like_ swap using `@Replaces`. Using this annotations marks a class as a bean, but one which must replace another pre-existing bean. Any _qualifiers_ applied to the replacement bean are used to find the original (it does not need to include all of the original bean qualifiers, however it must be able to uniquely identify a single bean), and once the original is located it is replaced. There are a few caveats that must be kept in mind:
+* The replacement bean must be assignable to the original (i.e.: `Bean original = replacement;` must be valid).
+* The replacement bean will be "shared" under its own type, meaning that it is technically valid to `@Inject` using the replacement class when the replacement is in use. Note that this should be avoided, as this will cease to be valid if the replacement is no longer in use.
+* The quantifier of the replacement will be used, rather than that of the original.
+* All qualifiers of the original will be applied to its replacement, to ensure a seamless transition.
+* Requirements can be applied to the replacement, narrowing or controlling the situations when it is employed.
+
+The `@Replaces` is employed in the exact same manner as `@Bean`, with the exception of replacement behavior.
+
+```java
+@Bean
+@Singleton
+@Named("MyName")
+@MyQualifier
+public class Original {
+}
+
+@Replaces
+@Factory
+public class Replacement extends Original {
+}
+```
+
+The above will replace the `Original` with the `Replacement`, provided that `Original` is the only class that matches the `Replacement` qualifiers as presented. If beans exist of ancestors of `Original` (or other beans of `Original` exist), then additional qualifiers will need to be employed to ensure that it will resolve uniquely.
+
+```java
+@Bean
+@Singleton
+@Named("Parent")
+public class Parent {
+}
+
+@Bean
+@Singleton
+@Named("MyName")
+@MyQualifier
+public class Original extends Parent {
+}
+
+@Replaces
+@Factory
+@MyQualifier
+public class Replacement extends Original {
+}
+```
+
 ## Transferable Annotations
 Certain annotations (namely Qualifiers and Requirements) are transferable, which in this context means that they can be applied anywhere in the annotation hierarchy and have an effect on the element (namely Bean and Configuration) as if they were applied to the element directly. Thus, common combinations can be placed into a shared/reusable annotation which is then applied to the appropriate Beans or Configurations, avoiding the need to "redefine" the combination in multiple places. Note that the reusable annotation must include `@Retention(RetentionPolicy.RUNTIME)` and have the appropriate `@Target` configured for its various use cases. This allows for defining custom annotation, and refactoring these transferable annotations away from concrete Beans or Configurations.
 

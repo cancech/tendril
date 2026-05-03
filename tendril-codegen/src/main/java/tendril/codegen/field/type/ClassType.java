@@ -96,12 +96,11 @@ public class ClassType extends JGeneric implements Type {
     			
     			// At this point no mismatch in the generics, so the two types are assignable
     			return true;
-    		} else {
+    		} else
     			return false;
-    		}
     	} catch (Exception ex) {
     		// Cannot do an in-depth comparison, so perform the most basic surface level check
-    		return getFullyQualifiedName().equals(Object.class.getName()) || equals(other);
+    		return equals(other);
     	}
     }
 
@@ -115,21 +114,18 @@ public class ClassType extends JGeneric implements Type {
 
         return false;
     }
-    
+
     /**
      * @see tendril.codegen.field.type.Type#isTypeOf(java.lang.Object)
      */
     @Override
     public boolean isTypeOf(Object value) {
     	// If this instance is a class reference (i.e.: Class<Type>)
-    	if (isClassClass()) {
-    		if (value instanceof ClassType otherClassType)
-    			return isClassTypeOf(otherClassType);
-        	if ("com.sun.tools.javac.code.Type$ClassType".equals(value.getClass().getName())) {
-        		ClassType otherClassType = TypeFactory.createClassType(value.toString());
-        		System.err.println("I AM " + getSimpleName() + " COMPARING TO " + otherClassType + " ::: " + isClassTypeOf(otherClassType));
-        		return isClassTypeOf(otherClassType);
-        	}
+    	if (isClassClass() && value instanceof ClassType otherClassType) {
+    		if (otherClassType.isClassClass()) {
+    			return getGenerics().get(0).isAssignableFrom(otherClassType.getGenerics().get(0).asClassType());
+    		}
+			return getGenerics().get(0).isAssignableFrom(otherClassType);
     	}
 
     	// Otherwise, just simply check if the value is of the correct type
@@ -144,18 +140,7 @@ public class ClassType extends JGeneric implements Type {
     private boolean isClassClass() {
     	return Class.class.getPackageName().equals(packageName) && Class.class.getSimpleName().equals(className);
     }
-    
-    private boolean isClassTypeOf(ClassType otherClassType) {
-		if (otherClassType.isClassClass()) {
-			return getClassClassType().isAssignableFrom(otherClassType.getClassClassType().asClassType());
-		}
-		return getClassClassType().isAssignableFrom(otherClassType);
-    }
-    
-    private GenericType getClassClassType() {
-    	return getGenerics().get(0);
-    }
-    
+
     /**
      * @see tendril.codegen.field.type.Importable#registerImport(java.util.Set)
      */

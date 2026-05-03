@@ -5,7 +5,7 @@ import tempApp.lib1orig.OriginalOption1;
 import tendril.bean.Factory;
 import tendril.bean.Replaces;
 
-@Replaces(OriginalOption1.class)
+@Replaces
 @Factory
 @Option1
 public class ReplaceOption1 extends OriginalOption1 {

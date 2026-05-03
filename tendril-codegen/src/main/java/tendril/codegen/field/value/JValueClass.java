@@ -28,7 +28,6 @@ public class JValueClass extends JValue<ClassType, ClassType> {
             return false;
         
         ClassType otherClass = (ClassType) otherType;
-        System.err.println("type: " + type.getSimpleName() + " other: " + otherClass.getSimpleName());
         if (!Class.class.getName().equals(otherClass.getFullyQualifiedName()))
         	return false;
         

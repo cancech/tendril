@@ -5,7 +5,7 @@ import tendril.bean.Factory;
 import tendril.bean.Replaces;
 import tendril.bean.qualifier.Named;
 
-@Replaces(Object.class)
+@Replaces
 @Factory
 @Named("originalNamed")
 public class ReplaceNamed extends OriginalNamed {

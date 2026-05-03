@@ -87,7 +87,6 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
         }
 
         annotations.forEach(annotation -> {
-        	System.err.println("process: " + annotations);
             findAndProcessElements(annotation);
         });
         return false;
@@ -115,8 +114,6 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
     protected void findAndProcessElements(TypeElement annotation) {
         findAndProcessElements(annotation, element -> { 
             try {
-            	if (annotation.getQualifiedName().toString().equals("tendril.bean.Replaces"))
-            		System.err.println("findAndProcessElements: " + annotation);
                 processElement(annotation, element);
             } catch (Exception e) {
                 throw new ProcessingException("Failure to process " + element + " with annotation " + annotation, e);
@@ -159,8 +156,6 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      */
     protected void processElement(TypeElement annotation, Element element) throws MissingAnnotationException, TendrilException {
         currentAnnotation = annotation;
-    	if (annotation.getQualifiedName().toString().equals("tendril.bean.Replaces"))
-    		System.err.println("processElement: " + currentAnnotation);
         
         if (element instanceof TypeElement) {
             prepareAndProcessType((TypeElement) element);
@@ -178,8 +173,6 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      * @throws TendrilException if an issue is encountered during processing
      */
     private void prepareAndProcessType(TypeElement element) throws MissingAnnotationException, TendrilException {
-    	if (currentAnnotation.getQualifiedName().toString().equals("tendril.bean.Replaces"))
-    		System.err.println("prepareAndProcessType: " + element);
         // Ensure that the element is supposed to be processed before doing anything else
         validateType(element);
         

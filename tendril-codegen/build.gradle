@@ -9,5 +9,3 @@ dependencies {
     api project(':tendril-util')
     testImplementation project(':tendril-test')
 }
-
-compileJava.options.compilerArgs += ['--add-exports', 'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED']
