@@ -39,4 +39,20 @@ public class ClassAssertTest {
         Assertions.assertThrows(AssertionFailedError.class, () -> ClassAssert.assertInstance(Integer.class, this));
         Assertions.assertThrows(AssertionFailedError.class, () -> ClassAssert.assertInstance(ClassAssertTest.class, "abc123"));
     }
+
+    /**
+     * Verify that assertNotInstance works properly
+     */
+    @Test
+    public void testAssertNotInstance() {
+        // Pass
+        ClassAssert.assertNotInstance(String.class, 321);
+        ClassAssert.assertNotInstance(Integer.class, this);
+        ClassAssert.assertNotInstance(ClassAssertTest.class, "abc123");
+        
+        // Fail
+        Assertions.assertThrows(AssertionFailedError.class, () -> ClassAssert.assertNotInstance(String.class, "abc123"));
+        Assertions.assertThrows(AssertionFailedError.class, () -> ClassAssert.assertNotInstance(Integer.class, 321));
+        Assertions.assertThrows(AssertionFailedError.class, () -> ClassAssert.assertNotInstance(ClassAssertTest.class, this));
+    }
 }

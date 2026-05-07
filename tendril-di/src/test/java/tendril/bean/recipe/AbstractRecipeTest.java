@@ -17,6 +17,7 @@ package tendril.bean.recipe;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Assertions;
@@ -144,6 +145,8 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     private Injector<SingleCtorBean> mockInjector2;
     @Mock
     private Injector<SingleCtorBean> mockInjector3;
+    @Mock
+    private AbstractRecipe<?> mockOtherRecipe;
     
     // Instance to test
     private TestRecipe recipe;
@@ -164,21 +167,10 @@ public class AbstractRecipeTest extends AbstractUnitTest {
      */
     @Test
     public void testRecipePrimaryFallbackFlags() {
-    	TestRecipe r1 = new TestRecipe(false, false);
-    	Assertions.assertFalse(r1.isPrimary());
-    	Assertions.assertFalse(r1.isFallback());
-
-    	TestRecipe r2 = new TestRecipe(true, false);
-    	Assertions.assertTrue(r2.isPrimary());
-    	Assertions.assertFalse(r2.isFallback());
-    	
-    	TestRecipe r3 = new TestRecipe(false, true);
-    	Assertions.assertFalse(r3.isPrimary());
-    	Assertions.assertTrue(r3.isFallback());
-
-    	TestRecipe r4 = new TestRecipe(true, true);
-    	Assertions.assertTrue(r4.isPrimary());
-    	Assertions.assertTrue(r4.isFallback());
+    	assertPriorities(new TestRecipe(false, false), false, false);
+    	assertPriorities(new TestRecipe(true, false), true, false);
+    	assertPriorities(new TestRecipe(false, true), false, true);
+    	assertPriorities(new TestRecipe(true, true), true, true);
     }
     
     /**
@@ -335,5 +327,52 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         recipe.registerInjector((bean, engine) -> recipe.buildBean());
         Assertions.assertThrows(BeanCreationException.class, () -> recipe.buildBean());
     }
+    
+    /**
+     * Verify that the priorities of a recipe can be updated
+     */
+    @Test
+    public void testUpdatePriorities() {
+    	// Verify initial state
+    	assertPriorities(recipe, false, false);
 
+    	// Change and verify
+    	int times = 0;
+    	updateAndVerifyRecipePriorities(true, false, ++times);
+    	updateAndVerifyRecipePriorities(false, true, ++times);
+    	updateAndVerifyRecipePriorities(true, true, ++times);
+    	updateAndVerifyRecipePriorities(false, false, ++times);
+    	updateAndVerifyRecipePriorities(true, false, ++times);
+    	updateAndVerifyRecipePriorities(false, true, ++times);
+    	updateAndVerifyRecipePriorities(true, true, ++times);
+    	updateAndVerifyRecipePriorities(false, false, ++times);
+    }
+    
+    /**
+     * Update the recipe priorities and verify that the change took hold
+     * 
+     * @param isPrimary boolean if it should become a primary
+     * @param isFallback boolean if it should be a fallback
+     * @param times int how many times this was done in the current test
+     */
+    private void updateAndVerifyRecipePriorities(boolean isPrimary, boolean isFallback, int times) {
+    	when(mockOtherRecipe.isPrimary()).thenReturn(isPrimary);
+    	when(mockOtherRecipe.isFallback()).thenReturn(isFallback);
+    	recipe.updatePriorities(mockOtherRecipe);
+    	assertPriorities(recipe, isPrimary, isFallback);
+    	verify(mockOtherRecipe, times(times)).isPrimary();
+    	verify(mockOtherRecipe, times(times)).isFallback();
+    }
+
+    /**
+     * Assert that the priorities of the recipe are correct
+     * 
+     * @param toCheck {@link AbstractRecipe} to check
+     * @param expectedPrimary boolean the expected primary state of the recipe
+     * @param expectedFallback boolean the expected fallback state of the recipe
+     */
+    private void assertPriorities(AbstractRecipe<?> toCheck, boolean expectedPrimary, boolean expectedFallback) {
+    	Assertions.assertEquals(expectedPrimary, toCheck.isPrimary());
+    	Assertions.assertEquals(expectedFallback, toCheck.isFallback());
+    }
 }

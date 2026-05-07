@@ -212,6 +212,7 @@ public class Engine {
 	 * @param name   {@link String} the fully qualified name of the recipe
 	 * @param object {@link Object} replacement recipe instance
 	 */
+	@SuppressWarnings("unchecked")
 	private void tryReplaceRecipe(String name, Object object) {
 		if (object instanceof AbstractRecipe recipe) {
 			if (requirementsMet(recipe)) {
@@ -227,6 +228,7 @@ public class Engine {
 				// Swap the original recipe for this one
 				AbstractRecipe<?> orig = (AbstractRecipe<?>) matches.get(0);
 				recipes.remove(orig);
+				recipe.updatePriorities(orig);
 				description.updateFrom(orig.getDescription());
 				recipes.add(recipe);
 			} else {

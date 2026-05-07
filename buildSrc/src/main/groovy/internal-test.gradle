@@ -8,6 +8,11 @@ sourceSets {
             srcDirs += ["build/generated/sources/annotationProcessor/java/main"]
         }
     }
+    test {
+        java {
+            srcDirs += ["build/generated/sources/annotationProcessor/java/test"]
+        }
+    }
 }
 
 compileJava {

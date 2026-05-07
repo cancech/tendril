@@ -41,9 +41,9 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
     /** The requirements of this bean */
     private final Requirement requirement;
     /** Flag indicating that the bean is a primary bean */
-    private final boolean isPrimary;
+    private boolean isPrimary;
     /** Flag indicating that the bean is a fallback bean */
-    private final boolean isFallback;
+    private boolean isFallback;
     
     /** List of the dependencies that the bean must receive */
     private final List<Injector<BEAN_TYPE>> consumers = new ArrayList<>();
@@ -70,12 +70,22 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
     }
     
     /**
+     * Updates the priorities of this recipe with those of another
+     * 
+     * @param other {@link AbstractRecipe} from which to update priorities
+     */
+    public void updatePriorities(AbstractRecipe<?> other) {
+    	this.isPrimary = other.isPrimary();
+    	this.isFallback = other.isFallback();
+    }
+    
+    /**
      * Check if the bean is a {@link Primary} bean
      * 
      * @return true if it is
      */
     public boolean isPrimary() {
-    	return this.isPrimary;
+    	return isPrimary;
     }
     
     /**
@@ -84,7 +94,7 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
      * @return true if it is
      */
     public boolean isFallback() {
-    	return this.isFallback;
+    	return isFallback;
     }
     
     /**

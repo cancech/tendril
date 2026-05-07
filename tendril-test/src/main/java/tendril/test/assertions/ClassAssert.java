@@ -37,4 +37,14 @@ public abstract class ClassAssert {
 	public static void assertInstance(Class<?> expectedType, Object actual) {
 		Assertions.assertTrue(expectedType.isInstance(actual), "Not an instance: expected " + expectedType.getSimpleName() + " but was " + actual.getClass().getSimpleName());
 	}
+
+	/**
+	 * Verify that a given object is not of an expected type
+	 * 
+	 * @param expectedType {@link Class} that is not expected to be
+	 * @param actual       {@link Object} the instance to check
+	 */
+	public static void assertNotInstance(Class<?> expectedType, Object actual) {
+		Assertions.assertFalse(expectedType.isInstance(actual), "Should not have been an instance of " + expectedType.getSimpleName() + " but was");
+	}
 }

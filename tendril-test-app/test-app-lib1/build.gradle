@@ -8,4 +8,5 @@ dependencies {
     annotationProcessor project(':tendril-di')
     
     testImplementation project(':tendril-test')
+    testAnnotationProcessor project(':tendril-di')
 }
