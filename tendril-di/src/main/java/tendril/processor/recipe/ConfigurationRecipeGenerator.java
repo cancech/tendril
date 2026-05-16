@@ -87,6 +87,7 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 	/**
 	 * Generate the code for creating the nested recipes
 	 * 
+	 * @param isReplacement boolean {@code true} is the nested recipes are replacements
 	 * @return {@link String}[] containing the necessary code
 	 * @throws TendrilException if an issue is encountered generating the configuration recipe
 	 */

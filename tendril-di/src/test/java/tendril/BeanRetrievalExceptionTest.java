@@ -26,6 +26,7 @@ import org.mockito.Mock;
 
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
+import tendril.context.search.RecipeSearchResult;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -48,6 +49,8 @@ public class BeanRetrievalExceptionTest extends AbstractUnitTest {
     private AbstractRecipe<Object> mockRecipe3;
     @Mock
     private Descriptor<Object> mockRecipeDescriptor3;
+    @Mock
+    private RecipeSearchResult<Object> mockSearchResult;
 
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
@@ -84,5 +87,29 @@ public class BeanRetrievalExceptionTest extends AbstractUnitTest {
         verify(mockRecipe3).getDescription();
         
         Assertions.assertEquals("Multiple type matches available for BEAN:\n    - A\n    - B\n    - C", ex.getMessage());
+    }
+    
+    /**
+     * Verify that the search result exception is correct
+     */
+    @Test
+    public void testSearchResult() {
+    	when(mockSearchResult.getType()).thenReturn("TYPE");
+        when(mockRecipe1.getDescription()).thenReturn(mockRecipeDescriptor1);
+        when(mockRecipe2.getDescription()).thenReturn(mockRecipeDescriptor2);
+        when(mockRecipe3.getDescription()).thenReturn(mockRecipeDescriptor3);
+        when(mockRecipeDescriptor1.toString()).thenReturn("D");
+        when(mockRecipeDescriptor2.toString()).thenReturn("E");
+        when(mockRecipeDescriptor3.toString()).thenReturn("F");
+    	when(mockSearchResult.getRecipes()).thenReturn(Arrays.asList(mockRecipe1, mockRecipe2, mockRecipe3));
+    	
+    	BeanRetrievalException ex = new BeanRetrievalException(mockBeanDescriptor, mockSearchResult);
+    	verify(mockSearchResult).getType();
+    	verify(mockSearchResult).getRecipes();
+        verify(mockRecipe1).getDescription();
+        verify(mockRecipe2).getDescription();
+        verify(mockRecipe3).getDescription();
+    	
+        Assertions.assertEquals("Multiple TYPE matches available for BEAN:\n    - D\n    - E\n    - F", ex.getMessage());
     }
 }

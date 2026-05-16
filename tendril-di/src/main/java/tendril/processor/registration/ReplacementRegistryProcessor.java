@@ -32,6 +32,9 @@ import tendril.bean.recipe.ReplacesRegistry;
 @AutoService(Processor.class)
 public class ReplacementRegistryProcessor extends AbstractRegistryProcessor {
 	
+	/**
+	 * CTOR
+	 */
 	public ReplacementRegistryProcessor() {
 		super("Replaces Registry", ReplacementRegistryFile.PATH);
 	}

@@ -107,9 +107,7 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 	}
 
 	/**
-	 * The nested recipe code reflects the creation of the "child" beans, driven by the different blueprint values
-	 * 
-	 * @see tendril.processor.recipe.ConfigurationRecipeGenerator#nestedRecipesCode()
+	 * @see tendril.processor.recipe.ConfigurationRecipeGenerator#nestedRecipesCode(boolean)
 	 */
 	@Override
 	protected String[] nestedRecipesCode(boolean isReplacement) throws TendrilException {

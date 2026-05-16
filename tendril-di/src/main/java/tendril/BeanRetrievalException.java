@@ -63,10 +63,23 @@ public class BeanRetrievalException extends RuntimeException {
         return str.toString();
     }
     
+    /**
+     * CTOR
+     * 
+     * @param desc {@link Descriptor} of the bean that was desired
+     * @param result {@link RecipeSearchResult} containing the multiple results which were found
+     */
     public BeanRetrievalException(Descriptor<?> desc, RecipeSearchResult<?> result) {
     	super(buildMultipleOptionsMessage(desc, result));
     }
 
+    /**
+     * Helper to assemble the message which is to be reported when multiple bean options are available
+     * 
+     * @param desc {@link Descriptor} of the bean that was desired
+     * @param options {@link RecipeSearchResult} containing the multiple results which were found
+     * @return {@link String} message with the full details
+     */
     private static String buildMultipleOptionsMessage(Descriptor<?> desc, RecipeSearchResult<?> options) {
         StringBuilder str = new StringBuilder("Multiple " + options.getType() + " matches available for " + desc.toString() + ":");
         for (AbstractRecipe<?> opt: options.getRecipes())

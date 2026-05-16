@@ -1,5 +1,11 @@
 package tendril.context.search;
 
+/**
+ * The type of search that can be performed
+ */
 public enum SearchType {
-	SINGLE_BEAN, ALL_BEANS
+	/** Search for a single unique bean */
+	SINGLE_BEAN,
+	/** Search for all matching beans */
+	ALL_BEANS
 }

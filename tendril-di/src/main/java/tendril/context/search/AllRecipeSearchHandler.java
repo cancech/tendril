@@ -5,8 +5,22 @@ import java.util.List;
 
 import tendril.bean.recipe.AbstractRecipe;
 
+/**
+ * Handles the search for recipes when all matching recipes are desired.
+ * 
+ * @param <BEAN_TYPE> of the recipes which are being sought
+ */
 public class AllRecipeSearchHandler<BEAN_TYPE> extends RecipeSearchHandler<BEAN_TYPE> {
 
+	/**
+	 * CTOR
+	 */
+	public AllRecipeSearchHandler() {
+	}
+
+	/**
+	 * @see tendril.context.search.RecipeSearchHandler#processResults()
+	 */
 	@Override
 	public RecipeSearchResult<BEAN_TYPE> processResults() {
 		List<AbstractRecipe<BEAN_TYPE>> recipes = new ArrayList<>();

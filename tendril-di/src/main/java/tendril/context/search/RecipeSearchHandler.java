@@ -7,12 +7,17 @@ import tendril.bean.Fallback;
 import tendril.bean.Primary;
 import tendril.bean.recipe.AbstractRecipe;
 
+/**
+ * Abstract handler for performing recipe searches.
+ * 
+ * @param <BEAN_TYPE> of the recipes which are being sought
+ */
 public abstract class RecipeSearchHandler<BEAN_TYPE> {
-	// List of the primary recipes that were found during the search
+	/** List of the primary recipes that were found during the search */
 	protected final List<AbstractRecipe<BEAN_TYPE>> primaryRecipes = new ArrayList<>();
-	// List of the basic (no explicit type) recipes that were found during the search
+	/** List of the basic (no explicit type) recipes that were found during the search */
 	protected final List<AbstractRecipe<BEAN_TYPE>> basicRecipes = new ArrayList<>();
-	// List of the fallback recipes that were found during the search
+	/** List of the fallback recipes that were found during the search */
 	protected final List<AbstractRecipe<BEAN_TYPE>> fallbackRecipes = new ArrayList<>();
 	
 	/**
@@ -102,5 +107,10 @@ public abstract class RecipeSearchHandler<BEAN_TYPE> {
 		return fallbackRecipes;
 	}
 	
+	/**
+	 * Process the search results to find the final resulting options
+	 * 
+	 * @return {@link RecipeSearchResult} containing the search results
+	 */
 	public abstract RecipeSearchResult<BEAN_TYPE> processResults();
 }

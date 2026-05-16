@@ -32,6 +32,9 @@ import tendril.bean.recipe.Registry;
 @AutoService(Processor.class)
 public class RegistryProcessor extends AbstractRegistryProcessor {
 	
+	/**
+	 * CTOR
+	 */
 	public RegistryProcessor() {
 		super("Registry", RegistryFile.PATH);
 	}
