@@ -15,6 +15,7 @@
  */
 package tendril.test.recipe;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import tendril.bean.recipe.AbstractRecipe;
@@ -60,5 +61,10 @@ public class RequiresAConfigRecipe extends ConfigurationRecipe<TestConfig>{
     protected void setupRequirement(Requirement requirement) {
         requirement.addRequiredEnvironment("A");
     }
+
+	@Override
+	public Map<String, AbstractRecipe<?>> getNestedReplacementRecipes() {
+		return new HashMap<>();
+	}
 
 }

@@ -42,6 +42,11 @@ public class ConfigurationRecipeTest extends AbstractUnitTest {
 		}
 
 		@Override
+		public Map<String, AbstractRecipe<?>> getNestedReplacementRecipes() {
+			return new HashMap<>();
+		}
+
+		@Override
 		protected void setupRequirement(Requirement requirement) {
 		}
 
@@ -49,7 +54,6 @@ public class ConfigurationRecipeTest extends AbstractUnitTest {
 		protected SingleCtorBean createInstance(Engine engine) {
             return new SingleCtorBean();
 		}
-    	
     };
 
     /**

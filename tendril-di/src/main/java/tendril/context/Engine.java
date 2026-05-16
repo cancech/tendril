@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import tendril.BeanReplacementException;
 import tendril.BeanRetrievalException;
 import tendril.bean.Fallback;
 import tendril.bean.Primary;
@@ -58,6 +59,8 @@ public class Engine {
 	private final Map<Class<? extends BlueprintDriver>, List<BlueprintDriver>> dynamicBlueprintsForClass = new HashMap<>();
 	/** All recipes that have been registered */
 	private final List<AbstractRecipe<?>> recipes = new ArrayList<>();
+	/** All replacement recipes that are defined in a configuration */
+	private final List<Map<String, AbstractRecipe<?>>> configReplacements = new ArrayList<>();
 	/** List of environments that are applied to the context */
 	private List<String> environments = new ArrayList<>();
 	/** Flag for whether or not the engine has been started */
@@ -111,11 +114,20 @@ public class Engine {
 
 			// Replace those which have available replacements
 			processRegistry(ReplacementRegistryFile.read(), (recipe, instance) -> tryReplaceRecipe(recipe, instance));
+
+			// Finally once everything else has been loaded, load the various replacement recipes from config files
+			processConfigReplacements();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * Process recipe classes that appear in a registry
+	 * 
+	 * @param recipes {@link Set} of {@link String} recipe class names to load
+	 * @param loader  {@link RecipeLoader} which is to load the recipes
+	 */
 	private void processRegistry(Set<String> recipes, RecipeLoader loader) {
 		for (String recipe : recipes) {
 			try {
@@ -134,6 +146,17 @@ public class Engine {
 	}
 
 	/**
+	 * Process the replacement recipes that have been delayed during configuration processing
+	 */
+	private void processConfigReplacements() {
+		for (Map<String, AbstractRecipe<?>> m : configReplacements) {
+			m.forEach((name, r) -> tryReplaceRecipe(name, r));
+		}
+
+		configReplacements.clear();
+	}
+
+	/**
 	 * Try to add the recipe as though it were a configuration
 	 * 
 	 * @param recipe {@link String} the fully qualified name of the recipe
@@ -147,7 +170,14 @@ public class Engine {
 		ConfigurationRecipe<?> config = (ConfigurationRecipe<?>) object;
 		if (requirementsMet(config)) {
 			LOGGER.fine("Loading configuration " + recipe);
+			// Regular beans can be processed immediately
 			config.getNestedRecipes().forEach((name, r) -> tryAddRecipe(recipe + "::" + name, r));
+			// Replacements must be delayed until later
+			Map<String, AbstractRecipe<?>> delayedReplacements = new HashMap<>();
+			config.getNestedReplacementRecipes().forEach((name, r) -> {
+				delayedReplacements.put(recipe + "::" + name, r);
+			});
+			configReplacements.add(delayedReplacements);
 		} else {
 			LOGGER.fine("Configuration requirements not met " + recipe);
 		}
@@ -218,19 +248,15 @@ public class Engine {
 			if (requirementsMet(recipe)) {
 				// Find the recipe this is to replace
 				Descriptor<?> description = recipe.getDescription();
-				RecipeSearchResult<?> result = findOriginalRecipes(description, SearchType.SINGLE_BEAN);
-				List<?> matches = result.getRecipes();
-				if (matches.isEmpty())
-					throw new BeanRetrievalException(description);
-				if (matches.size() > 1)
-					throw new BeanRetrievalException(description, result);
-				
-				// Swap the original recipe for this one
-				AbstractRecipe<?> orig = (AbstractRecipe<?>) matches.get(0);
-				recipes.remove(orig);
-				recipe.updatePriorities(orig);
-				description.updateFrom(orig.getDescription());
-				recipes.add(recipe);
+				try {
+					AbstractRecipe<?> orig = getRecipe(description, findOriginalRecipes(description, SearchType.SINGLE_BEAN));
+					recipes.remove(orig);
+					recipe.updatePriorities(orig);
+					description.updateFrom(orig.getDescription());
+					recipes.add(recipe);
+				} catch (Exception ex) {
+					throw new BeanReplacementException("Failed to apply replacement bean " + name, ex);
+				}
 			} else {
 				LOGGER.fine("Replacement bean requirements not met" + recipe);
 			}
@@ -268,28 +294,28 @@ public class Engine {
 	 * @return The specific bean that is desired
 	 * @throws BeanRetrievalException if there is an issue retrieving the desired bean
 	 */
+	@SuppressWarnings("unchecked")
 	public <BEAN_TYPE> BEAN_TYPE getBean(Descriptor<BEAN_TYPE> descriptor) {
-		RecipeSearchResult<BEAN_TYPE> matchingRecipes = findRecipes(descriptor, SearchType.SINGLE_BEAN);
-		return getBean(descriptor, matchingRecipes.getRecipes(), matchingRecipes.getType());
+		return (BEAN_TYPE) getRecipe(descriptor, findRecipes(descriptor, SearchType.SINGLE_BEAN)).get();
 	}
 
 	/**
-	 * Retrieve the one exact bean from the list of recipes. If this does not resolve into one exact bean, then an exception will be thrown
+	 * Retrieve the one recipe from the matches. Primarily performs error checking and throws a {@link BeanRetrievalException} if more than one match is present.
 	 * 
-	 * @param <BEAN_TYPE> indicating the type of bean that is to be retrieved
-	 * @param descriptor  {@link Descriptor} containing the description of the bean that is to be retrieved
-	 * @param recipes     {@link List} of {@link AbstractRecipe} instances which are to be processed
-	 * @param type        {@link String} indicating the type/group of bean (primary, fallback, neither) that is being processed
-	 * @return The specific bean that is desired
+	 * @param descriptor      {@link Descriptor} containing the description of the bean that is to be retrieved
+	 * @param matchingRecipes {@link RecipeSearchResult} containing the matching beans
+	 * @return The single matching recipe
 	 * @throws BeanRetrievalException if there is an issue retrieving the desired bean
 	 */
-	private <BEAN_TYPE> BEAN_TYPE getBean(Descriptor<BEAN_TYPE> descriptor, List<AbstractRecipe<BEAN_TYPE>> recipes, String type) {
-		if (recipes.isEmpty())
+	@SuppressWarnings("unchecked")
+	private AbstractRecipe<?> getRecipe(Descriptor<?> descriptor, RecipeSearchResult<?> matchingRecipes) throws BeanReplacementException {
+		List<?> matches = matchingRecipes.getRecipes();
+		if (matches.isEmpty())
 			throw new BeanRetrievalException(descriptor);
-		if (recipes.size() > 1)
-			throw new BeanRetrievalException(descriptor, recipes, type);
+		if (matches.size() > 1)
+			throw new BeanRetrievalException(descriptor, (List<AbstractRecipe<?>>)matches, matchingRecipes.getType());
 
-		return recipes.get(0).get();
+		return (AbstractRecipe<?>) matches.get(0);
 	}
 
 	/**
@@ -332,7 +358,7 @@ public class Engine {
 
 		return foundRecipes.processResults();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private <BEAN_TYPE> RecipeSearchResult<BEAN_TYPE> findOriginalRecipes(Descriptor<BEAN_TYPE> descriptor, SearchType type) {
 		RecipeSearchHandler<BEAN_TYPE> foundRecipes = type == SearchType.SINGLE_BEAN ? new SingleRecipeSearchHandler<>() : new AllRecipeSearchHandler<>();

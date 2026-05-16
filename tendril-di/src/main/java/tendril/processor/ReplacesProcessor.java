@@ -39,6 +39,4 @@ public class ReplacesProcessor extends AbstactBeanProcessor {
 	public ReplacesProcessor() {
 		super(ReplacesRegistry.class);
 	}
-	
-	// TODO add support for methods
 }

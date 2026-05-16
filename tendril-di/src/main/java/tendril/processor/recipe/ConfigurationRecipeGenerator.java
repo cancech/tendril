@@ -15,6 +15,7 @@
  */
 package tendril.processor.recipe;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,7 @@ import tendril.TendrilStartupException;
 import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Bean;
 import tendril.bean.Configuration;
+import tendril.bean.Replaces;
 import tendril.bean.duplicate.GeneratedBlueprint;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.codegen.VisibilityType;
@@ -66,7 +68,8 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 		generateCreateInstance(builder);
 		generateRecipeRequirements(builder);
 		processPostConstruct(builder);
-		generateNestedRecipes(builder);
+		generateNestedRecipes(builder, "getNestedRecipes", nestedRecipesCode(false));
+		generateNestedRecipes(builder, "getNestedReplacementRecipes", nestedRecipesCode(true));
 	}
 
 	/**
@@ -75,29 +78,42 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 	 * @param builder {@link ClassBuilder} where the recipe is being defined
 	 * @throws TendrilException if an issue is encountered generating the configuration recipe
 	 */
-	private void generateNestedRecipes(ClassBuilder builder) throws TendrilException {
+	private void generateNestedRecipes(ClassBuilder builder, String methodName, String[] code) throws TendrilException {
 		ClassType returnType = TypeFactory.createClassType(Map.class, GenericFactory.create(TypeFactory.createClassType(String.class)),
 				GenericFactory.create(TypeFactory.createClassType(AbstractRecipe.class, GenericFactory.createWildcard())));
-		builder.buildMethod(returnType, "getNestedRecipes").setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(Override.class)).addCode(nestedRecipesCode()).finish();
+		builder.buildMethod(returnType, methodName).setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(Override.class)).addCode(code).finish();
 	}
-
+	
 	/**
 	 * Generate the code for creating the nested recipes
 	 * 
 	 * @return {@link String}[] containing the necessary code
 	 * @throws TendrilException if an issue is encountered generating the configuration recipe
 	 */
-	protected String[] nestedRecipesCode() throws TendrilException {
+	protected String[] nestedRecipesCode(boolean isReplacement) throws TendrilException {
 		externalImports.add(TypeFactory.createClassType(HashMap.class));
 		List<String> code = new ArrayList<>();
 		code.add("Map<String, AbstractRecipe<?>> recipes = new HashMap<>();");
+		
+		if (isReplacement)
+			populateNestedReplacements(code);
+		else
+			populateNestedRecipes(code);
+		
+		code.add("return recipes;");
+		return code.toArray(new String[code.size()]);
+	}
 
+	/**
+	 * Populate the code for creating/tracking the nested recipes. This requires that the map where the recipes are stored is called {@code recipes}
+	 * 
+	 * @param code {@link List} of {@link String}s where the code is tracked
+	 * @throws TendrilException if there is an issue generating the code
+	 */
+	protected void populateNestedRecipes(List<String> code) throws TendrilException {
 		// Handle the methods which create "normal" beans
-		for (JMethod<?> method : creator.getMethods(Bean.class)) {
-			ClassType nestedRecipeType = RecipeGenerator.getRecipeType(creatorType, method);
-			code.add("recipes.put(\"" + method.getName() + "\", new " + nestedRecipeType.getSimpleName() + "(this, engine));");
-		}
-
+		appendBeanRecipes(Bean.class, code);
+		
 		// Handle the methods which create duplicated beans
 		for (JMethod<?> method : creator.getMethods()) {
 			JAnnotation duplicateAnnotation = duplicationAnnotation(method);
@@ -122,9 +138,29 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 				}
 			}
 		}
-
-		code.add("return recipes;");
-		return code.toArray(new String[code.size()]);
+	}
+	
+	/**
+	 * Populate the code for creating/tracking the nested replacement recipes. This requires that the map where the recipes are stored is called {@code recipes}
+	 * 
+	 * @param code {@link List} of {@link String}s where the code is tracked
+	 */
+	protected void populateNestedReplacements(List<String> code) {
+		// Handle the methods which create "normal" beans
+		appendBeanRecipes(Replaces.class, code);
+	}
+	
+	/**
+	 * Append bean recipes to the map of recipes that is being assembled
+	 * 
+	 * @param annotation {@link Class} extending {@link Annotation} which the creation method is annotated with
+	 * @param code {@link List} of {@link String} lines of code where the recipe map is being assembled
+	 */
+	private void appendBeanRecipes(Class<? extends Annotation> annotation, List<String> code) {
+		for (JMethod<?> method : creator.getMethods(annotation)) {
+			ClassType nestedRecipeType = RecipeGenerator.getRecipeType(creatorType, method);
+			code.add("recipes.put(\"" + method.getName() + "\", new " + nestedRecipeType.getSimpleName() + "(this, engine));");
+		}
 	}
 
 	/**

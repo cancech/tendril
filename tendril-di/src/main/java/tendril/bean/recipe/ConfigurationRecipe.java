@@ -55,4 +55,11 @@ public abstract class ConfigurationRecipe<CONFIGURATION_TYPE> extends SingletonR
      * @return {@link Map} of {@link String} (method name) to the {@link AbstractRecipe} which creates the nested bean
      */
     public abstract Map<String, AbstractRecipe<?>> getNestedRecipes();
+
+    /**
+     * Get the replacement recipes for the nested method beans
+     * 
+     * @return {@link Map} of {@link String} (method name) to the {@link AbstractRecipe} which creates the replacement nested bean
+     */
+    public abstract Map<String, AbstractRecipe<?>> getNestedReplacementRecipes();
 }

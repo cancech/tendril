@@ -6,6 +6,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 	    AbstractAppRunner.expectedMessage = "QWERTY";
+	    AbstractAppRunner.expectedEnvironment = "production";
 	    AbstractAppRunner.expectedRunner = AppRunner1.class;
 	    AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
 	    

@@ -112,7 +112,10 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 	 * @see tendril.processor.recipe.ConfigurationRecipeGenerator#nestedRecipesCode()
 	 */
 	@Override
-	protected String[] nestedRecipesCode() throws TendrilException {
+	protected String[] nestedRecipesCode(boolean isReplacement) throws TendrilException {
+		if (isReplacement)
+			return new String[] { "return new HashMap<>();" };
+		
 		ClassType siblingType = RecipeGenerator.getSiblingRecipeType(creatorType);
 		externalImports.add(siblingType);
 		externalImports.add(TypeFactory.createClassType(HashMap.class));

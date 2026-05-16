@@ -40,12 +40,11 @@ public class BeanRetrievalException extends RuntimeException {
     /**
      * CTOR
      * 
-     * @param <BEAN_TYPE> indicating the type of bean that was attempted to be retrieved
      * @param desc {@link Descriptor} describing the bean that was attempted to be retrieved
      * @param options {@link List} of {@link AbstractRecipe}s that were all matched
      * @param beanLabel {@link String} to apply as a label (adjective) on the bean when generating the exception message
      */
-    public <BEAN_TYPE> BeanRetrievalException(Descriptor<BEAN_TYPE> desc, List<AbstractRecipe<BEAN_TYPE>> options, String beanLabel) {
+    public BeanRetrievalException(Descriptor<?> desc, List<AbstractRecipe<?>> options, String beanLabel) {
         super(buildMultipleOptionsMessage(desc, options, beanLabel));
     }
 
@@ -57,7 +56,7 @@ public class BeanRetrievalException extends RuntimeException {
      * @param beanLabel {@link String} to apply as a label (adjective) on the bean when generating the exception message
      * @return {@link String} message with the full details
      */
-    private static <BEAN_TYPE> String buildMultipleOptionsMessage(Descriptor<BEAN_TYPE> desc, List<AbstractRecipe<BEAN_TYPE>> options, String beanLabel) {
+    private static String buildMultipleOptionsMessage(Descriptor<?> desc, List<AbstractRecipe<?>> options, String beanLabel) {
         StringBuilder str = new StringBuilder("Multiple " + beanLabel + " matches available for " + desc.toString() + ":");
         for (AbstractRecipe<?> opt: options)
             str.append("\n    - " + opt.getDescription());

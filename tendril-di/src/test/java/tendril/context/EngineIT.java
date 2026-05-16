@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+import tendril.BeanReplacementException;
 import tendril.BeanRetrievalException;
 import tendril.bean.duplicate.BlueprintDriver;
 import tendril.bean.qualifier.Descriptor;
@@ -532,7 +533,7 @@ public class EngineIT extends AbstractUnitTest {
 			try (MockedStatic<ReplacementRegistryFile> replaceRegistry = Mockito.mockStatic(ReplacementRegistryFile.class)) {
 				registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(Double1TestRecipe.class.getName(), BasicStringRecipe1.class.getName())));
 				replaceRegistry.when(ReplacementRegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(ReplaceIntRecipe.class.getName())));
-				Assertions.assertThrows(BeanRetrievalException.class, () -> engine.init());
+				Assertions.assertThrows(BeanReplacementException.class, () -> engine.init());
 			}
 		}
 	}
@@ -546,7 +547,7 @@ public class EngineIT extends AbstractUnitTest {
 			try (MockedStatic<ReplacementRegistryFile> replaceRegistry = Mockito.mockStatic(ReplacementRegistryFile.class)) {
 				registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(BasicStringRecipe1.class.getName(), BasicStringRecipe2.class.getName(), BasicStringRecipe3.class.getName())));
 				replaceRegistry.when(ReplacementRegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(ReplaceStringRecipe.class.getName())));
-				Assertions.assertThrows(BeanRetrievalException.class, () -> engine.init());
+				Assertions.assertThrows(BeanReplacementException.class, () -> engine.init());
 			}
 		}
 	}

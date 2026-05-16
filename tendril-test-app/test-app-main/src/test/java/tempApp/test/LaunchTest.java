@@ -51,6 +51,7 @@ public class LaunchTest {
     @Test
     public void testAppRunner1LowerCaseQwerty() {
         AbstractAppRunner.expectedMessage = "qwerty";
+        AbstractAppRunner.expectedEnvironment = "production";
         AbstractAppRunner.expectedRunner = AppRunner1.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
         
@@ -73,6 +74,7 @@ public class LaunchTest {
     @Test
     public void testAppRunner1UpperCaseQwerty() {
         AbstractAppRunner.expectedMessage = "QWERTY";
+        AbstractAppRunner.expectedEnvironment = "production";
         AbstractAppRunner.expectedRunner = AppRunner1.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
         
@@ -95,6 +97,7 @@ public class LaunchTest {
     @Test
     public void testAppRunner1DuplicateDynamicBlueprintName() {
         AbstractAppRunner.expectedMessage = "qwerty";
+        AbstractAppRunner.expectedEnvironment = "production";
         AbstractAppRunner.expectedRunner = AppRunner1.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
         
@@ -113,6 +116,7 @@ public class LaunchTest {
     @Test
     public void testAppRunner2LowercaseQwerty() {
         AbstractAppRunner.expectedMessage = "qwerty";
+        AbstractAppRunner.expectedEnvironment = "test";
         AbstractAppRunner.expectedRunner = AppRunner2.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
         
@@ -140,6 +144,7 @@ public class LaunchTest {
     @Test
     public void testAppRunner2UppercaseQwerty() {
         AbstractAppRunner.expectedMessage = "QWERTY";
+        AbstractAppRunner.expectedEnvironment = "test";
         AbstractAppRunner.expectedRunner = AppRunner2.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
         
@@ -167,6 +172,7 @@ public class LaunchTest {
     @Test
     public void testAppRunner2LowercaseAbc123() {
         AbstractAppRunner.expectedMessage = "abc123";
+        AbstractAppRunner.expectedEnvironment = "test";
         AbstractAppRunner.expectedRunner = AppRunner2.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
         
@@ -194,6 +200,7 @@ public class LaunchTest {
     @Test
     public void testAppRunner2UppercaseAbc123() {
         AbstractAppRunner.expectedMessage = "ABC!@#";
+        AbstractAppRunner.expectedEnvironment = "test";
         AbstractAppRunner.expectedRunner = AppRunner2.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
         
