@@ -26,14 +26,14 @@ import tendril.context.Engine;
 /**
  * Configuration recipe to use for testing
  */
-public class RequiresAConfigRecipe extends ConfigurationRecipe<TestConfig>{
+public class RequiresPropAConfigRecipe extends ConfigurationRecipe<TestConfig>{
 
     /**
      * CTOR
      * 
      * @param engine {@link Engine} for the context
      */
-    public RequiresAConfigRecipe(Engine engine) {
+    public RequiresPropAConfigRecipe(Engine engine) {
         super(engine, TestConfig.class, false, false);
     }
 
@@ -43,7 +43,7 @@ public class RequiresAConfigRecipe extends ConfigurationRecipe<TestConfig>{
     @Override
     public Map<String, AbstractRecipe<?>> getNestedRecipes() {
         return Map.of("int1", new IntTestRecipe(engine),
-                RequiresBNestedRecipe.NAME, new RequiresBNestedRecipe(engine));
+                RequiresPropBNestedRecipe.NAME, new RequiresPropBNestedRecipe(engine));
     }
 
     /**
@@ -55,12 +55,16 @@ public class RequiresAConfigRecipe extends ConfigurationRecipe<TestConfig>{
     }
 
     /**
-     * @see tendril.bean.recipe.AbstractRecipe#setupRequirement(tendril.bean.requirement.Requirement)
+     * @see tendril.bean.recipe.AbstractRecipe#setupEnvironmentRequirement(tendril.bean.requirement.Requirement)
      */
     @Override
-    protected void setupRequirement(Requirement requirement) {
-        requirement.addRequiredEnvironment("A");
+    protected void setupEnvironmentRequirement(Requirement requirement) {
     }
+
+	@Override
+	protected void setupPropertyRequirement(Requirement requirement) {
+        requirement.addRequired("A");
+	}
 
 	@Override
 	public Map<String, AbstractRecipe<?>> getNestedReplacementRecipes() {

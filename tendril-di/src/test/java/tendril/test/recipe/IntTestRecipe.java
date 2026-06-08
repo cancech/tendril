@@ -47,11 +47,15 @@ public class IntTestRecipe extends AbstractRecipe<Integer> {
     }
 
     /**
-     * @see tendril.bean.recipe.AbstractRecipe#setupRequirement(tendril.bean.requirement.Requirement)
+     * @see tendril.bean.recipe.AbstractRecipe#setupEnvironmentRequirement(tendril.bean.requirement.Requirement)
      */
     @Override
-    protected void setupRequirement(Requirement requirement) {
+    protected void setupEnvironmentRequirement(Requirement requirement) {
     }
+
+	@Override
+	protected void setupPropertyRequirement(Requirement requirement) {
+	}
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#get()

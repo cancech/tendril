@@ -186,40 +186,6 @@ public class Engine {
 	}
 
 	/**
-	 * Check if the requirements for the recipe have been met
-	 * 
-	 * @param recipe {@link AbstractRecipe} to check
-	 * @return boolean true if all requirements for the recipe have been met
-	 */
-	boolean requirementsMet(AbstractRecipe<?> recipe) {
-		Requirement req = recipe.getRequirement();
-		List<String> reqEnvs = req.getRequiredEnvironments();
-		List<String> notReqEnvs = req.getRequiredNotEnvironments();
-
-		// Make sure that all required environments are present
-		if (!environments.containsAll(reqEnvs)) {
-			LOGGER.fine("Unable to load " + recipe + " because not all required environments [" + TendrilStringUtil.join(reqEnvs) + "] are met.");
-			return false;
-		}
-
-		// Make sure that none of the not required environments are present
-		if (TendrilUtil.containsAny(environments, notReqEnvs)) {
-			LOGGER.fine("Unable to load " + recipe + " because at least one of the not required environments [" + TendrilStringUtil.join(notReqEnvs) + "] is present");
-			return false;
-		}
-
-		// Make sure that all of the "one of" environments are present
-		for (List<String> tuple : req.getRequiredOneOfEnvironments()) {
-			if (!TendrilUtil.containsAny(environments, tuple)) {
-				LOGGER.fine("Unable to load " + recipe + " because at least one of the required environments [" + TendrilStringUtil.join(tuple) + "] is not present");
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
 	 * Try to add the recipe as though it were a recipe for an individual bean
 	 * 
 	 * @param name   {@link String} the fully qualified name of the recipe
@@ -263,6 +229,63 @@ public class Engine {
 		} else {
 			LOGGER.severe("Unable to load malformed recipe " + name);
 		}
+	}
+
+	/**
+	 * Check if the requirements for the recipe have been met
+	 * 
+	 * @param recipe {@link AbstractRecipe} to check
+	 * @return boolean true if all requirements for the recipe have been met
+	 */
+	boolean requirementsMet(AbstractRecipe<?> recipe) {
+		return requirementsMet(recipe, recipe.getEnvironmentRequirement(), environments) && requirementsMet(recipe, recipe.getPropertyRequirement(), systemPropertyList());
+	}
+
+	/**
+	 * Get a list of system properties as String (i.e.: list of the property names that have been applied)
+	 * 
+	 * @return {@link List} of {@link String}s
+	 */
+	private List<String> systemPropertyList() {
+		List<String> propNames = new ArrayList<>();
+		for (Object o : System.getProperties().keySet())
+			propNames.add(o.toString());
+		return propNames;
+	}
+
+	/**
+	 * Check if the specific requirement has been met.
+	 * 
+	 * @param recipe {@link AbstractRecipe} being checked
+	 * @param req    {@link Requirement} to be validated
+	 * @param values {@link List} of {@link String} values that are to be checked against
+	 * @return boolean {@code true} if the requirement has been met
+	 */
+	private boolean requirementsMet(AbstractRecipe<?> recipe, Requirement req, List<String> values) {
+		List<String> reqEnvs = req.getRequired();
+		List<String> notReqEnvs = req.getRequiredNot();
+
+		// Make sure that all required environments are present
+		if (!values.containsAll(reqEnvs)) {
+			LOGGER.fine("Unable to load " + recipe + " because not all required environments [" + TendrilStringUtil.join(reqEnvs) + "] are met.");
+			return false;
+		}
+
+		// Make sure that none of the not required environments are present
+		if (TendrilUtil.containsAny(values, notReqEnvs)) {
+			LOGGER.fine("Unable to load " + recipe + " because at least one of the not required environments [" + TendrilStringUtil.join(notReqEnvs) + "] is present");
+			return false;
+		}
+
+		// Make sure that all of the "one of" environments are present
+		for (List<String> tuple : req.getRequiredOneOf()) {
+			if (!TendrilUtil.containsAny(values, tuple)) {
+				LOGGER.fine("Unable to load " + recipe + " because at least one of the required environments [" + TendrilStringUtil.join(tuple) + "] is not present");
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -313,7 +336,7 @@ public class Engine {
 		if (matches.isEmpty())
 			throw new BeanRetrievalException(descriptor);
 		if (matches.size() > 1)
-			throw new BeanRetrievalException(descriptor, (List<AbstractRecipe<?>>)matches, matchingRecipes.getType());
+			throw new BeanRetrievalException(descriptor, (List<AbstractRecipe<?>>) matches, matchingRecipes.getType());
 
 		return (AbstractRecipe<?>) matches.get(0);
 	}

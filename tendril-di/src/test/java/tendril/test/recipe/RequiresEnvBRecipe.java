@@ -21,21 +21,19 @@ import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 
 /**
- * Recipe to use for testing where a {@link Double} 3.21 is produced. This is a duplicate of {@link Double1TestRecipe} in terms of the bean it produces.
+ * 
  */
-public class Double1DuplicateTestRecipe extends AbstractRecipe<Double> {
+public class RequiresEnvBRecipe extends AbstractRecipe<Double> {
 
-    /** The name under which the double 1 bean is provided */
-    public static final String NAME = "dbl1";
+    /** The name under which the double 2 bean is provided */
+    public static final String NAME = "EnvB";
     /** The value that the recipe produces */
-    public static final double VALUE = 3.21;
-
+    public static final Double VALUE = 4.56;
+    
     /**
-     * CTOR
-     * 
-     * @param engine {@link Engine} in which the recipe is to be registered
+     * @param engine
      */
-    public Double1DuplicateTestRecipe(Engine engine) {
+    public RequiresEnvBRecipe(Engine engine) {
         super(engine, Double.class, false, false);
     }
 
@@ -52,6 +50,7 @@ public class Double1DuplicateTestRecipe extends AbstractRecipe<Double> {
      */
     @Override
     protected void setupEnvironmentRequirement(Requirement requirement) {
+        requirement.addRequired("B");
     }
 
 	@Override
@@ -66,6 +65,9 @@ public class Double1DuplicateTestRecipe extends AbstractRecipe<Double> {
         return VALUE;
     }
 
+    /**
+     * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
+     */
     @Override
     protected Double createInstance(Engine engine) {
         return VALUE;

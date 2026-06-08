@@ -47,7 +47,11 @@ public class ConfigurationRecipeTest extends AbstractUnitTest {
 		}
 
 		@Override
-		protected void setupRequirement(Requirement requirement) {
+		protected void setupEnvironmentRequirement(Requirement requirement) {
+		}
+
+		@Override
+		protected void setupPropertyRequirement(Requirement requirement) {
 		}
 
 		@Override

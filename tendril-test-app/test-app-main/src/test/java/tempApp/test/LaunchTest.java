@@ -54,6 +54,7 @@ public class LaunchTest {
         AbstractAppRunner.expectedEnvironment = "production";
         AbstractAppRunner.expectedRunner = AppRunner1.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
+        AbstractAppRunner.expectedDblValue = 321;
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("lowercase", "qwerty", "AppRunner1", "production");
@@ -77,7 +78,9 @@ public class LaunchTest {
         AbstractAppRunner.expectedEnvironment = "production";
         AbstractAppRunner.expectedRunner = AppRunner1.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
+        AbstractAppRunner.expectedDblValue = 123;
         
+        System.setProperty("testProperty", "");
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("uppercase", "qwerty", "AppRunner1", "production");
         ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
@@ -92,6 +95,7 @@ public class LaunchTest {
         FactoryClass.assertFactory();
         TempManager.assertSingleton();
         AbstractAppRunner.assertSingleton();
+        System.clearProperty("testProperty");
     }
 
     @Test
@@ -100,6 +104,7 @@ public class LaunchTest {
         AbstractAppRunner.expectedEnvironment = "production";
         AbstractAppRunner.expectedRunner = AppRunner1.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
+        AbstractAppRunner.expectedDblValue = 321;
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("lowercase", "qwerty", "AppRunner1", "production");
@@ -111,7 +116,8 @@ public class LaunchTest {
         SingletonClass.assertNever();
         FactoryClass.assertNever();
         TempManager.assertNever();
-        AbstractAppRunner.assertNever();    }
+        AbstractAppRunner.assertNever();
+    }
 
     @Test
     public void testAppRunner2LowercaseQwerty() {
@@ -119,7 +125,9 @@ public class LaunchTest {
         AbstractAppRunner.expectedEnvironment = "test";
         AbstractAppRunner.expectedRunner = AppRunner2.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
-        
+        AbstractAppRunner.expectedDblValue = 123;
+
+        System.setProperty("testProperty", "");
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("lowercase", "qwerty", "test");
         ctx.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
@@ -139,6 +147,7 @@ public class LaunchTest {
         FactoryClass.assertFactory();
         TempManager.assertSingleton();
         AbstractAppRunner.assertSingleton();
+        System.clearProperty("testProperty");
     }
 
     @Test
@@ -147,6 +156,7 @@ public class LaunchTest {
         AbstractAppRunner.expectedEnvironment = "test";
         AbstractAppRunner.expectedRunner = AppRunner2.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
+        AbstractAppRunner.expectedDblValue = 321;
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("uppercase", "qwerty", "test");
@@ -175,6 +185,7 @@ public class LaunchTest {
         AbstractAppRunner.expectedEnvironment = "test";
         AbstractAppRunner.expectedRunner = AppRunner2.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
+        AbstractAppRunner.expectedDblValue = 3.21;
         
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("lowercase", "abc123", "test");
@@ -203,7 +214,9 @@ public class LaunchTest {
         AbstractAppRunner.expectedEnvironment = "test";
         AbstractAppRunner.expectedRunner = AppRunner2.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
-        
+        AbstractAppRunner.expectedDblValue = 1.23;
+
+        System.setProperty("testProperty", "");
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("uppercase", "abc123", "test");
         ctx.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
@@ -223,5 +236,6 @@ public class LaunchTest {
         FactoryClass.assertFactory();
         TempManager.assertSingleton();
         AbstractAppRunner.assertSingleton();
+        System.clearProperty("testProperty");
     }
 }

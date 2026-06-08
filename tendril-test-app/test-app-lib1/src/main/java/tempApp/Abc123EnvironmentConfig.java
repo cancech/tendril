@@ -19,6 +19,8 @@ import tendril.bean.Bean;
 import tendril.bean.Configuration;
 import tendril.bean.Singleton;
 import tendril.bean.requirement.RequiresEnv;
+import tendril.bean.requirement.RequiresNotProp;
+import tendril.bean.requirement.RequiresProp;
 
 /**
  * 
@@ -41,5 +43,21 @@ public class Abc123EnvironmentConfig {
     @RequiresEnv("uppercase")
     String msgUpper() {
         return "ABC!@#";
+    }
+    
+    @Bean
+    @Singleton
+    @Message
+    @RequiresProp("testProperty")
+    double dblProperty() {
+    	return 1.23;
+    }
+    
+    @Bean
+    @Singleton
+    @Message
+    @RequiresNotProp("testProperty")
+    double dblNotProperty() {
+    	return 3.21;
     }
 }

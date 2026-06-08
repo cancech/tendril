@@ -23,12 +23,12 @@ import java.util.List;
  * Tracks what is required for a bean to be allowed to be created.
  */
 public class Requirement {
-    /** List of environments, all of which must be present */
-    private final List<String> requiredEnvs = new ArrayList<>();
-    /** List of environments groups, where at least one from each group must be present */
-    private final List<List<String>> requiredOneOfEnvs = new ArrayList<>();
-    /** List of environments, none of which must be present */
-    private final List<String> requiredNotEnvs = new ArrayList<>();
+    /** List of options, all of which must be present */
+    private final List<String> required = new ArrayList<>();
+    /** List of options groups, where at least one from each group must be present */
+    private final List<List<String>> requiredOneOf = new ArrayList<>();
+    /** List of options, none of which must be present */
+    private final List<String> requiredNot = new ArrayList<>();
     
     /**
      * CTOR
@@ -37,56 +37,56 @@ public class Requirement {
     }
     
     /**
-     * Add an environment which must be present for the bean to be creatable
+     * Add an value which must be present for the bean to be creatable
      * 
-     * @param env {@link String} environment name
+     * @param name {@link String} name
      */
-    public void addRequiredEnvironment(String env) {
-        requiredEnvs.add(env);
+    public void addRequired(String name) {
+        required.add(name);
     }
 
     /**
-     * Get the list of all required environments for the bean
+     * Get the list of all required options for the bean
      * 
-     * @return {@link List} of {@link String}
+     * @return {@link List} of {@link String}s
      */
-    public List<String> getRequiredEnvironments() {
-        return requiredEnvs;
+    public List<String> getRequired() {
+        return required;
     }
     
     /**
-     * Add a series of environments, at least one of which must be present for the bean to be creatable
+     * Add a series of options, at least one of which must be present for the bean to be creatable
      * 
-     * @param envs {@link String}... names of the environments of which at least one must be present
+     * @param names {@link String}... names of the options of which at least one must be present
      */
-    public void addRequiredOneOfEnvironment(String... envs) {
-        requiredOneOfEnvs.add(Arrays.asList(envs));
+    public void addRequiredOneOf(String... names) {
+        requiredOneOf.add(Arrays.asList(names));
     }
 
     /**
-     * Get all of the "one-of" groups, where at least one environment from each group must be present.
+     * Get all of the "one-of" groups, where at least one option from each group must be present.
      * 
-     * @return {@link List} of {@link String}
+     * @return {@link List} of {@link List}s {@link String}s
      */
-    public List<List<String>> getRequiredOneOfEnvironments() {
-        return requiredOneOfEnvs;
+    public List<List<String>> getRequiredOneOf() {
+        return requiredOneOf;
     }
     
     /**
-     * Add an environment which must <b>NOT</b> be present for the bean to be creatable
+     * Add an option which must <b>NOT</b> be present for the bean to be creatable
      * 
-     * @param env {@link String} environment name
+     * @param name {@link String} environment name
      */
-    public void addRequiredNotEnvironment(String env) {
-        requiredNotEnvs.add(env);
+    public void addRequiredNot(String name) {
+        requiredNot.add(name);
     }
 
     /**
-     * Get the list of all environments that cannot be present for the bean
+     * Get the list of all options that cannot be present for the bean
      * 
-     * @return {@link List} of {@link String}
+     * @return {@link List} of {@link String}s
      */
-    public List<String> getRequiredNotEnvironments() {
-        return requiredNotEnvs;
+    public List<String> getRequiredNot() {
+        return requiredNot;
     }
 }

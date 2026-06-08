@@ -123,8 +123,11 @@ Any number of environments can be provided to `addEnvironments()` and it can be 
 To apply requirements on a Bean or Configuration the following annotations can be used:
 
 * `@RequiresEnv` and specify one (or more) environments, *all of which* must be applied for the Bean or Configuration to be allowed to be created.
+* `@RequiresProp` and specify one (or more) system properties, *all of which* must be applied for the Bean or Configuration to be allowed to be created.
 * `@RequiresOneOfEnv` and specify one (or more) environments, *at least one of which* must be applied for the Bean or Configuration to be allowed to be created.
+* `@RequiresOneOfProp` and specify one (or more) system properties, *at least one of which* must be applied for the Bean or Configuration to be allowed to be created.
 * `@RequiresNotEnv` and specifying one (or more) environments, *none of which* can be applied for the Bean of Configuration to be allowed to be created.
+* `@RequiresNotProp` and specifying one (or more) system properties, *none of which* can be applied for the Bean of Configuration to be allowed to be created.
 
 ```java
 @Bean
@@ -143,7 +146,7 @@ public class MyEnvBandCNotDandEClass {
 }
 ```
 
-`@RequiresEnv` can be view as an `and`, where *all* of the environments must be present. `@RequiredOneOfEnv` can be viewed as an `or`, where *at least one* of the environments must be present. `@RequiredNotEnv` can be viewed as a `not`, where *none* of the listed environments can be present.
+`@Requires<type>` can be view as an `and`, where *all* of the value types must be present. `@RequiredOneOf<type>` can be viewed as an `or`, where *at least one* of the value types must be present. `@RequiredNot<type>` can be viewed as a `not`, where *none* of the listed value types can be present.
 
 ## Consuming a Bean
 In essence, the act of creating Beans is also the act of consuming them. Bean consumption is performed as part of Bean creation, where a Bean consumes its dependencies before it itself is provided onward to whomever depends on it. Thus, consuming a Bean is the act of defining what other Bean a given Bean depends on. This is done via the `@Inject` annotation, which can be applied on:

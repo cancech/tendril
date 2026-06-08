@@ -23,15 +23,15 @@ import tendril.context.Engine;
 /**
  * 
  */
-public class RequiresBNotARecipe extends AbstractRecipe<String> {
+public class RequiresEnvARecipe extends AbstractRecipe<String> {
 
-    public static final String NAME = "BnotA";
+    public static final String NAME = "EnvA";
     /** The value that the recipe produces */
-    public static final String VALUE = "ReqB_NotA";
+    public static final String VALUE = "Env123";
     /**
      * @param engine
      */
-    public RequiresBNotARecipe(Engine engine) {
+    public RequiresEnvARecipe(Engine engine) {
         super(engine, String.class, false, false);
     }
 
@@ -44,13 +44,16 @@ public class RequiresBNotARecipe extends AbstractRecipe<String> {
     }
 
     /**
-     * @see tendril.bean.recipe.AbstractRecipe#setupRequirement(tendril.bean.requirement.Requirement)
+     * @see tendril.bean.recipe.AbstractRecipe#setupEnvironmentRequirement(tendril.bean.requirement.Requirement)
      */
     @Override
-    protected void setupRequirement(Requirement requirement) {
-        requirement.addRequiredEnvironment("B");
-        requirement.addRequiredNotEnvironment("A");
+    protected void setupEnvironmentRequirement(Requirement requirement) {
+        requirement.addRequired("A");
     }
+
+	@Override
+	protected void setupPropertyRequirement(Requirement requirement) {
+	}
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#get()

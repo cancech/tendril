@@ -21,29 +21,27 @@ import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 
 /**
- * Recipe to use for testing where a {@link Double} 3.21 is produced. This is a duplicate of {@link Double1TestRecipe} in terms of the bean it produces.
+ * 
  */
-public class Double1DuplicateTestRecipe extends AbstractRecipe<Double> {
+public class RequiresPropABRecipe extends AbstractRecipe<Integer> {
 
-    /** The name under which the double 1 bean is provided */
-    public static final String NAME = "dbl1";
+    /** The name under which the double 2 bean is provided */
+    public static final String NAME = "PropAB";
     /** The value that the recipe produces */
-    public static final double VALUE = 3.21;
-
+    public static final Integer VALUE = 7890;
+    
     /**
-     * CTOR
-     * 
-     * @param engine {@link Engine} in which the recipe is to be registered
+     * @param engine
      */
-    public Double1DuplicateTestRecipe(Engine engine) {
-        super(engine, Double.class, false, false);
+    public RequiresPropABRecipe(Engine engine) {
+        super(engine, Integer.class, false, false);
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
      */
     @Override
-    protected void setupDescriptor(Descriptor<Double> descriptor) {
+    protected void setupDescriptor(Descriptor<Integer> descriptor) {
         descriptor.setName(NAME);
     }
 
@@ -56,18 +54,23 @@ public class Double1DuplicateTestRecipe extends AbstractRecipe<Double> {
 
 	@Override
 	protected void setupPropertyRequirement(Requirement requirement) {
+        requirement.addRequired("A");
+        requirement.addRequired("B");
 	}
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#get()
      */
     @Override
-    public Double get() {
+    public Integer get() {
         return VALUE;
     }
 
+    /**
+     * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
+     */
     @Override
-    protected Double createInstance(Engine engine) {
+    protected Integer createInstance(Engine engine) {
         return VALUE;
     }
 

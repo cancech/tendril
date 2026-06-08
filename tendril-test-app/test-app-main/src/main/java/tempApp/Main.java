@@ -9,7 +9,9 @@ public class Main {
 	    AbstractAppRunner.expectedEnvironment = "production";
 	    AbstractAppRunner.expectedRunner = AppRunner1.class;
 	    AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
+	    AbstractAppRunner.expectedDblValue = 123;
 	    
+	    System.setProperty("testProperty", "");
         ApplicationContext ctx = new ApplicationContext();
         ctx.setEnvironments("uppercase", "qwerty", "AppRunner1", "production");
         ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));

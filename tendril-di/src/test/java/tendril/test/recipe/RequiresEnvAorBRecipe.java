@@ -23,17 +23,17 @@ import tendril.context.Engine;
 /**
  * 
  */
-public class RequiresAorBRecipe extends AbstractRecipe<Integer> {
+public class RequiresEnvAorBRecipe extends AbstractRecipe<Integer> {
 
     /** The name under which the double 2 bean is provided */
-    public static final String NAME = "AorB";
+    public static final String NAME = "EnvAorB";
     /** The value that the recipe produces */
     public static final Integer VALUE = 123123123;
     
     /**
      * @param engine
      */
-    public RequiresAorBRecipe(Engine engine) {
+    public RequiresEnvAorBRecipe(Engine engine) {
         super(engine, Integer.class, false, false);
     }
 
@@ -46,12 +46,16 @@ public class RequiresAorBRecipe extends AbstractRecipe<Integer> {
     }
 
     /**
-     * @see tendril.bean.recipe.AbstractRecipe#setupRequirement(tendril.bean.requirement.Requirement)
+     * @see tendril.bean.recipe.AbstractRecipe#setupEnvironmentRequirement(tendril.bean.requirement.Requirement)
      */
     @Override
-    protected void setupRequirement(Requirement requirement) {
-        requirement.addRequiredOneOfEnvironment("A", "B");
+    protected void setupEnvironmentRequirement(Requirement requirement) {
+        requirement.addRequiredOneOf("A", "B");
     }
+
+	@Override
+	protected void setupPropertyRequirement(Requirement requirement) {
+	}
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#get()

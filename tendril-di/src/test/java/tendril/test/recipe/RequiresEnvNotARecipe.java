@@ -23,41 +23,43 @@ import tendril.context.Engine;
 /**
  * 
  */
-public class RequiresBRecipe extends AbstractRecipe<Double> {
+public class RequiresEnvNotARecipe extends AbstractRecipe<String> {
 
-    /** The name under which the double 2 bean is provided */
-    public static final String NAME = "B";
+    public static final String NAME = "EnvNotA";
     /** The value that the recipe produces */
-    public static final Double VALUE = 4.56;
-    
+    public static final String VALUE = "EnvNotAValue";
     /**
      * @param engine
      */
-    public RequiresBRecipe(Engine engine) {
-        super(engine, Double.class, false, false);
+    public RequiresEnvNotARecipe(Engine engine) {
+        super(engine, String.class, false, false);
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
      */
     @Override
-    protected void setupDescriptor(Descriptor<Double> descriptor) {
+    protected void setupDescriptor(Descriptor<String> descriptor) {
         descriptor.setName(NAME);
     }
 
     /**
-     * @see tendril.bean.recipe.AbstractRecipe#setupRequirement(tendril.bean.requirement.Requirement)
+     * @see tendril.bean.recipe.AbstractRecipe#setupEnvironmentRequirement(tendril.bean.requirement.Requirement)
      */
     @Override
-    protected void setupRequirement(Requirement requirement) {
-        requirement.addRequiredEnvironment("B");
+    protected void setupEnvironmentRequirement(Requirement requirement) {
+        requirement.addRequiredNot("A");
     }
+
+	@Override
+	protected void setupPropertyRequirement(Requirement requirement) {
+	}
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#get()
      */
     @Override
-    public Double get() {
+    public String get() {
         return VALUE;
     }
 
@@ -65,7 +67,7 @@ public class RequiresBRecipe extends AbstractRecipe<Double> {
      * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
      */
     @Override
-    protected Double createInstance(Engine engine) {
+    protected String createInstance(Engine engine) {
         return VALUE;
     }
 

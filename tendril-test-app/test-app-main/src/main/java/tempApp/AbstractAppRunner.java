@@ -43,6 +43,7 @@ import tendril.context.launch.TendrilRunner;
 public abstract class AbstractAppRunner implements TendrilRunner {
 	public static String expectedMessage = "must be set by main";
 	public static String expectedEnvironment = "must be set by main";
+	public static double expectedDblValue = -1;
 	public static Class<? extends AbstractAppRunner> expectedRunner;
 	public static Class<? extends MultiEnvBean> expectedMultiEnvBean;
 
@@ -234,6 +235,10 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	
 	@Inject
 	Lib2DataStruct dataStruct;
+
+	@Inject
+	@Message
+	Double dblValue;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationDetails[] expectedDynamicDuplicates;
@@ -507,6 +512,8 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		assertion(originalNamed != originalNamed2, "originalNamed is a singleton");
 		
 		assertion(dataStruct.get().equals(expectedEnvironment), "Data should be " + expectedEnvironment + " but was " + dataStruct.get());
+		
+		assertion(dblValue == expectedDblValue, "Value should be " + expectedDblValue + " but was " + dblValue);
 	}
 
 	protected static void assertion(boolean value, String msg) {

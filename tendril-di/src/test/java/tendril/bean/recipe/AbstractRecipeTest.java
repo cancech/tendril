@@ -42,7 +42,8 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     private class TestRecipe extends AbstractRecipe<SingleCtorBean> {
 
         private boolean isDescriptorSetup;
-        private boolean isRequirementSetup;
+        private boolean isEnvRequirementSetup;
+        private boolean isPropRequirementSetup;
         private int timesCreateInstanceCalled = 0;
         private int timesPostConstructCalled = 0;
         private SingleCtorBean postConstructBean = null;
@@ -70,14 +71,19 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         }
 
         /**
-         * @see tendril.bean.recipe.AbstractRecipe#setupRequirement(tendril.bean.requirement.Requirement)
+         * @see tendril.bean.recipe.AbstractRecipe#setupEnvironmentRequirement(tendril.bean.requirement.Requirement)
          */
         @Override
-        protected void setupRequirement(Requirement requirement) {
-            Assertions.assertFalse(isRequirementSetup);
-            isRequirementSetup = true;
-            
+        protected void setupEnvironmentRequirement(Requirement requirement) {
+            Assertions.assertFalse(isEnvRequirementSetup);
+            isEnvRequirementSetup = true;
         }
+
+		@Override
+		protected void setupPropertyRequirement(Requirement requirement) {
+            Assertions.assertFalse(isPropRequirementSetup);
+            isPropRequirementSetup = true;
+		}
 
         @Override
         public SingleCtorBean get() {
@@ -89,7 +95,8 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         }
         
         public void assertRequirementSetup() {
-            Assertions.assertTrue(isRequirementSetup);
+            Assertions.assertTrue(isEnvRequirementSetup);
+            Assertions.assertTrue(isPropRequirementSetup);
         }
 
         /**

@@ -23,40 +23,44 @@ import tendril.context.Engine;
 /**
  * 
  */
-public class RequiresANotBRecipe extends AbstractRecipe<String> {
+public class RequiresEnvBNestedRecipe extends AbstractRecipe<Double> {
 
-    public static final String NAME = "AnotB";
+    public static final String NAME = "EnvNestedB";
     /** The value that the recipe produces */
-    public static final String VALUE = "ReqA_NotB";
+    public static final Double VALUE = 0.987;
+    
     /**
      * @param engine
      */
-    public RequiresANotBRecipe(Engine engine) {
-        super(engine, String.class, false, false);
+    public RequiresEnvBNestedRecipe(Engine engine) {
+        super(engine, Double.class, false, false);
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
      */
     @Override
-    protected void setupDescriptor(Descriptor<String> descriptor) {
+    protected void setupDescriptor(Descriptor<Double> descriptor) {
         descriptor.setName(NAME);
     }
 
     /**
-     * @see tendril.bean.recipe.AbstractRecipe#setupRequirement(tendril.bean.requirement.Requirement)
+     * @see tendril.bean.recipe.AbstractRecipe#setupEnvironmentRequirement(tendril.bean.requirement.Requirement)
      */
     @Override
-    protected void setupRequirement(Requirement requirement) {
-        requirement.addRequiredEnvironment("A");
-        requirement.addRequiredNotEnvironment("B");
+    protected void setupEnvironmentRequirement(Requirement requirement) {
+        requirement.addRequired("B");
     }
+
+	@Override
+	protected void setupPropertyRequirement(Requirement requirement) {
+	}
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#get()
      */
     @Override
-    public String get() {
+    public Double get() {
         return VALUE;
     }
 
@@ -64,7 +68,7 @@ public class RequiresANotBRecipe extends AbstractRecipe<String> {
      * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
      */
     @Override
-    protected String createInstance(Engine engine) {
+    protected Double createInstance(Engine engine) {
         return VALUE;
     }
 

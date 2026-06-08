@@ -23,42 +23,43 @@ import tendril.context.Engine;
 /**
  * 
  */
-public class RequiresABRecipe extends AbstractRecipe<Integer> {
+public class RequiresEnvNotBRecipe extends AbstractRecipe<String> {
 
-    /** The name under which the double 2 bean is provided */
-    public static final String NAME = "AB";
+    public static final String NAME = "EnvNotB";
     /** The value that the recipe produces */
-    public static final Integer VALUE = 789;
-    
+    public static final String VALUE = "EnvNotBValue";
     /**
      * @param engine
      */
-    public RequiresABRecipe(Engine engine) {
-        super(engine, Integer.class, false, false);
+    public RequiresEnvNotBRecipe(Engine engine) {
+        super(engine, String.class, false, false);
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
      */
     @Override
-    protected void setupDescriptor(Descriptor<Integer> descriptor) {
+    protected void setupDescriptor(Descriptor<String> descriptor) {
         descriptor.setName(NAME);
     }
 
     /**
-     * @see tendril.bean.recipe.AbstractRecipe#setupRequirement(tendril.bean.requirement.Requirement)
+     * @see tendril.bean.recipe.AbstractRecipe#setupEnvironmentRequirement(tendril.bean.requirement.Requirement)
      */
     @Override
-    protected void setupRequirement(Requirement requirement) {
-        requirement.addRequiredEnvironment("A");
-        requirement.addRequiredEnvironment("B");
+    protected void setupEnvironmentRequirement(Requirement requirement) {
+        requirement.addRequiredNot("B");
     }
+
+	@Override
+	protected void setupPropertyRequirement(Requirement requirement) {
+	}
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#get()
      */
     @Override
-    public Integer get() {
+    public String get() {
         return VALUE;
     }
 
@@ -66,7 +67,7 @@ public class RequiresABRecipe extends AbstractRecipe<Integer> {
      * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
      */
     @Override
-    protected Integer createInstance(Engine engine) {
+    protected String createInstance(Engine engine) {
         return VALUE;
     }
 

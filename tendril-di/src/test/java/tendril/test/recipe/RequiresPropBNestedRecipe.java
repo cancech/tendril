@@ -23,39 +23,44 @@ import tendril.context.Engine;
 /**
  * 
  */
-public class RequiresARecipe extends AbstractRecipe<String> {
+public class RequiresPropBNestedRecipe extends AbstractRecipe<Double> {
 
-    public static final String NAME = "A";
+    public static final String NAME = "PropNestedB";
     /** The value that the recipe produces */
-    public static final String VALUE = "123";
+    public static final Double VALUE = 9.87;
+    
     /**
      * @param engine
      */
-    public RequiresARecipe(Engine engine) {
-        super(engine, String.class, false, false);
+    public RequiresPropBNestedRecipe(Engine engine) {
+        super(engine, Double.class, false, false);
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
      */
     @Override
-    protected void setupDescriptor(Descriptor<String> descriptor) {
+    protected void setupDescriptor(Descriptor<Double> descriptor) {
         descriptor.setName(NAME);
     }
 
     /**
-     * @see tendril.bean.recipe.AbstractRecipe#setupRequirement(tendril.bean.requirement.Requirement)
+     * @see tendril.bean.recipe.AbstractRecipe#setupEnvironmentRequirement(tendril.bean.requirement.Requirement)
      */
     @Override
-    protected void setupRequirement(Requirement requirement) {
-        requirement.addRequiredEnvironment("A");
+    protected void setupEnvironmentRequirement(Requirement requirement) {
     }
+
+	@Override
+	protected void setupPropertyRequirement(Requirement requirement) {
+        requirement.addRequired("B");
+	}
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#get()
      */
     @Override
-    public String get() {
+    public Double get() {
         return VALUE;
     }
 
@@ -63,7 +68,7 @@ public class RequiresARecipe extends AbstractRecipe<String> {
      * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
      */
     @Override
-    protected String createInstance(Engine engine) {
+    protected Double createInstance(Engine engine) {
         return VALUE;
     }
 

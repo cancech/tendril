@@ -28,130 +28,130 @@ import tendril.test.assertions.CollectionAssert;
 public class RequirementTest {
 
     /**
-     * Verify that the required environments are properly tracked
+     * Verify that the required are properly tracked
      */
     @Test
-    public void testNoRequiredEnvironments() {
+    public void testNoRequired() {
         Requirement req = new Requirement();
-        CollectionAssert.assertEmpty(req.getRequiredEnvironments());
-        CollectionAssert.assertEmpty(req.getRequiredNotEnvironments());
+        CollectionAssert.assertEmpty(req.getRequired());
+        CollectionAssert.assertEmpty(req.getRequiredNot());
     }
 
     /**
-     * Verify that the required environments are properly tracked
+     * Verify that the required are properly tracked
      */
     @Test
-    public void testSingleRequiredEnvironments() {
+    public void testSingleRequired() {
         Requirement req = new Requirement();
-        req.addRequiredEnvironment("qwerty");
-        CollectionAssert.assertEquals(Collections.singletonList("qwerty"), req.getRequiredEnvironments());
-        CollectionAssert.assertEmpty(req.getRequiredNotEnvironments());
-        CollectionAssert.assertEmpty(req.getRequiredOneOfEnvironments());
+        req.addRequired("qwerty");
+        CollectionAssert.assertEquals(Collections.singletonList("qwerty"), req.getRequired());
+        CollectionAssert.assertEmpty(req.getRequiredNot());
+        CollectionAssert.assertEmpty(req.getRequiredOneOf());
     }
 
     /**
-     * Verify that the not required environments are properly tracked
+     * Verify that the not required are properly tracked
      */
     @Test
-    public void testSingleNotRequiredEnvironments() {
+    public void testSingleNotRequired() {
         Requirement req = new Requirement();
-        req.addRequiredNotEnvironment("qwerty");
-        CollectionAssert.assertEmpty(req.getRequiredEnvironments());
-        CollectionAssert.assertEquals(Collections.singletonList("qwerty"), req.getRequiredNotEnvironments());
-        CollectionAssert.assertEmpty(req.getRequiredOneOfEnvironments());
+        req.addRequiredNot("qwerty");
+        CollectionAssert.assertEmpty(req.getRequired());
+        CollectionAssert.assertEquals(Collections.singletonList("qwerty"), req.getRequiredNot());
+        CollectionAssert.assertEmpty(req.getRequiredOneOf());
     }
     
     /**
-     * Verify that the one-of required environments are properly tracked
+     * Verify that the one-of required are properly tracked
      */
     @Test
-    public void testSingleOneOfRequirementEnvironments() {
+    public void testSingleOneOfRequirement() {
         Requirement req = new Requirement();
-        req.addRequiredOneOfEnvironment("a", "b", "c");
-        CollectionAssert.assertEmpty(req.getRequiredEnvironments());
-        CollectionAssert.assertEmpty(req.getRequiredNotEnvironments());
-        CollectionAssert.assertEquals(Collections.singletonList(Arrays.asList("a", "b", "c")), req.getRequiredOneOfEnvironments());
+        req.addRequiredOneOf("a", "b", "c");
+        CollectionAssert.assertEmpty(req.getRequired());
+        CollectionAssert.assertEmpty(req.getRequiredNot());
+        CollectionAssert.assertEquals(Collections.singletonList(Arrays.asList("a", "b", "c")), req.getRequiredOneOf());
     }
 
     /**
-     * Verify that the not and required environments are properly tracked
+     * Verify that the not and required are properly tracked
      */
     @Test
-    public void testSingleNotAndRequiredEnvironments() {
+    public void testSingleNotAndRequired() {
         Requirement req = new Requirement();
-        req.addRequiredEnvironment("qwerty");
-        req.addRequiredNotEnvironment("abc123");
-        req.addRequiredOneOfEnvironment("a", "b", "c");
-        CollectionAssert.assertEquals(Collections.singletonList("qwerty"), req.getRequiredEnvironments());
-        CollectionAssert.assertEquals(Collections.singletonList("abc123"), req.getRequiredNotEnvironments());
-        CollectionAssert.assertEquals(Collections.singletonList(Arrays.asList("a", "b", "c")), req.getRequiredOneOfEnvironments());
+        req.addRequired("qwerty");
+        req.addRequiredNot("abc123");
+        req.addRequiredOneOf("a", "b", "c");
+        CollectionAssert.assertEquals(Collections.singletonList("qwerty"), req.getRequired());
+        CollectionAssert.assertEquals(Collections.singletonList("abc123"), req.getRequiredNot());
+        CollectionAssert.assertEquals(Collections.singletonList(Arrays.asList("a", "b", "c")), req.getRequiredOneOf());
     }
 
     /**
-     * Verify that the required environments are properly tracked
+     * Verify that the required are properly tracked
      */
     @Test
-    public void testMultipleRequiredEnvironments() {
+    public void testMultipleRequired() {
         Requirement req = new Requirement();
-        req.addRequiredEnvironment("a");
-        req.addRequiredEnvironment("b");
-        req.addRequiredEnvironment("c");
-        req.addRequiredEnvironment("d");
-        CollectionAssert.assertEquals(Arrays.asList("a", "b", "c", "d"), req.getRequiredEnvironments());
-        CollectionAssert.assertEmpty(req.getRequiredNotEnvironments());
-        CollectionAssert.assertEmpty(req.getRequiredOneOfEnvironments());
+        req.addRequired("a");
+        req.addRequired("b");
+        req.addRequired("c");
+        req.addRequired("d");
+        CollectionAssert.assertEquals(Arrays.asList("a", "b", "c", "d"), req.getRequired());
+        CollectionAssert.assertEmpty(req.getRequiredNot());
+        CollectionAssert.assertEmpty(req.getRequiredOneOf());
     }
     
     /**
-     * Verify that the not required environments are properly tracked
+     * Verify that the not required are properly tracked
      */
     @Test
-    public void testMultipleRequiredNotEnvironments() {
+    public void testMultipleRequiredNot() {
         Requirement req = new Requirement();
-        req.addRequiredNotEnvironment("a");
-        req.addRequiredNotEnvironment("b");
-        req.addRequiredNotEnvironment("c");
-        req.addRequiredNotEnvironment("d");
-        CollectionAssert.assertEmpty(req.getRequiredEnvironments());
-        CollectionAssert.assertEquals(Arrays.asList("a", "b", "c", "d"), req.getRequiredNotEnvironments());
-        CollectionAssert.assertEmpty(req.getRequiredOneOfEnvironments());
+        req.addRequiredNot("a");
+        req.addRequiredNot("b");
+        req.addRequiredNot("c");
+        req.addRequiredNot("d");
+        CollectionAssert.assertEmpty(req.getRequired());
+        CollectionAssert.assertEquals(Arrays.asList("a", "b", "c", "d"), req.getRequiredNot());
+        CollectionAssert.assertEmpty(req.getRequiredOneOf());
     }
     
     /**
-     * Verify that the one-of required environments are properly tracked
+     * Verify that the one-of required are properly tracked
      */
     @Test
-    public void testMultipleOneOfRequirementEnvironments() {
+    public void testMultipleOneOfRequirement() {
         Requirement req = new Requirement();
-        req.addRequiredOneOfEnvironment("a", "b", "c");
-        req.addRequiredOneOfEnvironment("d", "e", "f");
-        req.addRequiredOneOfEnvironment("g", "h", "i");
-        req.addRequiredOneOfEnvironment("j", "k", "l");
-        CollectionAssert.assertEmpty(req.getRequiredEnvironments());
-        CollectionAssert.assertEmpty(req.getRequiredNotEnvironments());
-        CollectionAssert.assertEquals(Arrays.asList(Arrays.asList("a", "b", "c"), Arrays.asList("d", "e", "f"), Arrays.asList("g", "h", "i"), Arrays.asList("j", "k", "l")), req.getRequiredOneOfEnvironments());
+        req.addRequiredOneOf("a", "b", "c");
+        req.addRequiredOneOf("d", "e", "f");
+        req.addRequiredOneOf("g", "h", "i");
+        req.addRequiredOneOf("j", "k", "l");
+        CollectionAssert.assertEmpty(req.getRequired());
+        CollectionAssert.assertEmpty(req.getRequiredNot());
+        CollectionAssert.assertEquals(Arrays.asList(Arrays.asList("a", "b", "c"), Arrays.asList("d", "e", "f"), Arrays.asList("g", "h", "i"), Arrays.asList("j", "k", "l")), req.getRequiredOneOf());
     }
 
     /**
-     * Verify that the required environments are properly tracked
+     * Verify that the required are properly tracked
      */
     @Test
-    public void testMultipleNotAndRequiredEnvironments() {
+    public void testMultipleNotAndRequired() {
         Requirement req = new Requirement();
-        req.addRequiredEnvironment("a");
-        req.addRequiredEnvironment("b");
-        req.addRequiredEnvironment("c");
-        req.addRequiredEnvironment("d");
-        req.addRequiredNotEnvironment("e");
-        req.addRequiredNotEnvironment("f");
-        req.addRequiredNotEnvironment("g");
-        req.addRequiredNotEnvironment("h");
-        req.addRequiredOneOfEnvironment("a", "b", "c");
-        req.addRequiredOneOfEnvironment("d", "e", "f");
-        req.addRequiredOneOfEnvironment("g", "h", "i");
-        req.addRequiredOneOfEnvironment("j", "k", "l");
-        CollectionAssert.assertEquals(Arrays.asList("a", "b", "c", "d"), req.getRequiredEnvironments());
-        CollectionAssert.assertEquals(Arrays.asList("e", "f", "g", "h"), req.getRequiredNotEnvironments());
-        CollectionAssert.assertEquals(Arrays.asList(Arrays.asList("a", "b", "c"), Arrays.asList("d", "e", "f"), Arrays.asList("g", "h", "i"), Arrays.asList("j", "k", "l")), req.getRequiredOneOfEnvironments());
+        req.addRequired("a");
+        req.addRequired("b");
+        req.addRequired("c");
+        req.addRequired("d");
+        req.addRequiredNot("e");
+        req.addRequiredNot("f");
+        req.addRequiredNot("g");
+        req.addRequiredNot("h");
+        req.addRequiredOneOf("a", "b", "c");
+        req.addRequiredOneOf("d", "e", "f");
+        req.addRequiredOneOf("g", "h", "i");
+        req.addRequiredOneOf("j", "k", "l");
+        CollectionAssert.assertEquals(Arrays.asList("a", "b", "c", "d"), req.getRequired());
+        CollectionAssert.assertEquals(Arrays.asList("e", "f", "g", "h"), req.getRequiredNot());
+        CollectionAssert.assertEquals(Arrays.asList(Arrays.asList("a", "b", "c"), Arrays.asList("d", "e", "f"), Arrays.asList("g", "h", "i"), Arrays.asList("j", "k", "l")), req.getRequiredOneOf());
     }
 }

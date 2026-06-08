@@ -15,36 +15,43 @@
  */
 package tendril.test.recipe;
 
-import tendril.bean.qualifier.Descriptor;
+import java.util.HashMap;
+import java.util.Map;
+
 import tendril.bean.recipe.AbstractRecipe;
+import tendril.bean.recipe.ConfigurationRecipe;
 import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 
 /**
- * Recipe to use for testing where a {@link Double} 3.21 is produced. This is a duplicate of {@link Double1TestRecipe} in terms of the bean it produces.
+ * Configuration recipe to use for testing
  */
-public class Double1DuplicateTestRecipe extends AbstractRecipe<Double> {
-
-    /** The name under which the double 1 bean is provided */
-    public static final String NAME = "dbl1";
-    /** The value that the recipe produces */
-    public static final double VALUE = 3.21;
+public class RequiresEnvAConfigRecipe extends ConfigurationRecipe<TestConfig>{
 
     /**
      * CTOR
      * 
-     * @param engine {@link Engine} in which the recipe is to be registered
+     * @param engine {@link Engine} for the context
      */
-    public Double1DuplicateTestRecipe(Engine engine) {
-        super(engine, Double.class, false, false);
+    public RequiresEnvAConfigRecipe(Engine engine) {
+        super(engine, TestConfig.class, false, false);
     }
 
     /**
-     * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
+     * @see tendril.bean.recipe.ConfigurationRecipe#getNestedRecipes()
      */
     @Override
-    protected void setupDescriptor(Descriptor<Double> descriptor) {
-        descriptor.setName(NAME);
+    public Map<String, AbstractRecipe<?>> getNestedRecipes() {
+        return Map.of("int1", new IntTestRecipe(engine),
+                RequiresEnvBNestedRecipe.NAME, new RequiresEnvBNestedRecipe(engine));
+    }
+
+    /**
+     * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
+     */
+    @Override
+    protected TestConfig createInstance(Engine engine) {
+        return new TestConfig();
     }
 
     /**
@@ -52,23 +59,16 @@ public class Double1DuplicateTestRecipe extends AbstractRecipe<Double> {
      */
     @Override
     protected void setupEnvironmentRequirement(Requirement requirement) {
+        requirement.addRequired("A");
     }
 
 	@Override
 	protected void setupPropertyRequirement(Requirement requirement) {
 	}
 
-    /**
-     * @see tendril.bean.recipe.AbstractRecipe#get()
-     */
-    @Override
-    public Double get() {
-        return VALUE;
-    }
-
-    @Override
-    protected Double createInstance(Engine engine) {
-        return VALUE;
-    }
+	@Override
+	public Map<String, AbstractRecipe<?>> getNestedReplacementRecipes() {
+		return new HashMap<>();
+	}
 
 }
