@@ -27,13 +27,13 @@ import java.util.logging.Logger;
 
 import tendril.BeanReplacementException;
 import tendril.BeanRetrievalException;
-import tendril.bean.Fallback;
-import tendril.bean.Primary;
+import tendril.TendrilStartupException;
 import tendril.bean.duplicate.BlueprintDriver;
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.ConfigurationRecipe;
 import tendril.bean.requirement.Requirement;
+import tendril.context.launch.TendrilRunner;
 import tendril.context.search.AllRecipeSearchHandler;
 import tendril.context.search.RecipeSearchHandler;
 import tendril.context.search.RecipeSearchResult;
@@ -41,6 +41,7 @@ import tendril.context.search.SearchType;
 import tendril.context.search.SingleRecipeSearchHandler;
 import tendril.processor.registration.RegistryFile;
 import tendril.processor.registration.ReplacementRegistryFile;
+import tendril.processor.registration.RunnerFile;
 import tendril.util.TendrilStringUtil;
 import tendril.util.TendrilUtil;
 
@@ -48,7 +49,7 @@ import tendril.util.TendrilUtil;
  * The core element within the {@link ApplicationContext} which is responsible for the bulk of the Dependency Injection capability. This tracks all beans (via their recipes) and allows for their
  * access. It is not expected that client code will ever touch or manipulate the engine directly, with the expected interactions being via recipes and their beans.
  */
-public class Engine {
+public class Engine implements ApplicationContext {
 
 	/** Logger for creating log messages when running */
 	private static Logger LOGGER = Logger.getLogger(Engine.class.getSimpleName());
@@ -298,26 +299,10 @@ public class Engine {
 	}
 
 	/**
-	 * Get the bean matching the provided descriptor. The descriptor must resolve to exactly one instance otherwise an exception will be thrown, though resolution is done on a priority basis:
-	 * <ol>
-	 * <li>Any {@link Primary} beans that match are attempted first</li>
-	 * <li>Any basic (no explicit type) beans that match are attempted second</li>
-	 * <li>Any {@link Fallback} beans are attempted only if none of the above types result in any matches</li>
-	 * </ol>
-	 * 
-	 * With the priority in play, it is possible to find one explicit match even when there are multiple matches, so long as there is only a single match at the highest available priority level and
-	 * all other matches are in lower levels. For example: a single {@link Primary} match will be returned regardless of how many basic or {@link Fallback} matches are present. If there is no
-	 * {@link Primary} match, then the single basic will be returned, regardless of how many {@link Fallback} beans are present. If there are no {@link Primary} or basic beans, then there must be a
-	 * single {@link Fallback} bean in the results. Multiple results in the highest available type will result in a {@link BeanRetrievalException} being thrown, as will be the case if there are no
-	 * results at any level available.
-	 * 
-	 * @param <BEAN_TYPE> indicating the type of bean that is to be retrieved
-	 * @param descriptor  {@link Descriptor} containing the description of the bean that is to be retrieved
-	 * 
-	 * @return The specific bean that is desired
-	 * @throws BeanRetrievalException if there is an issue retrieving the desired bean
+	 * @see tendril.context.ApplicationContext#getBean(tendril.bean.qualifier.Descriptor)
 	 */
 	@SuppressWarnings("unchecked")
+	@Override
 	public <BEAN_TYPE> BEAN_TYPE getBean(Descriptor<BEAN_TYPE> descriptor) {
 		return (BEAN_TYPE) getRecipe(descriptor, findRecipes(descriptor, SearchType.SINGLE_BEAN)).get();
 	}
@@ -342,13 +327,9 @@ public class Engine {
 	}
 
 	/**
-	 * Get all beans that match the provided descriptor. The {@link List} can be empty if there are no matches. All matching {@link Primary} and basic (no explicit type) beans will be returned,
-	 * {@link Fallback} beans will only be included if there are no {@link Primary} or basic matches.
-	 * 
-	 * @param <BEAN_TYPE> indicating the type of the beans that are to be retrieved
-	 * @param descriptor  {@link Descriptor} containing the description of the beans that are to be retrieved
-	 * @return {@link List} of matching beans
+	 * @see tendril.context.ApplicationContext#getAllBeans(tendril.bean.qualifier.Descriptor)
 	 */
+	@Override
 	public <BEAN_TYPE> List<BEAN_TYPE> getAllBeans(Descriptor<BEAN_TYPE> descriptor) {
 		List<BEAN_TYPE> beans = new ArrayList<>();
 		RecipeSearchResult<BEAN_TYPE> matchingRecipes = findRecipes(descriptor, SearchType.ALL_BEANS);
@@ -448,5 +429,33 @@ public class Engine {
 
 	private interface RecipeLoader {
 		void load(String recipeName, Object recipe);
+	}
+	
+
+	/**
+	 * @see tendril.context.ApplicationContext#start()
+	 */
+	@Override
+    public void start() {
+        try {
+            List<AbstractRecipe<?>> runnerRecipes = new ArrayList<>();
+            for (String runnerClass: RunnerFile.read()) {
+                AbstractRecipe<?> runnerRecipe = (AbstractRecipe<?>)Class.forName(runnerClass).getDeclaredConstructor(Engine.class).newInstance(this);
+                if (requirementsMet(runnerRecipe))
+                    runnerRecipes.add(runnerRecipe);
+            }
+
+            if (runnerRecipes.isEmpty())
+                throw new TendrilStartupException("Exactly one runner is required to start the application, however none can be loaded.");
+            else if (runnerRecipes.size() > 1)
+                throw new TendrilStartupException("Exactly one runner is required to start the application, however " + runnerRecipes.size() + " can be loaded [" +
+                        TendrilStringUtil.join(runnerRecipes, r -> r.getDescription().getBeanClass().getName()) + "].");
+            
+            TendrilRunner runner = (TendrilRunner) runnerRecipes.get(0).get();
+            runner.run();
+        } catch (IOException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException |
+                SecurityException | ClassNotFoundException e) {
+            throw new TendrilStartupException(e);
+        }
 	}
 }

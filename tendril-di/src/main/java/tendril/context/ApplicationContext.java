@@ -1,111 +1,48 @@
-/*
- * Copyright 2024 Jaroslav Bosak
- *
- * Licensed under the MIT License (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * https://opensource.org/license/MIT
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package tendril.context;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.List;
 
-import tendril.TendrilStartupException;
-import tendril.bean.duplicate.BlueprintDriver;
-import tendril.bean.recipe.AbstractRecipe;
+import tendril.BeanRetrievalException;
+import tendril.bean.Fallback;
+import tendril.bean.Primary;
+import tendril.bean.qualifier.Descriptor;
 import tendril.context.launch.TendrilRunner;
-import tendril.processor.registration.RunnerFile;
-import tendril.util.TendrilStringUtil;
 
-/**
- * The context and scope in which the dependency injection will take place, and within which the application logic will execute. There is the expectation of a single
- * context being present for a single application and it will encompass the whole execution environment of said application. In many respects the application context is
- * ultimately just a wrapper for the various subprocesses which are taking place within. Namely:
- * 
- * <ul>
- *      <li> {@link AbstractRecipe} - dictates what beans are present and how they are to be assembled (i.e.: what they require)</li>
- *      <li> {@link Engine} - drives the passing of beans and is largely responsible for the dependency injection to take place</li>
- *      <li> {@link TendrilRunner} - triggers the execution of the necessary behavior(s) and logic(s) of the application</li>
- * </ul>
- */
-public class ApplicationContext {
-    
-    /** The {@link Engine} which drives the bean passing */
-    private final Engine engine;
-    
-    /**
-     * CTOR
-     */
-    public ApplicationContext() {
-        this(new Engine()); 
-    }
-    
-    /**
-     * CTOR - convenience constructor primarily for the purpose of testing
-     * 
-     * @param engine {@link Engine} to be used within the context
-     */
-    ApplicationContext(Engine engine) {
-        this.engine = engine;
-    }
-    
-    /**
-     * Set the environments in which the application is to be executed
-     * 
-     * @param envs {@link String}... indicating what all environments are to be used
-     */
-    public void setEnvironments(String...envs) {
-        engine.addEnvironments(envs);
-    }
-    
-    /**
-     * Add a class based dynamic blueprint
-     * 
-     * @param driver {@link BlueprintDriver} the dynamic blueprint to add
-     */
-    public void addDynamicBlueprint(BlueprintDriver driver) {
-    	Class<?> blueprintClass = driver.getClass();
-    	if (blueprintClass.isEnum())
-    		throw new TendrilStartupException(blueprintClass.getName() + " is an enum, only regular classes can be used as dynamic blueprints.");
-    	
-    	engine.addDynamicBlueprint(driver);
-    }
-
+public interface ApplicationContext {
     /**
      * Start the context and trigger execution via the defined {@link TendrilRunner}
      */
-    public void start() {
-        engine.init();
+	void start();
 
-        try {
-            List<AbstractRecipe<?>> runnerRecipes = new ArrayList<>();
-            for (String runnerClass: RunnerFile.read()) {
-                AbstractRecipe<?> runnerRecipe = (AbstractRecipe<?>)Class.forName(runnerClass).getDeclaredConstructor(Engine.class).newInstance(engine);
-                if (engine.requirementsMet(runnerRecipe))
-                    runnerRecipes.add(runnerRecipe);
-            }
-
-            if (runnerRecipes.isEmpty())
-                throw new TendrilStartupException("Exactly one runner is required to start the application, however none can be loaded.");
-            else if (runnerRecipes.size() > 1)
-                throw new TendrilStartupException("Exactly one runner is required to start the application, however " + runnerRecipes.size() + " can be loaded [" +
-                        TendrilStringUtil.join(runnerRecipes, r -> r.getDescription().getBeanClass().getName()) + "].");
-            
-            TendrilRunner runner = (TendrilRunner) runnerRecipes.get(0).get();
-            runner.run();
-        } catch (IOException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException |
-                SecurityException | ClassNotFoundException e) {
-            throw new TendrilStartupException(e);
-        }
-	}
+	/**
+	 * Get the bean matching the provided descriptor. The descriptor must resolve to exactly one instance otherwise an exception will be thrown, though resolution is done on a priority basis:
+	 * <ol>
+	 * <li>Any {@link Primary} beans that match are attempted first</li>
+	 * <li>Any basic (no explicit type) beans that match are attempted second</li>
+	 * <li>Any {@link Fallback} beans are attempted only if none of the above types result in any matches</li>
+	 * </ol>
+	 * 
+	 * With the priority in play, it is possible to find one explicit match even when there are multiple matches, so long as there is only a single match at the highest available priority level and
+	 * all other matches are in lower levels. For example: a single {@link Primary} match will be returned regardless of how many basic or {@link Fallback} matches are present. If there is no
+	 * {@link Primary} match, then the single basic will be returned, regardless of how many {@link Fallback} beans are present. If there are no {@link Primary} or basic beans, then there must be a
+	 * single {@link Fallback} bean in the results. Multiple results in the highest available type will result in a {@link BeanRetrievalException} being thrown, as will be the case if there are no
+	 * results at any level available.
+	 * 
+	 * @param <BEAN_TYPE> indicating the type of bean that is to be retrieved
+	 * @param descriptor  {@link Descriptor} containing the description of the bean that is to be retrieved
+	 * 
+	 * @return The specific bean that is desired
+	 * @throws BeanRetrievalException if there is an issue retrieving the desired bean
+	 */
+	<BEAN_TYPE> BEAN_TYPE getBean(Descriptor<BEAN_TYPE> descriptor);
+	
+	/**
+	 * Get all beans that match the provided descriptor. The {@link List} can be empty if there are no matches. All matching {@link Primary} and basic (no explicit type) beans will be returned,
+	 * {@link Fallback} beans will only be included if there are no {@link Primary} or basic matches.
+	 * 
+	 * @param <BEAN_TYPE> indicating the type of the beans that are to be retrieved
+	 * @param descriptor  {@link Descriptor} containing the description of the beans that are to be retrieved
+	 * @return {@link List} of matching beans
+	 */
+	<BEAN_TYPE> List<BEAN_TYPE> getAllBeans(Descriptor<BEAN_TYPE> descriptor);
 }

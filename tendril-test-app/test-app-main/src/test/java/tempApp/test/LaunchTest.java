@@ -31,7 +31,7 @@ import tempApp.RunnableConfig;
 import tempApp.SingletonClass;
 import tempApp.TempManager;
 import tendril.TendrilStartupException;
-import tendril.context.ApplicationContext;
+import tendril.context.ApplicationContextBuilder;
 
 /**
  * Test which launches the application, allowing for it to be used as part of a unit test suite
@@ -56,14 +56,14 @@ public class LaunchTest {
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
         AbstractAppRunner.expectedDblValue = 321;
         
-        ApplicationContext ctx = new ApplicationContext();
+        ApplicationContextBuilder ctx = new ApplicationContextBuilder();
         ctx.setEnvironments("lowercase", "qwerty", "AppRunner1", "production");
         ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
         ctx.addDynamicBlueprint(new DuplicationDetails("b", 234, 2.34));
         ctx.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
         ctx.addDynamicBlueprint(new ClassDuplicate("t1"));
         ctx.addDynamicBlueprint(new ClassDuplicate("t2"));
-        ctx.start();
+        ctx.build().start();
         
         // Ensure everything created the expected number of times
         SingletonClass.assertSingleton();
@@ -81,14 +81,14 @@ public class LaunchTest {
         AbstractAppRunner.expectedDblValue = 123;
         
         System.setProperty("testProperty", "");
-        ApplicationContext ctx = new ApplicationContext();
+        ApplicationContextBuilder ctx = new ApplicationContextBuilder();
         ctx.setEnvironments("uppercase", "qwerty", "AppRunner1", "production");
         ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
         ctx.addDynamicBlueprint(new DuplicationDetails("b", 234, 2.34));
         ctx.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
         ctx.addDynamicBlueprint(new ClassDuplicate("t1"));
         ctx.addDynamicBlueprint(new ClassDuplicate("t2"));
-        ctx.start();
+        ctx.build().start();
         
         // Ensure everything created the expected number of times
         SingletonClass.assertSingleton();
@@ -106,11 +106,11 @@ public class LaunchTest {
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
         AbstractAppRunner.expectedDblValue = 321;
         
-        ApplicationContext ctx = new ApplicationContext();
-        ctx.setEnvironments("lowercase", "qwerty", "AppRunner1", "production");
-        ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
-        ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
-        Assertions.assertThrows(TendrilStartupException.class, () -> ctx.start());
+        ApplicationContextBuilder builder = new ApplicationContextBuilder();
+        builder.setEnvironments("lowercase", "qwerty", "AppRunner1", "production");
+        builder.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
+        builder.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
+        Assertions.assertThrows(TendrilStartupException.class, () -> builder.build());
 
         // Everything should fail before any beans are created
         SingletonClass.assertNever();
@@ -128,7 +128,7 @@ public class LaunchTest {
         AbstractAppRunner.expectedDblValue = 123;
 
         System.setProperty("testProperty", "");
-        ApplicationContext ctx = new ApplicationContext();
+        ApplicationContextBuilder ctx = new ApplicationContextBuilder();
         ctx.setEnvironments("lowercase", "qwerty", "test");
         ctx.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
         ctx.addDynamicBlueprint(new DuplicationDetails("e", 432, 4.32));
@@ -140,7 +140,7 @@ public class LaunchTest {
         ctx.addDynamicBlueprint(new ClassDuplicate("t2"));
         ctx.addDynamicBlueprint(new ClassDuplicate("t3"));
         ctx.addDynamicBlueprint(new ClassDuplicate("t4"));
-        ctx.start();
+        ctx.build().start();
         
         // Ensure everything created the expected number of times
         SingletonClass.assertSingleton();
@@ -158,7 +158,7 @@ public class LaunchTest {
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
         AbstractAppRunner.expectedDblValue = 321;
         
-        ApplicationContext ctx = new ApplicationContext();
+        ApplicationContextBuilder ctx = new ApplicationContextBuilder();
         ctx.setEnvironments("uppercase", "qwerty", "test");
         ctx.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
         ctx.addDynamicBlueprint(new DuplicationDetails("e", 432, 4.32));
@@ -170,7 +170,7 @@ public class LaunchTest {
         ctx.addDynamicBlueprint(new ClassDuplicate("t2"));
         ctx.addDynamicBlueprint(new ClassDuplicate("t3"));
         ctx.addDynamicBlueprint(new ClassDuplicate("t4"));
-        ctx.start();
+        ctx.build().start();
         
         // Ensure everything created the expected number of times
         SingletonClass.assertSingleton();
@@ -187,7 +187,7 @@ public class LaunchTest {
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
         AbstractAppRunner.expectedDblValue = 3.21;
         
-        ApplicationContext ctx = new ApplicationContext();
+        ApplicationContextBuilder ctx = new ApplicationContextBuilder();
         ctx.setEnvironments("lowercase", "abc123", "test");
         ctx.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
         ctx.addDynamicBlueprint(new DuplicationDetails("e", 432, 4.32));
@@ -199,7 +199,7 @@ public class LaunchTest {
         ctx.addDynamicBlueprint(new ClassDuplicate("t2"));
         ctx.addDynamicBlueprint(new ClassDuplicate("t3"));
         ctx.addDynamicBlueprint(new ClassDuplicate("t4"));
-        ctx.start();
+        ctx.build().start();
         
         // Ensure everything created the expected number of times
         SingletonClass.assertSingleton();
@@ -217,7 +217,7 @@ public class LaunchTest {
         AbstractAppRunner.expectedDblValue = 1.23;
 
         System.setProperty("testProperty", "");
-        ApplicationContext ctx = new ApplicationContext();
+        ApplicationContextBuilder ctx = new ApplicationContextBuilder();
         ctx.setEnvironments("uppercase", "abc123", "test");
         ctx.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
         ctx.addDynamicBlueprint(new DuplicationDetails("e", 432, 4.32));
@@ -229,7 +229,7 @@ public class LaunchTest {
         ctx.addDynamicBlueprint(new ClassDuplicate("t2"));
         ctx.addDynamicBlueprint(new ClassDuplicate("t3"));
         ctx.addDynamicBlueprint(new ClassDuplicate("t4"));
-        ctx.start();
+        ctx.build().start();
         
         // Ensure everything created the expected number of times
         SingletonClass.assertSingleton();

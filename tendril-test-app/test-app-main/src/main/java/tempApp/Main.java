@@ -1,6 +1,6 @@
 package tempApp;
 
-import tendril.context.ApplicationContext;
+import tendril.context.ApplicationContextBuilder;
 
 public class Main {
 	
@@ -12,14 +12,14 @@ public class Main {
 	    AbstractAppRunner.expectedDblValue = 123;
 	    
 	    System.setProperty("testProperty", "");
-        ApplicationContext ctx = new ApplicationContext();
-        ctx.setEnvironments("uppercase", "qwerty", "AppRunner1", "production");
-        ctx.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
-        ctx.addDynamicBlueprint(new DuplicationDetails("b", 234, 2.34));
-        ctx.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
-        ctx.addDynamicBlueprint(new ClassDuplicate("c1"));
-        ctx.addDynamicBlueprint(new ClassDuplicate("c2"));
-        ctx.start();
+        ApplicationContextBuilder ctxBuilder = new ApplicationContextBuilder();
+        ctxBuilder.setEnvironments("uppercase", "qwerty", "AppRunner1", "production");
+        ctxBuilder.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
+        ctxBuilder.addDynamicBlueprint(new DuplicationDetails("b", 234, 2.34));
+        ctxBuilder.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
+        ctxBuilder.addDynamicBlueprint(new ClassDuplicate("c1"));
+        ctxBuilder.addDynamicBlueprint(new ClassDuplicate("c2"));
+        ctxBuilder.build().start();
 	}
 	
 }

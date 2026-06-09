@@ -24,8 +24,8 @@ import tendril.context.ApplicationContext;
 import tendril.context.Engine;
 
 /**
- * Annotation that is to be applied to generated Recipes which are to replace another bean recipe in the {@link Engine}. This is used to create a full list of all replacement recipes that are to be
- * registered, allowing for them to be easily and efficiently found and loaded by the {@link ApplicationContext} {@link Engine}.
+ * Annotation that is to be applied to generated Recipes which are to replace another bean recipe in the {@link ApplicationContext}. This is used to create a full list of all replacement recipes that are to be
+ * registered, allowing for them to be easily and efficiently found and loaded by the {@link Engine}.
  * 
  * This is not intended to be used by any client code, unless manually creating the bean infrastructure which is heavily discouraged.
  */

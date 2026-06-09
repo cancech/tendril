@@ -19,12 +19,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import tendril.context.ApplicationContext;
-import tendril.context.Engine;
 import tendril.util.TendrilStringUtil;
 import tendril.util.TendrilUtil;
 
 /**
- * Description of a bean that is (expected to be) available within the {@link ApplicationContext} and accessible via its {@link Engine}.
+ * Description of a bean that is (expected to be) available within the {@link ApplicationContext}
  * 
  * @param <BEAN_TYPE> the type of bean that the {@link Descriptor} describes
  */

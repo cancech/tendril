@@ -15,6 +15,9 @@
  */
 package tendril.test.runner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.requirement.Requirement;
@@ -24,6 +27,22 @@ import tendril.context.Engine;
  * {@link AbstractRecipe} to use for the purpose of allowing the {@link TestTendrilRunner4} to be "injected" into tests
  */
 public class TestTendrilRunnerRecipe4 extends AbstractRecipe<TestTendrilRunner4> {
+
+	public static final List<String> envAnd = new ArrayList<String>();
+	public static final List<String> envOr = new ArrayList<String>();
+	public static final List<String> envNot = new ArrayList<String>();
+	public static final List<String> propAnd = new ArrayList<String>();
+	public static final List<String> propOr = new ArrayList<String>();
+	public static final List<String> propNot = new ArrayList<String>();
+	
+	public static void reset() {
+		envAnd.clear();
+		envOr.clear();
+		envNot.clear();
+		propAnd.clear();
+		propOr.clear();
+		propNot.clear();
+	}
 
     /**
      * CTOR
@@ -46,10 +65,25 @@ public class TestTendrilRunnerRecipe4 extends AbstractRecipe<TestTendrilRunner4>
      */
     @Override
     protected void setupEnvironmentRequirement(Requirement requirement) {
+    	for (String s: envAnd)
+    		requirement.addRequired(s);
+    	for (String s: envOr)
+    		requirement.addRequiredOneOf(s);
+    	for (String s: envNot)
+    		requirement.addRequiredNot(s);
     }
 
+    /**
+     * @see tendril.bean.recipe.AbstractRecipe#setupPropertyRequirement(tendril.bean.requirement.Requirement)
+     */
 	@Override
 	protected void setupPropertyRequirement(Requirement requirement) {
+    	for (String s: propAnd)
+    		requirement.addRequired(s);
+    	for (String s: propOr)
+    		requirement.addRequiredOneOf(s);
+    	for (String s: propNot)
+    		requirement.addRequiredNot(s);
 	}
 
     /**

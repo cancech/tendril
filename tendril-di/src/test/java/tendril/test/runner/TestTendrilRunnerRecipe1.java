@@ -24,9 +24,9 @@ import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 
 /**
- * {@link AbstractRecipe} to use for the purpose of allowing the {@link TestTendrilRunner3} to be "injected" into tests
+ * {@link AbstractRecipe} to use for the purpose of allowing the {@link TestTendrilRunner1} to be "injected" into tests
  */
-public class TestTendrilRunnerRecipe3 extends AbstractRecipe<TestTendrilRunner3> {
+public class TestTendrilRunnerRecipe1 extends AbstractRecipe<TestTendrilRunner1> {
 
 	public static final List<String> envAnd = new ArrayList<String>();
 	public static final List<String> envOr = new ArrayList<String>();
@@ -49,15 +49,15 @@ public class TestTendrilRunnerRecipe3 extends AbstractRecipe<TestTendrilRunner3>
      * 
      * @param engine {@link Engine} that the recipe is to be employed with
      */
-    public TestTendrilRunnerRecipe3(Engine engine) {
-        super(engine, TestTendrilRunner3.class, false, false);
+    public TestTendrilRunnerRecipe1(Engine engine) {
+        super(engine, TestTendrilRunner1.class, false, false);
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#setupDescriptor(tendril.bean.qualifier.Descriptor)
      */
     @Override
-    protected void setupDescriptor(Descriptor<TestTendrilRunner3> descriptor) {
+    protected void setupDescriptor(Descriptor<TestTendrilRunner1> descriptor) {
     }
 
     /**
@@ -90,16 +90,16 @@ public class TestTendrilRunnerRecipe3 extends AbstractRecipe<TestTendrilRunner3>
      * @see tendril.bean.recipe.AbstractRecipe#get()
      */
     @Override
-    public TestTendrilRunner3 get() {
-        return new TestTendrilRunner3();
+    public TestTendrilRunner1 get() {
+        return new TestTendrilRunner1();
     }
 
     /**
      * @see tendril.bean.recipe.AbstractRecipe#createInstance(tendril.context.Engine)
      */
     @Override
-    protected TestTendrilRunner3 createInstance(Engine engine) {
-        return new TestTendrilRunner3();
+    protected TestTendrilRunner1 createInstance(Engine engine) {
+        return new TestTendrilRunner1();
     }
 
 }
