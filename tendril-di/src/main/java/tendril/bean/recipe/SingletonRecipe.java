@@ -15,43 +15,54 @@
  */
 package tendril.bean.recipe;
 
+import tendril.bean.qualifier.Descriptor;
 import tendril.context.ApplicationContext;
 import tendril.context.Engine;
 
 /**
- * Abstract recipe for creating singleton beans. This takes on the responsibility for creating and managing the singleton instance of the bean. The class of the bean does not
- * need to be singleton, rather the recipe ensures that the specific instance of an concrete bean is only created once and simply returns the created instance for every
- * subsequent access to the bean.
+ * Abstract recipe for creating singleton beans. This takes on the responsibility for creating and managing the singleton instance of the bean. The class of the bean does not need to be singleton,
+ * rather the recipe ensures that the specific instance of an concrete bean is only created once and simply returns the created instance for every subsequent access to the bean.
  * 
  * @param <BEAN_TYPE> the type of bean the recipe creates
  */
 public abstract class SingletonRecipe<BEAN_TYPE> extends AbstractRecipe<BEAN_TYPE> {
 
-    /** The singleton instance of the bean */
-    private BEAN_TYPE bean = null;
-    
-    /**
-     * CTOR
-     * 
-     * @param engine {@link Engine} powering the {@link ApplicationContext} in which the bean lives
-     * @param beanClass {@link Class} of the bean instance
-     * @param isPrimary true if the bean is a Primary bean
-     * @param isFallback true if the bean is a fallback bean
-     */
-    protected SingletonRecipe(Engine engine, Class<BEAN_TYPE> beanClass, boolean isPrimary, boolean isFallback) {
-        super(engine, beanClass, isPrimary, isFallback);
-    }
-    
-    /**
-     * The bean instance is treated as a singleton, created on the first access and the existing instance returned for each subsequent one.
-     * 
-     * @see tendril.bean.recipe.AbstractRecipe#get()
-     */
-    @Override
-    public BEAN_TYPE get() {
-        if (bean == null)
-            bean = buildBean();
-        
-        return bean;
-    }
+	/** The singleton instance of the bean */
+	private BEAN_TYPE bean = null;
+
+	/**
+	 * CTOR
+	 * 
+	 * @param engine     {@link Engine} powering the {@link ApplicationContext} in which the bean lives
+	 * @param beanClass  {@link Class} of the bean instance
+	 * @param isPrimary  true if the bean is a Primary bean
+	 * @param isFallback true if the bean is a fallback bean
+	 */
+	protected SingletonRecipe(Engine engine, Class<BEAN_TYPE> beanClass, boolean isPrimary, boolean isFallback) {
+		super(engine, beanClass, isPrimary, isFallback);
+	}
+
+	/**
+	 * CTOR
+	 * 
+	 * @param engine     {@link Engine} powering the {@link ApplicationContext} in which the bean lives
+	 * @param beanClass  {@link Class} of the bean instance
+	 * @param descriptor {@link Descriptor} to apply to the bean/recipe
+	 */
+	protected SingletonRecipe(Engine engine, Class<BEAN_TYPE> beanClass, Descriptor<BEAN_TYPE> descriptor) {
+		super(engine, beanClass, descriptor);
+	}
+
+	/**
+	 * The bean instance is treated as a singleton, created on the first access and the existing instance returned for each subsequent one.
+	 * 
+	 * @see tendril.bean.recipe.AbstractRecipe#get()
+	 */
+	@Override
+	public BEAN_TYPE get() {
+		if (bean == null)
+			bean = buildBean();
+
+		return bean;
+	}
 }

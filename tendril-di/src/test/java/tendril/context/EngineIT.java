@@ -140,6 +140,48 @@ public class EngineIT extends AbstractUnitTest {
 	}
 
 	/**
+	 * Verify that the engine can be properly initialized when there are no beans
+	 */
+	@Test
+	public void testNoBeans() {
+		try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
+			registry.when(RegistryFile::read).thenReturn(new HashSet<>());
+			engine.init();
+		}
+
+		// Check what is present
+		Assertions.assertEquals(0, engine.getBeanCount());
+		assertBeans(new Descriptor<>(Double.class));
+		assertBeans(new Descriptor<>(Integer.class));
+		assertBeans(new Descriptor<>(String.class));
+	}
+
+	/**
+	 * Verify that the engine can be properly initialized when only external/manual beans are employed
+	 */
+	@Test
+	public void testManualBeansOnly() {
+		testNoBeans();
+		
+		// Add one bean
+		engine.registerBean(123, new Descriptor<>(Integer.class));
+		Assertions.assertEquals(1, engine.getBeanCount());
+		assertBeans(new Descriptor<>(Double.class));
+		assertBeans(new Descriptor<>(Integer.class), 123);
+		assertBeans(new Descriptor<>(String.class));
+		
+		// Add some more beans
+		engine.registerBean(123, new Descriptor<>(Integer.class));
+		engine.registerBean(321, new Descriptor<>(Integer.class));
+		engine.registerBean(234, new Descriptor<>(Integer.class));
+		engine.registerBean("abc123", new Descriptor<>(String.class));
+		Assertions.assertEquals(5, engine.getBeanCount());
+		assertBeans(new Descriptor<>(Double.class));
+		assertBeans(new Descriptor<>(Integer.class), 123, 123, 321, 234);
+		assertBeans(new Descriptor<>(String.class), "abc123");
+	}
+
+	/**
 	 * Verify that the engine can be properly initialized where there are duplicate beans
 	 */
 	@Test
@@ -218,6 +260,39 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(String.class), StringTestRecipe.VALUE);
 		assertBeans(new Descriptor<>(Long.class));
 		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE);
+	}
+
+	/**
+	 * Verify that the engine can be properly initialized when only external/manual beans are employed
+	 */
+	@Test
+	public void testMixedConfigurationManualBeans() {
+		testMixedConfiguration();
+		
+		// Add one bean
+		engine.registerBean(123, new Descriptor<>(Integer.class));
+		Assertions.assertEquals(5, engine.getBeanCount());
+		assertBeans(new Descriptor<>(Double.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE);
+		assertBeans(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME), Double1TestRecipe.VALUE);
+		assertBeans(new Descriptor<>(Double.class).setName(Double2TestRecipe.NAME), Double2TestRecipe.VALUE);
+		assertBeans(new Descriptor<>(Integer.class), IntTestRecipe.VALUE, 123);
+		assertBeans(new Descriptor<>(String.class), StringTestRecipe.VALUE);
+		assertBeans(new Descriptor<>(Long.class));
+		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE, 123);
+		
+		// Add some more beans
+		engine.registerBean(123, new Descriptor<>(Integer.class));
+		engine.registerBean(321, new Descriptor<>(Integer.class));
+		engine.registerBean(234, new Descriptor<>(Integer.class));
+		engine.registerBean("abc123", new Descriptor<>(String.class));
+		Assertions.assertEquals(9, engine.getBeanCount());
+		assertBeans(new Descriptor<>(Double.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE);
+		assertBeans(new Descriptor<>(Double.class).setName(Double1TestRecipe.NAME), Double1TestRecipe.VALUE);
+		assertBeans(new Descriptor<>(Double.class).setName(Double2TestRecipe.NAME), Double2TestRecipe.VALUE);
+		assertBeans(new Descriptor<>(Integer.class), IntTestRecipe.VALUE, 123, 123, 321, 234);
+		assertBeans(new Descriptor<>(String.class), StringTestRecipe.VALUE, "abc123");
+		assertBeans(new Descriptor<>(Long.class));
+		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE, 123, 123, 321, 234, "abc123");
 	}
 
 	/**

@@ -1,5 +1,7 @@
 package tempApp;
 
+import tendril.bean.qualifier.Descriptor;
+import tendril.context.ApplicationContext;
 import tendril.context.ApplicationContextBuilder;
 
 public class Main {
@@ -10,6 +12,7 @@ public class Main {
 	    AbstractAppRunner.expectedRunner = AppRunner1.class;
 	    AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
 	    AbstractAppRunner.expectedDblValue = 123;
+	    AbstractAppRunner.expectedManualBean = 135;
 	    
 	    System.setProperty("testProperty", "");
         ApplicationContextBuilder ctxBuilder = new ApplicationContextBuilder();
@@ -19,7 +22,9 @@ public class Main {
         ctxBuilder.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
         ctxBuilder.addDynamicBlueprint(new ClassDuplicate("c1"));
         ctxBuilder.addDynamicBlueprint(new ClassDuplicate("c2"));
-        ctxBuilder.build().start();
+        
+        ApplicationContext ctx = ctxBuilder.build();
+        ctx.registerBean(new ManualBean(135), new Descriptor<>(ManualBean.class));
+        ctx.start();
 	}
-	
 }

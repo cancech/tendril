@@ -64,7 +64,28 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
 		this.descriptor = new Descriptor<>(beanClass);
 		this.isPrimary = isPrimary;
 		this.isFallback = isFallback;
+		init();
+	}
 
+	/**
+	 * CTOR
+	 * 
+	 * @param engine     {@link Engine} powering the dependency injection and bean passing
+	 * @param beanClass  {@link Class} of the bean the recipe is to build
+	 * @param descriptor {@link Descriptor} to apply to the bean/recipe
+	 */
+	protected AbstractRecipe(Engine engine, Class<BEAN_TYPE> beanClass, Descriptor<BEAN_TYPE> descriptor) {
+		this.engine = engine;
+		this.descriptor = descriptor;
+		this.isPrimary = false;
+		this.isFallback = false;
+		init();
+	}
+	
+	/**
+	 * Perform the necessary initialization of the recipe
+	 */
+	private void init() {
 		setupDescriptor(descriptor);
 		setupEnvironmentRequirement(envRequirement);
 		setupPropertyRequirement(propRequirement);

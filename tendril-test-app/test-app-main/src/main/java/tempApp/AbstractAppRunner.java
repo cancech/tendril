@@ -46,6 +46,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	public static double expectedDblValue = -1;
 	public static Class<? extends AbstractAppRunner> expectedRunner;
 	public static Class<? extends MultiEnvBean> expectedMultiEnvBean;
+	public static int expectedManualBean = -1;
 
 	private static int instances = 0;
 	private static int timesDoSomething = 0;
@@ -83,6 +84,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		timesEnumInjector = 0;
 		timesRun = 0;
 		timesAllInjectorRun = 0;
+		expectedManualBean = -1;
 	}
 
 	@Inject
@@ -239,6 +241,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	@Inject
 	@Message
 	Double dblValue;
+	
+	@Inject
+	ManualBean manualBean;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationDetails[] expectedDynamicDuplicates;
@@ -514,6 +519,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		assertion(dataStruct.get().equals(expectedEnvironment), "Data should be " + expectedEnvironment + " but was " + dataStruct.get());
 		
 		assertion(dblValue == expectedDblValue, "Value should be " + expectedDblValue + " but was " + dblValue);
+
+		// TODO check if it exists by going through the application context
+		assertion(new ManualBean(expectedManualBean).equals(manualBean), "Manual bean should have been " + expectedManualBean + " but was " + manualBean.getValue());
 	}
 
 	protected static void assertion(boolean value, String msg) {

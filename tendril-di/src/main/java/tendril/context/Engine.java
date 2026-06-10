@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.apache.commons.lang3.NotImplementedException;
-
 import tendril.BeanReplacementException;
 import tendril.BeanRetrievalException;
 import tendril.TendrilStartupException;
@@ -34,6 +32,7 @@ import tendril.bean.duplicate.BlueprintDriver;
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.ConfigurationRecipe;
+import tendril.bean.recipe.WrapperRecipe;
 import tendril.bean.requirement.Requirement;
 import tendril.context.launch.TendrilRunner;
 import tendril.context.search.AllRecipeSearchHandler;
@@ -314,8 +313,7 @@ public class Engine implements ApplicationContext {
 	 */
 	@Override
 	public <BEAN_TYPE> void registerBean(BEAN_TYPE bean, Descriptor<BEAN_TYPE> descriptor) {
-		// TODO complete the implementation
-		throw new NotImplementedException("This is still TBD functionality at this time");
+		recipes.add(new WrapperRecipe<>(this, bean, descriptor));
 	}
 
 	/**
