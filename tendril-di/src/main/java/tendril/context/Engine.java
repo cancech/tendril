@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang3.NotImplementedException;
+
 import tendril.BeanReplacementException;
 import tendril.BeanRetrievalException;
 import tendril.TendrilStartupException;
@@ -305,6 +307,15 @@ public class Engine implements ApplicationContext {
 	public <BEAN_TYPE> int count(Descriptor<BEAN_TYPE> descriptor) {
 		RecipeSearchResult<BEAN_TYPE> matchingRecipes = findRecipes(descriptor, SearchType.ALL_BEANS);
 		return matchingRecipes.getRecipes().size();
+	}
+	
+	/**
+	 * @see tendril.context.ApplicationContext#registerBean(java.lang.Object, tendril.bean.qualifier.Descriptor)
+	 */
+	@Override
+	public <BEAN_TYPE> void registerBean(BEAN_TYPE bean, Descriptor<BEAN_TYPE> descriptor) {
+		// TODO complete the implementation
+		throw new NotImplementedException("This is still TBD functionality at this time");
 	}
 
 	/**

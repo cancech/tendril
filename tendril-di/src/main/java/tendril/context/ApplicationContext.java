@@ -24,6 +24,16 @@ public interface ApplicationContext {
 	<BEAN_TYPE> int count(Descriptor<BEAN_TYPE> descriptor);
 
 	/**
+	 * Register a bean so that it can be employed in the {@link ApplicationContext}. The registered bean will for all intents and purposes be a Singleton, such that the registered bean will be return
+	 * as-is whenever it is retrieved.
+	 * 
+	 * @param <BEAN_TYPE> indicating the type of bean that is to be registered
+	 * @param bean        the specific object to register as a bean
+	 * @param descriptor  {@link Descriptor} containing the description of the bean that is to be registered
+	 */
+	<BEAN_TYPE> void registerBean(BEAN_TYPE bean, Descriptor<BEAN_TYPE> descriptor);
+
+	/**
 	 * Get the bean matching the provided descriptor. The descriptor must resolve to exactly one instance otherwise an exception will be thrown, though resolution is done on a priority basis:
 	 * <ol>
 	 * <li>Any {@link Primary} beans that match are attempted first</li>
