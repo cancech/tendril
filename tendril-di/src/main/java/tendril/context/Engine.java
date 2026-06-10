@@ -299,6 +299,15 @@ public class Engine implements ApplicationContext {
 	}
 
 	/**
+	 * @see tendril.context.ApplicationContext#count(tendril.bean.qualifier.Descriptor)
+	 */
+	@Override
+	public <BEAN_TYPE> int count(Descriptor<BEAN_TYPE> descriptor) {
+		RecipeSearchResult<BEAN_TYPE> matchingRecipes = findRecipes(descriptor, SearchType.ALL_BEANS);
+		return matchingRecipes.getRecipes().size();
+	}
+
+	/**
 	 * @see tendril.context.ApplicationContext#getBean(tendril.bean.qualifier.Descriptor)
 	 */
 	@SuppressWarnings("unchecked")

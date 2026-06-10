@@ -9,10 +9,19 @@ import tendril.bean.qualifier.Descriptor;
 import tendril.context.launch.TendrilRunner;
 
 public interface ApplicationContext {
-    /**
-     * Start the context and trigger execution via the defined {@link TendrilRunner}
-     */
+	/**
+	 * Start the context and trigger execution via the defined {@link TendrilRunner}
+	 */
 	void start();
+
+	/**
+	 * Count how many beans exist which match the provided descriptor
+	 * 
+	 * @param <BEAN_TYPE> indicating the type of bean that is to be checked
+	 * @param descriptor  {@link Descriptor} containing the description of the bean to be checked
+	 * @return int the number of matching beans that are available in the {@link ApplicationContext}
+	 */
+	<BEAN_TYPE> int count(Descriptor<BEAN_TYPE> descriptor);
 
 	/**
 	 * Get the bean matching the provided descriptor. The descriptor must resolve to exactly one instance otherwise an exception will be thrown, though resolution is done on a priority basis:
@@ -35,7 +44,7 @@ public interface ApplicationContext {
 	 * @throws BeanRetrievalException if there is an issue retrieving the desired bean
 	 */
 	<BEAN_TYPE> BEAN_TYPE getBean(Descriptor<BEAN_TYPE> descriptor);
-	
+
 	/**
 	 * Get all beans that match the provided descriptor. The {@link List} can be empty if there are no matches. All matching {@link Primary} and basic (no explicit type) beans will be returned,
 	 * {@link Fallback} beans will only be included if there are no {@link Primary} or basic matches.
