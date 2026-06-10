@@ -112,8 +112,9 @@ The `environments` property is loaded by the `Engine` on initialization to deter
 The alternative approach, would be to specify the environments via code as part of `ApplicationContext` initialization. 
 
 ```java
-ApplicationContext ctx = new ApplicationContext();
-ctx.addEnvironments("a", "b", "c");
+ApplicationContextBuilder builder = new ApplicationContextBuilder();
+builder.addEnvironments("a", "b", "c");
+ApplicationContext ctx = builder.build();
 ctx.start();
 ```
 
@@ -586,30 +587,33 @@ public class MyDuplicates implements BlueprintDriver {
 }
 ```
 
-Any other/additional details can be incorporated and it will be up to the client code to perform any necessary validation and processing of the additional data. Ultimately the manner in which the details of the duplicates are presented are largely the same, however where *static blueprints* can rely on the enum values to dictate and initialize the duplication details, the same cannot apply for *dynamic blueprints*. Rather, the client code must provide the specific characteristics for each duplicate at runtime prior to starting the application. This is done via the `ApplicationContext`.
+Any other/additional details can be incorporated and it will be up to the client code to perform any necessary validation and processing of the additional data. Ultimately the manner in which the details of the duplicates are presented are largely the same, however where *static blueprints* can rely on the enum values to dictate and initialize the duplication details, the same cannot apply for *dynamic blueprints*. Rather, the client code must provide the specific characteristics for each duplicate at runtime prior to starting the application. This is done via the `ApplicationContextBuilder`.
 
 ```java
-ApplicationContext ctx = new ApplicationContext();
-ctx.addDynamicDuplicate(new MyDuplicates("abc123");
-ctx.addDynamicDuplicate(new MyDuplicates("def456");
-ctx.addDynamicDuplicate(new MyDuplicates("ghi789");
+ApplicationContextBuilder builder = new ApplicationContextBuilder();
+builder.addDynamicDuplicate(new MyDuplicates("abc123");
+builder.addDynamicDuplicate(new MyDuplicates("def456");
+builder.addDynamicDuplicate(new MyDuplicates("ghi789");
+ApplicationContext ctx = builder.build();
 ctx.start();
 ```
 
 The appropriate blueprint annotation is generated in the same manner `<class>Blueprint`, hence `@MyDuplicatesBlueprint` in this case. However, since the number and details of the blueprint copies are not known it is not possible to generate equivalent `qualifiers` for all of the copies as is the case with the *static blueprints*. Instead the `BlueprintDriver::getName()` is employed to apply a unique name to each copy for a given blueprint. This is applied in the same manner as if `@Named(BlueprintDriver::getName())` were called, and it can then also be used to retrieve unique copies for a given blueprint. To this end, it is necessary that the name be unique for every copy for a given blueprint, though the name can be reused across different blueprints.
 
 ```java
-ApplicationContext ctx = new ApplicationContext();
+ApplicationContextBuilder builder = new ApplicationContextBuilder();
 // Unique to MyDuplicates - this is fine
-ctx.addDynamicDuplicate(new MyDuplicates("a");
-ctx.addDynamicDuplicate(new MyDuplicates("b");
-ctx.addDynamicDuplicate(new MyDuplicates("c");
+builder.addDynamicDuplicate(new MyDuplicates("a");
+builder.addDynamicDuplicate(new MyDuplicates("b");
+builder.addDynamicDuplicate(new MyDuplicates("c");
 
 // This will fail as a copy names "a" already exists
-ctx.addDynamicDuplicate(new MyDuplicates("a");
+builder.addDynamicDuplicate(new MyDuplicates("a");
 
-// This is fine as there is no "an" in MyOtherDuplicates as of yet
-ctx.addDynamicDuplicate(new MyOtherDuplicates("a");
+// This is fine as there is no "a" in MyOtherDuplicates as of yet
+builder.addDynamicDuplicate(new MyOtherDuplicates("a");
+
+ApplicationContext ctx = builder.build();
 ctx.start();
 ```
 
@@ -688,19 +692,21 @@ public class ParentDuplicate {
 }
 
 // The will work as there are no explicit Parent duplicates
-ApplicationContext ctx = new ApplicationContext();
-ctx.addDynamicDuplicate(new Child("a", 1, 1.0);
-ctx.addDynamicDuplicate(new Child("b", 2, 2.0);
-ctx.addDynamicDuplicate(new Child("c", 3, 3.0);
+ApplicationContextBuilder builder = new ApplicationContextBuilder();
+builder.addDynamicDuplicate(new Child("a", 1, 1.0);
+builder.addDynamicDuplicate(new Child("b", 2, 2.0);
+builder.addDynamicDuplicate(new Child("c", 3, 3.0);
+ApplicationContext ctx = builder.build();
 ctx.start();
 
 
 // Adding a single Parent duplicate will break as parent d has not corresponding child
-ApplicationContext ctx = new ApplicationContext();
-ctx.addDynamicDuplicate(new Child("a", 1, 1.0);
-ctx.addDynamicDuplicate(new Child("b", 2, 2.0);
-ctx.addDynamicDuplicate(new Child("c", 3, 3.0);
-ctx.addDynamicDuplicate(new Parent("d", 4);
+ApplicationContextBuilder builder = new ApplicationContextBuilder();
+builder.addDynamicDuplicate(new Child("a", 1, 1.0);
+builder.addDynamicDuplicate(new Child("b", 2, 2.0);
+builder.addDynamicDuplicate(new Child("c", 3, 3.0);
+builder.addDynamicDuplicate(new Parent("d", 4);
+ApplicationContext ctx = builder.build();
 ctx.start();
 ```
 
@@ -954,15 +960,40 @@ public class Main implements TendrilRunner {
 The application must have exactly **one** `Runner` available at runtime, with an exception thrown if more or less are available at application start. If multiple runners are to be provided in the code, then it is necessary to supply the appropriate `Requirements` to each, such that only a single `Runner` is available to the application. For example, one `Runner` can be created for use in a production environment and another in a test environment, with the appropriate requirements (i.e.: `@RequiresEnv` or `@RequiresNotEnv`) supplied to allow for their down selection.
 
 ### Create the Application Context
-The dependency injection takes place within a `Context`, which must be created and started. This is done via `ApplicationContext`, which is to be created and started in the global application `main()` or equivalent.
+The dependency injection takes place within a `Context`, which must be created and started. This is done via `ApplicationContextBuilder`, which is to be created and started in the global application `main()` or equivalent.
 
 ```java
 public static void main(String[] args) {
-  ApplicationContext ctx = new ApplicationContext();
+  ApplicationContextBuilder builder = new ApplicationContextBuilder();
+  ApplicationContext ctx = builder.build();
   ctx.start();
 }
 ```
-`ApplicationContext::start()` will find and `run()` the `Runner` that is defined, triggering assembly and execution of the `Tendril` application.
+`ApplicationContextBuilder::build()` taking care to build and configure the `ApplicationContext` as desired, with the `ApplicationContext::start()` left with the responsibility to find and `run()` the `Runner` that is defined, triggering assembly and execution of the `Tendril` application. It is then through this `ApplicationContext` that it is possible to manually interact or manipulate the beans separately from dependency injection. This includes injection beans which are not part of the DI system prior to starting the application.
+
+```java
+ApplicationContext ctx = builder.build();
+ctx.registerBean(myExternalObject, new Descriptor<ExternalObject>(ExternalObject.class).setName("myName"));
+ctx.start();
+```
+
+It is also possible to inject the `ApplicationContext` as a bean and then "manually" retrieve a bean without going through the "normal" injection mechanism.
+
+```java
+@Bean
+@Singleton
+public class MyClass {
+	@Inject
+	ApplicationContext ctx;
+	
+	@PostConstruct
+	public void init() {
+		List<String> allStrings = ctx.getAllBeans(new Descriptor<>(String.class));
+		for (String s: allString)
+			System.out.println("String Bean: " + s);
+	}
+}
+```
 
 ## META-INF
 In support of `Tendril` functionality, the build will generate a number of supporting files in the `META-INF/tendril` directory. These files are vital to the runtime operations of the application and must be preserved. If a tool such as `shadow` is used to create a *Fat* or *Uber* jar, care must be taken to ensure that the `META-INF/tendril` files are combined or merged and not overridden. The loss of data which would ensure will directly result in loss of bean (meta) data and failure for the resulting jar/application to work properly. The following `META-INF/tendril` files are produced
