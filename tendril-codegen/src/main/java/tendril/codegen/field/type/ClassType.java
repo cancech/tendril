@@ -55,10 +55,9 @@ public class ClassType extends JGeneric implements Type {
     }
 
     /**
-     * Get the name of the class (or equivalent)
-     * 
-     * @return {@link String} name
+     * @see tendril.codegen.field.type.Type#getClassName()
      */
+    @Override
     public String getClassName() {
         return className;
     }

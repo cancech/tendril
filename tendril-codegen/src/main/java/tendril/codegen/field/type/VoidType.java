@@ -84,6 +84,14 @@ public class VoidType implements Type {
     public boolean isVoid() {
         return true;
     }
+    
+    /**
+     * @see tendril.codegen.field.type.Type#getClassName()
+     */
+    @Override
+    public String getClassName() {
+        throw new DefinitionException("A void type has not class name");
+    }
 
     /**
      * @see tendril.codegen.field.type.Type#getSimpleName()

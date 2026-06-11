@@ -91,6 +91,16 @@ public class ArrayTypeTest extends AbstractUnitTest {
     }
     
     /**
+     * Verify the class name is properly constructed
+     */
+    @Test
+    public void testClassName() {
+    	when(mockType.getClassName()).thenReturn("ClassName");
+    	Assertions.assertEquals("ClassName[]", type.getClassName());
+    	verify(mockType).getClassName();
+    }
+    
+    /**
      * Verify simple name is properly constructed
      */
     @Test

@@ -351,7 +351,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 	 */
 	protected String getDependencyDescriptor(JType<?> describedBean, Type beanType) {
 		externalImports.add(TypeFactory.createClassType(Descriptor.class));
-		String desc = "new " + Descriptor.class.getSimpleName() + "<>(" + beanType.getSimpleName() + ".class, \"" + describedBean.getName() + "\")";
+		String desc = "new " + Descriptor.class.getSimpleName() + "<>(" + getClassReference(beanType) + ", \"" + describedBean.getName() + "\")";
 		return desc + joinLines(getDescriptorLines(describedBean), ".", "", "\n            ");
 	}
 
@@ -395,7 +395,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 				lines.add("addEnumQualifier(" + entry.getEnclosingClass().getClassName() + "." + entry.getName() + ")");
 			} else if (a.hasAnnotation(Qualifier.class)) {
 				externalImports.add(a.getType());
-				lines.add("addQualifier(" + a.getType().getSimpleName() + ".class)");
+				lines.add("addQualifier(" + getClassReference(a.getType()) + ")");
 			} else {
 				lines.addAll(getDescriptorLines(a));
 			}
@@ -449,4 +449,21 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 		}
 	}
 
+	/**
+	 * Get the class reference for the specified type. If this is a class which contains generics, then it will be "appropriately wrapped" so that it
+	 * works properly for the Java compiler. 
+	 * 
+	 * @param type {@link Type} whose class reference is desired
+	 * @return {@link String} with the code necessary to retrieve the class reference
+	 */
+	public static String getClassReference(Type type) {
+		// TODO this should be moved into a separate/better location. It may be used here, but it shouldn't stay here. Also add a test to it
+		// TODO the resulting code generates a warning, see about either getting rid of it or adding @SuppressWarnings("unchecked") to the containing method
+		String classReference = type.getClassName() + ".class";
+		
+		if (type instanceof ClassType classType && classType.hasGenerics())
+			return "(Class<" + type.getSimpleName() + ">) (Class<?>) " + classReference;
+		
+		return classReference;
+	}
 }

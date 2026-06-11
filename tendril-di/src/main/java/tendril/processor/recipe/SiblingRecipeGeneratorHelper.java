@@ -102,8 +102,7 @@ class SiblingRecipeGeneratorHelper {
 			List<String> mappings = new ArrayList<>();
 			for (ClassType aType : generatedAnnotations) {
 				generator.addImport(aType);
-				String name = aType.getSimpleName();
-				mappings.add("\"" + name + "\", " + name + ".class");
+				mappings.add("\"" + aType.getClassName() + "\", " + AbstractRecipeGenerator.getClassReference(aType));
 			}
 
 			ClassType qualifierClass = TypeFactory.createClassType(Class.class, GenericFactory.createWildcard());

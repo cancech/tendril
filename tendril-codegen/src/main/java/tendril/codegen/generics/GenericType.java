@@ -88,6 +88,14 @@ public abstract class GenericType implements Type {
     public boolean isVoid() {
         return false;
     }
+    
+    /**
+     * @see tendril.codegen.field.type.Type#getClassName()
+     */
+    @Override
+    public String getClassName() {
+    	return asClassType().getClassName();
+    }
 
     /**
      * @see tendril.codegen.field.type.Type#getSimpleName()

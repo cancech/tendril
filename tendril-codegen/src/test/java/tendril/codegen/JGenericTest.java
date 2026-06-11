@@ -61,6 +61,7 @@ public class JGenericTest extends AbstractUnitTest {
      */
     @Test
     public void testNoGeneric() {
+        Assertions.assertFalse(element.hasGenerics());
         Assertions.assertIterableEquals(Collections.emptyList(), element.getGenerics());
         Assertions.assertEquals(" ", element.getGenericsApplicationKeyword(true));
         Assertions.assertEquals("", element.getGenericsApplicationKeyword(false));
@@ -75,7 +76,10 @@ public class JGenericTest extends AbstractUnitTest {
     public void testSingleGeneric() {
         when(mockGeneric1.generateApplication()).thenReturn("GEN_1_APP");
         when(mockGeneric1.generateDefinition()).thenReturn("GEN_1_DEF");
+        
+        Assertions.assertFalse(element.hasGenerics());
         element.addGeneric(mockGeneric1);
+        Assertions.assertTrue(element.hasGenerics());
 
         Assertions.assertIterableEquals(Collections.singleton(mockGeneric1), element.getGenerics());
         Assertions.assertEquals("<GEN_1_APP> ", element.getGenericsApplicationKeyword(true));
@@ -99,9 +103,14 @@ public class JGenericTest extends AbstractUnitTest {
         when(mockGeneric1.generateDefinition()).thenReturn("GEN_1_DEF");
         when(mockGeneric2.generateDefinition()).thenReturn("GEN_2_DEF");
         when(mockGeneric3.generateDefinition()).thenReturn("GEN_3_DEF");
+
+        Assertions.assertFalse(element.hasGenerics());
         element.addGeneric(mockGeneric1);
+        Assertions.assertTrue(element.hasGenerics());
         element.addGeneric(mockGeneric2);
+        Assertions.assertTrue(element.hasGenerics());
         element.addGeneric(mockGeneric3);
+        Assertions.assertTrue(element.hasGenerics());
 
         Assertions.assertIterableEquals(Arrays.asList(mockGeneric1, mockGeneric2, mockGeneric3), element.getGenerics());
         Assertions.assertEquals("<GEN_1_APP, GEN_2_APP, GEN_3_APP> ", element.getGenericsApplicationKeyword(true));

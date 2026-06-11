@@ -97,6 +97,7 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.BOOLEAN);
+        Assertions.assertEquals("Boolean", type.getClassName());
 
         TendrilAssert.assertJValue(JValueFactory.create(true), type.asValue(true));
         TendrilAssert.assertJValue(JValueFactory.create(false), type.asValue(false));
@@ -111,6 +112,7 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.BYTE);
+        Assertions.assertEquals("Byte", type.getClassName());
 
         TendrilAssert.assertJValue(JValueFactory.create(Byte.valueOf("10")), type.asValue(Byte.valueOf("10")));
         TendrilAssert.assertJValue(JValueFactory.create(Byte.valueOf("101")), type.asValue(Byte.valueOf("101")));
@@ -125,6 +127,7 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.CHAR);
+        Assertions.assertEquals("Character", type.getClassName());
 
         TendrilAssert.assertJValue(JValueFactory.create('q'), type.asValue('q'));
         TendrilAssert.assertJValue(JValueFactory.create('b'), type.asValue('b'));
@@ -139,6 +142,7 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.DOUBLE);
+        Assertions.assertEquals("Double", type.getClassName());
 
         TendrilAssert.assertJValue(JValueFactory.create(1.23), type.asValue(1.23));
         TendrilAssert.assertJValue(JValueFactory.create(4.567), type.asValue(4.567));
@@ -153,6 +157,7 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.FLOAT);
+        Assertions.assertEquals("Float", type.getClassName());
 
         TendrilAssert.assertJValue(JValueFactory.create(1.23f), type.asValue(1.23f));
         TendrilAssert.assertJValue(JValueFactory.create(4.567f), type.asValue(4.567f));
@@ -167,6 +172,7 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.INT);
+        Assertions.assertEquals("Integer", type.getClassName());
 
         TendrilAssert.assertJValue(JValueFactory.create(123), type.asValue(123));
         TendrilAssert.assertJValue(JValueFactory.create(456), type.asValue(456));
@@ -181,6 +187,7 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.LONG);
+        Assertions.assertEquals("Long", type.getClassName());
 
         TendrilAssert.assertJValue(JValueFactory.create(1234567890l), type.asValue(1234567890l));
         TendrilAssert.assertJValue(JValueFactory.create(45645645645l), type.asValue(45645645645l));
@@ -195,6 +202,7 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
         type.registerImport(mockImports);
         verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.SHORT);
+        Assertions.assertEquals("Short", type.getClassName());
 
         TendrilAssert.assertJValue(JValueFactory.create((short) 789), type.asValue((short) 789));
         TendrilAssert.assertJValue(JValueFactory.create((short) 654), type.asValue((short) 654));

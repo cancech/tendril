@@ -72,7 +72,7 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 	protected void generateConstructor(ClassBuilder builder) throws InvalidConfigurationException {
 		// CTOR contents
 		List<String> ctorCode = new ArrayList<>();
-		ctorCode.add("super(engine, " + creatorType.getSimpleName() + ".class, " + isPrimary + ", " + isFallback + ");");
+		ctorCode.add("super(engine, " + getClassReference(creatorType) + ", " + isPrimary + ", " + isFallback + ");");
 		siblingHelper.addCtorCode(ctorCode);
 
 		generateFieldConsumers(ctorCode);

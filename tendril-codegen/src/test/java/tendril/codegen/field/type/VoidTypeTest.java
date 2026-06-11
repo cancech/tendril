@@ -116,4 +116,12 @@ public class VoidTypeTest extends SharedTypeTest<VoidType> {
     public void testAsClassType() {
         Assertions.assertThrows(DefinitionException.class, () -> type.asClassType());
     }
+    
+    /**
+     * Verify that it is not possible to get a class name from a void
+     */
+    @Test
+    public void testGetClassName() {
+        Assertions.assertThrows(DefinitionException.class, () -> type.getClassName());
+    }
 }

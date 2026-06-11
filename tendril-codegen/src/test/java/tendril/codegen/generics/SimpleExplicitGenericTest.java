@@ -95,7 +95,7 @@ class SimpleExplicitGenericTest extends AbstractUnitTest {
     @Test
     public void testRegisterImports() {
         gen.registerImport(mockImports);
-        verify(mockImports).add(mockClassType);
+        verify(mockClassType).registerImport(mockImports);
     }
     
     /**

@@ -18,6 +18,7 @@ package tendril.codegen.generics;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Set;
 
@@ -82,7 +83,7 @@ public class GenericTypeTest extends AbstractUnitTest {
          */
         @Override
         public ClassType asClassType() {
-            throw new NotImplementedException("This is not part of the test, and hence not implemented");
+            return mockClassType;
         }
         
     }
@@ -169,5 +170,15 @@ public class GenericTypeTest extends AbstractUnitTest {
 
         Assertions.assertFalse(gen.equals(new TestGenericType("TestGenericNameAbc123")));
         Assertions.assertFalse(gen.equals(Integer.valueOf(123)));
+    }
+    
+    /**
+     * Verify that getClassName works as expected
+     */
+    @Test
+    public void testGetClassName() {
+    	when(mockClassType.getClassName()).thenReturn("BLAH");
+    	Assertions.assertEquals("BLAH", gen.getClassName());
+    	verify(mockClassType).getClassName();
     }
 }

@@ -65,6 +65,13 @@ public class ArrayType<DATA_TYPE extends Type> implements Type {
     public boolean isVoid() {
         return containedType.isVoid();
     }
+    /**
+     * @see tendril.codegen.field.type.Type#getClassName()
+     */
+    @Override
+    public String getClassName() {
+    	return containedType.getClassName() + "[]";
+    }
 
     /**
      * @see tendril.codegen.field.type.Type#getSimpleName()

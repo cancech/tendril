@@ -98,7 +98,7 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
 		builder.buildField(configRecipeType, "config").setVisibility(VisibilityType.PRIVATE).setFinal(true).finish();
 		// Add the constructor
 		builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).buildParameter(configRecipeType, "config").finish().buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish()
-				.addCode("super(engine, " + creatorType.getSimpleName() + ".class, " + isPrimary + ", " + isFallback + ");", "this.config = config;").finish();
+				.addCode("super(engine, " + getClassReference(creatorType) + ", " + isPrimary + ", " + isFallback + ");", "this.config = config;").finish();
 	}
 
 }

@@ -39,6 +39,14 @@ public class JGeneric {
     }
     
     /**
+     * Check whether or not any generics have been registers
+     * @return
+     */
+    public boolean hasGenerics() {
+    	return generics.size() > 0;
+    }
+    
+    /**
      * Add a generic to the item
      * 
      * @param generic {@link GenericType} to add
@@ -64,7 +72,7 @@ public class JGeneric {
      * @return {@link String} containing the generics definition
      */
     public String getGenericsDefinitionKeyword(boolean blankSpace) {
-        if (generics.isEmpty())
+        if (!hasGenerics())
             return blankSpace ? " " : "";
 
         return "<" + TendrilStringUtil.join(generics, g -> g.generateDefinition()) + "> ";

@@ -30,6 +30,13 @@ public interface Type extends Importable {
     boolean isVoid();
     
     /**
+     * Get the name of the class (or equivalent)
+     * 
+     * @return {@link String} name
+     */
+    String getClassName();
+    
+    /**
      * Get the simple name/code of the type
      * 
      * @return {@link String}

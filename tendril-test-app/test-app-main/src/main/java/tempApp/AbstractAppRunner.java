@@ -16,6 +16,7 @@
 package tempApp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,7 @@ import tendril.bean.InjectAll;
 import tendril.bean.duplicate.Sibling;
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.qualifier.Named;
+import tendril.codegen.field.type.PrimitiveType;
 import tendril.context.ApplicationContext;
 import tendril.context.launch.TendrilRunner;
 
@@ -246,6 +248,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	
 	@Inject
 	ApplicationContext ctx;
+	
+	@Inject
+	List<GenericWrapper<PrimitiveType>> primitives;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationDetails[] expectedDynamicDuplicates;
@@ -528,6 +533,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 			ManualBean manualBean = ctx.getBean(new Descriptor<>(ManualBean.class));
 			assertion(new ManualBean(expectedManualBean).equals(manualBean), "Manual bean should have been " + expectedManualBean + " but was " + manualBean.getValue());
 		}
+		
+		primitives.forEach((w) -> System.out.println(w));
+		assertion(primitives.equals(Arrays.asList(PrimitiveType.values())), "Primitive array is not correct");
 	}
 
 	protected static void assertion(boolean value, String msg) {

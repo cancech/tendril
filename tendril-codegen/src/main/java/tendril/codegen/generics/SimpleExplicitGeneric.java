@@ -55,7 +55,7 @@ class SimpleExplicitGeneric extends GenericType {
      */
     @Override
     public void registerImport(Set<ClassType> classImports) {
-        classImports.add(classType);
+    	classType.registerImport(classImports);
     }
 
     /**

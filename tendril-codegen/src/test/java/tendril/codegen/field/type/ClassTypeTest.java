@@ -381,4 +381,13 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	public void testAsClassType() {
 		Assertions.assertTrue(type == type.asClassType());
 	}
+	
+	/**
+	 * Verify that the class name is properly retrieved
+	 */
+	@Test
+	public void testClassName() {
+		Assertions.assertEquals("ClassType", create(ClassType.class).getClassName());
+		Assertions.assertEquals("D", new ClassType("a.b.c", "D").getClassName());
+	}
 }
