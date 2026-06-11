@@ -37,7 +37,9 @@ import tempApp.lib1replace.ReplaceOption1;
 import tendril.bean.Inject;
 import tendril.bean.InjectAll;
 import tendril.bean.duplicate.Sibling;
+import tendril.bean.qualifier.Descriptor;
 import tendril.bean.qualifier.Named;
+import tendril.context.ApplicationContext;
 import tendril.context.launch.TendrilRunner;
 
 public abstract class AbstractAppRunner implements TendrilRunner {
@@ -243,7 +245,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	Double dblValue;
 	
 	@Inject
-	ManualBean manualBean;
+	ApplicationContext ctx;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationDetails[] expectedDynamicDuplicates;
@@ -520,8 +522,12 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		
 		assertion(dblValue == expectedDblValue, "Value should be " + expectedDblValue + " but was " + dblValue);
 
-		// TODO check if it exists by going through the application context
-		assertion(new ManualBean(expectedManualBean).equals(manualBean), "Manual bean should have been " + expectedManualBean + " but was " + manualBean.getValue());
+		if (expectedManualBean < 0)
+			assertion(0 == ctx.count(new Descriptor<>(ManualBean.class)), "Manual bean should not be present");
+		else {
+			ManualBean manualBean = ctx.getBean(new Descriptor<>(ManualBean.class));
+			assertion(new ManualBean(expectedManualBean).equals(manualBean), "Manual bean should have been " + expectedManualBean + " but was " + manualBean.getValue());
+		}
 	}
 
 	protected static void assertion(boolean value, String msg) {

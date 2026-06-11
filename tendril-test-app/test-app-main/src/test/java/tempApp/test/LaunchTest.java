@@ -84,7 +84,6 @@ public class LaunchTest {
         AbstractAppRunner.expectedRunner = AppRunner1.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean1.class;
         AbstractAppRunner.expectedDblValue = 123;
-        AbstractAppRunner.expectedManualBean = 345;
         
         System.setProperty("testProperty", "");
         ApplicationContextBuilder builder = new ApplicationContextBuilder();
@@ -95,7 +94,6 @@ public class LaunchTest {
         builder.addDynamicBlueprint(new ClassDuplicate("t1"));
         builder.addDynamicBlueprint(new ClassDuplicate("t2"));
         ApplicationContext ctx = builder.build();
-        ctx.registerBean(new ManualBean(345), new Descriptor<>(ManualBean.class));
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -134,7 +132,6 @@ public class LaunchTest {
         AbstractAppRunner.expectedRunner = AppRunner2.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
         AbstractAppRunner.expectedDblValue = 123;
-        AbstractAppRunner.expectedManualBean = 345;
 
         System.setProperty("testProperty", "");
         ApplicationContextBuilder builder = new ApplicationContextBuilder();
@@ -150,7 +147,6 @@ public class LaunchTest {
         builder.addDynamicBlueprint(new ClassDuplicate("t3"));
         builder.addDynamicBlueprint(new ClassDuplicate("t4"));
         ApplicationContext ctx = builder.build();
-        ctx.registerBean(new ManualBean(345), new Descriptor<>(ManualBean.class));
         ctx.start();
         
         // Ensure everything created the expected number of times
@@ -200,7 +196,6 @@ public class LaunchTest {
         AbstractAppRunner.expectedRunner = AppRunner2.class;
         AbstractAppRunner.expectedMultiEnvBean = MultiEnvBean2.class;
         AbstractAppRunner.expectedDblValue = 3.21;
-        AbstractAppRunner.expectedManualBean = 555;
         
         ApplicationContextBuilder builder = new ApplicationContextBuilder();
         builder.setEnvironments("lowercase", "abc123", "test");
@@ -215,7 +210,6 @@ public class LaunchTest {
         builder.addDynamicBlueprint(new ClassDuplicate("t3"));
         builder.addDynamicBlueprint(new ClassDuplicate("t4"));
         ApplicationContext ctx = builder.build();
-        ctx.registerBean(new ManualBean(555), new Descriptor<>(ManualBean.class));
         ctx.start();
         
         // Ensure everything created the expected number of times

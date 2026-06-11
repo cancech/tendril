@@ -122,6 +122,9 @@ public class Engine implements ApplicationContext {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		// Inject the ApplicationContext
+		recipes.add(new WrapperRecipe<>(this, this, new Descriptor<>(ApplicationContext.class)));
 	}
 
 	/**
