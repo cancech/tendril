@@ -995,6 +995,59 @@ public class MyClass {
 }
 ```
 
+## Known Issues and Limitations
+While every effort is made to provide a fully functional capability and address all issues, there are some which have not been addressed as they would be too invasive to fix and ultimately not worth the effort at this stage. These are issues and limitations are documented here, so that the appropriate mitigation steps can be taken in the client code.
+
+### Repeat bean methods in a Configuration
+While it is technically fully legal to have overloaded methods in a `Configuration` file, such that each overload produces a different instance/variation of a bean, or a completely different type of bean altogether, this is something that is not handled properly within `Tendril` and will result in an exception during annotation processing
+
+```
+javax.annotation.processing.FilerException: Attempt to recreate a file for type <configuration><method>Recipe
+```
+
+For example the following code, while technically legal, will result in this exception being thrown.
+
+```java
+@Configuration
+public class TestConfig {
+
+	@Bean
+	@Singleton
+	MyBean createBean() {
+		return new MyBean("NoArgBean");
+	}
+	
+	@Bean
+	@Singleton
+	MyBean createBean(String msg) {
+		return new MyBean(msg);
+	}
+}
+```
+
+`Tendril` automatically generates the recipe class `TestConfigcreateBeanRecipe` for both `createBean` methods, resulting in the above exception. The work around is to ensure that each bean method in a single `Configuration` class has a unique name. Thus, the above can be updated as follows
+
+```java
+@Configuration
+public class TestConfig {
+
+	@Bean
+	@Singleton
+	MyBean createNoArgBean() {
+		return new MyBean("NoArgBean");
+	}
+	
+	@Bean
+	@Singleton
+	MyBean createMsgBean(String msg) {
+		return new MyBean(msg);
+	}
+}
+```
+
+### Repeat class names
+Tendril assumes that every class name is always unique, ergo it can be imported. As such, if a situation arises where the same class name appears on two distinct classes in the same bean a name clash will ensue and the generated code will not work. The work around for this is to ensure that all classes that appear within a single bean are unique.
+
 ## META-INF
 In support of `Tendril` functionality, the build will generate a number of supporting files in the `META-INF/tendril` directory. These files are vital to the runtime operations of the application and must be preserved. If a tool such as `shadow` is used to create a *Fat* or *Uber* jar, care must be taken to ensure that the `META-INF/tendril` files are combined or merged and not overridden. The loss of data which would ensure will directly result in loss of bean (meta) data and failure for the resulting jar/application to work properly. The following `META-INF/tendril` files are produced
 
