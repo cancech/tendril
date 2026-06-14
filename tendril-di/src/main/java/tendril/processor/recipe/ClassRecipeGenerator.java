@@ -268,7 +268,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
         addParameterInjection(lines, ctor.getParameters(), "", "return new " + creatorType.getSimpleName());
 
         // Add the method to the recipe
-        builder.buildMethod(creatorType, "createInstance").setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
+        builder.buildMethod(creatorType, "createInstance").addException(TypeFactory.createClassType(Throwable.class)).setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
                 .buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish().addCode(lines.toArray(new String[lines.size()])).finish();
     }
 

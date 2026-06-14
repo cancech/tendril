@@ -20,6 +20,7 @@ import java.util.List;
 
 import tendril.codegen.Utilities;
 import tendril.codegen.classes.method.JAbstractMethodElement;
+import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 
 /**
@@ -36,6 +37,8 @@ public abstract class NestedClassMethodElementBuilder<DATA_TYPE extends Type, EL
     protected List<String> linesOfCode = null;
     /** List of parameters the element is to take */
     protected final List<JParameter<?>> parameters = new ArrayList<>();
+    /** List of exceptions the element is to throw */
+    protected final List<ClassType> exceptions = new ArrayList<>();
 
     /**
      * CTOR
@@ -68,6 +71,17 @@ public abstract class NestedClassMethodElementBuilder<DATA_TYPE extends Type, EL
     public BUILDER addParameter(JParameter<?> parameter) {
         parameters.add(parameter);
         return get();
+    }
+    
+    /**
+     * Add an exception to the element
+     * 
+     * @param exception {@link ClassType} describing the exception that is to be thrown
+     * @return {@link MethodBuilder}
+     */
+    public BUILDER addException(ClassType exception) {
+    	exceptions.add(exception);
+    	return get();
     }
 
     /**
@@ -114,6 +128,9 @@ public abstract class NestedClassMethodElementBuilder<DATA_TYPE extends Type, EL
         for (JParameter<?> param : parameters) {
             element.addParameter(param);
             param.setContainer(element);
+        }
+        for (ClassType ex: exceptions) {
+        	element.addException(ex);
         }
 
         return element;

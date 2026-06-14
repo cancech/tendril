@@ -48,9 +48,9 @@ public class BeanCreationException extends Error {
      * CTOR
      * 
      * @param desc {@link Descriptor} describing the bean that was attempted to be created
-     * @param reason {@link Exception} indicating the reason of the failure
+     * @param reason {@link Throwable} indicating the reason of the failure
      */
-    public BeanCreationException(Descriptor<?> desc, Exception reason) {
+    public BeanCreationException(Descriptor<?> desc, Throwable reason) {
         super(buildMessage(desc, "Failed to create bean"), reason);
     }
 }

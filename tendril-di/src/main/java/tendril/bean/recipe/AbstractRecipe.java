@@ -225,7 +225,7 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
 			// Trigger post construct
 			postConstruct(bean);
 			return bean;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			isUnderConstruction = false;
 			throw new BeanCreationException(descriptor, e);
 		}
@@ -235,9 +235,10 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
 	 * Create the bean. Must be implemented by the concrete recipe to ensure that the bean object is properly created.
 	 * 
 	 * @param engine {@link Engine} from which dependencies for the constructor are to be pulled
+	 * @throws Throwable accounting for the possibility that the nested bean creation could throw an exception
 	 * @return BEAN_TYPE
 	 */
-	protected abstract BEAN_TYPE createInstance(Engine engine);
+	protected abstract BEAN_TYPE createInstance(Engine engine) throws Throwable;
 
 	/**
 	 * Called after the bean has been initialized, to allow all {@link PostConstruct} annotated methods to be called

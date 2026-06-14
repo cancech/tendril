@@ -59,6 +59,18 @@ public class JConstructorTest extends AbstractUnitTest {
             Assertions.assertEquals(mockImports, classImports);
             return "PARAMETERS";
         }
+
+        
+        /**
+         * Overriding to simplify the tests that need to be covered.
+         */
+        @Override
+        protected String generateThrows(Set<ClassType> classImports, boolean includeSpace) {
+            Assertions.assertEquals(mockImports, classImports);
+            if (includeSpace)
+            	return " THROWS ";
+            return "THROWS";
+        }
     }
     
     // Mocks to use for testing
@@ -97,7 +109,7 @@ public class JConstructorTest extends AbstractUnitTest {
     public void testGenerateSignatureWithCode() {
         for (VisibilityType type: VisibilityType.values()) {
             ctor.setVisibility(type);
-            Assertions.assertEquals(type.getKeyword() + "MockClass(PARAMETERS) {", ctor.generateSignature(mockImports, true));
+            Assertions.assertEquals(type.getKeyword() + "MockClass(PARAMETERS) THROWS {", ctor.generateSignature(mockImports, true));
         }
     }
 
@@ -111,7 +123,7 @@ public class JConstructorTest extends AbstractUnitTest {
         
         for (VisibilityType type: VisibilityType.values()) {
             ctor.setVisibility(type);
-            Assertions.assertEquals(type.getKeyword() + "<GEN1> MockClass(PARAMETERS) {", ctor.generateSignature(mockImports, true));
+            Assertions.assertEquals(type.getKeyword() + "<GEN1> MockClass(PARAMETERS) THROWS {", ctor.generateSignature(mockImports, true));
             verify(mockGeneric1, times(type.ordinal() + 1)).generateDefinition();
         }
     }
@@ -130,7 +142,7 @@ public class JConstructorTest extends AbstractUnitTest {
         
         for (VisibilityType type: VisibilityType.values()) {
             ctor.setVisibility(type);
-            Assertions.assertEquals(type.getKeyword() + "<GEN1, GEN2, GEN3> MockClass(PARAMETERS) {", ctor.generateSignature(mockImports, true));
+            Assertions.assertEquals(type.getKeyword() + "<GEN1, GEN2, GEN3> MockClass(PARAMETERS) THROWS {", ctor.generateSignature(mockImports, true));
             verify(mockGeneric1, times(type.ordinal() + 1)).generateDefinition();
             verify(mockGeneric2, times(type.ordinal() + 1)).generateDefinition();
             verify(mockGeneric3, times(type.ordinal() + 1)).generateDefinition();

@@ -328,7 +328,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 		addParameterInjection(lines, creator.getParameters(), "", "return config.get()." + creator.getName());
 
 		// Add the method to the recipe
-		builder.buildMethod(creatorType, "createInstance").setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
+		builder.buildMethod(creatorType, "createInstance").addException(TypeFactory.createClassType(Throwable.class)).setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
 				.buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish().addCode(lines.toArray(new String[lines.size()])).finish();
 	}
 

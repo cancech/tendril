@@ -25,6 +25,7 @@ import tendril.codegen.field.JType;
 import tendril.codegen.field.JVisibleType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
+import tendril.util.CollectionUtil;
 import tendril.util.TendrilStringUtil;
 
 /**
@@ -39,6 +40,9 @@ public abstract class JAbstractMethodElement<RETURN_TYPE extends Type> extends J
 
     /** The lines of code that build up the implementation of the method */
     private final List<String> implementation;
+    
+    /** List of exceptions that the method may throw */
+    private final List<ClassType> exceptions = new ArrayList<>();
 
     /**
      * CTOR
@@ -68,6 +72,24 @@ public abstract class JAbstractMethodElement<RETURN_TYPE extends Type> extends J
      */
     public List<JParameter<?>> getParameters() {
         return parameters;
+    }
+    
+    /**
+     * Add an exception to be thrown by the method
+     * 
+     * @param thrownEx {@link ClassType} the method should throw
+     */
+    public void addException(ClassType thrownEx) {
+    	exceptions.add(thrownEx);
+    }
+    
+    /**
+     * Get the list of exception that the method can throw
+     * 
+     * @return {@link List} of {@link ClassType}s describing the exceptions which can be thrown
+     */
+    public List<ClassType> getExceptions() {
+    	return exceptions;
     }
 
     /**
@@ -117,16 +139,35 @@ public abstract class JAbstractMethodElement<RETURN_TYPE extends Type> extends J
     protected String generateParameters(Set<ClassType> classImports) {
         return TendrilStringUtil.join(parameters, param -> param.generateSelf(classImports));
     }
+    
+    /**
+     * Generate the code for the throws portion of the method.
+     * 
+     * @param classImports {@link Set} of {@link ClassType} where the imports for the generate class as collected
+     * @param includeSpace {@code boolean} flag for whether the section should include wrapping spaces
+     * @return {@link String} containing the throws portion of the method
+     */
+    protected String generateThrows(Set<ClassType> classImports, boolean includeSpace) {
+    	String space = includeSpace ? " " : "";
+    	if (exceptions.isEmpty())
+    		return space;
+    	
+    	return space + "throws " + TendrilStringUtil.join(exceptions, (ex) -> {
+    		classImports.add(ex);
+    		return ex.getSimpleName();
+    	}) + space;
+    }
 
     /**
      * @see tendril.codegen.field.JVisibleType#equals(java.lang.Object)
      */
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof JAbstractMethodElement))
-            return false;
+        if (obj instanceof JAbstractMethodElement other) {
+            return super.equals(obj) && parameters.equals(other.parameters) && CollectionUtil.equivalent(exceptions, other.exceptions);
+        }
 
-        JAbstractMethodElement<?> other = (JAbstractMethodElement<?>) obj;
-        return super.equals(obj) && parameters.equals(other.parameters);
+        return false;
     }
 }

@@ -32,6 +32,7 @@ import tendril.codegen.Utilities;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.classes.method.JAbstractMethodElement;
+import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 import tendril.test.AbstractUnitTest;
@@ -117,6 +118,12 @@ public class NestedClassMethodElementBuilderTest extends AbstractUnitTest {
     private JParameter<Type> mockParameter2;
     @Mock
     private JParameter<Type> mockParameter3;
+    @Mock
+    private ClassType mockEx1;
+    @Mock
+    private ClassType mockEx2;
+    @Mock
+    private ClassType mockEx3;
     @Mock
     private JValue<Type, ?> mockValue;
 
@@ -207,6 +214,25 @@ public class NestedClassMethodElementBuilderTest extends AbstractUnitTest {
     	verify(mockParameter1).setContainer(mockElement);
     	verify(mockParameter2).setContainer(mockElement);
     	verify(mockParameter3).setContainer(mockElement);
+    }
+    
+    /**
+     * Verify that exceptions can be added to the method
+     */
+    @Test
+    public void testApplyDetailsWithException() {
+    	builder.addException(mockEx1);
+    	builder.addException(mockEx2);
+    	builder.addException(mockEx3);
+    	
+    	builder.applyDetails(mockElement);
+        verify(mockElement).setFinal(false);
+        verify(mockElement).setStatic(false);
+        verify(mockElement).setVisibility(VisibilityType.PACKAGE_PRIVATE);
+
+        verify(mockElement).addException(mockEx1);
+        verify(mockElement).addException(mockEx2);
+        verify(mockElement).addException(mockEx3);
     }
 
     /**

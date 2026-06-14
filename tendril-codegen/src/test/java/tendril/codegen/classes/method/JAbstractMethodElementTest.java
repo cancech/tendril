@@ -123,6 +123,12 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
     @Mock
     private JParameter<Type> mockParam3;
     @Mock
+    private ClassType mockEx1;
+    @Mock
+    private ClassType mockEx2;
+    @Mock
+    private ClassType mockEx3;
+    @Mock
     private Type mockOtherReturnType;
     
     // Instance to use for testing
@@ -187,6 +193,100 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
     }
 
     /**
+     * Initialize the method and ensure that its simple values are correct
+     * 
+     * @param code       {@link List} of {@link String} lines of code to use for the method implementation
+     * @param ClassType {@link Classtype}... that are be used as exceptions for the method
+     */
+    private void initMethod(List<String> code, ClassType... exceptions) {
+        element = new TestMethodElement(code);
+        for (ClassType ex : exceptions)
+            element.addException(ex);
+
+        verifyMethodInit("mockMethodName", element);
+    }
+    
+    /**
+     * Verify that throws exception can be generated
+     */
+    @Test
+    public void testGenerateNoExceptionWithSpace() {
+    	initMethod(null);
+    	CollectionAssert.assertEmpty(element.getExceptions());
+    	Assertions.assertEquals(" ", element.generateThrows(mockImports, true));
+    }
+    
+    /**
+     * Verify that throws exception can be generated
+     */
+    @Test
+    public void testGenerateNoExceptionWithoutSpace() {
+    	initMethod(null);
+    	CollectionAssert.assertEmpty(element.getExceptions());
+    	Assertions.assertEquals("", element.generateThrows(mockImports, false));
+    }
+    
+    /**
+     * Verify that throws exception can be generated
+     */
+    @Test
+    public void testGenerateSingleExceptionWithSpace() {
+    	when(mockEx1.getSimpleName()).thenReturn("mockEx1");
+    	
+    	initMethod(null, mockEx1);
+    	CollectionAssert.assertEquivalent(Collections.singletonList(mockEx1), element.getExceptions());
+    	Assertions.assertEquals(" throws mockEx1 ", element.generateThrows(mockImports, true));
+    	verify(mockImports).add(mockEx1);
+    }
+    
+    /**
+     * Verify that throws exception can be generated
+     */
+    @Test
+    public void testGenerateSingleExceptionWithoutSpace() {
+    	when(mockEx1.getSimpleName()).thenReturn("mockEx1");
+    	
+    	initMethod(null, mockEx1);
+    	CollectionAssert.assertEquivalent(Collections.singletonList(mockEx1), element.getExceptions());
+    	Assertions.assertEquals("throws mockEx1", element.generateThrows(mockImports, false));
+    	verify(mockImports).add(mockEx1);
+    }
+    
+    /**
+     * Verify that throws exception can be generated
+     */
+    @Test
+    public void testGenerateMultipleExceptionsWithSpace() {
+    	when(mockEx1.getSimpleName()).thenReturn("mockEx1");
+    	when(mockEx2.getSimpleName()).thenReturn("mockEx2");
+    	when(mockEx3.getSimpleName()).thenReturn("mockEx3");
+    	
+    	initMethod(null, mockEx1, mockEx2, mockEx3);
+    	CollectionAssert.assertEquivalent(Arrays.asList(mockEx1, mockEx2, mockEx3), element.getExceptions());
+    	Assertions.assertEquals(" throws mockEx1, mockEx2, mockEx3 ", element.generateThrows(mockImports, true));
+    	verify(mockImports).add(mockEx1);
+    	verify(mockImports).add(mockEx2);
+    	verify(mockImports).add(mockEx3);
+    }
+    
+    /**
+     * Verify that throws exception can be generated
+     */
+    @Test
+    public void testGenerateMultipleExceptionsWithoutSpace() {
+    	when(mockEx1.getSimpleName()).thenReturn("mockEx1");
+    	when(mockEx2.getSimpleName()).thenReturn("mockEx2");
+    	when(mockEx3.getSimpleName()).thenReturn("mockEx3");
+    	
+    	initMethod(null, mockEx1, mockEx2, mockEx3);
+    	CollectionAssert.assertEquivalent(Arrays.asList(mockEx1, mockEx2, mockEx3), element.getExceptions());
+    	Assertions.assertEquals("throws mockEx1, mockEx2, mockEx3", element.generateThrows(mockImports, false));
+    	verify(mockImports).add(mockEx1);
+    	verify(mockImports).add(mockEx2);
+    	verify(mockImports).add(mockEx3);
+    }
+
+    /**
      * Verify that the code is properly generated when there is no implementation.
      */
     @Test
@@ -243,7 +343,7 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
      */
     @SuppressWarnings("unlikely-arg-type")
     @Test
-    public void testEquals() {
+    public void testEqualsParamFirst() {
         element = new TestMethodElement("method");
 
         // Only basic information
@@ -280,12 +380,118 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
         Assertions.assertFalse(element.equals(build("method", mockParam1, mockParam3, mockParam2)));
         Assertions.assertFalse(element.equals(build("method", mockParam3, mockParam2, mockParam1)));
         Assertions.assertTrue(element.equals(build("method", mockParam1, mockParam2, mockParam3)));
+        
+        // Single exception
+        element.addException(mockEx1);
+        Assertions.assertFalse(element.equals(build("method", mockParam1)));
+        Assertions.assertFalse(element.equals(build("method", mockParam2)));
+        Assertions.assertFalse(element.equals(build("method", mockParam3)));
+        Assertions.assertFalse(element.equals(build("method", mockParam1, mockParam2)));
+        Assertions.assertFalse(element.equals(build("method", mockParam1, mockParam3)));
+        Assertions.assertFalse(element.equals(build("method", mockParam2, mockParam3)));
+        Assertions.assertFalse(element.equals(build("method", mockParam1, mockParam3, mockParam2)));
+        Assertions.assertFalse(element.equals(build("method", mockParam3, mockParam2, mockParam1)));
+        Assertions.assertFalse(element.equals(build("method", mockParam1, mockParam2, mockParam3)));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx2})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx3})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx1, mockEx2})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx1, mockEx3})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx2, mockEx3})));
+        Assertions.assertTrue(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx1})));
+        
+        // Multiple exceptions
+        element.addException(mockEx2);
+        element.addException(mockEx3);
+        Assertions.assertFalse(element.equals(build("method", mockParam1)));
+        Assertions.assertFalse(element.equals(build("method", mockParam2)));
+        Assertions.assertFalse(element.equals(build("method", mockParam3)));
+        Assertions.assertFalse(element.equals(build("method", mockParam1, mockParam2)));
+        Assertions.assertFalse(element.equals(build("method", mockParam1, mockParam3)));
+        Assertions.assertFalse(element.equals(build("method", mockParam2, mockParam3)));
+        Assertions.assertFalse(element.equals(build("method", mockParam1, mockParam3, mockParam2)));
+        Assertions.assertFalse(element.equals(build("method", mockParam3, mockParam2, mockParam1)));
+        Assertions.assertFalse(element.equals(build("method", mockParam1, mockParam2, mockParam3)));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx1})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx2})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx3})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx1, mockEx2})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx1, mockEx3})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx2, mockEx3})));
+        Assertions.assertTrue(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx1, mockEx2, mockEx3})));
+        Assertions.assertTrue(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx1, mockEx3, mockEx2})));
+        Assertions.assertTrue(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx2, mockEx1, mockEx3})));
+        Assertions.assertTrue(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
     }
     
-    private TestMethodElement build(String name, JParameter<?>...paramToApply) {
+    /**
+     * Verify that equality works as expected
+     */
+    @Test
+    public void testEqualsExceptionFirst() {
+        element = new TestMethodElement("method");
+
+        // Single exception
+        element.addException(mockEx1);
+        Assertions.assertFalse(element.equals(build("method", mockEx2)));
+        Assertions.assertFalse(element.equals(build("method", mockEx3)));
+        Assertions.assertFalse(element.equals(build("method", mockEx1, mockEx2)));
+        Assertions.assertFalse(element.equals(build("method", mockEx1, mockEx3)));
+        Assertions.assertFalse(element.equals(build("method", mockEx1, mockEx3)));
+        Assertions.assertTrue(element.equals(build("method", mockEx1)));
+
+        // Multiple exceptions
+        element.addException(mockEx2);
+        element.addException(mockEx3);
+        Assertions.assertFalse(element.equals(build("method", mockEx1)));
+        Assertions.assertFalse(element.equals(build("method", mockEx2)));
+        Assertions.assertFalse(element.equals(build("method", mockEx3)));
+        Assertions.assertFalse(element.equals(build("method", mockEx1, mockEx2)));
+        Assertions.assertFalse(element.equals(build("method", mockEx1, mockEx3)));
+        Assertions.assertFalse(element.equals(build("method", mockEx1, mockEx3)));
+        Assertions.assertTrue(element.equals(build("method", mockEx1, mockEx2, mockEx3)));
+        Assertions.assertTrue(element.equals(build("method", mockEx1, mockEx3, mockEx2)));
+        Assertions.assertTrue(element.equals(build("method", mockEx2, mockEx1, mockEx3)));
+        Assertions.assertTrue(element.equals(build("method", mockEx3, mockEx2, mockEx1)));
+
+        // Single parameter
+        element.addParameter(mockParam1);
+        Assertions.assertFalse(element.equals(build("method", mockEx1, mockEx2, mockEx3)));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam2}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam3}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam3}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam2, mockParam3}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        Assertions.assertTrue(element.equals(build("method", new JParameter<?>[] {mockParam1}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        
+        // Multiple parameters
+        element.addParameter(mockParam2);
+        element.addParameter(mockParam3);
+        Assertions.assertFalse(element.equals(build("method", mockEx1, mockEx2, mockEx3)));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam2}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam3}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam3}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam2, mockParam3}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam2, mockParam1, mockParam3}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam3, mockParam2}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+        Assertions.assertTrue(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+    }
+    
+    private TestMethodElement build(String name, JParameter<?>... paramToApply) {
+    	return build(name, paramToApply, new ClassType[] {});
+    }
+    
+    private TestMethodElement build(String name, ClassType... exToApply) {
+    	return build(name, new JParameter<?>[] {}, exToApply);
+    }
+    
+    private TestMethodElement build(String name, JParameter<?>[] paramToApply, ClassType[] exToApply) {
         TestMethodElement method = new TestMethodElement(name);
         for (JParameter<?> param: paramToApply)
             method.addParameter(param);
+        for (ClassType ex: exToApply)
+        	method.addException(ex);
         
         return method;
     }

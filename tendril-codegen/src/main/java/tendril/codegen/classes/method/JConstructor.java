@@ -26,57 +26,57 @@ import tendril.codegen.field.type.ClassType;
  */
 public class JConstructor extends JAbstractMethodElement<ClassType> {
 
-    /**
-     * Create the CTOR
-     * 
-     * @param enclosingClass {@link ClassType} that the CTOR belongs to
-     * @param implementation {@link List} of {@link String}s being the code the CTOR executes
-     */
-    public JConstructor(ClassType enclosingClass, List<String> implementation) {
-        super(enclosingClass, enclosingClass.getSimpleName(), implementation);
-    }
-    
-    /**
-     * @see tendril.codegen.field.JVisibleType#setStatic(boolean)
-     * 
-     * Override to ensure that a static constructor is not defined.
-     */
-    @Override
-    public void setStatic(boolean isStatic) {
-        if (isStatic)
-            throw new DefinitionException(type, "CTOR cannot be static");
-        
-        super.setStatic(isStatic);
-    }
-    
-    /**
-     * @see tendril.codegen.field.JVisibleType#setStatic(boolean)
-     * 
-     * Override to ensure that a final constructor is not defined.
-     */
-    @Override
-    public void setFinal(boolean isFinal) {
-        if (isFinal)
-            throw new DefinitionException(type, "CTOR cannot be final");
-        
-        super.setStatic(isFinal);
-    }
+	/**
+	 * Create the CTOR
+	 * 
+	 * @param enclosingClass {@link ClassType} that the CTOR belongs to
+	 * @param implementation {@link List} of {@link String}s being the code the CTOR executes
+	 */
+	public JConstructor(ClassType enclosingClass, List<String> implementation) {
+		super(enclosingClass, enclosingClass.getSimpleName(), implementation);
+	}
 
-    /**
-     * @see tendril.codegen.classes.method.JAbstractMethodElement#generateSignature(java.util.Set, boolean)
-     */
-    @Override
-    protected String generateSignature(Set<ClassType> classImports, boolean hasImplementation) {
-        // A CTOR without implementation is not possible
-        if (!hasImplementation)
-            throw new DefinitionException(type, "Constructor must have a valid implementation");
-        
-        return visibility.getKeyword() + getGenericsDefinitionKeyword(false) + getName() + "(" + generateParameters(classImports) + ") {";
-    }
+	/**
+	 * @see tendril.codegen.field.JVisibleType#setStatic(boolean)
+	 * 
+	 *      Override to ensure that a static constructor is not defined.
+	 */
+	@Override
+	public void setStatic(boolean isStatic) {
+		if (isStatic)
+			throw new DefinitionException(type, "CTOR cannot be static");
 
-    /**
-     * @see tendril.codegen.field.JContainedType#getElementPath()
-     */
+		super.setStatic(isStatic);
+	}
+
+	/**
+	 * @see tendril.codegen.field.JVisibleType#setStatic(boolean)
+	 * 
+	 *      Override to ensure that a final constructor is not defined.
+	 */
+	@Override
+	public void setFinal(boolean isFinal) {
+		if (isFinal)
+			throw new DefinitionException(type, "CTOR cannot be final");
+
+		super.setStatic(isFinal);
+	}
+
+	/**
+	 * @see tendril.codegen.classes.method.JAbstractMethodElement#generateSignature(java.util.Set, boolean)
+	 */
+	@Override
+	protected String generateSignature(Set<ClassType> classImports, boolean hasImplementation) {
+		// A CTOR without implementation is not possible
+		if (!hasImplementation)
+			throw new DefinitionException(type, "Constructor must have a valid implementation");
+
+		return visibility.getKeyword() + getGenericsDefinitionKeyword(false) + getName() + "(" + generateParameters(classImports) + ")" + generateThrows(classImports, true) + "{";
+	}
+
+	/**
+	 * @see tendril.codegen.field.JContainedType#getElementPath()
+	 */
 	@Override
 	protected String getElementPath() {
 		if (isInContainer())

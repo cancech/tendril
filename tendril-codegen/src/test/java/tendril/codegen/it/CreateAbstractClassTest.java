@@ -128,11 +128,12 @@ public class CreateAbstractClassTest {
                         .addAnnotation(JAnnotationFactory.create(TestMarkerAnnotation.class))
                         .addAnnotation(JAnnotationFactory.create(TestDefaultAttrAnnotation.class, JValueFactory.create("abc123"))).finish()
                     .buildParameter(PrimitiveType.DOUBLE, "param2").finish()
-                    .finish().build();
+                    .addException(TypeFactory.createClassType("a.b.c", "D")).finish().build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
         matcher.eq("");
+        matcher.eq("import a.b.c.D;");
         matcher.eq("import " + Generated.class.getName() + ";");
         matcher.eq("import " + VisibilityType.class.getName() + ";");
         matcher.eq("import " + TestDefaultAttrAnnotation.class.getName() + ";");
@@ -145,7 +146,7 @@ public class CreateAbstractClassTest {
         matcher.eq("");
         matcher.eq("    public abstract VisibilityType visibilityMethod();");
         matcher.eq("");
-        matcher.eq("    abstract String stringMethod(@TestMarkerAnnotation @TestDefaultAttrAnnotation(\"abc123\") String param1, double param2);");
+        matcher.eq("    abstract String stringMethod(@TestMarkerAnnotation @TestDefaultAttrAnnotation(\"abc123\") String param1, double param2) throws D;");
         matcher.eq("");
         matcher.eq("}");
         matcher.match(abstractCls.generateCode());
@@ -222,11 +223,14 @@ public class CreateAbstractClassTest {
                     .buildParameter(TypeFactory.createClassType(String.class), "strParam").finish()
                     .addCode("a", "b", "c", "d").finish()
                 .buildConstructor().setVisibility(VisibilityType.PRIVATE).addCode("abc", "123", "qwerty")
-                    .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx")))).finish().build();
+                    .addAnnotation(JAnnotationFactory.create(TestNonDefaultAttrAnnotation.class, Map.of("myString", JValueFactory.create("qazwsx"))))
+                    .addException(TypeFactory.createClassType("a.b.c", "D")).addException(TypeFactory.createClassType("a.b.c", "E")).finish().build();
 
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package z.x.c.v;");
         matcher.eq("");
+        matcher.eq("import a.b.c.D;");
+        matcher.eq("import a.b.c.E;");
         matcher.eq("import " + Generated.class.getName() + ";");
         matcher.eq("import " + TestNonDefaultAttrAnnotation.class.getName() + ";");
         matcher.eq("");
@@ -244,7 +248,7 @@ public class CreateAbstractClassTest {
         matcher.eq("    }");
         matcher.eq("");
         matcher.eq("    @TestNonDefaultAttrAnnotation(myString = \"qazwsx\")");
-        matcher.eq("    private B() {");
+        matcher.eq("    private B() throws D, E {");
         matcher.eq("        abc");
         matcher.eq("        123");
         matcher.eq("        qwerty");

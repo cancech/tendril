@@ -102,7 +102,7 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 	 */
 	@Override
 	protected void generateCreateInstance(ClassBuilder builder) throws TendrilException {
-		builder.buildMethod(creatorType, "createInstance").setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
+		builder.buildMethod(creatorType, "createInstance").addException(TypeFactory.createClassType(Throwable.class)).setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
 				.buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish().addCode("return null;").finish();
 	}
 

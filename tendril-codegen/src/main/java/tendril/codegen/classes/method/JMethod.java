@@ -47,6 +47,11 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends JAbstractMethodE
         StringBuilder signature = new StringBuilder(generateSignatureStart(hasImplementation));
         signature.append(getGenericsDefinitionKeyword(false) + getType().getSimpleName() + " " + getName());
         signature.append("(" + generateParameters(classImports) + ")");
+        
+        String throwsEx = generateThrows(classImports, false);
+        if (!throwsEx.isBlank())
+        	signature.append(" " + throwsEx);
+        
         signature.append(generateSignatureEnd(hasImplementation));
         return signature.toString();
     }

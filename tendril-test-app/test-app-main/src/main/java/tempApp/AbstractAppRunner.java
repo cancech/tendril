@@ -251,6 +251,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	
 	@Inject
 	List<GenericWrapper<PrimitiveType>> primitives;
+	
+	@Inject
+	ExceptionCtorBean exCtorBean;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationDetails[] expectedDynamicDuplicates;
@@ -536,6 +539,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		
 		primitives.forEach((w) -> System.out.println(w));
 		assertion(primitives.equals(Arrays.asList(PrimitiveType.values())), "Primitive array is not correct");
+		
+		assertion(exCtorBean != null, "exCtorBean should not be null");
+		assertion(exCtorBean.isCreated(), "exCtorBean was not created");
 	}
 
 	protected static void assertion(boolean value, String msg) {
