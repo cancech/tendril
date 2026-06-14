@@ -15,7 +15,7 @@ public class TestConfig {
 	@Singleton
 	List<GenericWrapper<PrimitiveType>> getPrimitives() {
 		List<GenericWrapper<PrimitiveType>> arr = new ArrayList<>();
-		for( PrimitiveType t: PrimitiveType.values())
+		for(PrimitiveType t: PrimitiveType.values())
 			arr.add(new GenericWrapper<>(t));
 		return arr;
 	}

@@ -90,6 +90,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		timesAllInjectorRun = 0;
 		expectedManualBean = -1;
 	}
+	
+	@Inject
+	PrimitiveGenericWrapperConsumer primitiveGenericWrapperConsumer;
 
 	@Inject
 	@Named("TempName")

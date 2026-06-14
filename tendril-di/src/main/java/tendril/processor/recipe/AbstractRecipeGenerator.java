@@ -213,7 +213,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 		for (JParameter<?> p : params) {
 			Type pType = p.getType();
 			if (pType instanceof ClassType)
-				externalImports.add((ClassType) pType);
+				pType.registerImport(externalImports);
 			code.add(retrievePrefix + pType.getSimpleName() + p.getGenericsApplicationKeyword(true) + p.getName() + " = " + createParameterInjectionCodeRhs(p) + ";");
 		}
 		code.add(applyPrefix + "(" + TendrilStringUtil.join(params, ", ", p -> p.getName()) + ");");
