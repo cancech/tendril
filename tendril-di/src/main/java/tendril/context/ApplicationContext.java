@@ -8,6 +8,9 @@ import tendril.bean.Primary;
 import tendril.bean.qualifier.Descriptor;
 import tendril.context.launch.TendrilRunner;
 
+/**
+ * The context in which the bean injection and processing that powers the application takes place
+ */
 public interface ApplicationContext {
 	/**
 	 * Start the context and trigger execution via the defined {@link TendrilRunner}

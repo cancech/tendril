@@ -10,6 +10,12 @@ import java.util.List;
 public abstract class CollectionUtil {
 
 	/**
+	 * Hidden CTOR as no instances should be created
+	 */
+	private CollectionUtil() {
+	}
+
+	/**
 	 * Check if the two collections have the same number of elements
 	 * 
 	 * @param lhs {@link Collection} of arbitrary elements on the left side of the comparison

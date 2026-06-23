@@ -24,82 +24,83 @@ import tendril.codegen.generics.GenericType;
 import tendril.util.TendrilStringUtil;
 
 /**
- * Representation of generics which have been applied to an element, and provides the appropriate means of generating their code. Separate means are provided if
- * the element is used in a definition (i.e.: defining a class) or application manner (i.e.: using a class as a parameter/field). 
+ * Representation of generics which have been applied to an element, and provides the appropriate means of generating their code. Separate means are provided if the element is used in a definition
+ * (i.e.: defining a class) or application manner (i.e.: using a class as a parameter/field).
  */
 public class JGeneric {
-    /** List of the generic types are employed with the element */
-    private List<GenericType> generics = new ArrayList<>();
+	/** List of the generic types are employed with the element */
+	private List<GenericType> generics = new ArrayList<>();
 
-    /**
-     * CTOR
-     */
-    public JGeneric() {
-        
-    }
-    
-    /**
-     * Check whether or not any generics have been registers
-     * @return
-     */
-    public boolean hasGenerics() {
-    	return generics.size() > 0;
-    }
-    
-    /**
-     * Add a generic to the item
-     * 
-     * @param generic {@link GenericType} to add
-     */
-    public void addGeneric(GenericType generic) {
-        generics.add(generic);
-    }
+	/**
+	 * CTOR
+	 */
+	public JGeneric() {
 
-    /**
-     * Get all applied generics
-     * 
-     * @return {@link List} of {@link GenericType} that have been applied to the item
-     */
-    public List<GenericType> getGenerics() {
-        return generics;
-    }
+	}
 
-    /**
-     * Get the keyword (code) for the applied generics when used to define the element.
-     * 
-     * @param blankSpace boolean true if a space is to be returned when empty (always included if text available)
-     * 
-     * @return {@link String} containing the generics definition
-     */
-    public String getGenericsDefinitionKeyword(boolean blankSpace) {
-        if (!hasGenerics())
-            return blankSpace ? " " : "";
+	/**
+	 * Check whether or not any generics have been registers
+	 * 
+	 * @return true if at least one generic has been registered
+	 */
+	public boolean hasGenerics() {
+		return generics.size() > 0;
+	}
 
-        return "<" + TendrilStringUtil.join(generics, g -> g.generateDefinition()) + "> ";
-    }
+	/**
+	 * Add a generic to the item
+	 * 
+	 * @param generic {@link GenericType} to add
+	 */
+	public void addGeneric(GenericType generic) {
+		generics.add(generic);
+	}
 
-    /**
-     * Get the keyword (code) for the applied generics when used applied the element.
-     * 
-     * @param appendSpace boolean true if a space is to be appended after the keyword is generated
-     * 
-     * @return {@link String} containing the generics application
-     */
-    public String getGenericsApplicationKeyword(boolean appendSpace) {
-        String end = appendSpace ? " " : "";
-        if (generics.isEmpty())
-            return end;
+	/**
+	 * Get all applied generics
+	 * 
+	 * @return {@link List} of {@link GenericType} that have been applied to the item
+	 */
+	public List<GenericType> getGenerics() {
+		return generics;
+	}
 
-        return "<" + TendrilStringUtil.join(generics, g -> g.generateApplication()) + ">" + end;
-    }
+	/**
+	 * Get the keyword (code) for the applied generics when used to define the element.
+	 * 
+	 * @param blankSpace boolean true if a space is to be returned when empty (always included if text available)
+	 * 
+	 * @return {@link String} containing the generics definition
+	 */
+	public String getGenericsDefinitionKeyword(boolean blankSpace) {
+		if (!hasGenerics())
+			return blankSpace ? " " : "";
 
-    /**
-     * Registers the necessary imports for the generics
-     * 
-     * @param classImports {@link Set} of {@link ClassType}s representing the imports for the code
-     */
-    protected void registerGenerics(Set<ClassType> classImports) {
-        for (GenericType gen : generics)
-            gen.registerImport(classImports);
-    }
+		return "<" + TendrilStringUtil.join(generics, g -> g.generateDefinition()) + "> ";
+	}
+
+	/**
+	 * Get the keyword (code) for the applied generics when used applied the element.
+	 * 
+	 * @param appendSpace boolean true if a space is to be appended after the keyword is generated
+	 * 
+	 * @return {@link String} containing the generics application
+	 */
+	public String getGenericsApplicationKeyword(boolean appendSpace) {
+		String end = appendSpace ? " " : "";
+		if (generics.isEmpty())
+			return end;
+
+		return "<" + TendrilStringUtil.join(generics, g -> g.generateApplication()) + ">" + end;
+	}
+
+	/**
+	 * Registers the necessary imports for the generics
+	 * 
+	 * @param classImports {@link Set} of {@link ClassType}s representing the imports for the code
+	 */
+	protected void registerGenerics(Set<ClassType> classImports) {
+		for (GenericType gen : generics)
+			gen.registerImport(classImports);
+	}
 }
