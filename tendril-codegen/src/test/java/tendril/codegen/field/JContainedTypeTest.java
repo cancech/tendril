@@ -73,18 +73,22 @@ public class JContainedTypeTest extends AbstractUnitTest {
 	public void testContainer() {
 		// Null by default
 		Assertions.assertFalse(element.isInContainer());
+		Assertions.assertNull(element.getContainer());
 		
 		// Can be set
 		element.setContainer(mockContainer1);
 		Assertions.assertTrue(element.isInContainer());
+		Assertions.assertEquals(mockContainer1, element.getContainer());
 		
 		// Can be overridden
 		element.setContainer(mockContainer2);
 		Assertions.assertTrue(element.isInContainer());
+		Assertions.assertEquals(mockContainer2, element.getContainer());
 		
 		// Can be reset
 		element.setContainer(null);
 		Assertions.assertFalse(element.isInContainer());
+		Assertions.assertNull(element.getContainer());
 	}
 	
 	/**

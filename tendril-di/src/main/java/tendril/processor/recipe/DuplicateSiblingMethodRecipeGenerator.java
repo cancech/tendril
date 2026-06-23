@@ -60,7 +60,7 @@ public class DuplicateSiblingMethodRecipeGenerator extends MethodRecipeGenerator
 
 		// Add the constructor
 		List<String> ctorCode = new ArrayList<>();
-		ctorCode.add("super(engine, " + getClassReference(creatorType) + ", " + isPrimary + ", " + isFallback + ");");
+		ctorCode.add("super(engine, " + RecipeGeneratorHelper.getClassReference(creatorType) + ", " + isPrimary + ", " + isFallback + ");");
 		ctorCode.add("this.config = config;");
 		siblingHelper.addCtorCode(ctorCode);
 

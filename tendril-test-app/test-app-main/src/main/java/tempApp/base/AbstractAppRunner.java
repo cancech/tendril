@@ -13,13 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tempApp;
+package tempApp.base;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import tempApp.COPY_1;
+import tempApp.COPY_2;
+import tempApp.COPY_3;
+import tempApp.DuplicationDetails;
+import tempApp.EnumDuplicate;
+import tempApp.ExceptionCtorBean;
+import tempApp.FactoryClass;
+import tempApp.GenericWrapper;
+import tempApp.Lib2DataStruct;
+import tempApp.ManualBean;
+import tempApp.Message;
+import tempApp.MultiEnvBean;
+import tempApp.Option1;
+import tempApp.Option2;
+import tempApp.PrimitiveGenericWrapperConsumer;
+import tempApp.PriorityConfig;
+import tempApp.RunnableConfig;
+import tempApp.SingletonClass;
+import tempApp.StaticDuplicate;
+import tempApp.StringWrapper;
+import tempApp.TempQualifier;
 import tempApp.duplicate.DynamicDuplicate;
 import tempApp.duplicate.Printer;
 import tempApp.duplicate.StaticDuplicateBean;
@@ -92,171 +113,171 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	}
 	
 	@Inject
-	PrimitiveGenericWrapperConsumer primitiveGenericWrapperConsumer;
+	private PrimitiveGenericWrapperConsumer primitiveGenericWrapperConsumer;
 
 	@Inject
 	@Named("TempName")
-	Object tmpClass;
+	protected Object tmpClass;
 
 	@Inject
 	@Sibling
 	FactoryClass factoryBean1;
 	@Inject
-	FactoryClass factoryBean2;
+	public FactoryClass factoryBean2;
 	@Inject
-	FactoryClass factoryBean3;
+	private FactoryClass factoryBean3;
 	@Inject
-	FactoryClass factoryBean4;
+	protected FactoryClass factoryBean4;
 	@Inject
 	@Named("TempString")
 	String tempString1;
 	@Inject
 	@MyTypeId(MyType.VAL1)
-	String tempString2;
+	public String tempString2;
 	@Inject
 	@MyTypeId(MyType.VAL2)
-	Object objVal2;
+	private Object objVal2;
 	@Inject
 	@TempQualifier
-	Object objTmp;
+	protected Object objTmp;
 	@Inject
 	@Option1
 	Runnable singletonRunnable;
 	@Inject
 	@Option2
-	Runnable option2Runnable;
+	public Runnable option2Runnable;
 	@Inject
 	@Named("second")
-	Runnable secondRunnable;
+	private Runnable secondRunnable;
 	@Inject
 	@Named("notenv")
-	Runnable notEnvRunnable;
+	protected Runnable notEnvRunnable;
 	@InjectAll
 	List<? extends Runnable> allRunnables;
 	@Inject
 	@Message
-	String message;
+	public String message;
 	@Inject
-	MultiEnvBean multiEnvBean;
+	private MultiEnvBean multiEnvBean;
 
 	// To test injections from PriorityConfig
 	@Inject
 	@Option1
-	StringWrapper option1StringWrapper;
+	protected StringWrapper option1StringWrapper;
 	@Inject
 	@Option2
 	StringWrapper option2StringWrapper;
 	@Inject
 	@Named("Option1")
-	StringWrapper option1NamedStringWrapper;
+	public StringWrapper option1NamedStringWrapper;
 	@Inject
 	@Named("Option2")
-	StringWrapper option2NamedStringWrapper;
+	private StringWrapper option2NamedStringWrapper;
 	@InjectAll
-	List<StringWrapper> allStringWrappers;
+	protected List<StringWrapper> allStringWrappers;
 	@InjectAll
 	@Option1
 	List<StringWrapper> allOption1StringWrappers;
 	@InjectAll
 	@Option2
-	List<StringWrapper> allOption2StringWrappers;
+	public List<StringWrapper> allOption2StringWrappers;
 	@InjectAll
 	@Option1
 	@Option2
-	List<StringWrapper> allOption1and2StringWrappers;
+	private List<StringWrapper> allOption1and2StringWrappers;
 	@InjectAll
 	@Message
-	List<StringWrapper> allMessageStringWrapeprs;
+	protected List<StringWrapper> allMessageStringWrapeprs;
 
 	@Inject
 	@COPY_1
 	StaticDuplicateBean bean1Copy1;
 	@Inject
 	@COPY_2
-	StaticDuplicateBean bean1Copy2;
+	public StaticDuplicateBean bean1Copy2;
 	@Inject
 	@COPY_3
-	StaticDuplicateBean bean1Copy3;
+	private StaticDuplicateBean bean1Copy3;
 	@InjectAll
-	List<StaticDuplicateBean> allBean1Copies;
+	protected List<StaticDuplicateBean> allBean1Copies;
 	@Inject
 	@COPY_1
 	StaticDuplicateBean2 bean2Copy1;
 	@Inject
 	@COPY_2
-	StaticDuplicateBean2 bean2Copy2;
+	public StaticDuplicateBean2 bean2Copy2;
 	@Inject
 	@COPY_3
-	StaticDuplicateBean2 bean2Copy3;
+	private StaticDuplicateBean2 bean2Copy3;
 	@InjectAll
-	List<StaticDuplicateBean2> allBean2Copies;
+	protected List<StaticDuplicateBean2> allBean2Copies;
 	@Inject
 	@COPY_1
 	StaticDuplicateBean3 bean3Copy1;
 	@Inject
 	@COPY_2
-	StaticDuplicateBean3 bean3Copy2;
+	public StaticDuplicateBean3 bean3Copy2;
 	@Inject
 	@COPY_3
-	StaticDuplicateBean3 bean3Copy3;
+	private StaticDuplicateBean3 bean3Copy3;
 	@InjectAll
-	List<StaticDuplicateBean3> allBean3Copies;
+	protected List<StaticDuplicateBean3> allBean3Copies;
 
 	@Inject
 	@COPY_1
 	StringInterface strIf1;
 	@Inject
 	@COPY_2
-	StringInterface strIf2;
+	public StringInterface strIf2;
 	@Inject
 	@COPY_3
-	StringInterface strIf3;
+	private StringInterface strIf3;
 	@InjectAll
-	List<StringInterface> strIfaces;
+	protected List<StringInterface> strIfaces;
 	
 	@InjectAll
 	List<Printer> allPrinters;
 
 	@InjectAll
-	List<DynamicDuplicate> dynamicDuplicates;
+	public List<DynamicDuplicate> dynamicDuplicates;
 	@InjectAll
-	List<ParentDuplicate> parentDuplicates;
+	private List<ParentDuplicate> parentDuplicates;
 	
 	@Inject
-	Original originalBean;
+	protected Original originalBean;
 	@Inject
 	Original originalBean2;
 	@Inject
 	@Option2
-	Original originalBeanOption2;
+	public Original originalBeanOption2;
 	@Inject
 	@Option1
-	OriginalOption1 originalOption1Bean;
+	private OriginalOption1 originalOption1Bean;
 	@Inject
 	@Option1
-	OriginalOption1 originalOption1Bean2;
+	protected OriginalOption1 originalOption1Bean2;
 	@Inject
 	@Named("originalNamed")
 	OriginalNamed originalNamed;
 	@Inject
 	@Named("originalNamed")
-	OriginalNamed originalNamed2;
+	public OriginalNamed originalNamed2;
 	
 	@Inject
-	Lib2DataStruct dataStruct;
+	private Lib2DataStruct dataStruct;
 
 	@Inject
 	@Message
-	Double dblValue;
+	protected Double dblValue;
 	
 	@Inject
 	ApplicationContext ctx;
 	
 	@Inject
-	List<GenericWrapper<PrimitiveType>> primitives;
+	public List<GenericWrapper<PrimitiveType>> primitives;
 	
 	@Inject
-	ExceptionCtorBean exCtorBean;
+	private ExceptionCtorBean exCtorBean;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationDetails[] expectedDynamicDuplicates;
@@ -264,7 +285,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	private FactoryClass factoryBean5;
 	private final Class<? extends AbstractAppRunner> actualRunner;
 
-	AbstractAppRunner(Class<? extends AbstractAppRunner> concreteRunner, int numOfClassDuplicates, DuplicationDetails... dynamicDuplicateDetails) {
+	protected AbstractAppRunner(Class<? extends AbstractAppRunner> concreteRunner, int numOfClassDuplicates, DuplicationDetails... dynamicDuplicateDetails) {
 		this.actualRunner = concreteRunner;
 		this.numOfClassDuplicates = numOfClassDuplicates;
 		this.expectedDynamicDuplicates = dynamicDuplicateDetails;
@@ -272,7 +293,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	}
 
 	@Inject
-	void doSomething(SingletonClass singleton1, SingletonClass singleton2, FactoryClass factory1, FactoryClass factory2, FactoryClass factory3) {
+	private void doSomething(SingletonClass singleton1, SingletonClass singleton2, FactoryClass factory1, FactoryClass factory2, FactoryClass factory3) {
 		timesDoSomething++;
 		System.out.println("doSomething()");
 		factoryBean5 = factory1;
@@ -288,7 +309,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	}
 
 	@Inject
-	void doSomethingElse(FactoryClass factory1) {
+	protected void doSomethingElse(FactoryClass factory1) {
 		timesDoSomethingElse++;
 		System.out.println("doSomethingElse()");
 		System.out.println(factory1);
@@ -301,7 +322,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	}
 
 	@Inject
-	void enumInjector(@MyTypeId(MyType.VAL1) String str) {
+	public void enumInjector(@MyTypeId(MyType.VAL1) String str) {
 		timesEnumInjector++;
 		System.out.println("INJECTED VIA ENUM: " + str);
 	}

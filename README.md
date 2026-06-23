@@ -7,7 +7,7 @@ Tendril is an Annotation Processing based Dependency Injection, where the necess
 |`@Inject`|Indicates the *injection* of a bean, ergo a bean is consumed/retrieved (incoming).|
 |`@InjectAll`|Indicates the *injection* of multiple related beans, ergo beans are consumed/retrieved (incoming).|
 
-Since reflection is not employed, all beans (and any `Tendril` facing aspects) cannot be private. They must be at least `package private` in order for dependency injection to be successfully performed.
+Since reflection is not employed, all defined beans cannot be private. They must be at least `package private` in order for the bean to be properly registered. Elements which are to be injected within the bean can be of any visibility, however reflection is employed to perform the injection of any element which is not directly accessible from the generated recipe. As such, it is recommended to be careful of this if the reflection overhead is to be avoided.
 
 ## Definitions
 Some of these may be clear, some not, but for sake of completeness terms are defined here for easy reference.
@@ -246,7 +246,7 @@ public class MyConfiguration {
 ```
 
 Some things to note:
-* as mentioned at the start, no injected element can be `private`
+* as mentioned at the start, no defined bean method can be `private`
 * per above, the `@Inject` annotation on a constructor is only necessary if there are multiple valid constructors on a class. It is still recommended to always apply the annotation regardless to make it explicitly clear (both to `Tendril` as well as anyone looking at the code in the future).
 
 #### Injecting Multiple Related Beans

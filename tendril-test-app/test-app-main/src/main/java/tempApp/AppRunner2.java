@@ -18,6 +18,7 @@ package tempApp;
 import java.util.List;
 import java.util.Map;
 
+import tempApp.base.AbstractAppRunner;
 import tempApp.duplicate.DynamicDuplicate;
 import tendril.bean.Inject;
 import tendril.bean.InjectAll;

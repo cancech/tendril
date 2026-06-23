@@ -15,12 +15,14 @@
  */
 package tendril.processor.recipe;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.annotation.processing.Messager;
 
+import tendril.TendrilStartupException;
 import tendril.annotationprocessor.exception.InvalidConfigurationException;
 import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Inject;
@@ -30,6 +32,8 @@ import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.Applicator;
 import tendril.bean.recipe.Injector;
+import tendril.bean.recipe.ReflectedFieldApplicator;
+import tendril.bean.recipe.ReflectedFieldInjector;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
@@ -42,6 +46,7 @@ import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.context.Engine;
+import tendril.util.TendrilStringUtil;
 
 /**
  * Generator for Recipes which are derived directly from the class defining the bean (i.e.: bean is injected from its own class).
@@ -95,7 +100,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     protected void generateConstructor(ClassBuilder builder) throws InvalidConfigurationException {
         // CTOR contents
         List<String> ctorCode = new ArrayList<>();
-        ctorCode.add("super(engine, " + getClassReference(creatorType) + ", " + isPrimary + ", " + isFallback + ");");
+        ctorCode.add("super(engine, " + RecipeGeneratorHelper.getClassReference(creatorType) + ", " + isPrimary + ", " + isFallback + ");");
         generateFieldConsumers(ctorCode);
         generateMethodConsumers(ctorCode);
 
@@ -138,15 +143,21 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     protected void generateFieldInjection(JField<?> field, String fieldTypeName, List<String> ctorLines) {
     	warnSiblingInjection(field);
     	
-        addImport(Applicator.class);
         addImport(Descriptor.class);
-        
-        ctorLines.add("registerDependency(" + getDependencyDescriptor(field) + ", new " + Applicator.class.getSimpleName() + "<" + creatorType.getSimpleName() + ", " + fieldTypeName + ">() {");
-        ctorLines.add("    @Override");
-        ctorLines.add("    public void apply(" + creatorType.getSimpleName() + " consumer, " + fieldTypeName + " bean) {");
-        ctorLines.add("        consumer." + field.getName() + " = bean;");
-        ctorLines.add("    }");
-        ctorLines.add("});");
+
+        if (RecipeGeneratorHelper.requiresReflection(creatorType, field)) {
+            addImport(ReflectedFieldApplicator.class);
+	        ctorLines.add("registerDependency(" + getDependencyDescriptor(field) + ",");
+	        ctorLines.add("        new " + ReflectedFieldApplicator.class.getSimpleName() + "<" + creatorType.getSimpleName() + ", " + fieldTypeName + ">(\"" + field.getFullElementPath() + "\", \"" + field.getName() + "\"));");
+        } else {
+            addImport(Applicator.class);
+	        ctorLines.add("registerDependency(" + getDependencyDescriptor(field) + ", new " + Applicator.class.getSimpleName() + "<" + creatorType.getSimpleName() + ", " + fieldTypeName + ">() {");
+	        ctorLines.add("    @Override");
+	        ctorLines.add("    public void apply(" + creatorType.getSimpleName() + " consumer, " + fieldTypeName + " bean) {");
+	    	ctorLines.add("        consumer." + field.getName() + " = bean;");
+	        ctorLines.add("    }");
+	        ctorLines.add("});");
+        }
     }
 
     /**
@@ -158,17 +169,24 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
         for (JField<?> field : creator.getFields(InjectAll.class)) {
             Type beanType = getInjectAllType(field);
 
-            // Add imports
             addImport(beanType);
-            addImport(Injector.class);
             addImport(Descriptor.class);
-
-            ctorLines.add("registerInjector(new Injector<" + creatorType.getSimpleName() + ">() {");
-            ctorLines.add("    @Override");
-            ctorLines.add("    public void inject(" + creatorType.getSimpleName() + " consumer, Engine engine) {");
-            ctorLines.add("        consumer." + field.getName() + " = engine.getAllBeans(" + getDependencyDescriptor(field, beanType) + ");");
-            ctorLines.add("    }");
-            ctorLines.add("});");
+            
+            if (RecipeGeneratorHelper.requiresReflection(creatorType, field)) {
+                addImport(ReflectedFieldInjector.class);
+    	        ctorLines.add("registerInjector(new " + ReflectedFieldInjector.class.getSimpleName() + "<" + creatorType.getSimpleName() + ", " + beanType.getSimpleName() + ">(\"" + field.getFullElementPath() +
+    	        		"\", \"" + field.getName() + "\",");
+        		ctorLines.add("        " + getDependencyDescriptor(field, beanType) + "));");
+        	} else {
+                // Add imports
+                addImport(Injector.class);
+                ctorLines.add("registerInjector(new Injector<" + creatorType.getSimpleName() + ">() {");
+                ctorLines.add("    @Override");
+                ctorLines.add("    public void inject(" + creatorType.getSimpleName() + " consumer, Engine engine) {");
+            	ctorLines.add("        consumer." + field.getName() + " = engine.getAllBeans(" + getDependencyDescriptor(field, beanType) + ");");
+	            ctorLines.add("    }");
+	            ctorLines.add("});");
+    		}
         }
     }
 
@@ -199,11 +217,38 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
                 messager.printWarning(method.getFullElementPath() + " has no parameters, this is a meaningless injection. Use @" + 
                         PostConstruct.class.getSimpleName() + " instead");
 
-            addParameterInjection(ctorLines, method.getParameters(), "        ", "        consumer." + method.getName());
+            if (RecipeGeneratorHelper.requiresReflection(creatorType, method))
+            	addReflectedMethodInjection(ctorLines, method, params);
+            else
+            	addParameterInjection(ctorLines, method.getParameters(), "        ", "        consumer." + method.getName() + "(");
             ctorLines.add("    }");
             ctorLines.add("});");
         }
-    }    
+    }
+    
+    private void addReflectedMethodInjection(List<String> ctorLines, JMethod<?> method, List<JParameter<?>> params) throws InvalidConfigurationException {
+    	String parmTypes = TendrilStringUtil.join(params, (p) -> {
+    		ClassType pType = p.getType().asClassType();
+    		externalImports.add(pType);
+    		return pType.getClassName() + ".class";
+    	});
+    	
+    	addImport(SuppressWarnings.class);
+    	addImport(Method.class);
+    	addImport(TendrilStartupException.class);
+    	
+    	String divider = parmTypes.isBlank() ? "" : ", ";
+    	ctorLines.add("        try {");
+    	ctorLines.add("            Method rm = findReflectedMethod(consumer.getClass(), \"" + method.getName() + "\"" + divider + parmTypes + ");");
+    	ctorLines.add("            @SuppressWarnings(\"deprecation\")");
+    	ctorLines.add("            boolean origAccess = rm.isAccessible();");
+    	ctorLines.add("            rm.setAccessible(true);");
+    	addParameterInjection(ctorLines, params, "            ", "            rm.invoke(consumer" + divider);
+    	ctorLines.add("            rm.setAccessible(origAccess);");
+    	ctorLines.add("        } catch (Exception ex) {");
+    	ctorLines.add("            throw new TendrilStartupException(\"Unable to inject " + method.getFullElementPath() + "\", ex);");
+    	ctorLines.add("        }");
+    }
 
     /**
      * Generate the createInstance(Engine engine) method where the recipe create the instance for the recipe to provide after it has been processed.
@@ -265,7 +310,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     private void generateCreateInstanceFromConstructor(ClassBuilder builder, JConstructor ctor) throws InvalidConfigurationException {
         // Build the internals of the method
         List<String> lines = new ArrayList<>();
-        addParameterInjection(lines, ctor.getParameters(), "", "return new " + creatorType.getSimpleName());
+        addParameterInjection(lines, ctor.getParameters(), "", "return new " + creatorType.getSimpleName() + "(");
 
         // Add the method to the recipe
         builder.buildMethod(creatorType, "createInstance").addException(TypeFactory.createClassType(Throwable.class)).setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))

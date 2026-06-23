@@ -149,7 +149,7 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 	 */
 	private void addClassLines(ClassType siblingType, List<String> code) {
 		externalImports.add(TypeFactory.createClassType(TendrilStartupException.class));
-		code.add("for(" + blueprintType.getSimpleName() + " copy: engine.getBlueprints(" + getClassReference(blueprintType) + ")) {");
+		code.add("for(" + blueprintType.getSimpleName() + " copy: engine.getBlueprints(" + RecipeGeneratorHelper.getClassReference(blueprintType) + ")) {");
 		code.add("	String copyName = copy.getName();");
 		code.add("	if (recipes.containsKey(copyName))");
 		code.add("		throw new TendrilStartupException(\"" + blueprintType + " has more than one copies named \" + copyName);");

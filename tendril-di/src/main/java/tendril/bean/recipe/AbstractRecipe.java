@@ -15,11 +15,13 @@
  */
 package tendril.bean.recipe;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import tendril.BeanCreationException;
 import tendril.bean.Fallback;
+import tendril.bean.Inject;
 import tendril.bean.PostConstruct;
 import tendril.bean.Primary;
 import tendril.bean.qualifier.Descriptor;
@@ -247,5 +249,32 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
 	 */
 	protected void postConstruct(BEAN_TYPE bean) {
 		// Intentionally left blank, concrete recipe to trigger the appropriate @PostConstruct called
+	}
+	
+	/**
+	 * Helper method to find the the method to inject via reflection. This is intended to be used at runtime if the injected method is not
+	 * directly accessible from the recipe at runtime.
+	 * 
+	 * @param klass {@link Class} in which to find the method to inject
+	 * @param name {@link String} the name of the method
+	 * @param params {@link Class}... listing all of the parameters that the method should contain
+	 * @return {@link Method} reference which can be invoked via reflection
+	 * @throws NoSuchMethodException if no valid injectable method is found
+	 * @throws SecurityException if the method is not accessible
+	 */
+	protected static Method findReflectedMethod(Class<?> klass, String name, Class<?>...params) throws NoSuchMethodException, SecurityException {
+		try {
+			Method rm = klass.getDeclaredMethod(name, params);
+			if (rm.getAnnotation(Inject.class) != null)
+				return rm;
+		} catch (NoSuchMethodException e) {
+			// Ignore, means that need to check the parent class
+		}
+		
+		Class<?> parent = klass.getSuperclass();
+		if (parent == null)
+			throw new NoSuchMethodException("No injectable method " + name + " in the class hierarchy");
+		
+		return findReflectedMethod(parent, name, params);
 	}
 }

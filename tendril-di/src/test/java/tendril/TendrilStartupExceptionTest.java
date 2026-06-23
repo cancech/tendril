@@ -17,6 +17,8 @@ package tendril;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 
 import tendril.test.AbstractUnitTest;
@@ -27,7 +29,7 @@ import tendril.test.AbstractUnitTest;
 public class TendrilStartupExceptionTest extends AbstractUnitTest{
 
     @Mock
-    private Exception mockCause; 
+    private Throwable mockCause; 
     
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
@@ -40,27 +42,31 @@ public class TendrilStartupExceptionTest extends AbstractUnitTest{
     /**
      * Verify that the message is properly stored
      */
-    @Test
-    public void testMessage() {
-        testMessageException("abc");
-        testMessageException("123");
-        testMessageException("abc123");
-    }
-    
-    /**
-     * Helper for testing exceptions that only include a message
-     * @param msg
-     */
-    private void testMessageException(String msg) {
+    @ParameterizedTest
+    @ValueSource(strings= {"abc", "123", "abc123"})
+    public void testMessage(String msg) {
         TendrilStartupException ex = new TendrilStartupException(msg);
         Assertions.assertEquals(msg, ex.getMessage());
         Assertions.assertNull(ex.getCause());
     }
     
+    /**
+     * Verify that the cause is properly stored
+     */
     @Test
     public void testCause() {
         TendrilStartupException ex = new TendrilStartupException(mockCause);
         Assertions.assertEquals("mockCause", ex.getMessage());
+        Assertions.assertEquals(mockCause, ex.getCause());
+    }
+    
+    /**
+     * Verify that the message and cause are properly stored
+     */
+    @Test
+    public void testMessageAndCause() {
+        TendrilStartupException ex = new TendrilStartupException("Some Message", mockCause);
+        Assertions.assertEquals("Some Message", ex.getMessage());
         Assertions.assertEquals(mockCause, ex.getCause());
     }
 }

@@ -18,6 +18,7 @@ package tempApp;
 import java.util.List;
 import java.util.Map;
 
+import tempApp.base.AbstractAppRunner;
 import tempApp.duplicate.DynamicDuplicate;
 import tendril.bean.Inject;
 import tendril.bean.InjectAll;
@@ -40,6 +41,9 @@ public class AppRunner1 extends AbstractAppRunner {
 	@Inject
 	@Named("c")
 	DynamicDuplicate cDup;
+	
+	@InjectAll
+	List<Object> allBeans;
 
 	public AppRunner1() {
 		super(AppRunner1.class, 2, new DuplicationDetails("a", 123, 1.23), new DuplicationDetails("b", 234, 2.34), new DuplicationDetails("c", 345, 3.45));

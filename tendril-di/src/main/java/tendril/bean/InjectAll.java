@@ -27,7 +27,7 @@ import java.util.List;
  * difference between @InjectAll and @Inject is that where @Inject requires exactly one match, @InjectAll has no such stipulation. All suitable matches will be returned in a {@link List}, and it may
  * be empty if no such match exist. It is up to the client code to make appropriate use and determinations as necessary.
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 public @interface InjectAll {
 }

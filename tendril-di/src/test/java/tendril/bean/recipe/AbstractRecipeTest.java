@@ -15,9 +15,11 @@
  */
 package tendril.bean.recipe;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.times;
+
+import java.lang.reflect.Method;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Assertions;
@@ -25,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.BeanCreationException;
+import tendril.bean.Inject;
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
@@ -353,6 +356,69 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     	updateAndVerifyRecipePriorities(false, true, ++times);
     	updateAndVerifyRecipePriorities(true, true, ++times);
     	updateAndVerifyRecipePriorities(false, false, ++times);
+    }
+    
+    class Base {
+    	@Inject void a() {}
+    }
+    
+    class Mid extends Base {
+    	@Inject void a() {}
+    	@Inject void a(String str) {}
+    	@Inject void b(int i) {}
+    }
+    
+    class Final extends Mid {
+    	void b(int i) {}
+    	@Inject void b(String str) {}
+    	void c() {}
+    	@Inject void c(String str) {}
+    }
+    
+    /**
+     * Verify that the method can be found for reflection injection
+     * @throws SecurityException 
+     * @throws NoSuchMethodException 
+     */
+    @Test
+    public void testFindReflectedMethod() throws NoSuchMethodException, SecurityException {
+    	// Methods that can be found from Base class
+    	assertMethodInContainingClass(Base.class, Base.class, "a");
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Base.class, "a", int.class));
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Base.class, "a", String.class));
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Base.class, "b"));
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Base.class, "b", int.class));
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Base.class, "b", String.class));
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Base.class, "c"));
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Base.class, "c", int.class));
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Base.class, "c", String.class));
+    	
+    	// Methods that can be found from Mid class
+    	assertMethodInContainingClass(Mid.class, Mid.class, "a");
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Mid.class, "a", int.class));
+    	assertMethodInContainingClass(Mid.class, Mid.class, "a", String.class);
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Mid.class, "b"));
+    	assertMethodInContainingClass(Mid.class, Mid.class, "b", int.class);
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Mid.class, "b", String.class));
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Mid.class, "c"));
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Mid.class, "c", int.class));
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Mid.class, "c", String.class));
+    	
+    	// Methods that can be found from Final class
+    	assertMethodInContainingClass(Mid.class, Final.class, "a");
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Final.class, "a", int.class));
+    	assertMethodInContainingClass(Mid.class, Final.class, "a", String.class);
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Final.class, "b"));
+    	assertMethodInContainingClass(Mid.class, Final.class, "b", int.class);
+    	assertMethodInContainingClass(Final.class, Final.class, "b", String.class);
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Final.class, "c"));
+    	Assertions.assertThrows(NoSuchMethodException.class, () -> assertMethodInContainingClass(Base.class, Final.class, "c", int.class));
+    	assertMethodInContainingClass(Final.class, Final.class, "c", String.class);
+    }
+    
+    private void assertMethodInContainingClass(Class<?> expected, Class<?> search, String name, Class<?>...params) throws NoSuchMethodException, SecurityException {
+    	Method m = AbstractRecipe.findReflectedMethod(search, name, params);
+    	Assertions.assertEquals(expected, m.getDeclaringClass());
     }
     
     /**

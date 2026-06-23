@@ -1,5 +1,6 @@
 package tempApp;
 
+import tempApp.base.AbstractAppRunner;
 import tendril.bean.qualifier.Descriptor;
 import tendril.context.ApplicationContext;
 import tendril.context.ApplicationContextBuilder;

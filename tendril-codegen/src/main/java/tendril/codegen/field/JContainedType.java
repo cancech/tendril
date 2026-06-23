@@ -40,6 +40,15 @@ public abstract class JContainedType<DATA_TYPE extends Type> extends JType<DATA_
     }
     
     /**
+     * Get the container in which the element appears.
+     * 
+     * @return {@link JContainedType} containing the element
+     */
+    public JContainedType<?> getContainer() {
+    	return parentContainer;
+    }
+    
+    /**
      * @see tendril.codegen.JBase#getFullElementPath()
      */
     @Override

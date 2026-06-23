@@ -19,7 +19,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import tempApp.AbstractAppRunner;
 import tempApp.AppRunner1;
 import tempApp.AppRunner2;
 import tempApp.ClassDuplicate;
@@ -31,6 +30,7 @@ import tempApp.MultiEnvBean2;
 import tempApp.RunnableConfig;
 import tempApp.SingletonClass;
 import tempApp.TempManager;
+import tempApp.base.AbstractAppRunner;
 import tendril.TendrilStartupException;
 import tendril.bean.qualifier.Descriptor;
 import tendril.context.ApplicationContext;
