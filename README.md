@@ -995,6 +995,43 @@ public class MyClass {
 }
 ```
 
+## Testing
+It's possible to create unit tests for `Tendril` applications, such that the application context is created, the injections fulfilled and made available in the test. This can be used to inject any beans which are available in the `ApplicationContext` such that they can be employed in the unit test. For this to work the `tendril-junit5` project must be added as the `testAnnotationProcessor`.
+
+```groovy
+dependencies {
+    annotationProcessor('io.github.cancech:tendril-di') // For "non-test"
+    testAnnotationProcessor('io.github.cancech:tendril-junit5') // For "test"
+}
+```
+
+This requires applying the `@TendrilTest` annotation to the test class. When done, the annotated test is used "in lieu" of a `TendrilRunner` and no `TendrilRunner` is created or loaded.
+
+```java
+@TendrilTest
+public class ExampleTest {
+	@Inject
+	ApplicationContext ctx;
+	@Inject
+	MyBean myBean;
+	
+	@InjectAll
+	List<Object> allBeans;
+	
+	@Test
+	public void testBeansCreated() {
+		Assertions.assertNotNull(ctx);
+		Assertions.assertNotNull(myBean);
+		Assertions.assertNotNull(allBeans);
+		
+		Assertions.assertEquals(2, allBeans.size());
+		CollectionAssert.assertEquivalent(allBeans, ctx, myBean);
+	}
+}
+```
+
+The test class prepared in this manner be injected via `@Inject`, however it cannot provide any beans. It is however possible for beans to be prepared in the test project code (outside of the test class), whether that be as "new beans" or as replacements for a "real bean".
+
 ## Known Issues and Limitations
 While every effort is made to provide a fully functional capability and address all issues, there are some which have not been addressed as they would be too invasive to fix and ultimately not worth the effort at this stage. These are issues and limitations are documented here, so that the appropriate mitigation steps can be taken in the client code.
 
@@ -1064,5 +1101,6 @@ In support of `Tendril` functionality, the build will generate a number of suppo
 |[tendril-annotation-processor](./tendril-annotation-processor)|Core functionality driving the annotation processing capabilities|
 |[tendril-codegen](./tendril-codegen)|Library facilitating code generation via factories and builders, to simplify the process of generating code.|
 |[tendril-di](./tendril-di)|The user facing Dependency Injection capability, with the annotation processor to generated the necessary code for `Tendril` to work.|
+|[tendril-junit5](./tendril-junit5)|JUnit5 integration library, to allow for the creation of JUnit5 tests that run within an `ApplicationContext`.|
 |[tendril-test](./tendril-test)|Automated/Unit test library, to facilitate and simplify the creation of JUnit tests.|
 |[tendril-test-app](./tendril-test-app)|A sample application which employs `Tendril`, primarily for the purpose of providing a test bed in which the various capabilities can be tested and verified.|

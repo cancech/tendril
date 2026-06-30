@@ -32,9 +32,6 @@ public class ExampleTest {
 	
 	@Test
 	public void testBeansCreated() {
-		System.err.println(ctx);
-		System.err.println(randomBean);
-		System.err.println(allBeans);
 		Assertions.assertNotNull(ctx);
 		Assertions.assertNotNull(randomBean);
 		Assertions.assertNotNull(allBeans);
