@@ -117,7 +117,7 @@ public abstract class TypeFactory {
      * @return {@link ClassType} for the {@link Class}
      */
     public static ClassType createClassType(Class<?> klass, GenericType... generics) {
-    	return createClassType(klass.getPackageName(), klass.getSimpleName(), generics);
+    	return createClassType(klass.getName().replaceAll("\\$", "."), generics);
     }
     
     /**

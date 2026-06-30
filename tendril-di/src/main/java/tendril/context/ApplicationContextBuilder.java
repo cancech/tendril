@@ -48,7 +48,7 @@ public class ApplicationContextBuilder {
      * 
      * @param engine {@link Engine} to be used within the context
      */
-    ApplicationContextBuilder(Engine engine) {
+    public ApplicationContextBuilder(Engine engine) {
         this.engine = engine;
     }
     

@@ -1,13 +1,9 @@
 plugins {
     id 'shared-library'
+    id 'auto-service'
 }
 
 dependencies {
-    // Google Auto-Service	
-    implementation 'com.google.auto.service:auto-service-annotations:1.1.1'
-	implementation 'com.google.auto.service:auto-service:1.1.1'
-	annotationProcessor 'com.google.auto.service:auto-service:1.1.1'
-	
     // Tendril
     api project(':tendril-util')
     api project(':tendril-annotation-processor')

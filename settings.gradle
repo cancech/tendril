@@ -6,6 +6,7 @@ include 'tendril-codegen'
 include 'tendril-annotation-processor'
 include 'tendril-di'
 include 'tendril-test'
+include 'tendril-junit5'
 
 // Tools/utilities for internal use only
 include 'tendril-test-app:test-app-lib1'

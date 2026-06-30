@@ -1,0 +1,12 @@
+plugins {
+    id 'shared-library'
+    id 'auto-service'
+}
+
+description='JUnit5 support for Tendril applications'
+
+dependencies {
+    implementation project(':tendril-di')
+    implementation project(':tendril-test')
+    testAnnotationProcessor project(':tendril-junit5')
+}

@@ -1,9 +1,11 @@
 package tendril.codegen.field.value;
 
+import java.util.List;
 import java.util.Set;
 
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
+import tendril.codegen.generics.GenericType;
 
 /**
  * Representation of a value where the class itself is the value (i.e.: {@code Object.class}.
@@ -30,6 +32,11 @@ public class JValueClass extends JValue<ClassType, ClassType> {
         ClassType otherClass = (ClassType) otherType;
         if (!Class.class.getName().equals(otherClass.getFullyQualifiedName()))
         	return false;
+        
+        List<GenericType> otherGenerics = otherClass.getGenerics();
+        if (otherGenerics.size() == 0)
+        	// Technically true, as this would generate a warning
+        	return true;
         
         return otherClass.getGenerics().get(0).isAssignableFrom(type);
 	}

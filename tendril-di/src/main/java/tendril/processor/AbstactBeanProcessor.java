@@ -14,14 +14,16 @@ import tendril.processor.recipe.RecipeGenerator;
  * Abstract processor for the purpose of handling bean classes. The subclass must associate itself with the appropriate annotation, however this abstract class handled all of the appropriate code
  * generation.
  */
-abstract class AbstactBeanProcessor extends AbstractDelayedAnnotationTendrilProcessor {
+public abstract class AbstactBeanProcessor extends AbstractDelayedAnnotationTendrilProcessor {
 	/** The class of the registry annotation which is to be applied to the generated recipe */
 	private final Class<? extends Annotation> registryAnnotation;
 
 	/**
 	 * CTOR
+	 * 
+	 * @param registryAnnotation {@link Class} indicating the registry annotation to apply to the generated recipe. Leave {@code null} to skip
 	 */
-	AbstactBeanProcessor(Class<? extends Annotation> registryAnnotation) {
+	public AbstactBeanProcessor(Class<? extends Annotation> registryAnnotation) {
 		this.registryAnnotation = registryAnnotation;
 		// Disable JAnnotationFactory logging to keep the output cleaner
 		JAnnotationFactory.setLoggingEnabled(false);

@@ -83,24 +83,34 @@ public class ClassType extends JGeneric implements Type {
     	try {
     		// If not explicitly the same type, then check whether the other type references a class
     		if (other instanceof ClassType otherClass && getDefinedClass().isAssignableFrom(otherClass.getDefinedClass())) {
-    			// If they are the same class, then make sure that any generics match
-    			List<GenericType> myGenerics = getGenerics();
-    			List<GenericType> otherGenerics = otherClass.getGenerics();
-    			if (myGenerics.size() != otherGenerics.size())
-    				return false;
-    			for (int i = 0; i < myGenerics.size(); i++) {
-    				if (!myGenerics.get(i).asClassType().equals(otherGenerics.get(i).asClassType()))
-    					return false;
-    			}
-    			
-    			// At this point no mismatch in the generics, so the two types are assignable
-    			return true;
+    			return compareGenerics(otherClass);
     		} else
     			return false;
     	} catch (Exception ex) {
     		// Cannot do an in-depth comparison, so perform the most basic surface level check
     		return equals(other);
     	}
+    }
+    
+    /**
+     * Compare the generics between this class and the other to make sure that they're the same
+     * 
+     * @param otherClass {@link ClassType} whose generics to compare against
+     * @return boolean true if the generics are the same
+     */
+    private boolean compareGenerics(ClassType otherClass) {
+		// If they are the same class, then make sure that any generics match
+		List<GenericType> myGenerics = getGenerics();
+		List<GenericType> otherGenerics = otherClass.getGenerics();
+		if (myGenerics.size() != otherGenerics.size())
+			return false;
+		for (int i = 0; i < myGenerics.size(); i++) {
+			if (!myGenerics.get(i).asClassType().equals(otherGenerics.get(i).asClassType()))
+				return false;
+		}
+		
+		// At this point no mismatch in the generics, so the two types are assignable
+		return true;
     }
 
     /**
@@ -122,13 +132,35 @@ public class ClassType extends JGeneric implements Type {
     	// If this instance is a class reference (i.e.: Class<Type>)
     	if (isClassClass() && value instanceof ClassType otherClassType) {
     		if (otherClassType.isClassClass()) {
+    			List<GenericType> otherGenerics = otherClassType.getGenerics();
+    			if (getGenerics().isEmpty() || otherGenerics.isEmpty())
+    				// Technically true, as this would throw a warning
+    				return true;
     			return getGenerics().get(0).isAssignableFrom(otherClassType.getGenerics().get(0).asClassType());
     		}
 			return getGenerics().get(0).isAssignableFrom(otherClassType);
     	}
 
-    	// Otherwise, just simply check if the value is of the correct type
-    	return value.getClass().getName().equals(getFullyQualifiedName());
+    	// If it's the same class then it must be assignable
+    	if (value instanceof ClassType otherClassType) {
+    		if (this.equals(otherClassType) && compareGenerics(otherClassType))
+    			return true;
+    	} else if (value.getClass().getName().equals(getFullyQualifiedName()))
+    		return true;
+    	
+    	// Otherwise check if it the classes are assignable
+    	try {
+    		Class<?> otherClass = value.getClass();
+    		boolean matchingGenerics = true;
+    		if (value instanceof ClassType otherClassType) {
+    			otherClass = otherClassType.getDefinedClass();
+    			matchingGenerics = compareGenerics(otherClassType);
+    		}
+    		return matchingGenerics && getDefinedClass().isAssignableFrom(otherClass);
+    	} catch (ClassNotFoundException ex) {
+    		// Failure to load one class (or the other) means that we cannot definitively way whether the two are assignable
+    		return false;
+    	}
     }
     
     /**

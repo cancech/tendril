@@ -32,6 +32,8 @@ import javax.lang.model.type.WildcardType;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.mockito.Mock;
 
 import tendril.codegen.DefinitionException;
@@ -352,6 +354,16 @@ public class TypeFactoryTest extends AbstractUnitTest {
 		ClassType suffix = TypeFactory.createClassType(original, "Efgh");
 		TendrilAssert.assertImportData("1.2.3.4", "AbcdEfgh", suffix);
 		CollectionAssert.assertEquals(original.getGenerics(), suffix.getGenerics());
+	}
+	
+	/**
+	 * Verify that a class can be created properly for a nested class
+	 */
+	@Test
+	public void testCreateNestedClassType() {
+		ClassType type = TypeFactory.createClassType(Lifecycle.class);
+		Assertions.assertEquals(Lifecycle.class.getPackageName() + "." + TestInstance.class.getSimpleName(), type.getPackageName());
+		Assertions.assertEquals(Lifecycle.class.getSimpleName(), type.getClassName());
 	}
 	
     /**

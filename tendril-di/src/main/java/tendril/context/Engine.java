@@ -128,6 +128,19 @@ public class Engine implements ApplicationContext {
 	}
 
 	/**
+	 * Functional interface to allow different recipe loading methods to be employed when processing the registry. This is explicitly tied to the processRegistry method.
+	 */
+	private interface RecipeLoader {
+		/**
+		 * Load the recipe into the engine.
+		 * 
+		 * @param recipeName {@link String} the name or identifier of the recipe
+		 * @param recipe {@link Object} instance
+		 */
+		void load(String recipeName, Object recipe);
+	}
+
+	/**
 	 * Process recipe classes that appear in a registry
 	 * 
 	 * @param recipes {@link Set} of {@link String} recipe class names to load
@@ -447,12 +460,6 @@ public class Engine implements ApplicationContext {
 		// Save them for future retrieval
 		dynamicBlueprintsForClass.put(blueprintClass, matches);
 	}
-
-	private interface RecipeLoader {
-		void load(String recipeName, Object recipe);
-	}
-	
-
 	/**
 	 * @see tendril.context.ApplicationContext#start()
 	 */

@@ -113,15 +113,15 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 		Assertions.assertFalse(create(Integer.class).isTypeOf("abc123"));
 		Assertions.assertFalse(create(String.class).isTypeOf(123));
 		Assertions.assertFalse(create(ClassType.class).isTypeOf(new JGeneric()));
-		Assertions.assertFalse(create(JGeneric.class).isTypeOf(create(JGeneric.class)));
+		Assertions.assertFalse(create(ClassType.class).isTypeOf(create(JGeneric.class)));
 
 		// Expected to be true
 		for (VisibilityType t : VisibilityType.values())
 			Assertions.assertTrue(type.isTypeOf(t));
 		Assertions.assertTrue(create(Integer.class).isTypeOf(123));
 		Assertions.assertTrue(create(String.class).isTypeOf("abc123"));
-		Assertions.assertTrue(create(ClassType.class).isTypeOf(create(JGeneric.class)));
 		Assertions.assertTrue(create(JGeneric.class).isTypeOf(new JGeneric()));
+		Assertions.assertTrue(create(JGeneric.class).isTypeOf(create(JGeneric.class)));
 	}
 
 	/**
@@ -138,7 +138,6 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 		Assertions.assertFalse(create(Integer.class).isTypeOf("abc123"));
 		Assertions.assertFalse(create(String.class).isTypeOf(123));
 		Assertions.assertFalse(create(ClassType.class).isTypeOf(new JGeneric()));
-		Assertions.assertFalse(create(JGeneric.class).isTypeOf(create(JGeneric.class)));
 		Assertions.assertFalse(type.isTypeOf(create(JGeneric.class)));
 		Assertions.assertFalse(type.isTypeOf(buildClass(new ClassType("a.b.c", "D"))));
 		Assertions.assertFalse(type.isTypeOf(new JBase("") {
@@ -153,6 +152,9 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 		}));
 
 		// Expected to be true
+		Assertions.assertTrue(buildClass(JGeneric.class).isTypeOf(create(Class.class)));
+		Assertions.assertTrue(create(Class.class).isTypeOf(buildClass(JGeneric.class)));
+		Assertions.assertTrue(create(JGeneric.class).isTypeOf(create(JGeneric.class)));
 		Assertions.assertTrue(type.isTypeOf(create(JBase.class)));
 		Assertions.assertTrue(type.isTypeOf(create(JAnnotation.class)));
 		Assertions.assertTrue(type.isTypeOf(create(JType.class)));

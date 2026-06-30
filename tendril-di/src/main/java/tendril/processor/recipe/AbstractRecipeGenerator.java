@@ -78,8 +78,12 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 
 	/** Mapping of the types of life cycle annotations that are supported to the recipe that implements it */
 	@SuppressWarnings("rawtypes")
-	private static final Map<Class<? extends Annotation>, Class<? extends AbstractRecipe>> recipeTypeMap = Map.of(Singleton.class, SingletonRecipe.class, Factory.class, FactoryRecipe.class,
-			Runner.class, SingletonRecipe.class, Configuration.class, ConfigurationRecipe.class);
+	private static final Map<ClassType, Class<? extends AbstractRecipe>> recipeTypeMap = Map.of(
+			TypeFactory.createClassType(Singleton.class), SingletonRecipe.class,
+			TypeFactory.createClassType(Factory.class), FactoryRecipe.class,
+			TypeFactory.createClassType(Runner.class), SingletonRecipe.class,
+			TypeFactory.createClassType(Configuration.class), ConfigurationRecipe.class,
+			TypeFactory.createClassType("tendril.test.TendrilTest"), SingletonRecipe.class);
 
 	/** The type of the creator */
 	protected final ClassType creatorType;
@@ -185,9 +189,9 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 	 */
 	@SuppressWarnings("rawtypes")
 	protected Class<? extends AbstractRecipe> getRecipeClass() throws InvalidConfigurationException {
-		List<Class<? extends Annotation>> foundTypes = new ArrayList<>();
+		List<ClassType> foundTypes = new ArrayList<>();
 
-		for (Class<? extends Annotation> annonClass : recipeTypeMap.keySet()) {
+		for (ClassType annonClass : recipeTypeMap.keySet()) {
 			if (creator.hasAnnotation(annonClass))
 				foundTypes.add(annonClass);
 		}
@@ -328,8 +332,9 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 		addParameterInjection(lines, creator.getParameters(), "", "return config.get()." + creator.getName() + "(");
 
 		// Add the method to the recipe
-		builder.buildMethod(creatorType, "createInstance").addException(TypeFactory.createClassType(Throwable.class)).setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
-				.buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish().addCode(lines.toArray(new String[lines.size()])).finish();
+		builder.buildMethod(creatorType, "createInstance").addException(TypeFactory.createClassType(Throwable.class)).setVisibility(VisibilityType.PROTECTED)
+				.addAnnotation(JAnnotationFactory.create(Override.class)).buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish().addCode(lines.toArray(new String[lines.size()]))
+				.finish();
 	}
 
 	/**

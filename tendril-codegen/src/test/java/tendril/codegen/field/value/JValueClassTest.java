@@ -42,17 +42,6 @@ public class JValueClassTest extends SharedJValueTest {
 	}
 
 	/**
-	 * Helper to shorthand the creation of the {@link JValueClass} and the necessary import
-	 * 
-	 * @param <T>   {@link Class} to use
-	 * @param klass {@link Class} to use for the test
-	 */
-	private <T> void testClassCode(Class<T> klass) {
-		currentImport = TypeFactory.createClassType(klass);
-		assertCode(klass.getSimpleName() + ".class", new JValueClass(currentImport));
-	}
-
-	/**
 	 * Verify that instance of properly reports
 	 */
 	@Test
@@ -72,6 +61,18 @@ public class JValueClassTest extends SharedJValueTest {
 		
 		// Expected to be true
 		Assertions.assertTrue(value.isInstanceOf(buildClass(JType.class)));
+		Assertions.assertTrue(value.isInstanceOf(TypeFactory.create(Class.class)));
+	}
+	
+	/**
+	 * Helper to shorthand the creation of the {@link JValueClass} and the necessary import
+	 * 
+	 * @param <T>   {@link Class} to use
+	 * @param klass {@link Class} to use for the test
+	 */
+	private <T> void testClassCode(Class<T> klass) {
+		currentImport = TypeFactory.createClassType(klass);
+		assertCode(klass.getSimpleName() + ".class", new JValueClass(currentImport));
 	}
 
 	/**

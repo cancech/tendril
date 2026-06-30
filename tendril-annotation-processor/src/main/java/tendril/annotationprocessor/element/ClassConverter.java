@@ -63,6 +63,7 @@ import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
+import tendril.codegen.generics.GenericFactory;
 
 /**
  * Handles the conversion of items from the Annotation Processing {@link Element}s into {@link JBase} representations
@@ -330,7 +331,7 @@ public class ClassConverter {
         if (value instanceof VariableElement)
             return JValueFactory.create(createEnumEntry(desiredType, (VariableElement) value));
         
-        Object valueToUse = value;
+        Object valueToUse = checkAndConvertClassFromTypeMirror(value);
         if (value instanceof List) {
             if (!(desiredType instanceof ArrayType))
                 throw new DataMismatchException(desiredType, value.getClass().getName() + "[]");
@@ -339,12 +340,18 @@ public class ClassConverter {
             List<AnnotationValue> listVal = (List<AnnotationValue>) value;
             Object av = ((AnnotationValue) listVal.get(0)).getValue();
             
-            // Enum is a special case
             if (av instanceof VariableElement) {
+                // Enum is a special case
                 EnumerationEntry[] entries = new EnumerationEntry[listVal.size()];
                 for (int i = 0; i < entries.length; i++)
                     entries[i] = createEnumEntry(((ArrayType<?>) desiredType).getContainedType(), (VariableElement) (listVal.get(i)).getValue());
                 return JValueFactory.createArray(entries);
+            } else if (requiresClassConversionFromTypeMirror(av)) {
+            	// Class<?> is a special case
+            	ClassType[] entries = new ClassType[listVal.size()];
+            	for (int i = 0; i < entries.length; i++)
+            		entries[i] = convertClassFromTypeMirror(listVal.get(i).getValue());
+            	return JValueFactory.createArray(entries);
             }
             
             // Otherwise just perform a direct cast
@@ -352,6 +359,40 @@ public class ClassConverter {
         }
 
         return desiredType.asValue(valueToUse);
+    }
+    
+    /**
+     * Check if the value represents a Class<?> that requires manual conversion from {@link TypeMirror}. If so perform the conversion.
+     * 
+     * @param value {@link Object} containing the value
+     * @return {@link Object} with the value (either as-is or converted to {@link ClassType} representing a Class<?> value
+     */
+    private Object checkAndConvertClassFromTypeMirror(Object value) {
+    	if (requiresClassConversionFromTypeMirror(value))
+    		return convertClassFromTypeMirror(value);
+    	
+    	return value;
+    }
+    
+    /**
+     * Check if the value requires a conversion from the type mirror
+     * 
+     * @param value {@link Object} with the value to convert
+     * @return boolean true if manual conversion is required
+     */
+    private boolean requiresClassConversionFromTypeMirror(Object value) {
+    	return value.getClass().getName().equals("com.sun.tools.javac.code.Type$ClassType");
+    }
+    
+    /**
+     * Convert the value to a {@link ClassType} representing the Class<?> value stored in the object.
+     * 
+     * @param value {@link Object} containing the value
+     * @return {@link ClassType} representing the Class<?> value
+     */
+    private ClassType convertClassFromTypeMirror(Object value) {
+    	// This is a Class.class value
+    	return TypeFactory.createClassType(Class.class, GenericFactory.create(TypeFactory.createClassType(value.toString())));
     }
     
     /**
@@ -365,8 +406,10 @@ public class ClassConverter {
     @SuppressWarnings("unchecked")
     private <T> T[] annotationValueAsBaseType(List<AnnotationValue> values, Class<T> type) {
         T[] entries = (T[]) Array.newInstance(type, values.size());
-        for (int i = 0; i < entries.length; i++)
-            entries[i] = (T) ((AnnotationValue)values.get(i)).getValue();
+        for (int i = 0; i < entries.length; i++) {
+        	Object e = ((AnnotationValue)values.get(i)).getValue();
+            entries[i] = (T) checkAndConvertClassFromTypeMirror(e);
+        }
         return entries;
     }
     
