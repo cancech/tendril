@@ -1053,6 +1053,32 @@ public class EnvAandBTest {
 }
 ```
 
+### Extending Test Classes
+It is possible to extend a base test class, such that it can both provide a common test core, as well as tackle common/shared elements. For example
+
+```
+@TendrilTest(environments = {"A", "B"})
+public class BaseTest {
+	@Inject
+	MyBean bean;
+}
+
+public class ConcreteTest extend BaseTest {
+
+	@Inject
+	MyOtherBean otherBean;
+
+	@Test
+	public void test() {
+		Assertions.assertNotNull(bean);
+		Assertions.assertNotNull(otherBean);
+		Assertions.assertNotEqual(bean, otherBean);
+	}
+}
+```
+
+In this case both `BaseTest` and `ConcreteTest` will be executing using the `@TendrilTest` configuration with environments `A` and `B` applied to the `ApplicationContext`. 
+
 ## Known Issues and Limitations
 While every effort is made to provide a fully functional capability and address all issues, there are some which have not been addressed as they would be too invasive to fix and ultimately not worth the effort at this stage. These are issues and limitations are documented here, so that the appropriate mitigation steps can be taken in the client code.
 
