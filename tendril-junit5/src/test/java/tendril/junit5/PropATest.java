@@ -8,19 +8,19 @@ import org.junit.jupiter.api.Test;
 import tendril.bean.Inject;
 import tendril.bean.InjectAll;
 import tendril.context.ApplicationContext;
-import tendril.junit5.beans.EnvBBean;
-import tendril.junit5.beans.TestBean;
+import tendril.junit5.beans.PropABean;
 import tendril.junit5.beans.RandomBean;
+import tendril.junit5.beans.TestBean;
 import tendril.test.TendrilTest;
 import tendril.test.assertions.ClassAssert;
 import tendril.test.assertions.CollectionAssert;
 import tendril.test.context.TestEngine;
 
 /**
- * Test to ensure that a test can a {@link TendrilTest} can apply environments
+ * Test to ensure that a test can a {@link TendrilTest} can apply properties
  */
-@TendrilTest(environments = {"B"})
-public class EnvBTest {
+@TendrilTest(properties = "A")
+public class PropATest {
 
 	@Inject
 	ApplicationContext ctx;
@@ -42,6 +42,6 @@ public class EnvBTest {
 		Assertions.assertEquals(3, allBeans.size());
 		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, testBean);
 		ClassAssert.assertInstance(TestEngine.class, ctx);
-		ClassAssert.assertInstance(EnvBBean.class, testBean);
+		ClassAssert.assertInstance(PropABean.class, testBean);
 	}
 }

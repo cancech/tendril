@@ -7,6 +7,6 @@ import tendril.bean.requirement.RequiresEnv;
 @Bean
 @Singleton
 @RequiresEnv("B")
-public class EnvBBean implements EnvBean {
+public class EnvBBean implements TestBean {
 
 }

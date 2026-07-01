@@ -1,6 +1,7 @@
 package tendril.test.context;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import tendril.TendrilStartupException;
 import tendril.bean.recipe.AbstractRecipe;
@@ -15,6 +16,7 @@ public class TestEngine extends Engine {
 
 	/** The class of the test */
 	private final Class<?> testClass;
+	private String[] testProperties = {};
 
 	/**
 	 * CTOR
@@ -42,6 +44,27 @@ public class TestEngine extends Engine {
 		Class<? extends AbstractRecipe<?>> recipeClass = (Class<? extends AbstractRecipe<?>>) Class.forName(testClass.getName() + "Recipe");
 		AbstractRecipe<?> recipe = (AbstractRecipe<?>) recipeClass.getConstructors()[0].newInstance(this);
 		return recipe.get();
+	}
+
+	/**
+	 * Add properties that are to be used to augment the System properties for the purpose of the test. The system properties as such are not touched, with these merely augmenting them.
+	 * 
+	 * @param properties {@link String}... properties to add
+	 */
+	public void setProperties(String... properties) {
+		testProperties = properties;
+	}
+
+	/**
+	 * 
+	 * @see tendril.context.Engine#systemPropertyList()
+	 */
+	@Override
+	protected List<String> systemPropertyList() {
+		List<String> props = super.systemPropertyList();
+		for (String p: testProperties)
+			props.add(p);
+		return props;
 	}
 
 	/**

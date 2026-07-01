@@ -9,7 +9,7 @@ import tendril.bean.Inject;
 import tendril.bean.InjectAll;
 import tendril.context.ApplicationContext;
 import tendril.junit5.beans.EnvABean;
-import tendril.junit5.beans.EnvBean;
+import tendril.junit5.beans.TestBean;
 import tendril.junit5.beans.RandomBean;
 import tendril.test.TendrilTest;
 import tendril.test.assertions.ClassAssert;
@@ -27,7 +27,7 @@ public class EnvATest {
 	@Inject
 	RandomBean randomBean;
 	@Inject
-	EnvBean envBean;
+	TestBean testBean;
 	
 	@InjectAll
 	List<Object> allBeans;
@@ -37,11 +37,11 @@ public class EnvATest {
 		Assertions.assertNotNull(ctx);
 		Assertions.assertNotNull(randomBean);
 		Assertions.assertNotNull(allBeans);
-		Assertions.assertNotNull(envBean);
+		Assertions.assertNotNull(testBean);
 		
 		Assertions.assertEquals(3, allBeans.size());
-		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, envBean);
+		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, testBean);
 		ClassAssert.assertInstance(TestEngine.class, ctx);
-		ClassAssert.assertInstance(EnvABean.class, envBean);
+		ClassAssert.assertInstance(EnvABean.class, testBean);
 	}
 }

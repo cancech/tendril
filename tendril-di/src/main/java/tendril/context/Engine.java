@@ -264,7 +264,7 @@ public class Engine implements ApplicationContext {
 	 * 
 	 * @return {@link List} of {@link String}s
 	 */
-	private List<String> systemPropertyList() {
+	protected List<String> systemPropertyList() {
 		List<String> propNames = new ArrayList<>();
 		for (Object o : System.getProperties().keySet())
 			propNames.add(o.toString());

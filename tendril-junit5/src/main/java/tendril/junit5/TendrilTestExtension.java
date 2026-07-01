@@ -34,25 +34,26 @@ public class TendrilTestExtension implements TestInstancePostProcessor, TestInst
 	@Override
 	public Object createTestInstance(TestInstanceFactoryContext factoryContext, ExtensionContext extensionContext) throws TestInstantiationException {
 		try {
-			Class<?> testClass = factoryContext.getTestClass();
-			ApplicationContextBuilder builder = new ApplicationContextBuilder(new TestEngine(testClass));
-			loadAnnotation(testClass, builder);
-			TestEngine engine = (TestEngine) builder.build();
-			return engine.getTestRunner();
+			return prepareEngine(factoryContext.getTestClass()).getTestRunner();
 		} catch (Exception e) {
 			throw new TendrilStartupException(e);
 		}
 	}
 
 	/**
-	 * Load the annotation with the details of the tendril test
+	 * Prepare the engine in which the test is to be executed
 	 * 
 	 * @param testClass {@link Class} where the test is defined
-	 * @param builder   {@link ApplicationContextBuilder} where the test context is being created
 	 */
-	private void loadAnnotation(Class<?> testClass, ApplicationContextBuilder builder) {
+	private TestEngine prepareEngine(Class<?> testClass) {
+		TestEngine engine = new TestEngine(testClass);
+		ApplicationContextBuilder builder = new ApplicationContextBuilder(engine);
+
+		// Load details from the test annotation
 		TendrilTest annon = testClass.getAnnotation(TendrilTest.class);
 		builder.setEnvironments(annon.environments());
+		engine.setProperties(annon.properties());
+		return (TestEngine) builder.build();
 	}
 
 	/**

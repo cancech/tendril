@@ -46,4 +46,11 @@ public @interface TendrilTest {
 	 * @return {@link String}[] with the environments (empty by default)
 	 */
 	String[] environments() default {};
+
+	/**
+	 * Optionally can be used to define the properties that are to be applied to the {@link ApplicationContext} for the test
+	 * 
+	 * @return {@link String}[] with the properties (empty by default)
+	 */
+	String[] properties() default {};
 }

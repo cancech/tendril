@@ -15,7 +15,7 @@ public class ExtendTest extends EnvATest {
 	 */
 	@Test
 	public void testExtensionRunsProperly() {
-		ClassAssert.assertInstance(EnvABean.class, envBean);
+		ClassAssert.assertInstance(EnvABean.class, testBean);
 	}
 
 }
