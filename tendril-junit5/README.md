@@ -1,0 +1,4 @@
+# Tendril JUnit5
+This library provides the necessary infrastructure and support to create a JUnit5 test that executes within an `ApplicaitonContext`. The test must be annotated with `@TendrilTest` and through this annotation the appropriate configuration can be applied to the `ApplicationContext`. This annotation will apply a custom JUnit5 test extension in the form of `TendrilTestExtension` which performs the necessary JUnit5 test customization to ensure that the `ApplicationContext` is configured and started properly.
+
+Note that when running in this manner, the `TendrilRunner` is no employed or executed. Rather the annotated test case is used/employed as if it were the `TendrilRunner` for the purpose of the test executing.
