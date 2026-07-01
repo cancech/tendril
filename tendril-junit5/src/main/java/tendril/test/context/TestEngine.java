@@ -16,6 +16,7 @@ public class TestEngine extends Engine {
 
 	/** The class of the test */
 	private final Class<?> testClass;
+	/** Test properties that have been added for the test */
 	private String[] testProperties = {};
 
 	/**
@@ -56,6 +57,7 @@ public class TestEngine extends Engine {
 	}
 
 	/**
+	 * Adds the test properties to the default JVM properties.
 	 * 
 	 * @see tendril.context.Engine#systemPropertyList()
 	 */
