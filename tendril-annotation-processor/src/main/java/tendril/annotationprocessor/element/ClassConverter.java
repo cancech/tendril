@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
@@ -70,13 +71,18 @@ import tendril.codegen.generics.GenericFactory;
  */
 public class ClassConverter {
 
+	private final ProcessingEnvironment processingEnv;
+	
     /** The cache where loaded elements are to be stored */
     private ElementCache cache;
     
     /**
      * CTOR
+     * 
+     * @param processingEnv {@link ProcessingEnvironment} in which the annotation processing is taking place
      */
-    ClassConverter() {
+    ClassConverter(ProcessingEnvironment processingEnv) {
+    	this.processingEnv = processingEnv;
     }
     
     /**
@@ -150,7 +156,7 @@ public class ClassConverter {
             return;
         
         try {
-            builder.extendsClass(ElementLoader.retrieveClass(parentElement));
+            builder.extendsClass(ElementLoader.retrieveClass(processingEnv, parentElement));
         } catch (MissingAnnotationException e) {
             throw new TendrilException("Failed to determine parent for " + element, e);
         }
@@ -264,7 +270,7 @@ public class ClassConverter {
      * @throws DataMismatchException if there is an issue processing annotation values
      */
     private void loadAnnotations(BaseBuilder<?, ?> builder, Element element) throws MissingAnnotationException, DataMismatchException {
-        for (AnnotationMirror m : element.getAnnotationMirrors()) {
+        for (AnnotationMirror m : processingEnv.getElementUtils().getAllAnnotationMirrors(element)) {
             TypeElement annonElement = (TypeElement) m.getAnnotationType().asElement();
             try {
                 builder.addAnnotation(buildAnnotation(deriveClassData(annonElement), m, annonElement, new ArrayList<>()));

@@ -252,7 +252,7 @@ public class AbstractTendrilProccessorTest extends CommonProcessorTest {
     @Test
     public void testProcessClass() throws IOException, MissingAnnotationException {
         try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
-            loader.when(() -> ElementLoader.retrieveClass(mockTypeElement)).thenReturn(mockJClass);
+            loader.when(() -> ElementLoader.retrieveClass(mockProcessingEnv, mockTypeElement)).thenReturn(mockJClass);
             when(mockJClass.getType()).thenReturn(mockClassType);
             setupMocksForWriting();
     
@@ -262,7 +262,7 @@ public class AbstractTendrilProccessorTest extends CommonProcessorTest {
             verify(mockEnvironment).errorRaised();
             verify(mockEnvironment).processingOver();
             verify(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
-            loader.verify(() -> ElementLoader.retrieveClass(mockTypeElement));
+            loader.verify(() -> ElementLoader.retrieveClass(mockProcessingEnv, mockTypeElement));
             verifyFileWritten();
     
             processor.verifyClassType(1, mockClassType);
@@ -278,10 +278,10 @@ public class AbstractTendrilProccessorTest extends CommonProcessorTest {
     @Test
     public void testProcessClassMissingException() throws IOException, MissingAnnotationException {
         try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
-            loader.when(() -> ElementLoader.retrieveClass(mockTypeElement)).thenThrow(mockAnnotationException);
+            loader.when(() -> ElementLoader.retrieveClass(mockProcessingEnv, mockTypeElement)).thenThrow(mockAnnotationException);
             doReturn(Set.of(mockTypeElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
             Assertions.assertThrows(ProcessingException.class, () -> processor.process(Set.of(mockAnnotation), mockEnvironment));
-            loader.verify(() -> ElementLoader.retrieveClass(mockTypeElement));
+            loader.verify(() -> ElementLoader.retrieveClass(mockProcessingEnv, mockTypeElement));
             verify(mockEnvironment).errorRaised();
             verify(mockEnvironment).processingOver();
         }
@@ -295,7 +295,7 @@ public class AbstractTendrilProccessorTest extends CommonProcessorTest {
     @Test
     public void testProcessMethod() throws IOException, MissingAnnotationException {
         try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
-            loader.when(() -> ElementLoader.retrieveMethod(mockMethodElement)).thenReturn(Pair.of(mockJClass, mockJMethod));
+            loader.when(() -> ElementLoader.retrieveMethod(mockProcessingEnv, mockMethodElement)).thenReturn(Pair.of(mockJClass, mockJMethod));
             setupMocksForWriting();
 
             // This mock format is required due to compilation error with "normal" method
@@ -304,7 +304,7 @@ public class AbstractTendrilProccessorTest extends CommonProcessorTest {
             verify(mockEnvironment).errorRaised();
             verify(mockEnvironment).processingOver();
             verify(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
-            loader.verify(() -> ElementLoader.retrieveMethod(mockMethodElement));
+            loader.verify(() -> ElementLoader.retrieveMethod(mockProcessingEnv, mockMethodElement));
             verify(mockJClass).getType();
             verifyFileWritten();
     
@@ -321,10 +321,10 @@ public class AbstractTendrilProccessorTest extends CommonProcessorTest {
     @Test
     public void testProcessMethodMissingException() throws IOException, MissingAnnotationException {
         try (MockedStatic<ElementLoader> loader = Mockito.mockStatic(ElementLoader.class)) {
-            loader.when(() -> ElementLoader.retrieveMethod(mockMethodElement)).thenThrow(mockAnnotationException);
+            loader.when(() -> ElementLoader.retrieveMethod(mockProcessingEnv, mockMethodElement)).thenThrow(mockAnnotationException);
             doReturn(Set.of(mockMethodElement)).when(mockEnvironment).getElementsAnnotatedWith(mockAnnotation);
             Assertions.assertThrows(ProcessingException.class, () -> processor.process(Set.of(mockAnnotation), mockEnvironment));
-            loader.verify(() -> ElementLoader.retrieveMethod(mockMethodElement));
+            loader.verify(() -> ElementLoader.retrieveMethod(mockProcessingEnv, mockMethodElement));
             verify(mockEnvironment).errorRaised();
             verify(mockEnvironment).processingOver();
         }

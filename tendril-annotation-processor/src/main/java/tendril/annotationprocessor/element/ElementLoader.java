@@ -15,6 +15,7 @@
  */
 package tendril.annotationprocessor.element;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -46,11 +47,12 @@ public class ElementLoader {
     /**
      * Get the singleton instance of the cache
      * 
+     * @param processingEnv {@link ProcessingEnvironment} in which the annotation processing is taking place
      * @return {@link ElementCache}
      */
-    private static ElementCache getInstance() {
+    private static ElementCache getInstance(ProcessingEnvironment processingEnv) {
         if (cache == null)
-            cache = new ElementCache(new ClassConverter());
+            cache = new ElementCache(new ClassConverter(processingEnv));
 
         return cache;
     }
@@ -67,37 +69,42 @@ public class ElementLoader {
     /**
      * Get the full class details of the specified Class element
      * 
+     * @param processingEnv {@link ProcessingEnvironment} in which the annotation processing is taking place
      * @param element {@link TypeElement} of the Class to load
      * 
      * @return {@link JClass} representing the element
      * @throws MissingAnnotationException if attempting to load a class which is making use of an annotation that does not (yet) exist
      * @throws TendrilException if an issue is encountered retrieving the class details
      */
-    public static JClass retrieveClass(TypeElement element) throws MissingAnnotationException, TendrilException {
-        return getInstance().retrieveClass(element);
+    public static JClass retrieveClass(ProcessingEnvironment processingEnv, TypeElement element) throws MissingAnnotationException, TendrilException {
+        return getInstance(processingEnv).retrieveClass(element);
     }
 
     /**
      * Retrieve the details of the method from the element
      * 
+     * @param processingEnv {@link ProcessingEnvironment} in which the annotation processing is taking place
      * @param element {@link ExecutableElement} containing the details of the method
+     * 
      * @return {@link Pair} of {@link JClass} of the enclosing class and {@link JMethod} representing the full details of the method
      * @throws MissingAnnotationException if attempting to load a class which is making use of an annotation that does not (yet) exist
      * @throws TendrilException if an issue is encountered retrieving the method details
      */
-    public static Pair<JClass, JMethod<?>> retrieveMethod(ExecutableElement element) throws MissingAnnotationException, TendrilException {
-        return getInstance().retrieveMethod(element);
+    public static Pair<JClass, JMethod<?>> retrieveMethod(ProcessingEnvironment processingEnv, ExecutableElement element) throws MissingAnnotationException, TendrilException {
+        return getInstance(processingEnv).retrieveMethod(element);
     }
 
     /**
      * Retrieve the details of the field from the element
      * 
+     * @param processingEnv {@link ProcessingEnvironment} in which the annotation processing is taking place
      * @param element {@link VariableElement} containing the details of the field
+     * 
      * @return {@link Pair} of {@link JClass} of the enclosing class and {@link JField} representing the full details of the field
      * @throws MissingAnnotationException if attempting to load a class which is making use of an annotation that does not (yet) exist
      * @throws TendrilException if an issue is encountered retrieving the field details
      */
-    public static Pair<JClass, JField<?>> retrieveField(VariableElement element) throws MissingAnnotationException, TendrilException {
-        return getInstance().retrieveField(element);
+    public static Pair<JClass, JField<?>> retrieveField(ProcessingEnvironment processingEnv, VariableElement element) throws MissingAnnotationException, TendrilException {
+        return getInstance(processingEnv).retrieveField(element);
     }
 }

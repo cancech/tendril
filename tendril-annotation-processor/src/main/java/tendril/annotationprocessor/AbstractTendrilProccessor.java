@@ -177,7 +177,7 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
         validateType(element);
         
         // Load the full details of the element
-        currentClass = ElementLoader.retrieveClass(element);
+        currentClass = ElementLoader.retrieveClass(processingEnv, element);
         currentClassType = currentClass.getType();
         validateClass();
         
@@ -198,7 +198,7 @@ public abstract class AbstractTendrilProccessor extends AbstractProcessor {
      */
     private void prepareAndProcessMethod(ExecutableElement element) throws MissingAnnotationException, TendrilException {
         // Load the full details of the element
-        Pair<JClass, JMethod<?>> methodDetails = ElementLoader.retrieveMethod(element);
+        Pair<JClass, JMethod<?>> methodDetails = ElementLoader.retrieveMethod(processingEnv, element);
         currentClass = methodDetails.getLeft();
         currentClassType = currentClass.getType();
         currentMethod = methodDetails.getRight();

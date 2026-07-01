@@ -197,7 +197,7 @@ public class GeneratedBlueprintProcessor extends AbstractGeneratedAnnotationTend
 	 * @throws ClassNotFoundException
 	 */
 	private ClassType retrieveBlueprint(TypeElement annotation) throws MissingAnnotationException, TendrilException, ClassNotFoundException {
-		JClass annotationClass = ElementLoader.retrieveClass(annotation);
+		JClass annotationClass = ElementLoader.retrieveClass(processingEnv, annotation);
 		annotationType = annotationClass.getType();
 		if (blueprintCache.containsKey(annotationType))
 			return blueprintCache.get(annotationType);
