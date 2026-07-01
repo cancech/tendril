@@ -37,4 +37,11 @@ import tendril.junit5.TendrilTestExtension;
 @Target({ ElementType.TYPE })
 @ExtendWith(TendrilTestExtension.class)
 public @interface TendrilTest {
+
+	/**
+	 * Optionally can be used to define the environments that are to be applied to the {@link ApplicationContext} for the test
+	 * 
+	 * @return {@link String}[] with the environments (empty by default)
+	 */
+	String[] environments() default {};
 }

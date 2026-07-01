@@ -1,4 +1,4 @@
-package tendril.junit5;
+package tendril.junit5.beans;
 
 import tendril.bean.Bean;
 import tendril.bean.Singleton;

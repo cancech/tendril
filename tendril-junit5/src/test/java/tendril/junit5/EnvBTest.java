@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import tendril.bean.Inject;
 import tendril.bean.InjectAll;
 import tendril.context.ApplicationContext;
+import tendril.junit5.beans.EnvBBean;
+import tendril.junit5.beans.EnvBean;
 import tendril.junit5.beans.RandomBean;
 import tendril.test.TendrilTest;
 import tendril.test.assertions.ClassAssert;
@@ -17,16 +17,17 @@ import tendril.test.assertions.CollectionAssert;
 import tendril.test.context.TestEngine;
 
 /**
- * Test to ensure that a test can a {@link TendrilTest} can be executed
+ * Test to ensure that a test can a {@link TendrilTest} can apply environments
  */
-@TendrilTest
-@TestInstance(Lifecycle.PER_CLASS)
-public class ExampleTest {
+@TendrilTest(environments = {"B"})
+public class EnvBTest {
 
 	@Inject
 	ApplicationContext ctx;
 	@Inject
 	RandomBean randomBean;
+	@Inject
+	EnvBean envBean;
 	
 	@InjectAll
 	List<Object> allBeans;
@@ -36,9 +37,11 @@ public class ExampleTest {
 		Assertions.assertNotNull(ctx);
 		Assertions.assertNotNull(randomBean);
 		Assertions.assertNotNull(allBeans);
+		Assertions.assertNotNull(envBean);
 		
-		Assertions.assertEquals(2, allBeans.size());
-		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean);
+		Assertions.assertEquals(3, allBeans.size());
+		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, envBean);
 		ClassAssert.assertInstance(TestEngine.class, ctx);
+		ClassAssert.assertInstance(EnvBBean.class, envBean);
 	}
 }

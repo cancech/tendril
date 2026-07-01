@@ -11,6 +11,7 @@ import tendril.TendrilStartupException;
 import tendril.context.ApplicationContext;
 import tendril.context.ApplicationContextBuilder;
 import tendril.context.launch.TendrilRunner;
+import tendril.test.TendrilTest;
 import tendril.test.context.TestEngine;
 
 /**
@@ -33,7 +34,9 @@ public class TendrilTestExtension implements TestInstancePostProcessor, TestInst
 	@Override
 	public Object createTestInstance(TestInstanceFactoryContext factoryContext, ExtensionContext extensionContext) throws TestInstantiationException {
 		try {
-			ApplicationContextBuilder builder = new ApplicationContextBuilder(new TestEngine(factoryContext.getTestClass()));
+			Class<?> testClass = factoryContext.getTestClass();
+			ApplicationContextBuilder builder = new ApplicationContextBuilder(new TestEngine(testClass));
+			loadAnnotation(testClass, builder);
 			TestEngine engine = (TestEngine) builder.build();
 			return engine.getTestRunner();
 		} catch (Exception e) {
@@ -42,9 +45,21 @@ public class TendrilTestExtension implements TestInstancePostProcessor, TestInst
 	}
 
 	/**
+	 * Load the annotation with the details of the tendril test
+	 * 
+	 * @param testClass {@link Class} where the test is defined
+	 * @param builder   {@link ApplicationContextBuilder} where the test context is being created
+	 */
+	private void loadAnnotation(Class<?> testClass, ApplicationContextBuilder builder) {
+		TendrilTest annon = testClass.getAnnotation(TendrilTest.class);
+		builder.setEnvironments(annon.environments());
+	}
+
+	/**
 	 * TBD - kept as a placeholder for the time being.
 	 * 
-	 * @see org.junit.jupiter.api.extension.TestInstancePreConstructCallback#preConstructTestInstance(org.junit.jupiter.api.extension.TestInstanceFactoryContext, org.junit.jupiter.api.extension.ExtensionContext)
+	 * @see org.junit.jupiter.api.extension.TestInstancePreConstructCallback#preConstructTestInstance(org.junit.jupiter.api.extension.TestInstanceFactoryContext,
+	 *      org.junit.jupiter.api.extension.ExtensionContext)
 	 */
 	@Override
 	public void preConstructTestInstance(TestInstanceFactoryContext factoryContext, ExtensionContext context) throws Exception {

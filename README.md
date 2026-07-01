@@ -1032,6 +1032,27 @@ public class ExampleTest {
 
 The test class prepared in this manner be injected via `@Inject`, however it cannot provide any beans. It is however possible for beans to be prepared in the test project code (outside of the test class), whether that be as "new beans" or as replacements for a "real bean".
 
+### Customize Environments for the Test
+As the tests do not follow "normal" execution procedures, the mechanism through which environments are specified or applied in the application runtime cannot (easily) be applied to the test `ApplicationContext`. Short of executing the tests with the appropriate `-Denvironments` parameter, however this would apply the specified environments to all tests and prevent testing different environment configurations in a single test run. In other words, different test executions would need to be performed for the different desirable environment configurations, which can very quickly become unmanageable depending on how the tests are organized. To this end, the `TendrilTest` annotation allows for the desired environments to be specified on a per-test class basis via its `environments` parameter. In this way, each test class can have a different set of environments applied, allowing for quick and easy testing of different environment permutations. By default, if the parameter is not "overridden" then no environments are applied to the test.
+
+```java
+@TendrilTest
+public class NoEnvTest {
+}
+
+@TendrilTest(environments = "A")
+public class EnvATest {
+}
+
+@TendrilTest(environments = "B")
+public class EnvBTest {
+}
+
+@TendrilTest(environments = {"A", "B"})
+public class EnvAandBTest {
+}
+```
+
 ## Known Issues and Limitations
 While every effort is made to provide a fully functional capability and address all issues, there are some which have not been addressed as they would be too invasive to fix and ultimately not worth the effort at this stage. These are issues and limitations are documented here, so that the appropriate mitigation steps can be taken in the client code.
 
