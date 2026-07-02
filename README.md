@@ -1074,6 +1074,28 @@ public class PropAandBTest {
 }
 ```
 
+### Customize Duplication Blueprints
+When dynamic duplicates are to be encorporated into the test, the normal approach of simply telling the `ApplicationContextBuilder` what `BlueprintDriver` instances to employ does not work as the `ApplicationContext` is created automatically without any immediate or direct input from the client code. As such, a `@TestBlueprints` annotation is incorporated through which the test can be notified of what blueprint drivers to employ. This can be placed on a method in the test class and the unit test will automatically call it to the `BlueprintDriver`s it provides. Note there are a couple of mandatory stipulations that must be followed:
+
+1. The method must be `public` and it must be `static`.
+2. The method must return a `List<BlueprintDriver>`.
+3. The method cannot take any parameters.
+4. The name of the method is irrelevant, though must follow proper Java standards (i.e.: it has to compile of course)
+
+Failure to adhere to the above stipulations will result in an error when running the test.
+
+```java
+@TendrilTest
+public class MyTest {
+	@TestBlueprints
+	public static List<BlueprintDriver> getTestBlueprints() {
+		return Arrays.asList(new MyBlueprint("abc123"), new MyBlueprint("def456"));
+	}
+}
+```
+
+This allows for a different set of `BlueprintDriver`s to be used in different tests.
+
 ### Extending Test Classes
 It is possible to extend a base test class, such that it can both provide a common test core, as well as tackle common/shared elements. For example
 
@@ -1085,7 +1107,6 @@ public class BaseTest {
 }
 
 public class ConcreteTest extend BaseTest {
-
 	@Inject
 	MyOtherBean otherBean;
 
@@ -1098,7 +1119,42 @@ public class ConcreteTest extend BaseTest {
 }
 ```
 
-In this case both `BaseTest` and `ConcreteTest` will be executing using the `@TendrilTest` configuration with environments `A` and `B` as well as the properties `C` and `D` applied to the `ApplicationContext`. 
+In this case both `BaseTest` and `ConcreteTest` will be executing using the `@TendrilTest` configuration with environments `A` and `B` as well as the properties `C` and `D` applied to the `ApplicationContext`. The same applies to `@TestBlueprints` blueprint creation methods. All such methods which appear in the inheritance hierarchy of a given test class will be combined into a "superset" of blueprint drivers for the current class. This can be used to either create a parent class which prepares the blueprints for a number of tests
+
+```java
+public class BaseTest {
+	@TestBlueprints
+	public static List<BlueprintDriver> getTestBlueprints() {
+		return Arrays.asList(new MyBlueprint("abc123"), new MyBlueprint("def456"));
+	}
+}
+
+@TendrilTest
+public class ConcreteTest extends BaseTest {
+	// Will have the blueprints defined in BaseTest.getTestBlueprints()
+}
+```
+
+or allow for one test to "augment" the blueprints from another test.
+
+```java
+public class BaseTest {
+	@TestBlueprints
+	public static List<BlueprintDriver> getBaseBlueprints() {
+		return Arrays.asList(new MyBlueprint("abc123"), new MyBlueprint("def456"));
+	}
+}
+
+@TendrilTest
+public class ConcreteTest extends BaseTest {
+	@TestBlueprints
+	public static List<BlueprintDriver> getMoreBlueprints() {
+		return Arrays.asList(new MyBlueprint("321cba"), new MyBlueprint("654fed"));
+	}
+
+	// Will have the blueprints defined in BaseTest.getBaseBlueprints() as well as those defined in ConcreteTest.getMoreBlueprints()
+}
+```
 
 ## Known Issues and Limitations
 While every effort is made to provide a fully functional capability and address all issues, there are some which have not been addressed as they would be too invasive to fix and ultimately not worth the effort at this stage. These are issues and limitations are documented here, so that the appropriate mitigation steps can be taken in the client code.
