@@ -42,6 +42,30 @@ public class ExtendTest extends EnvATest {
 		super.reset();
 		timesExtendBlueprintsCalled = 0;
 	}
+	
+	/**
+	 * @see tendril.junit5.EnvATest#getExpectedNumBeans()
+	 */
+	@Override
+	protected int getExpectedNumBeans() {
+		return 7;
+	}
+	
+	/**
+	 * @see tendril.junit5.EnvATest#getExpectedBeans()
+	 */
+	@Override
+	protected List<Object> getExpectedBeans() {
+		return Arrays.asList(ctx, randomBean, testBean, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"), new DuplicateBean("extend_1"), new DuplicateBean("extend_2"));
+	}
+	
+	/**
+	 * @see tendril.junit5.EnvATest#getExpectedDuplicates()
+	 */
+	@Override
+	protected List<DuplicateBean> getExpectedDuplicates() {
+		return Arrays.asList(new DuplicateBean("enva_a"), new DuplicateBean("enva_b"), new DuplicateBean("extend_1"), new DuplicateBean("extend_2"));
+	}
 
 	/**
 	 * Verify that the beans have been created as expected
@@ -51,8 +75,8 @@ public class ExtendTest extends EnvATest {
 		Assertions.assertEquals(1, timesEnvABlueprintsCalled);
 		Assertions.assertEquals(1, timesExtendBlueprintsCalled);
 		ClassAssert.assertInstance(EnvABean.class, testBean);
-		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, testBean, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"), new DuplicateBean("extend_1"), new DuplicateBean("extend_2"));
-		CollectionAssert.assertEquivalent(duplicates, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"), new DuplicateBean("extend_1"), new DuplicateBean("extend_2"));
+		CollectionAssert.assertEquivalent(getExpectedBeans(), allBeans);
+		CollectionAssert.assertEquivalent(getExpectedDuplicates(), duplicates);
 	}
 
 }

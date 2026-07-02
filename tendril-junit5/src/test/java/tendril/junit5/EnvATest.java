@@ -60,6 +60,32 @@ public class EnvATest {
 
 	@InjectAll
 	List<Object> allBeans;
+	
+	/**
+	 * Get the total number of beans that are expected to be in the application context
+	 * @return int the number of beans
+	 */
+	protected int getExpectedNumBeans() {
+		return 5;
+	}
+	
+	/**
+	 * Get a list of all of the beans that are expected to be in the application context.
+	 * 
+	 * @return {@link List} of {@link Object}s representing all of the beans
+	 */
+	protected List<Object> getExpectedBeans() {
+		return Arrays.asList(ctx, randomBean, testBean, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"));
+	}
+	
+	/**
+	 * Get the duplicates that are expected to be present.
+	 * 
+	 * @return {@link List} of {@link DuplicateBean}s representing the expected duplicates
+	 */
+	protected List<DuplicateBean> getExpectedDuplicates() {
+		return Arrays.asList(new DuplicateBean("enva_a"), new DuplicateBean("enva_b"));
+	}
 
 	/**
 	 * Verify that the beans have been created as expected.
@@ -73,9 +99,9 @@ public class EnvATest {
 		Assertions.assertNotNull(allBeans);
 		Assertions.assertNotNull(testBean);
 
-		Assertions.assertEquals(5, allBeans.size());
-		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, testBean, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"));
-		CollectionAssert.assertEquivalent(duplicates, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"));
+		Assertions.assertEquals(getExpectedNumBeans(), allBeans.size());
+		CollectionAssert.assertEquivalent(getExpectedBeans(), allBeans);
+		CollectionAssert.assertEquivalent(getExpectedDuplicates(), duplicates);
 		ClassAssert.assertInstance(TestEngine.class, ctx);
 		ClassAssert.assertInstance(EnvABean.class, testBean);
 	}
