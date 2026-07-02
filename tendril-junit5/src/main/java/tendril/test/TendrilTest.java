@@ -35,7 +35,7 @@ import tendril.junit5.TendrilTestExtension;
  * To be applied to a unit test class which is to execute within an {@link ApplicationContext}
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE })
+@Target(ElementType.TYPE)
 @Inherited
 @ExtendWith(TendrilTestExtension.class)
 public @interface TendrilTest {

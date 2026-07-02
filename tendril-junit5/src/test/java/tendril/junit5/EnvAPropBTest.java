@@ -37,6 +37,9 @@ public class EnvAPropBTest {
 	@InjectAll
 	List<Object> allBeans;
 	
+	/**
+	 * Verify that the beans have been created as expected
+	 */
 	@Test
 	public void testBeansCreated() {
 		Assertions.assertNotNull(ctx);

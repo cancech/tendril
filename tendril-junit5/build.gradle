@@ -10,3 +10,11 @@ dependencies {
     implementation project(':tendril-test')
     testAnnotationProcessor project(':tendril-junit5')
 }
+
+sourceSets {
+    test {
+        java {
+            srcDirs += ["build/generated/sources/annotationProcessor/java/test"]
+        }
+    }
+}
