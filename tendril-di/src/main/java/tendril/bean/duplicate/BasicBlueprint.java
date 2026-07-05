@@ -1,9 +1,9 @@
 package tendril.bean.duplicate;
 
 /**
- * The base {@link BlueprintDriver} implementation that can be reused by dynamic blueprints
+ * The base {@link Blueprint} implementation that can be reused when defining client blueprints
  */
-public class BasicBlueprintDriver implements BlueprintDriver {
+public class BasicBlueprint implements Blueprint {
 	/** The name of the blueprint */
 	private final String name;
 	
@@ -12,12 +12,12 @@ public class BasicBlueprintDriver implements BlueprintDriver {
 	 * 
 	 * @param name {@link String} the name of the driver
 	 */
-	public BasicBlueprintDriver(String name) {
+	public BasicBlueprint(String name) {
 		this.name = name;
 	}
 
 	/**
-	 * @see tendril.bean.duplicate.BlueprintDriver#getName()
+	 * @see tendril.bean.duplicate.Blueprint#getName()
 	 */
 	@Override
 	public String getName() {

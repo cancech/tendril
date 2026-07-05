@@ -1,10 +1,8 @@
 package tempApp.lib1dup;
 
-import tendril.bean.duplicate.BasicBlueprintDriver;
-import tendril.bean.duplicate.Blueprint;
+import tendril.bean.duplicate.BasicBlueprint;
 
-@Blueprint
-public class Lib1Blueprint extends BasicBlueprintDriver {
+public class Lib1Blueprint extends BasicBlueprint {
 
 	public Lib1Blueprint(String name) {
 		super(name);

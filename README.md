@@ -490,92 +490,22 @@ List<BeanA> allMyQualifierBeanA;
 In the code snippet above `allBeanA` will contain the `BeanA` and `BeanB` beans, as both can be cast to `BeanA`. `BeanC` will not be included as there are `@Primary` (BeanA) and `Basic` (BeanB) beans that meet the injection criteria. On the other hand, `allMyQualifierBeanA` will include only `BeanC`, as that is the only bean which can be cast to `BeanA` and includes the qualifier `@MyQualifier`.
 
 ## Duplicating Beans
-It is possible to create multiple copies of "the same" bean, such that the same definition mechanism is employed for all. This takes a *cookie cutter* approach, where a *blueprint* is employed to define how many copies are to be produced and what the distinctions between them are and `Tendril` will automatically produce and provide the appropriate beans. There are two approaches which can be taken, with the only difference between them being how the blueprints are defined. Once the blueprints are defined, the rest of the mechanism surrounding them is identical.
+It is possible to create multiple copies of "the same" bean, such that the same definition mechanism is employed for all. This takes a *cookie cutter* approach, where a *blueprint* is employed to define how many copies are to be produced and what the distinctions between them are and `Tendril` will automatically produce and provide the appropriate beans. As such, the duplication process is effectively divided into three parts:
 
-### Defining Blueprints
+1. Blueprint - defines what are the details of a given duplication process (i.e.: how does one duplicate differ from another)
+2. Bean - trigger the creation of duplicates of a single "bean", such that one instance is created for every blueprint that is provided
+3. Bean Passing - pass the created duplicates either amongst themselves or to others outside of the duplication process.
 
-#### Static Blueprints
-A *static blueprint* is one where the number of copies and their details are *fixed* at compile time. Ergo, the code is written to include a fixed number of copies and those are the only copies which can ever exist for a given blueprint. It is `Enum` driven, any enum can be used - it just needs to be annotated with `@Blueprint`, with each value within the blueprint enum used to define a specific copy. Thus if three copies are desired, the enum must be defined with three values. Any desired characteristics which are unique to a given copy can be included in the enum, thus allowing for distinct variations between different copies with the only limitation being dictated by the enum construct itself.
-
-```java
-@Blueprint
-public enum MyDuplicates {
-	COPY_1("copy1"),
-	COPY_2("copy2"),
-	COPY_3("copy3");
-	
-	private final String name;
-	
-	private MyDuplicate(String name) {
-		this.name = name;
-	}
-	
-	public String getName() {
-		return name;
-	}
-}
-```
-
-From this two things will be generated: a blueprint annotation and a qualifier for each duplicate (enum value). The blueprint annotation will take the name of the enum and append `Blueprint` to it (thus `@MyDuplicatesBlueprint` in this example) and can be used instead of `@Bean` to define a bean which is to be duplicated. Note that the `quantifier` must still be included as per a regular bean.
-
-```java
-@MyDuplicatesBlueprint
-@Singleton
-public class MyBean {
-
-}
-```
-
-This will trigger the creation of as many unique beans as there are values in the enum. Any qualifiers and restrictions can be placed onto the blueprint bean as per any other bean and these will be applied to all copies. Additionally, the qualifier generated for each enum value will automatically be applied to the bean created for the specific duplicate, thus allowing external parties to retrieve the a specific instance using the qualifier (i.e.: `@COPY_1` to retrieve the duplicate created for `MyDuplicates.COPY_1` in this example). Dependencies that are outside of the duplicate can be injected as-per normal using traditional mechanisms.
-
-```java
-@MyDuplicatesBlueprint
-@Singleton
-@CustomQualifier
-@RequiresEnv("env")
-public class MyBean {
-
-	@Inject
-	@Named("abc123")
-	OtherBean otherBean;
-
-}
-```
-
-Duplicate beans can be injected as any other bean, with the distinction that there will be however many desired duplicates of the bean. As the manually applied qualifiers (including name and Enum ID) will be applied to all copies, the only way in which to uniquely distinguish one copy from the others is using the generated duplicate qualifier that is automatically applied.
-
-```java
-@Bean
-@Singleton
-public class MyConsumer {
-	
-	@Inject
-	@COPY_1
-	MyBean bean1;
-	
-	@Inject
-	@COPY_2
-	MyBean bean2;
-	
-	@Inject
-	@COPY_3
-	MyBean bean3;
-}
-```
-
-Static duplicates are far simpler to define, use, and maintain. Consequently it is recommended that they be employed, provided defining the copies using an enum is a viable option in the use case.
-
-#### Dynamic Blueprints
-Unlike *static blueprints* which are defined at compile type, *dynamic blueprints* are defined at runtime. This means that there is not a fixed number of copies in the code, nor what their specific characteristics are. Where *static duplicates* are defined by an Enum, *dynamic duplicates* are defined using a standard class with the only stipulation being that it also must be annotated with `@Blueprint` and it must implemenet the `BlueprintDriver` interface.
+### Define Blueprints
+To define a blueprint simply implement the `Blueprint` interface 
 
 ```java
 // Minimal example
-@Blueprint
-public class MyDuplicates implements BlueprintDriver {
+public class MyBlueprint implements Blueprint {
 
 	private final String name;
 	
-	public MyDuplicates(String name) {
+	public MyBlueprint(String name) {
 		this.name = name;
 	}
 	
@@ -587,18 +517,43 @@ public class MyDuplicates implements BlueprintDriver {
 }
 ```
 
-Any other/additional details can be incorporated and it will be up to the client code to perform any necessary validation and processing of the additional data. Ultimately the manner in which the details of the duplicates are presented are largely the same, however where *static blueprints* can rely on the enum values to dictate and initialize the duplication details, the same cannot apply for *dynamic blueprints*. Rather, the client code must provide the specific characteristics for each duplicate at runtime prior to starting the application. This is done via the `ApplicationContextBuilder`.
+or extend from the default implementation `BasicBlueprint`. Any other/additional details can be incorporated and it will be up to the client code to perform any necessary validation and processing of the additional data.
+
+```java
+// Minimal example
+public class MyBlueprint extends BasicBlueprint {
+
+	private final int intVal;
+	private final MyData data;
+
+	public MyBlueprint(String name, int intVal, MyData data) {
+		super(name);
+		this.intVal = intVal;
+		this.data = data;
+	}
+	
+	public int getIntValue() {
+		return intVal;
+	}
+	
+	public MyData getData() {
+		return data;
+	}
+}
+```
+
+Only the `name` is mandatory, as that is used internally within `Tendril` and when copies are created each distinct copy of a bean will be `@Named` with this name. Once the blueprint to use is defined, it must be registered with the `ApplicationContextBuilder` to ensure that the application context is aware of what instances are to be created.
 
 ```java
 ApplicationContextBuilder builder = new ApplicationContextBuilder();
-builder.addDynamicDuplicate(new MyDuplicates("abc123");
-builder.addDynamicDuplicate(new MyDuplicates("def456");
-builder.addDynamicDuplicate(new MyDuplicates("ghi789");
+builder.addBlueprint(new MyBlueprint("abc123", 123, new MyData("a", "b", "c"));
+builder.addBlueprint(new MyBlueprint("def456", 456, new MyData("d", "e", "f"));
+builder.addBlueprint(new MyBlueprint("ghi789", 789, new MyData("g", "h", "i"));
 ApplicationContext ctx = builder.build();
 ctx.start();
 ```
 
-The appropriate blueprint annotation is generated in the same manner `<class>Blueprint`, hence `@MyDuplicatesBlueprint` in this case. However, since the number and details of the blueprint copies are not known it is not possible to generate equivalent `qualifiers` for all of the copies as is the case with the *static blueprints*. Instead the `BlueprintDriver::getName()` is employed to apply a unique name to each copy for a given blueprint. This is applied in the same manner as if `@Named(BlueprintDriver::getName())` were called, and it can then also be used to retrieve unique copies for a given blueprint. To this end, it is necessary that the name be unique for every copy for a given blueprint, though the name can be reused across different blueprints.
+As mentioned, the `name` specified in the blueprint is applied in the same manner as if `@Named(BlueprintDriver::getName())` were called, and it can then also be used to retrieve unique copies for a given blueprint. To this end, it is necessary that the name be unique for every copy for a given blueprint, though the name can be reused across different types of blueprints.
 
 ```java
 ApplicationContextBuilder builder = new ApplicationContextBuilder();
@@ -617,12 +572,195 @@ ApplicationContext ctx = builder.build();
 ctx.start();
 ```
 
-##### Nested Dynamic Blueprint
-Beyond the ability to define blueprints at runtime, dynamic blueprints also allow for blueprints to support inheritance where one blueprint can inherit from another. This allows for a nesting effect where a child duplicate can expand on the details of a parent and treat the duplicates of the parent as a sibling. These can be defined in the same project, or span across projects, so long as they are on the same classpath. To do so, the parent must implement `BlueprintDriver` and be annotated with `@Blueprint` the same way as any other dynamic duplicate. _Note: A `BasicBlueprintDriver` exists which can be used handle the mandatory blueprint name._ The child blueprint can then extend the parent blueprint and add any additional values as/if necessary.
+### Duplicate Beans
+Duplicating beans largely follows the same patterns as defining regular beans, except that the `@Duplicate` annotation is employed instead of `@Bean`. `@Duplicate` requires a `Blueprint` to be specified and ultimately tells `Tendril` _"Create as many copies of this bean as exist copies of the specified blueprint"_
 
 ```java
-@Blueprint
-public class Parent extends BasicBlueprintDriver {
+@Duplicate(MyBlueprint.class)
+@Singleton
+public class MyDuplicatedBean {
+
+	// ...
+
+}
+```
+
+As such, when defining the bean it is not explicitly known how many copies (if any) of it will be created. Merely, that for every `Blueprint` of the type indicated (`MyBlueprint` in the example above) one copy of this bean will be created. When combined with `@Singleton`, each copy of the bean will be a singleton (ergo, only one copy of the duplicate will exist and will be passed around), whereas `@Factory` will create a new copy of the given duplicate each time it is accessed. In this sense the _quantifier_ works in exactly the same manner as when applied to `@Bean`, albeit there are potentially multiple distinct versions available.
+
+The same applies whether duplicating a class bean (as per above) or as a `Configuration` bean, and within a `Configuration` duplicate and non-duplicate beans can coexist within the same file.
+
+```java
+@Configuration
+public class MyConfiguration {
+
+	@Bean
+	@Singleton
+	public MyBean createMyBean() {
+		return new MyBean();
+	}
+
+	@Duplicate(MyBlueprint.class)
+	@Factory
+	public MyDuplicate createDuplicate() {
+		return new MyDuplicate();
+	}
+}
+```
+
+Note that while the `name` of the duplicate is automatically applied, any other _qualifiers_ that are applied to the bean will be applied to _all_ duplicate copies of it. As such additional _qualifiers_ can be used to differentiate one "group" of duplicates from another, but not one unique copy from within a group. The exception to this being of course `@Named`, the `@Named` qualifier cannot be applied when `@Duplicate` is employed as it is used automatically.
+
+### Injecting Duplicate Beans
+There are in essence two different approaches to duplicate bean injection: external and internal to the duplication mechanism.
+
+#### External Injection
+This is the "standard" injection, where any arbitrary bean can inject any other arbitrary bean. The only distinction being, that if the bean being injected is a duplicate, there is no way to know at compile time how many copies of it will exist. As such, it should always be approached with the understanding that _any number_ of copies of the bean may exist, meaning that a simple `@Inject` will most likely fail due to more than one instance being available. As such, `@InjectAll` should be employed instead. Given that each instance is given the `name` from the `Blueprint` in a more controlled environment it is possible to inject the concrete instance by incorporating the desired name.
+
+```java
+@Duplicate(MyBlueprint.class)
+@Singleton
+public class MyDuplicatedBean {
+
+	// ...
+
+}
+
+@Bean
+@Singleton
+public class Consumer {
+
+	@Inject
+	MyDuplicateBean bean; // Most likely will fail - will only work if there is only one MyBlueprint instance provided
+	
+	@InjectAll
+	List<MyDuplicateBean> allbeans; // Will work - all copies of MyDuplicateBean will be provided
+	
+	@Inject
+	@Named("copy1")
+	MyDuplicateBean copy1Bean; // Will only work if one instance of MyBlueprint had the name "copy1"
+
+}
+```
+
+Through the use of other qualifier, more granularity can be achieved, however the only way to inject one exact copy of a bean is through using `@Named` - meaning that the injection is highly intertwined with the blueprint configuration. This may be a viable solution in a tightly controlled situation, but not something that can be guaranteed.
+
+```java
+@Duplicate(MyBlueprint.class)
+@Singleton
+@Abc123
+public class MyDuplicatedBean implements MyInterface {
+
+	// ...
+
+}
+
+@Duplicate(MyBlueprint.class)
+@Singleton
+@Def456
+public class MyOtherDuplicatedBean implements MyInterface {
+
+	// ...
+
+}
+
+@Bean
+@Singleton
+public class Consumer {
+
+	@InjectAll
+	@Abc123
+	List<MyInterface> abc123Beans; // In effect only MyDuplicateBeans will be present
+
+	@InjectAll
+	@Def456
+	List<MyInterface> def456Beans; // In effect only MyOtherDuplicatedBeans will be present
+
+}
+```
+
+#### Internal Injection
+In this case "internal" is defined as meaning within the context of a given duplication group. In other words, injecting a bean which was created from the same blueprint instance. To achieve this, annotate the injection with `@Sibling` to make it clear, that the duplicate of the bean which belongs to the same instance of the same blueprint is desired.
+
+```java
+@Duplicate(MyBlueprint.class)
+@Singleton
+public class MyDuplicatedBean {
+
+	// ...
+
+}
+
+@Duplicate(MyBlueprint.class)
+@Singleton
+public class MyOtherDuplicatedBean {
+
+	@Inject
+	@Sibling
+	MyDuplicateBean bean;
+	
+	@Inject
+	public MyOtherDuplicatedBean(@Sibling MyDuplicateBean bean) {
+		// ...
+	}
+
+	// ...
+}
+```
+
+This approach can also be employed to retrieve the actual blueprint that was used to create the duplicate copy and it is guaranteed that each sibling bean will have access to the same instance of the same blueprint.
+
+```java
+@Duplicate(MyBlueprint.class)
+@Singleton
+public class MyDuplicatedBean {
+
+	@Inject
+	@Sibling
+	MyBlueprint blueprint;
+
+	// ...
+
+}
+
+@Duplicate(MyBlueprint.class)
+@Singleton
+public class MyOtherDuplicatedBean {
+
+	@Inject
+	@Sibling
+	MyDuplicateBean bean;
+	
+	@Inject
+	public MyOtherDuplicatedBean(@Sibling MyBlueprint blueprint, @Sibling MyDuplicateBean bean) {
+		assert(blueprint == bean.blueprint);
+	}
+
+	// ...
+}
+```
+
+Once the blueprint is injected the bean can configure itself in whatever manner required using the values contained within the blueprint.
+
+```java
+@Duplicate(MyBlueprint.class)
+@Singleton
+public class MyDuplicatedBean {
+
+	@Inject
+	public MyDuplicatedBean(@Sibling MyBlueprint blueprint) {
+		setData(blueprint.getData());
+		// ...
+	}
+
+	// ...
+
+}
+```
+
+### Nested Blueprints
+Beyond the ability to define duplicate copies, blueprints also support inheritance where one blueprint can inherit from another. This allows for a nesting effect where a child duplicate can expand on the details of a parent and treat the duplicates of the parent as a sibling. These can be defined in the same project, or span across projects, so long as they are on the same classpath. To do so, the parent must implement `Blueprint` (or extend `BasicBlueprint`) the same way as any other dynamic duplicate. The child blueprint can then extend the parent blueprint and add any additional values as necessary.
+
+```java
+public class ParentBlueprint extends BasicBlueprint {
 	private final int number;
 	
 	public Parent(String name, int number) {
@@ -635,8 +773,7 @@ public class Parent extends BasicBlueprintDriver {
 	}
 }
 
-@Blueprint
-public class Child extends Parent {
+public class ChildBlueprint extends ParentBlueprint {
 	private final double dbl;
 	
 	public Parent(String name, int number, double dbl) {
@@ -650,26 +787,26 @@ public class Child extends Parent {
 }
 ```
 
-With the blueprint hierarchy thus established, we can continue on to build up the specific bean as per any other blueprint
+With the blueprint hierarchy thus established, we can continue on to build up the specific bean as per any other blueprint.
 
 ```java
-@ParentBlueprint
+@Duplicate(ParentBlueprint.class)
 @Singleton
 public class ParentDuplicate {
 	// snip
 }
 
-@ChildBlueprint
+@Duplicate(ChildBlueprint.class)
 @Singleton
 public class ChildDuplicate {
 	// snip
 }
 ```
 
-with the expected duplicates of both `ParentDuplicate` and `ChildDuplicate` created as expected. By placing the blueprints into this hierarchy it does however mean, that for every `ChildBlueprint` a corresponding `ParentBlueprint` instance will be created, thus allowing the _parent to be injected as a sibling into the child_ and creating this nesting of duplicates.
+By placing the blueprints into this hierarchy it does however mean, that for every `ChildBlueprint` a corresponding `ParentBlueprint` instance will be created, thus allowing the _parent to be injected as a sibling into the child_ and creating this nesting of duplicates.
 
 ```java
-@ChildBlueprint
+@Duplicate(ChildBlueprint.class)
 @Singleton
 public class ChildDuplicate {
 
@@ -682,7 +819,7 @@ public class ChildDuplicate {
 Note that this is a "one way street" as there is no guarantee that every `ParentDuplicate` has a corresponding `ChildDuplicate` as there may very well be parent instances that are created independently of the child. Thus attempting to `inject` a child into the parent is only possible if there a ***guarantee*** in the client code that the only parent instances are created in response to the child duplicates.
 
 ```java
-@ParentBlueprint
+@Duplicate(ParentBlueprint.class)
 @Singleton
 public class ParentDuplicate {
 	
@@ -693,116 +830,24 @@ public class ParentDuplicate {
 
 // The will work as there are no explicit Parent duplicates
 ApplicationContextBuilder builder = new ApplicationContextBuilder();
-builder.addDynamicDuplicate(new Child("a", 1, 1.0);
-builder.addDynamicDuplicate(new Child("b", 2, 2.0);
-builder.addDynamicDuplicate(new Child("c", 3, 3.0);
+builder.addDynamicDuplicate(new ChildBlueprint("a", 1, 1.0);
+builder.addDynamicDuplicate(new ChildBlueprint("b", 2, 2.0);
+builder.addDynamicDuplicate(new ChildBlueprint("c", 3, 3.0);
 ApplicationContext ctx = builder.build();
 ctx.start();
 
 
 // Adding a single Parent duplicate will break as parent d has not corresponding child
 ApplicationContextBuilder builder = new ApplicationContextBuilder();
-builder.addDynamicDuplicate(new Child("a", 1, 1.0);
-builder.addDynamicDuplicate(new Child("b", 2, 2.0);
-builder.addDynamicDuplicate(new Child("c", 3, 3.0);
-builder.addDynamicDuplicate(new Parent("d", 4);
+builder.addDynamicDuplicate(new ChildBlueprint("a", 1, 1.0);
+builder.addDynamicDuplicate(new ChildBlueprint("b", 2, 2.0);
+builder.addDynamicDuplicate(new ChildBlueprint("c", 3, 3.0);
+builder.addDynamicDuplicate(new ParentBlueprint("d", 4);
 ApplicationContext ctx = builder.build();
 ctx.start();
 ```
 
-### Injecting the Blueprint
-Regardless of the approach taken (dynamic vs static), any unique values for the copy must be provided via the blueprint (Class or Enum) and these values need to be made available to the bean. This can be done by *injecting* the Blueprint and annotating it with `@Sibling`. This can be done via the constructor, instance field, or method.
-
-```java
-@MyDuplicatesBlueprint
-@Singleton
-public class MyBean {
-
-	@Inject
-	@Sibling
-	MyDuplicates blueprint;
-	
-	@Inject
-	MyBean(@Sibling MyDuplicates blueprint) {
-	}
-	
-	@Inject
-	void doSomething(@Sibling MyDuplicates blueprint) {
-	}
-
-}
-```
-
-This will inject the specific Blueprint instance that was used to produce the copy, and it can then be used within the bean in whatever manner necessary to configure or otherwise handle itself appropriately.
-
-### Injecting Sibling Beans
-If an explicit instance of a duplicate bean is required, then the qualifier of the duplicate can be used directly (whether within a duplicate or outside of it).
-
-```java
-@MyDuplicatesBlueprint
-@Singleton
-public class BeanA {
-
-}
-
-@MyDuplicatesBlueprint
-@Singleton
-public class BeanB {
-
-	@Inject
-	@COPY_1 // This will always inject the COPY_1 instance of BeanA
-	BeanA beanA;
-}
-```
-
-However, when it becomes necessary to inject other beans which belong to the same sibling this will fall short as this is hardcoded to a given instance. If the duplicate belong to the same sibling is required, then the `@Sibling` annotation can be employed. This will provide the instance of the bean which belongs to the same copy.
-
-```java
-@MyDuplicatesBlueprint
-@Singleton
-public class BeanA {
-
-}
-
-@MyDuplicatesBlueprint
-@Singleton
-public class BeanB {
-
-	@Inject
-	@Sibling
-	BeanA beanA;
-}
-```
-
-Thus, now when `BeanB` is created for `COPY_1` then `COPY_1` instance of `BeanA` will be provided (and so on for `COPY_2`, `COPY_3`, and so on).
-
-Note that this mechanism relies on simply *replacing* the `@Sibling` with the appropriate qualifier for the sibling, meaning that appropriate differentiation techniques must still be employed if there are multiple copies of the bean within the sibling.
-
-```java
-@MyDuplicatesBlueprint
-@Singleton
-@Primary // Prioritize BeanA over ChildA for injection
-public class BeanA {
-
-}
-
-@MyDuplicatesBlueprint
-@Singleton
-public class ChildA extends BeanA {
-
-}
-
-@MyDuplicatesBlueprint
-@Singleton
-public class BeanB {
-
-	@Inject
-	@Sibling
-	BeanA beanA;
-	// Without making BeanA @Primary, Tendril will report an error during injection
-	// as both BeanA and ChildA will be valid injections
-}
-```
+Or to put it more accurately, `Tendril` will make every effort to fulfill the sibling injection, however if there any `ParentBlueprints` created independently of `ChildBlueprint`, then attempting to inject the `ChildBlueprint` derived sibling into the `ParentBlueprint` derived bean will fail. As such, this is not something that should be done, unless in a very controlled environment (and at that point it would probably be a better idea to simply merge the two blueprints to avoid this issue in the future).
 
 ## Replacing Beans
 There are situations where different beans are to be used in different circumstances (i.e.: database connection in production and a flat-file loader in dev/test). One option to achieve this would be to use _requirements_, such that a different environment is applied in different circumstances. While this will definitely achieve the desired goal, it can become a bit cumbersome. Specifically the different environments must be applied to the beans and then specified when launching the application, opening the door to errors that commonly occur when values are defined/applied in multiple places. It can also lack the finesse to target specific individual beans, namely all beans employing a different environment are impacted rather than just the specific individual bean that may be desired. In order to target a specific bean, an environment must be defined/applied for that specific bean, which can see the number of environments grow to unmanageable levels very quickly. The other major problem with this approach, is that this only work if you are in a position to modify the original bean. If you are loading a bean from a library that you do not control, you have no ability to add a environmental requirement to said bean.

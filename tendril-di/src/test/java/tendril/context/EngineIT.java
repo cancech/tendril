@@ -27,7 +27,7 @@ import org.mockito.Mockito;
 
 import tendril.BeanReplacementException;
 import tendril.BeanRetrievalException;
-import tendril.bean.duplicate.BlueprintDriver;
+import tendril.bean.duplicate.Blueprint;
 import tendril.bean.qualifier.Descriptor;
 import tendril.processor.registration.RegistryFile;
 import tendril.processor.registration.ReplacementRegistryFile;
@@ -77,7 +77,7 @@ import tendril.test.recipe.TestConfigRecipe;
 public class EngineIT extends AbstractUnitTest {
 
 	// Blueprint Drivers to use for testing
-	private interface Level1 extends BlueprintDriver {
+	private interface Level1 extends Blueprint {
 	}
 
 	private interface Level2 extends Level1 {
@@ -86,7 +86,7 @@ public class EngineIT extends AbstractUnitTest {
 	private interface Level3 extends Level2 {
 	}
 
-	private interface SeparateLevel1 extends BlueprintDriver {
+	private interface SeparateLevel1 extends Blueprint {
 	}
 
 	private interface SeparateLevel2 extends SeparateLevel1 {
@@ -673,23 +673,23 @@ public class EngineIT extends AbstractUnitTest {
 	 */
 	@Test
 	public void testDynamicBlueprints() {
-		engine.addDynamicBlueprint(mockLevel11Driver);
-		engine.addDynamicBlueprint(mockLevel12Driver);
-		engine.addDynamicBlueprint(mockLevel21Driver);
-		engine.addDynamicBlueprint(mockLevel22Driver);
-		engine.addDynamicBlueprint(mockLevel31Driver);
-		engine.addDynamicBlueprint(mockLevel32Driver);
-		engine.addDynamicBlueprint(mockSeparateLevel11Driver);
-		engine.addDynamicBlueprint(mockSeparateLevel12Driver);
-		engine.addDynamicBlueprint(mockSeparateLevel21Driver);
-		engine.addDynamicBlueprint(mockSeparateLevel22Driver);
+		engine.addBlueprint(mockLevel11Driver);
+		engine.addBlueprint(mockLevel12Driver);
+		engine.addBlueprint(mockLevel21Driver);
+		engine.addBlueprint(mockLevel22Driver);
+		engine.addBlueprint(mockLevel31Driver);
+		engine.addBlueprint(mockLevel32Driver);
+		engine.addBlueprint(mockSeparateLevel11Driver);
+		engine.addBlueprint(mockSeparateLevel12Driver);
+		engine.addBlueprint(mockSeparateLevel21Driver);
+		engine.addBlueprint(mockSeparateLevel22Driver);
 
 		CollectionAssert.assertEquivalent(engine.getBlueprints(Level3.class), mockLevel31Driver, mockLevel32Driver);
 		CollectionAssert.assertEquivalent(engine.getBlueprints(Level2.class), mockLevel21Driver, mockLevel22Driver, mockLevel31Driver, mockLevel32Driver);
 		CollectionAssert.assertEquivalent(engine.getBlueprints(Level1.class), mockLevel11Driver, mockLevel12Driver, mockLevel21Driver, mockLevel22Driver, mockLevel31Driver, mockLevel32Driver);
 		CollectionAssert.assertEquivalent(engine.getBlueprints(SeparateLevel2.class), mockSeparateLevel21Driver, mockSeparateLevel22Driver);
 		CollectionAssert.assertEquivalent(engine.getBlueprints(SeparateLevel1.class), mockSeparateLevel11Driver, mockSeparateLevel12Driver, mockSeparateLevel21Driver, mockSeparateLevel22Driver);
-		CollectionAssert.assertEquivalent(engine.getBlueprints(BlueprintDriver.class), mockLevel11Driver, mockLevel12Driver, mockLevel21Driver, mockLevel22Driver, mockLevel31Driver, mockLevel32Driver,
+		CollectionAssert.assertEquivalent(engine.getBlueprints(Blueprint.class), mockLevel11Driver, mockLevel12Driver, mockLevel21Driver, mockLevel22Driver, mockLevel31Driver, mockLevel32Driver,
 				mockSeparateLevel11Driver, mockSeparateLevel12Driver, mockSeparateLevel21Driver, mockSeparateLevel22Driver);
 	}
 

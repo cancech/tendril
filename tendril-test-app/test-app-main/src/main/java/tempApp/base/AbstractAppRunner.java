@@ -20,15 +20,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import tempApp.COPY_1;
-import tempApp.COPY_2;
-import tempApp.COPY_3;
-import tempApp.DuplicationDetails;
-import tempApp.EnumDuplicate;
+import tempApp.DuplicationBlueprint;
+import tempApp.EnumBlueprint;
 import tempApp.ExceptionCtorBean;
 import tempApp.FactoryClass;
 import tempApp.GenericWrapper;
 import tempApp.Lib2DataStruct;
+import tempApp.Lib2StaticBean;
 import tempApp.ManualBean;
 import tempApp.Message;
 import tempApp.MultiEnvBean;
@@ -38,10 +36,11 @@ import tempApp.PrimitiveGenericWrapperConsumer;
 import tempApp.PriorityConfig;
 import tempApp.RunnableConfig;
 import tempApp.SingletonClass;
-import tempApp.StaticDuplicate;
+import tempApp.StaticBlueprint;
 import tempApp.StringWrapper;
 import tempApp.TempQualifier;
 import tempApp.duplicate.DynamicDuplicate;
+import tempApp.duplicate.Lib1DuplicateBean;
 import tempApp.duplicate.Printer;
 import tempApp.duplicate.StaticDuplicateBean;
 import tempApp.duplicate.StaticDuplicateBean2;
@@ -190,47 +189,47 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	protected List<StringWrapper> allMessageStringWrapeprs;
 
 	@Inject
-	@COPY_1
+	@Named("COPY_1")
 	StaticDuplicateBean bean1Copy1;
 	@Inject
-	@COPY_2
+	@Named("COPY_2")
 	public StaticDuplicateBean bean1Copy2;
 	@Inject
-	@COPY_3
+	@Named("COPY_3")
 	private StaticDuplicateBean bean1Copy3;
 	@InjectAll
 	protected List<StaticDuplicateBean> allBean1Copies;
 	@Inject
-	@COPY_1
+	@Named("COPY_1")
 	StaticDuplicateBean2 bean2Copy1;
 	@Inject
-	@COPY_2
+	@Named("COPY_2")
 	public StaticDuplicateBean2 bean2Copy2;
 	@Inject
-	@COPY_3
+	@Named("COPY_3")
 	private StaticDuplicateBean2 bean2Copy3;
 	@InjectAll
 	protected List<StaticDuplicateBean2> allBean2Copies;
 	@Inject
-	@COPY_1
+	@Named("COPY_1")
 	StaticDuplicateBean3 bean3Copy1;
 	@Inject
-	@COPY_2
+	@Named("COPY_2")
 	public StaticDuplicateBean3 bean3Copy2;
 	@Inject
-	@COPY_3
+	@Named("COPY_3")
 	private StaticDuplicateBean3 bean3Copy3;
 	@InjectAll
 	protected List<StaticDuplicateBean3> allBean3Copies;
 
 	@Inject
-	@COPY_1
+	@Named("COPY_1")
 	StringInterface strIf1;
 	@Inject
-	@COPY_2
+	@Named("COPY_2")
 	public StringInterface strIf2;
 	@Inject
-	@COPY_3
+	@Named("COPY_3")
 	private StringInterface strIf3;
 	@InjectAll
 	protected List<StringInterface> strIfaces;
@@ -242,6 +241,10 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	public List<DynamicDuplicate> dynamicDuplicates;
 	@InjectAll
 	private List<ParentDuplicate> parentDuplicates;
+	@InjectAll
+	private List<Lib1DuplicateBean> lib1DuplicatesFromLib2;
+	@InjectAll
+	private List<Lib2StaticBean> lib2DuplicatesFromApp; 
 	
 	@Inject
 	protected Original originalBean;
@@ -280,12 +283,12 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	private ExceptionCtorBean exCtorBean;
 
 	private final int numOfClassDuplicates;
-	private final DuplicationDetails[] expectedDynamicDuplicates;
+	private final DuplicationBlueprint[] expectedDynamicDuplicates;
 
 	private FactoryClass factoryBean5;
 	private final Class<? extends AbstractAppRunner> actualRunner;
 
-	protected AbstractAppRunner(Class<? extends AbstractAppRunner> concreteRunner, int numOfClassDuplicates, DuplicationDetails... dynamicDuplicateDetails) {
+	protected AbstractAppRunner(Class<? extends AbstractAppRunner> concreteRunner, int numOfClassDuplicates, DuplicationBlueprint... dynamicDuplicateDetails) {
 		this.actualRunner = concreteRunner;
 		this.numOfClassDuplicates = numOfClassDuplicates;
 		this.expectedDynamicDuplicates = dynamicDuplicateDetails;
@@ -487,7 +490,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 
 		// Make sure that the dynamic duplicates are all accounted for
 		assertion(dynamicDuplicates.size() == expectedDynamicDuplicates.length, "Expected to receive " + expectedDynamicDuplicates.length + " copies, but received " + dynamicDuplicates.size());
-		for (DuplicationDetails d : expectedDynamicDuplicates) {
+		for (DuplicationBlueprint d : expectedDynamicDuplicates) {
 			String dName = d.getName();
 			boolean found = false;
 			for (DynamicDuplicate dAll : dynamicDuplicates) {
@@ -509,8 +512,8 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		RunnableConfig.assertTimesMethodInjectCalled(1);
 		
 		// Verify the printers
-		int expectedPrinters = expectedDynamicDuplicates.length + StaticDuplicate.values().length // What is explicitly provided individually outside of configs
-				+ (numOfClassDuplicates + expectedDynamicDuplicates.length + StaticDuplicate.values().length + EnumDuplicate.values().length + 3) * 3; // what is provided by the combined configs 
+		int expectedPrinters = expectedDynamicDuplicates.length + StaticBlueprint.values().length // What is explicitly provided individually outside of configs
+				+ (numOfClassDuplicates + expectedDynamicDuplicates.length + StaticBlueprint.values().length + EnumBlueprint.values().length + 3) * 3; // what is provided by the combined configs 
 		int actualPrinters = allPrinters.size();
 		assertion(actualPrinters == expectedPrinters, "Expected " + expectedPrinters + " printer, but received " + actualPrinters);
 		for (Printer p: allPrinters)
@@ -519,11 +522,11 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		int childSize = dynamicDuplicates.size();
 		int parentSize = parentDuplicates.size();
 		assertion(childSize == parentSize, "Should have " + childSize + " parent duplicates, but have " + parentSize);
-		
 		for (DynamicDuplicate d: dynamicDuplicates) {
 			boolean found = false;
+			DuplicationBlueprint details = d.getBlueprint();
 			for (ParentDuplicate p: parentDuplicates) {
-				if (p.isSameBlueprint(d.getBlueprint())) {
+				if (p.isSameBlueprint(details)) {
 					found = true;
 					break;
 				}
@@ -531,6 +534,27 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 			
 			assertion(found, "Unable to find parent duplicate for " + d.getName());
 		}
+
+		int lib2Size = lib1DuplicatesFromLib2.size();
+		assertion(parentSize == lib2Size, "Should have " + parentSize + " Lib1Lib2 duplicates, but have " + lib2Size);
+		
+		for (ParentDuplicate p: parentDuplicates) {
+			boolean found = false;
+			String pName = p.getBlueprint().getName();
+			for (Lib1DuplicateBean b: lib1DuplicatesFromLib2) {
+				if (b.getName().equals(pName)) {
+					found = true;
+					break;
+				}
+			}
+			
+			assertion(found, "Unable to find parent duplicate for " + pName);
+		}
+		
+		int lib2StaticAppSize = lib2DuplicatesFromApp.size();
+		int numEnums = StaticBlueprint.values().length;
+		assertion(lib2StaticAppSize == numEnums, "Should have " + numEnums + " App duplicates duplicates, but have " + lib2StaticAppSize);
+		
 
 		assertion(originalBean instanceof Replace, "originalBean should be instance of Replace");
 		assertion(originalBean2 instanceof Replace, "originalBean2 should be instance of Replace");

@@ -275,7 +275,7 @@ public class ClassConverter {
             try {
                 builder.addAnnotation(buildAnnotation(deriveClassData(annonElement), m, annonElement, new ArrayList<>()));
             } catch (DefinitionException ex) {
-                throw new MissingAnnotationException(m.getAnnotationType(), element);
+                throw new MissingAnnotationException(m.getAnnotationType(), element, ex);
             }
         }
     }

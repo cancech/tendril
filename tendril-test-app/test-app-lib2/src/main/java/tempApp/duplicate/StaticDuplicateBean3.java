@@ -1,14 +1,14 @@
 package tempApp.duplicate;
 
 import tempApp.Message;
-import tempApp.StaticDuplicate;
-import tempApp.StaticDuplicateBlueprint;
+import tempApp.StaticBlueprint;
 import tendril.bean.Inject;
 import tendril.bean.Singleton;
+import tendril.bean.duplicate.Duplicate;
 import tendril.bean.duplicate.Sibling;
 import tendril.bean.qualifier.Named;
 
-@StaticDuplicateBlueprint
+@Duplicate(StaticBlueprint.class)
 @Singleton
 public class StaticDuplicateBean3 {
 
@@ -25,11 +25,11 @@ public class StaticDuplicateBean3 {
 	@Sibling
 	StaticDuplicateBean2 bean2;
 	
-	private final StaticDuplicate blueprint;
+	private final StaticBlueprint blueprint;
 	private final String ctorMsg;
 	private final StaticDuplicateBean ctorBean;
 	
-	StaticDuplicateBean3(@Sibling StaticDuplicate blueprint, @Message String msg, @Sibling @Named("StaticDuplicateBean") StaticDuplicateBean ctorBean) {
+	StaticDuplicateBean3(@Sibling StaticBlueprint blueprint, @Message String msg, @Sibling @Named("StaticDuplicateBean") StaticDuplicateBean ctorBean) {
 		this.blueprint = blueprint;
 		ctorMsg = msg;
 		this.ctorBean = ctorBean;

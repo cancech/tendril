@@ -14,7 +14,10 @@ import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Bean;
 import tendril.test.AbstractUnitTest;
 
-public class GeneratedBlueprintProcessorTest extends AbstractUnitTest {
+/**
+ * Test case for the {@link DuplicateProcessor}
+ */
+public class DuplicateProcessorTest extends AbstractUnitTest {
 	
 	// Mocks to use for testing
 	@Mock
@@ -25,12 +28,12 @@ public class GeneratedBlueprintProcessorTest extends AbstractUnitTest {
 	private Name mockName;
 	
 	// Instance to test
-	private GeneratedBlueprintProcessor processor;
+	private DuplicateProcessor processor;
 	
 	/**
 	 * Test override to force the currentAnnotation without needing extensive mocking
 	 */
-	private class TestGeneratedBlueprintProcessor extends GeneratedBlueprintProcessor {
+	private class TestGeneratedBlueprintProcessor extends DuplicateProcessor {
 		
 		private TestGeneratedBlueprintProcessor() {
 			currentAnnotation = mockAnnotation;

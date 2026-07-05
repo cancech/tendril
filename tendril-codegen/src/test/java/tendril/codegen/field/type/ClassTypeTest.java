@@ -139,7 +139,6 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 		Assertions.assertFalse(create(String.class).isTypeOf(123));
 		Assertions.assertFalse(create(ClassType.class).isTypeOf(new JGeneric()));
 		Assertions.assertFalse(type.isTypeOf(create(JGeneric.class)));
-		Assertions.assertFalse(type.isTypeOf(buildClass(new ClassType("a.b.c", "D"))));
 		Assertions.assertFalse(type.isTypeOf(new JBase("") {
 			@Override
 			public String generateSelf(Set<ClassType> classImports) {
@@ -167,6 +166,7 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 		Assertions.assertTrue(type.isTypeOf(buildClass(JParameter.class)));
 		Assertions.assertTrue(type.isTypeOf(buildClass(JVisibleType.class)));
 		Assertions.assertTrue(type.isTypeOf(buildClass(JClass.class)));
+		Assertions.assertTrue(type.isTypeOf(buildClass(new ClassType("a.b.c", "D")))); // Assumption true since the RHS class doesn't exist
 	}
 
 	/**
@@ -207,22 +207,36 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	 * Verify that the assignment check is properly performed
 	 */
 	@Test
-	public void testAssignableFrom() {
+	public void testAssignableFromLhsDoesntExist() {
 		ClassType lhs = new ClassType("a.b.c.d", "E");
 
-		// These are expected to fail
+		// Since lhs doesn't exist, everything will be assumed to be true
+		for (PrimitiveType pd : PrimitiveType.values())
+			Assertions.assertTrue(lhs.isAssignableFrom(pd));
+		Assertions.assertTrue(lhs.isAssignableFrom(VoidType.INSTANCE));
+		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType("a.b.c", "D")));
+		Assertions.assertTrue(lhs.isAssignableFrom(create(JType.class)));
+		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType("a.b.c.d", "e")));
+		Assertions.assertTrue(lhs.isAssignableFrom(create(JVisibleType.class)));
+		Assertions.assertTrue(lhs.isAssignableFrom(create(JField.class)));
+		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType("a.b.c.d", "E")));
+	}
+
+	/**
+	 * Verify that the assignment check is properly performed
+	 */
+	@Test
+	public void testAssignableFromLhsDoesExist() {
+		ClassType lhs = create(JType.class);
+
+		// Expected to fail
 		for (PrimitiveType pd : PrimitiveType.values())
 			Assertions.assertFalse(lhs.isAssignableFrom(pd));
 		Assertions.assertFalse(lhs.isAssignableFrom(VoidType.INSTANCE));
-		Assertions.assertFalse(lhs.isAssignableFrom(new ClassType("a.b.c", "D")));
-		Assertions.assertFalse(lhs.isAssignableFrom(create(JType.class)));
-		Assertions.assertFalse(lhs.isAssignableFrom(new ClassType("a.b.c.d", "e")));
-		Assertions.assertFalse(lhs.isAssignableFrom(create(JVisibleType.class)));
-		Assertions.assertFalse(lhs.isAssignableFrom(create(JField.class)));
+		Assertions.assertFalse(lhs.isAssignableFrom(create(Integer.class)));
 
-		// These are expected to pass
-		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType("a.b.c.d", "E")));
-		lhs = create(JType.class);
+		// Expected to pass
+		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType("a.b.c.d", "E"))); // Assumed to pass since rhs doesn't exist
 		Assertions.assertTrue(lhs.isAssignableFrom(create(JType.class)));
 		Assertions.assertTrue(lhs.isAssignableFrom(new ClassType(JType.class.getPackageName(), JType.class.getSimpleName())));
 		Assertions.assertTrue(lhs.isAssignableFrom(create(JVisibleType.class)));
@@ -241,7 +255,6 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 		for (PrimitiveType pd : PrimitiveType.values())
 			Assertions.assertFalse(lhs.isAssignableFrom(pd));
 		Assertions.assertFalse(lhs.isAssignableFrom(VoidType.INSTANCE));
-		Assertions.assertFalse(lhs.isAssignableFrom(buildClass(new ClassType("a.b.c", "D"))));
 		Assertions.assertFalse(lhs.isAssignableFrom(buildClass(VoidType.class)));
 
 		// Expected to pass
@@ -251,6 +264,7 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 		Assertions.assertTrue(lhs.isAssignableFrom(buildClass(JType.class)));
 		Assertions.assertTrue(lhs.isAssignableFrom(buildClass(JVisibleType.class)));
 		Assertions.assertTrue(lhs.isAssignableFrom(buildClass(JField.class)));
+		Assertions.assertTrue(lhs.isAssignableFrom(buildClass(new ClassType("a.b.c", "D")))); // Assumption is true since the RHS doesn't exist
 
 		// When generics are different, can't assign
 		lhs = create(List.class);

@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -90,7 +89,8 @@ public class AbstractRecipeTest extends AbstractUnitTest {
 
         @Override
         public SingleCtorBean get() {
-            throw new NotImplementedException("Not required for testing");
+        	Assertions.fail("Not required for testing");
+        	return null;
         }
         
         public void assertDescriptorSetup() {

@@ -15,16 +15,13 @@
  */
 package tendril.context;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.TendrilStartupException;
-import tendril.bean.duplicate.BlueprintDriver;
+import tendril.bean.duplicate.Blueprint;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -35,7 +32,7 @@ public class ApplicationContextBuilderTest extends AbstractUnitTest {
 	/**
 	 * Blueprint enum to use for testing. Should cause an exception when added as a dynamic blueprint
 	 */
-	private enum EnumBlueprint implements BlueprintDriver {
+	private enum EnumBlueprint implements Blueprint {
 		COPY_1, COPY_2;
 		
 		@Override
@@ -49,11 +46,11 @@ public class ApplicationContextBuilderTest extends AbstractUnitTest {
     @Mock
     private Engine mockEngine;
     @Mock
-    private BlueprintDriver mockBlueprint1;
+    private Blueprint mockBlueprint1;
     @Mock
-    private BlueprintDriver mockBlueprint2;
+    private Blueprint mockBlueprint2;
     @Mock
-    private BlueprintDriver mockBlueprint3;
+    private Blueprint mockBlueprint3;
 
     // Instance to test
     private ApplicationContextBuilder ctx;
@@ -82,36 +79,24 @@ public class ApplicationContextBuilderTest extends AbstractUnitTest {
      * Verify that dynamic blueprints are properly handled
      */
     @Test
-    public void testAddDynamicBlueprints() {
+    public void testAddBlueprints() {
     	// Can add one blueprint
-    	ctx.addDynamicBlueprint(mockBlueprint1);
-    	verify(mockEngine).addDynamicBlueprint(mockBlueprint1);
+    	ctx.addBlueprint(mockBlueprint1);
+    	verify(mockEngine).addBlueprint(mockBlueprint1);
     	
-    	// Enums are rejected
+    	// Can add enum based blueprints
     	for (EnumBlueprint b: EnumBlueprint.values()) {
-    		Assertions.assertThrows(TendrilStartupException.class, () -> ctx.addDynamicBlueprint(b));
-        	verify(mockEngine, never()).addDynamicBlueprint(any(EnumBlueprint.class));
+    		ctx.addBlueprint(b);
+        	verify(mockEngine).addBlueprint(b);
     	}
 
     	// Can add a second blueprint
-    	ctx.addDynamicBlueprint(mockBlueprint2);
-    	verify(mockEngine).addDynamicBlueprint(mockBlueprint2);
-
-    	// Enums are rejected
-    	for (EnumBlueprint b: EnumBlueprint.values()) {
-    		Assertions.assertThrows(TendrilStartupException.class, () -> ctx.addDynamicBlueprint(b));
-        	verify(mockEngine, never()).addDynamicBlueprint(any(EnumBlueprint.class));
-    	}
+    	ctx.addBlueprint(mockBlueprint2);
+    	verify(mockEngine).addBlueprint(mockBlueprint2);
 
     	// Can add a third blueprint
-    	ctx.addDynamicBlueprint(mockBlueprint3);
-    	verify(mockEngine).addDynamicBlueprint(mockBlueprint3);
-
-    	// Enums are rejected
-    	for (EnumBlueprint b: EnumBlueprint.values()) {
-    		Assertions.assertThrows(TendrilStartupException.class, () -> ctx.addDynamicBlueprint(b));
-        	verify(mockEngine, never()).addDynamicBlueprint(any(EnumBlueprint.class));
-    	}
+    	ctx.addBlueprint(mockBlueprint3);
+    	verify(mockEngine).addBlueprint(mockBlueprint3);
     }
     
     /**

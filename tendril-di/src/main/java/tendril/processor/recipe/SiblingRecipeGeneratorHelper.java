@@ -1,13 +1,10 @@
 package tendril.processor.recipe;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.processing.Messager;
 
 import tendril.annotationprocessor.exception.InvalidConfigurationException;
-import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.duplicate.Sibling;
 import tendril.bean.qualifier.Named;
 import tendril.bean.recipe.Injector;
@@ -19,10 +16,6 @@ import tendril.codegen.classes.FieldBuilder;
 import tendril.codegen.classes.JParameter;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.TypeFactory;
-import tendril.codegen.generics.GenericFactory;
-import tendril.processor.BlueprintProcessor;
-import tendril.util.TendrilStringUtil;
 
 /**
  * Helper which centralized the necessary code for the generation of sibling recipes. This is not a generator as such, but rather container the appropriate features to allow a generator to produce the
@@ -36,8 +29,6 @@ class SiblingRecipeGeneratorHelper {
 	private final ClassType beanType;
 	/** The type of the enum which drives the duplication */
 	private final ClassType blueprintType;
-	/** Flag for whether the blueprint is enum derived */
-	private final boolean derivedFromEnum;
 	/** Messager through which to provide "proper" feedback */
 	private final Messager messager;
 	/** The generator which is preparing the recipe proper */
@@ -58,8 +49,6 @@ class SiblingRecipeGeneratorHelper {
 		this.blueprintType = blueprintType;
 		this.messager = messager;
 		this.generator = generator;
-
-		derivedFromEnum = BlueprintProcessor.isEnumDerived(blueprintType);
 	}
 
 	/**
@@ -71,8 +60,6 @@ class SiblingRecipeGeneratorHelper {
 	void addInstanceFields(ClassBuilder builder) throws InvalidConfigurationException {
 		// Instance field for the type that is being built
 		addSiblingCopyField(builder);
-		// Instance field for the map of qualifying annotations for each copy
-		addQualifierMap(builder);
 	}
 
 	/**
@@ -83,36 +70,6 @@ class SiblingRecipeGeneratorHelper {
 	private void addSiblingCopyField(ClassBuilder builder) {
 		FieldBuilder<ClassType> fieldBuilder = builder.buildField(blueprintType, "siblingCopy").setVisibility(VisibilityType.PRIVATE).setFinal(true);
 		fieldBuilder.finish();
-	}
-
-	/**
-	 * Add the {@code copyQualifiers} map if it is appropriate to do so.
-	 * 
-	 * @param builder {@link ClassBuilder} where the class is being assembled
-	 * @throws InvalidConfigurationException if the annotated code is improperly configured
-	 */
-	private void addQualifierMap(ClassBuilder builder) throws InvalidConfigurationException {
-		if (!derivedFromEnum)
-			return;
-
-		// Instance field for the map of qualifying annotations for each copy
-		try {
-			generator.addImport(Map.class);
-			List<ClassType> generatedAnnotations = BlueprintProcessor.getGeneratedAnnotations(blueprintType);
-			List<String> mappings = new ArrayList<>();
-			for (ClassType aType : generatedAnnotations) {
-				generator.addImport(aType);
-				mappings.add("\"" + aType.getClassName() + "\", " + RecipeGeneratorHelper.getClassReference(aType));
-			}
-
-			ClassType qualifierClass = TypeFactory.createClassType(Class.class, GenericFactory.createWildcard());
-			ClassType mapType = TypeFactory.createClassType(Map.class, GenericFactory.create(TypeFactory.createClassType(String.class)), GenericFactory.create(qualifierClass));
-
-			builder.buildField(mapType, "copyQualifiers").setVisibility(VisibilityType.PRIVATE).setFinal(true).setCustomInitialization("Map.of(" + TendrilStringUtil.join(mappings) + ")").finish();
-		} catch (TendrilException ex) {
-			messager.printError("No blueprint qualifier annotations exist for " + blueprintType.getFullyQualifiedName());
-			throw new InvalidConfigurationException("No blueprint qualifier annotations exist for " + blueprintType.getFullyQualifiedName(), ex);
-		}
 	}
 
 	/**
@@ -128,12 +85,7 @@ class SiblingRecipeGeneratorHelper {
 		checkIfNamed(creator);
 
 		// This must be done here rather than as part of setupDescriptor as siblingCopy is not yet initialized in setupDescriptor
-		String siblingDescription = "getDescription().setBlueprint(this.siblingCopy)";
-		if (derivedFromEnum)
-			siblingDescription += ".addQualifier(copyQualifiers.get(this.siblingCopy.name()));";
-		else
-			siblingDescription += ".setName(this.siblingCopy.getName());";
-		ctorCode.add(siblingDescription);
+		ctorCode.add("getDescription().setBlueprint(this.siblingCopy).setName(this.siblingCopy.getName());");
 	}
 
 	/**
@@ -184,10 +136,7 @@ class SiblingRecipeGeneratorHelper {
 		checkIfNamed(element);
 
 		lines.add("setBlueprint(this.siblingCopy)");
-		if (derivedFromEnum)
-			lines.add("addQualifier(copyQualifiers.get(this.siblingCopy.name()))");
-		else
-			lines.add("setName(this.siblingCopy.getName())");
+		lines.add("setName(this.siblingCopy.getName())");
 	}
 
 	/**
@@ -196,7 +145,7 @@ class SiblingRecipeGeneratorHelper {
 	 * @param element {@link JBase} to check
 	 */
 	private void checkIfNamed(JBase element) {
-		if (!derivedFromEnum && creator.hasAnnotation(Named.class)) {
+		if (creator.hasAnnotation(Named.class)) {
 			messager.printWarning(element.getFullElementPath() + " has an @Named annotation applied when it is to be derived from the blueprint " + blueprintType);
 		}
 	}

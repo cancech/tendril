@@ -1,30 +1,18 @@
-/*
- * Copyright 2024 Jaroslav Bosak
- *
- * Licensed under the MIT License (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * https://opensource.org/license/MIT
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package tendril.bean.duplicate;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * Marks an {@link Enum} as a blueprint for bean duplication
+ * Interface which "marks" a class as one which will provide the details of duplication and thus drive the creation of duplicates. At a bare minimum a name must be provided (as that is required by
+ * {@code Tendril}), however when implemented/extended any number of additional parameters/fields can be provided. The bean which is to be duplicated must be annotated with @{@link Duplicate} and
+ * the specific/concrete blueprint class indicated. The {@code Blueprint} instance which triggered the creation of the duplicate can be injected into the duplicate instance via @{@link Sibling} 
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Blueprint {
+public interface Blueprint {
 
+	/**
+	 * Get the name for the {@link Sibling}. Note that the {@code Name} <b>must be unique</b> for a given {@code Blueprint} implementation. This means that every class that implements
+	 * {@code Blueprint} (whether directly or indirectly) must supply a unique name within the context of that class. What this means in practice is that while different {@code Blueprints} can reuse
+	 * names, errors will be thrown if it is reused within the same {@code Blueprint} class.
+	 * 
+	 * @return {@link String} name of the {@link Sibling}
+	 */
+	String getName();
 }

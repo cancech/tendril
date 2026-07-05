@@ -158,8 +158,9 @@ public class ClassType extends JGeneric implements Type {
     		}
     		return matchingGenerics && getDefinedClass().isAssignableFrom(otherClass);
     	} catch (ClassNotFoundException ex) {
-    		// Failure to load one class (or the other) means that we cannot definitively way whether the two are assignable
-    		return false;
+    		// Failure to load one class (or the other) means that we cannot definitively way whether the two are assignable.
+    		// Assume that they are and leave it up to the compiler to figure out for sure.
+    		return true;
     	}
     }
     

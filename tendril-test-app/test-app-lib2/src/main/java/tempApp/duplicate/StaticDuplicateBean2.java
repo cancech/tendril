@@ -1,13 +1,13 @@
 package tempApp.duplicate;
 
 import tempApp.Message;
-import tempApp.StaticDuplicate;
-import tempApp.StaticDuplicateBlueprint;
+import tempApp.StaticBlueprint;
 import tendril.bean.Factory;
 import tendril.bean.Inject;
+import tendril.bean.duplicate.Duplicate;
 import tendril.bean.duplicate.Sibling;
 
-@StaticDuplicateBlueprint
+@Duplicate(StaticBlueprint.class)
 @Factory
 public class StaticDuplicateBean2 {
 
@@ -15,15 +15,15 @@ public class StaticDuplicateBean2 {
 	@Message
 	String message;
 	
-	private final StaticDuplicate blueprint;
+	private final StaticBlueprint blueprint;
 	private final String ctorMsg;
 	
-	StaticDuplicateBean2(@Sibling StaticDuplicate blueprint, @Message String msg) {
+	StaticDuplicateBean2(@Sibling StaticBlueprint blueprint, @Message String msg) {
 		this.blueprint = blueprint;
 		ctorMsg = msg;
 	}
 	
-	public StaticDuplicate getBlueprint() {
+	public StaticBlueprint getBlueprint() {
 		return blueprint;
 	}
 	

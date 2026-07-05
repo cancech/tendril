@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 import tendril.BeanReplacementException;
 import tendril.BeanRetrievalException;
 import tendril.TendrilStartupException;
-import tendril.bean.duplicate.BlueprintDriver;
+import tendril.bean.duplicate.Blueprint;
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.recipe.ConfigurationRecipe;
@@ -55,10 +55,10 @@ public class Engine implements ApplicationContext {
 	/** Logger for creating log messages when running */
 	private static Logger LOGGER = Logger.getLogger(Engine.class.getSimpleName());
 
-	/** List of all dynamic blueprints which have been added */
-	private final List<BlueprintDriver> dynamicBlueprints = new ArrayList<>();
+	/** List of all blueprints which have been added */
+	private final List<Blueprint> blueprints = new ArrayList<>();
 	/** Cache of all blueprints which have been added for a given class type */
-	private final Map<Class<? extends BlueprintDriver>, List<BlueprintDriver>> dynamicBlueprintsForClass = new HashMap<>();
+	private final Map<Class<? extends Blueprint>, List<Blueprint>> blueprintsForClass = new HashMap<>();
 	/** All recipes that have been registered */
 	private final List<AbstractRecipe<?>> recipes = new ArrayList<>();
 	/** All replacement recipes that are defined in a configuration */
@@ -415,30 +415,30 @@ public class Engine implements ApplicationContext {
 	}
 
 	/**
-	 * Add a dynamic blueprint into circulation
+	 * Add a blueprint to drive bean duplication
 	 * 
-	 * @param driver {@link BlueprintDriver} to add
+	 * @param driver {@link Blueprint} to add
 	 */
-	void addDynamicBlueprint(BlueprintDriver driver) {
+	void addBlueprint(Blueprint driver) {
 		// Blueprints can only be added before starting the engine
 		if (isStarted)
 			throw new RuntimeException("Blueprints can only be added before starting the context");
 
-		dynamicBlueprints.add(driver);
+		blueprints.add(driver);
 	}
 
 	/**
-	 * Get all dynamic blueprints which have been applied for the given {@code BLUEPRINT_TYPE}. This will include all blueprints which are <i>castable</i> to the indicated {@link Class} not just those
+	 * Get all blueprints which have been applied for the given {@code BLUEPRINT_TYPE}. This will include all blueprints which are <i>castable</i> to the indicated {@link Class} not just those
 	 * which are the exact {@link Class}.
 	 * 
-	 * @param <BLUEPRINT_TYPE> The {@link BlueprintDriver} implementing class which is to be retrieved
+	 * @param <BLUEPRINT_TYPE> The {@link Blueprint} implementing class which is to be retrieved
 	 * @param blueprintClass   {@link Class} representing the type which is desired
 	 * @return {@link List} of dynamic blueprints which are castable to the desired type
 	 */
 	@SuppressWarnings("unchecked")
-	public <BLUEPRINT_TYPE extends BlueprintDriver> List<BLUEPRINT_TYPE> getBlueprints(Class<BLUEPRINT_TYPE> blueprintClass) {
+	public <BLUEPRINT_TYPE extends Blueprint> List<BLUEPRINT_TYPE> getBlueprints(Class<BLUEPRINT_TYPE> blueprintClass) {
 		cacheBlueprintsForClass(blueprintClass);
-		return (List<BLUEPRINT_TYPE>) dynamicBlueprintsForClass.get(blueprintClass);
+		return (List<BLUEPRINT_TYPE>) blueprintsForClass.get(blueprintClass);
 	}
 
 	/**
@@ -446,19 +446,19 @@ public class Engine implements ApplicationContext {
 	 * 
 	 * @param blueprintClass {@link Class} of the blueprint which is to be cached
 	 */
-	private void cacheBlueprintsForClass(Class<? extends BlueprintDriver> blueprintClass) {
+	private void cacheBlueprintsForClass(Class<? extends Blueprint> blueprintClass) {
 		// Nothing to do if this had been cached previously
-		if (dynamicBlueprintsForClass.containsKey(blueprintClass))
+		if (blueprintsForClass.containsKey(blueprintClass))
 			return;
 
 		// Find all classes which can be cast to the desired blueprint class
-		List<BlueprintDriver> matches = new ArrayList<>();
-		for (BlueprintDriver b : dynamicBlueprints) {
+		List<Blueprint> matches = new ArrayList<>();
+		for (Blueprint b : blueprints) {
 			if (blueprintClass.isInstance(b))
 				matches.add(b);
 		}
 		// Save them for future retrieval
-		dynamicBlueprintsForClass.put(blueprintClass, matches);
+		blueprintsForClass.put(blueprintClass, matches);
 	}
 	/**
 	 * @see tendril.context.ApplicationContext#start()

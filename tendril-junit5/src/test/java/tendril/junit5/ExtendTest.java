@@ -7,7 +7,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import tendril.bean.duplicate.BlueprintDriver;
+import tendril.bean.duplicate.Blueprint;
 import tendril.junit5.beans.DuplicateBean;
 import tendril.junit5.beans.EnvABean;
 import tendril.junit5.beans.TestBlueprint;
@@ -25,10 +25,10 @@ public class ExtendTest extends EnvATest {
 	/**
 	 * Get the blueprint drivers for this test
 	 * 
-	 * @return {@link List} of {@link BlueprintDriver}s for the test
+	 * @return {@link List} of {@link Blueprint}s for the test
 	 */
 	@TestBlueprints
-	public static List<BlueprintDriver> getEnvABlueprints() {
+	public static List<Blueprint> getEnvABlueprints() {
 		timesExtendBlueprintsCalled++;
 		return Arrays.asList(new TestBlueprint("extend_1"), new TestBlueprint("extend_2"));
 	}

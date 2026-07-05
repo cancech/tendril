@@ -15,8 +15,7 @@
  */
 package tendril.context;
 
-import tendril.TendrilStartupException;
-import tendril.bean.duplicate.BlueprintDriver;
+import tendril.bean.duplicate.Blueprint;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.context.launch.TendrilRunner;
 
@@ -62,16 +61,12 @@ public class ApplicationContextBuilder {
     }
     
     /**
-     * Add a class based dynamic blueprint
+     * Add a {@link Blueprint} which is to drive the creation of duplicated beans
      * 
-     * @param driver {@link BlueprintDriver} the dynamic blueprint to add
+     * @param driver {@link Blueprint} to add
      */
-    public void addDynamicBlueprint(BlueprintDriver driver) {
-    	Class<?> blueprintClass = driver.getClass();
-    	if (blueprintClass.isEnum())
-    		throw new TendrilStartupException(blueprintClass.getName() + " is an enum, only regular classes can be used as dynamic blueprints.");
-    	
-    	engine.addDynamicBlueprint(driver);
+    public void addBlueprint(Blueprint driver) {
+    	engine.addBlueprint(driver);
     }
     
     /**

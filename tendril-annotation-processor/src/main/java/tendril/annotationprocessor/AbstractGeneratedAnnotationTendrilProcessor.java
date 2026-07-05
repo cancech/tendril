@@ -21,35 +21,37 @@ import javax.lang.model.element.TypeElement;
 /**
  * Processor, which is used for the purpose of processing generated annotations. When processing, then entire environment (including previous rounds) is processed, rather than just the environment of
  * the current round.
+ * 
+ * <b>Note: There is a major limitation when using generated annotations for annotation processing - namely, the annotation processor will only be able to use then in the same library/project that the
+ * annotation was originally generated in. Ergo, it is not possible to use a generated annotation outside of the code where it was explicitly generated in making its utility rather limited.</b>
  */
 public abstract class AbstractGeneratedAnnotationTendrilProcessor extends AbstractTendrilProccessor {
-    
-    /**
-     * CTOR
-     */
-    public AbstractGeneratedAnnotationTendrilProcessor() {
-    }
 
-    /**
-     * The generated annotation is tagged with a non-generated annotation. Search for the non-generated annotation, and when found repeat the search with
-     * the generated one.
-     * 
-     * @see tendril.annotationprocessor.AbstractTendrilProccessor#findAndProcessElements(javax.lang.model.element.TypeElement)
-     */
-    @Override
-    protected void findAndProcessElements(TypeElement annotation) {
-    	// Track the original round
-        final RoundEnvironment original = roundEnv;
-        
-        // Find who is using the generated annotation
-        findAndProcessElements(annotation, customAnnon -> {
-            EnvironmentCollector.getAllEnvironments(roundEnv).forEach(e -> {
-                roundEnv = e;
-                super.findAndProcessElements((TypeElement) customAnnon);   
-            });
-        });
-        
-        // Reset the original round
-        roundEnv = original;
-    }
+	/**
+	 * CTOR
+	 */
+	public AbstractGeneratedAnnotationTendrilProcessor() {
+	}
+
+	/**
+	 * The generated annotation is tagged with a non-generated annotation. Search for the non-generated annotation, and when found repeat the search with the generated one.
+	 * 
+	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#findAndProcessElements(javax.lang.model.element.TypeElement)
+	 */
+	@Override
+	protected void findAndProcessElements(TypeElement annotation) {
+		// Track the original round
+		final RoundEnvironment original = roundEnv;
+
+		// Find who is using the generated annotation
+		findAndProcessElements(annotation, customAnnon -> {
+			EnvironmentCollector.getAllEnvironments(roundEnv).forEach(e -> {
+				roundEnv = e;
+				super.findAndProcessElements((TypeElement) customAnnon);
+			});
+		});
+
+		// Reset the original round
+		roundEnv = original;
+	}
 }

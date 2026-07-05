@@ -52,8 +52,8 @@ public class AppRunner2 extends AbstractAppRunner {
 	DynamicDuplicate iDup;
 
 	public AppRunner2() {
-		super(AppRunner2.class, 4, new DuplicationDetails("d", 321, 3.21), new DuplicationDetails("e", 432, 4.32), new DuplicationDetails("f", 543, 5.43), new DuplicationDetails("g", 654, 6.54),
-				new DuplicationDetails("h", 765, 7.65), new DuplicationDetails("i", 876, 8.76));
+		super(AppRunner2.class, 4, new DuplicationBlueprint("d", 321, 3.21), new DuplicationBlueprint("e", 432, 4.32), new DuplicationBlueprint("f", 543, 5.43), new DuplicationBlueprint("g", 654, 6.54),
+				new DuplicationBlueprint("h", 765, 7.65), new DuplicationBlueprint("i", 876, 8.76));
 	}
 
 	@Inject

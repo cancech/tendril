@@ -1,14 +1,12 @@
 package tempApp;
 
 import tendril.bean.duplicate.Blueprint;
-import tendril.bean.duplicate.BlueprintDriver;
 
-@Blueprint
-public class ClassDuplicate implements BlueprintDriver {
+public class ClassBlueprint implements Blueprint {
 	
 	private final String name;
 	
-	public ClassDuplicate(String name) {
+	public ClassBlueprint(String name) {
 		this.name = name;
 	}
 

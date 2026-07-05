@@ -2,8 +2,7 @@ package tempApp;
 
 import tendril.bean.duplicate.Blueprint;
 
-@Blueprint
-public enum StaticDuplicate {
+public enum StaticBlueprint implements Blueprint {
 
 	COPY_1(1, 1.23, "First"),
 	COPY_2(2, 2.34, "Second"),
@@ -13,7 +12,7 @@ public enum StaticDuplicate {
 	private final double dblValue;
 	private final String strValue;
 	
-	private StaticDuplicate(int intValue, double dblValue, String strValue) {
+	private StaticBlueprint(int intValue, double dblValue, String strValue) {
 		this.intValue = intValue;
 		this.dblValue = dblValue;
 		this.strValue = strValue;
@@ -29,5 +28,10 @@ public enum StaticDuplicate {
 	
 	public String getString() {
 		return strValue;
+	}
+
+	@Override
+	public String getName() {
+		return name();
 	}
 }

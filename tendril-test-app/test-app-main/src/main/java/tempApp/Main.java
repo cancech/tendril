@@ -18,11 +18,15 @@ public class Main {
 	    System.setProperty("testProperty", "");
         ApplicationContextBuilder ctxBuilder = new ApplicationContextBuilder();
         ctxBuilder.setEnvironments("uppercase", "qwerty", "AppRunner1", "production");
-        ctxBuilder.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
-        ctxBuilder.addDynamicBlueprint(new DuplicationDetails("b", 234, 2.34));
-        ctxBuilder.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
-        ctxBuilder.addDynamicBlueprint(new ClassDuplicate("c1"));
-        ctxBuilder.addDynamicBlueprint(new ClassDuplicate("c2"));
+        ctxBuilder.addBlueprint(new DuplicationBlueprint("a", 123, 1.23));
+        ctxBuilder.addBlueprint(new DuplicationBlueprint("b", 234, 2.34));
+        ctxBuilder.addBlueprint(new DuplicationBlueprint("c", 345, 3.45));
+        ctxBuilder.addBlueprint(new ClassBlueprint("c1"));
+        ctxBuilder.addBlueprint(new ClassBlueprint("c2"));
+        for (StaticBlueprint sd: StaticBlueprint.values())
+        	ctxBuilder.addBlueprint(sd);
+        for (EnumBlueprint ed: EnumBlueprint.values())
+        	ctxBuilder.addBlueprint(ed);
         
         ApplicationContext ctx = ctxBuilder.build();
         ctx.registerBean(new ManualBean(135), new Descriptor<>(ManualBean.class));

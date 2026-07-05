@@ -1,12 +1,12 @@
 package tempApp.duplicate;
 
-import tempApp.StaticDuplicate;
-import tempApp.StaticDuplicateBlueprint;
+import tempApp.StaticBlueprint;
 import tempApp.id.MyType;
 import tempApp.id.MyTypeId;
 import tendril.bean.Bean;
 import tendril.bean.Configuration;
 import tendril.bean.Singleton;
+import tendril.bean.duplicate.Duplicate;
 import tendril.bean.duplicate.Sibling;
 import tendril.bean.qualifier.Named;
 
@@ -20,9 +20,9 @@ public class ConfigDuplicate {
 		return "abc123";
 	}
 	
-	@StaticDuplicateBlueprint
+	@Duplicate(StaticBlueprint.class)
 	@Singleton
-	StringInterface createStringInterfaceCopy(@Sibling StaticDuplicate copy, @MyTypeId(MyType.VAL1) String val, @Sibling StaticDuplicateBean bean, @Named("ConfigDuplicateAbc123") String abc123) {
+	StringInterface createStringInterfaceCopy(@Sibling StaticBlueprint copy, @MyTypeId(MyType.VAL1) String val, @Sibling StaticDuplicateBean bean, @Named("ConfigDuplicateAbc123") String abc123) {
 		System.err.println(copy.getString() + " received: " + val + " " + abc123);
 		System.err.println("My copy is: " + copy + " bean copy: " + bean.getBlueprint());
 		if (copy != bean.getBlueprint())

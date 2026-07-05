@@ -1,14 +1,12 @@
 package tendril.junit5.beans;
 
-import tendril.bean.duplicate.BasicBlueprintDriver;
+import tendril.bean.duplicate.BasicBlueprint;
 import tendril.bean.duplicate.Blueprint;
-import tendril.bean.duplicate.BlueprintDriver;
 
 /**
- * {@link BlueprintDriver} to use for testing
+ * {@link Blueprint} to use for testing
  */
-@Blueprint
-public class TestBlueprint extends BasicBlueprintDriver {
+public class TestBlueprint extends BasicBlueprint {
 
 	/**
 	 * CTOR

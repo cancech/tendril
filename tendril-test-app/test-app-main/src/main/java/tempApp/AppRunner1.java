@@ -46,7 +46,7 @@ public class AppRunner1 extends AbstractAppRunner {
 	List<Object> allBeans;
 
 	public AppRunner1() {
-		super(AppRunner1.class, 2, new DuplicationDetails("a", 123, 1.23), new DuplicationDetails("b", 234, 2.34), new DuplicationDetails("c", 345, 3.45));
+		super(AppRunner1.class, 2, new DuplicationBlueprint("a", 123, 1.23), new DuplicationBlueprint("b", 234, 2.34), new DuplicationBlueprint("c", 345, 3.45));
 	}
 
 	@Inject

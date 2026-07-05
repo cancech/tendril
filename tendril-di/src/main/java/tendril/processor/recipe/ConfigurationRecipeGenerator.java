@@ -28,10 +28,8 @@ import tendril.annotationprocessor.exception.TendrilException;
 import tendril.bean.Bean;
 import tendril.bean.Configuration;
 import tendril.bean.Replaces;
-import tendril.bean.duplicate.GeneratedBlueprint;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.codegen.VisibilityType;
-import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.classes.JClass;
@@ -39,8 +37,7 @@ import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.generics.GenericFactory;
-import tendril.processor.BlueprintProcessor;
-import tendril.processor.GeneratedBlueprintProcessor;
+import tendril.processor.BlueprintHelper;
 
 /**
  * Generator for {@link Configuration} recipes
@@ -117,26 +114,19 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 		
 		// Handle the methods which create duplicated beans
 		for (JMethod<?> method : creator.getMethods()) {
-			JAnnotation duplicateAnnotation = duplicationAnnotation(method);
-			if (duplicateAnnotation != null) {
-				ClassType blueprintType = GeneratedBlueprintProcessor.getBlueprintForAnnotation(duplicateAnnotation.getType());
+			ClassType blueprintType = BlueprintHelper.retrieveBlueprint(method);
+			if (blueprintType != null) {
 				externalImports.add(blueprintType);
 				ClassType nestedRecipeType = RecipeGenerator.getSiblingRecipeType(creatorType, method);
 				
-				// Enum based duplicates iterate through enum values
-				if (BlueprintProcessor.isEnumDerived(blueprintType)) {
-					code.add("for(" + blueprintType.getClassName() + " b : " + blueprintType.getClassName() + ".values())");
-					code.add("    recipes.put(\"" + method.getName() + "\" + b.name()" + ", new " + nestedRecipeType.getClassName() + "(this, engine, b));");
-				} else {
-					// Class based duplicates get the blueprints from the engine
-					externalImports.add(TypeFactory.createClassType(TendrilStartupException.class));
-					code.add("for(" + blueprintType.getSimpleName() + " b: engine.getBlueprints(" + RecipeGeneratorHelper.getClassReference(blueprintType) + ")) {");
-					code.add("	String copyName = \"" + method.getName() + "\" + b.getName();");
-					code.add("	if (recipes.containsKey(copyName))");
-					code.add("		throw new TendrilStartupException(\"" + blueprintType + " has more than one copies named \" + copyName);");
-					code.add("    recipes.put(copyName, new " + nestedRecipeType.getSimpleName() + "(this, engine, b));");
-					code.add("}");
-				}
+				// Class based duplicates get the blueprints from the engine
+				externalImports.add(TypeFactory.createClassType(TendrilStartupException.class));
+				code.add("for(" + blueprintType.getSimpleName() + " b: engine.getBlueprints(" + RecipeGeneratorHelper.getClassReference(blueprintType) + ")) {");
+				code.add("	String copyName = \"" + method.getName() + "\" + b.getName();");
+				code.add("	if (recipes.containsKey(copyName))");
+				code.add("		throw new TendrilStartupException(\"" + blueprintType + " has more than one copies named \" + copyName);");
+				code.add("    recipes.put(copyName, new " + nestedRecipeType.getSimpleName() + "(this, engine, b));");
+				code.add("}");
 			}
 		}
 	}
@@ -162,20 +152,5 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 			ClassType nestedRecipeType = RecipeGenerator.getRecipeType(creatorType, method);
 			code.add("recipes.put(\"" + method.getName() + "\", new " + nestedRecipeType.getSimpleName() + "(this, engine));");
 		}
-	}
-
-	/**
-	 * Check to see whether the method is annotated for duplication. If it is, return the annotation which triggers duplication, otherwise returns null.
-	 * 
-	 * @param method {@link JMethod} to check
-	 * @return {@link JAnnotation} which triggers duplication (or null if not applicable)
-	 */
-	private JAnnotation duplicationAnnotation(JMethod<?> method) {
-		for (JAnnotation a : method.getAnnotations()) {
-			if (a.hasAnnotation(GeneratedBlueprint.class))
-				return a;
-		}
-
-		return null;
 	}
 }

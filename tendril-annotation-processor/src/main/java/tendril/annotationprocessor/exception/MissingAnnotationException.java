@@ -24,40 +24,51 @@ import tendril.codegen.field.type.ClassType;
  * Exception which is to be thrown when an annotation fails to be resolved/found.
  */
 public class MissingAnnotationException extends TendrilException {
-    /** Serial UID */
-    private static final long serialVersionUID = -7150861364083782309L;
+	/** Serial UID */
+	private static final long serialVersionUID = -7150861364083782309L;
 
-    /** The name of the annotation which failed to resolve */
-    private final String annotationName;
+	/** The name of the annotation which failed to resolve */
+	private final String annotationName;
 
-    /**
-     * CTOR
-     * 
-     * @param missingType {@link DeclaredType} representing the missing annotation
-     * @param appliedTo   {@link Element} to which the annotation was applied
-     */
-    public MissingAnnotationException(DeclaredType missingType, Element appliedTo) {
-        super("Unable to find a definition for the annotation " + missingType + " applied to " + appliedTo);
-        this.annotationName = missingType.asElement().getSimpleName().toString();
-    }
-    
-    /**
-     * CTOR
-     * 
-     * @param annotationType {@link String} the type or category of annotation which is missing
-     * @param annotationName {@link ClassType} representing the missing annotation
-     */
-    public MissingAnnotationException(String annotationType, ClassType annotationName) {
-    	super("Unknown " + annotationType + " annotation " + annotationName);
-    	this.annotationName = annotationName.getSimpleName();
-    }
+	/**
+	 * CTOR
+	 * 
+	 * @param missingType {@link DeclaredType} representing the missing annotation
+	 * @param appliedTo   {@link Element} to which the annotation was applied
+	 */
+	public MissingAnnotationException(DeclaredType missingType, Element appliedTo) {
+		this(missingType, appliedTo, null);
+	}
 
-    /**
-     * Get the name of the annotation that was missing. Note that this will only contain the "simple name" rather than the fully qualified name (including package).
-     * 
-     * @return {@link String} missing annotation name
-     */
-    public String getMissingAnnotationName() {
-        return annotationName;
-    }
+	/**
+	 * CTOR
+	 * 
+	 * @param missingType {@link DeclaredType} representing the missing annotation
+	 * @param appliedTo   {@link Element} to which the annotation was applied
+	 * @param cause       {@link Exception} which caused this exception to be thrown
+	 */
+	public MissingAnnotationException(DeclaredType missingType, Element appliedTo, Exception cause) {
+		super("Unable to find a definition for the annotation " + missingType + " applied to " + appliedTo, cause);
+		this.annotationName = missingType.asElement().getSimpleName().toString();
+	}
+
+	/**
+	 * CTOR
+	 * 
+	 * @param annotationType {@link String} the type or category of annotation which is missing
+	 * @param annotationName {@link ClassType} representing the missing annotation
+	 */
+	public MissingAnnotationException(String annotationType, ClassType annotationName) {
+		super("Unknown " + annotationType + " annotation " + annotationName);
+		this.annotationName = annotationName.getSimpleName();
+	}
+
+	/**
+	 * Get the name of the annotation that was missing. Note that this will only contain the "simple name" rather than the fully qualified name (including package).
+	 * 
+	 * @return {@link String} missing annotation name
+	 */
+	public String getMissingAnnotationName() {
+		return annotationName;
+	}
 }

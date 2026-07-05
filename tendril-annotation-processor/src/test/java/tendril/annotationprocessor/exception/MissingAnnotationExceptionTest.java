@@ -45,6 +45,8 @@ public class MissingAnnotationExceptionTest extends AbstractUnitTest {
     private Element mockElement;
     @Mock
     private ClassType mockAnnotationType;
+    @Mock
+    private Exception mockException;
     
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
@@ -58,7 +60,7 @@ public class MissingAnnotationExceptionTest extends AbstractUnitTest {
      * Verify that the exception properly represents the information
      */
     @Test
-    public void testDeclaredTypeException() {
+    public void testDeclaredTypeExceptionWithoutCause() {
         when(mockMissingType.asElement()).thenReturn(mockMissingElement);
         when(mockMissingElement.getSimpleName()).thenReturn(mockName);
         MissingAnnotationException exception = new MissingAnnotationException(mockMissingType, mockElement);
@@ -67,6 +69,23 @@ public class MissingAnnotationExceptionTest extends AbstractUnitTest {
     	
         Assertions.assertEquals("Unable to find a definition for the annotation mockMissingType applied to mockElement", exception.getMessage());
         Assertions.assertEquals("mockName", exception.getMissingAnnotationName());
+        Assertions.assertNull(exception.getCause());
+    }
+
+    /**
+     * Verify that the exception properly represents the information
+     */
+    @Test
+    public void testDeclaredTypeExceptionWithCause() {
+        when(mockMissingType.asElement()).thenReturn(mockMissingElement);
+        when(mockMissingElement.getSimpleName()).thenReturn(mockName);
+        MissingAnnotationException exception = new MissingAnnotationException(mockMissingType, mockElement, mockException);
+        verify(mockMissingType).asElement();
+        verify(mockMissingElement).getSimpleName();
+    	
+        Assertions.assertEquals("Unable to find a definition for the annotation mockMissingType applied to mockElement", exception.getMessage());
+        Assertions.assertEquals("mockName", exception.getMissingAnnotationName());
+        Assertions.assertEquals(mockException, exception.getCause());
     }
 
     /**
@@ -80,5 +99,6 @@ public class MissingAnnotationExceptionTest extends AbstractUnitTest {
     	
         Assertions.assertEquals("Unknown type annotation mockAnnotationType", exception.getMessage());
         Assertions.assertEquals("blah", exception.getMissingAnnotationName());
+        Assertions.assertNull(exception.getCause());
     }
 }

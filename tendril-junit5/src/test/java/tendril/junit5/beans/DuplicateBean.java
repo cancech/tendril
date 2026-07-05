@@ -2,12 +2,13 @@ package tendril.junit5.beans;
 
 import tendril.bean.Inject;
 import tendril.bean.Singleton;
+import tendril.bean.duplicate.Duplicate;
 import tendril.bean.duplicate.Sibling;
 
 /**
  * Dummy class to use for the purpose of validating bean duplication in a test
  */
-@TestBlueprintBlueprint
+@Duplicate(TestBlueprint.class)
 @Singleton
 public class DuplicateBean {
 

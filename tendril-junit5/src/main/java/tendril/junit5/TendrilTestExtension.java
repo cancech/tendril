@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.TestInstanceFactoryContext;
 import org.junit.jupiter.api.extension.TestInstantiationException;
 
 import tendril.TendrilStartupException;
-import tendril.bean.duplicate.BlueprintDriver;
+import tendril.bean.duplicate.Blueprint;
 import tendril.context.ApplicationContext;
 import tendril.context.ApplicationContextBuilder;
 import tendril.context.launch.TendrilRunner;
@@ -53,8 +53,8 @@ public class TendrilTestExtension implements TestInstanceFactory {
 	private TestEngine prepareEngine(Class<?> testClass) {
 		TestEngine engine = new TestEngine(testClass);
 		ApplicationContextBuilder builder = new ApplicationContextBuilder(engine);
-		for (BlueprintDriver db : getBlueprints(testClass))
-			builder.addDynamicBlueprint(db);
+		for (Blueprint db : getBlueprints(testClass))
+			builder.addBlueprint(db);
 
 		// Load details from the test annotation
 		TendrilTest annon = testClass.getAnnotation(TendrilTest.class);
@@ -64,16 +64,16 @@ public class TendrilTestExtension implements TestInstanceFactory {
 	}
 
 	/**
-	 * Recursively check the test class and all of its parents for static methods defining {@link BlueprintDriver}s. These must be public static methods annotated with {@link TestBlueprints} with
-	 * checks performed to ensure that the method has the correct return type and parameters (namely none). All of the {@link BlueprintDriver}s defined in all of the different classes are combined
-	 * creating a "superset" of all {@link BlueprintDriver}s in the test class inheritance hierarchy.
+	 * Recursively check the test class and all of its parents for static methods defining {@link Blueprint}s. These must be public static methods annotated with {@link TestBlueprints} with
+	 * checks performed to ensure that the method has the correct return type and parameters (namely none). All of the {@link Blueprint}s defined in all of the different classes are combined
+	 * creating a "superset" of all {@link Blueprint}s in the test class inheritance hierarchy.
 	 * 
-	 * @param testClass {@link Class} where to look for the {@link BlueprintDriver} defining static method
-	 * @return {@link List} of {@link BlueprintDriver}s that are defined by the test class
+	 * @param testClass {@link Class} where to look for the {@link Blueprint} defining static method
+	 * @return {@link List} of {@link Blueprint}s that are defined by the test class
 	 */
 	@SuppressWarnings("unchecked")
-	private List<BlueprintDriver> getBlueprints(Class<?> testClass) {
-		List<BlueprintDriver> blueprints = new ArrayList<>();
+	private List<Blueprint> getBlueprints(Class<?> testClass) {
+		List<Blueprint> blueprints = new ArrayList<>();
 		for (Method m : testClass.getMethods()) {
 
 			// Make sure that the method is properly configured
@@ -82,11 +82,11 @@ public class TendrilTestExtension implements TestInstanceFactory {
 			if (!Modifier.isStatic(m.getModifiers()))
 				throwException(testClass, m, TestBlueprints.class.getSimpleName() + " can only be applied to static methods");
 			if (m.getReturnType() != List.class)
-				throwException(testClass, m, "Unexpected return type, must be " + List.class.getName() + "<" + BlueprintDriver.class.getName() + ">");
+				throwException(testClass, m, "Unexpected return type, must be " + List.class.getName() + "<" + Blueprint.class.getName() + ">");
 			if (m.getParameterCount() > 0)
 				throwException(testClass, m, "Cannot take any parameters");
 			try {
-				for (BlueprintDriver d : (List<BlueprintDriver>) m.invoke(blueprints))
+				for (Blueprint d : (List<Blueprint>) m.invoke(blueprints))
 					blueprints.add(d);
 			} catch (Exception e) {
 				throw new TendrilStartupException(getIntroMessage(testClass, m), e);
@@ -101,7 +101,7 @@ public class TendrilTestExtension implements TestInstanceFactory {
 	}
 
 	/**
-	 * Helper to through an exception if an error accessing/retrieving the {@link BlueprintDriver} defining method is encountered.
+	 * Helper to through an exception if an error accessing/retrieving the {@link Blueprint} defining method is encountered.
 	 * 
 	 * @param testClass {@link Class} where the method is located
 	 * @param m         {@link Method} on which the error was encountered

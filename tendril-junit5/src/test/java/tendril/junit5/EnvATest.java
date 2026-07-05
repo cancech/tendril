@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import tendril.bean.Inject;
 import tendril.bean.InjectAll;
-import tendril.bean.duplicate.BlueprintDriver;
+import tendril.bean.duplicate.Blueprint;
 import tendril.context.ApplicationContext;
 import tendril.junit5.beans.DuplicateBean;
 import tendril.junit5.beans.EnvABean;
@@ -33,10 +33,10 @@ public class EnvATest {
 	/**
 	 * Get the blueprint drivers for this test
 	 * 
-	 * @return {@link List} of {@link BlueprintDriver}s for the test
+	 * @return {@link List} of {@link Blueprint}s for the test
 	 */
 	@TestBlueprints
-	public static List<BlueprintDriver> getEnvABlueprints() {
+	public static List<Blueprint> getEnvABlueprints() {
 		timesEnvABlueprintsCalled++;
 		return Arrays.asList(new TestBlueprint("enva_a"), new TestBlueprint("enva_b"));
 	}

@@ -21,14 +21,16 @@ import org.junit.jupiter.api.Test;
 
 import tempApp.AppRunner1;
 import tempApp.AppRunner2;
-import tempApp.ClassDuplicate;
-import tempApp.DuplicationDetails;
+import tempApp.ClassBlueprint;
+import tempApp.DuplicationBlueprint;
+import tempApp.EnumBlueprint;
 import tempApp.FactoryClass;
 import tempApp.ManualBean;
 import tempApp.MultiEnvBean1;
 import tempApp.MultiEnvBean2;
 import tempApp.RunnableConfig;
 import tempApp.SingletonClass;
+import tempApp.StaticBlueprint;
 import tempApp.TempManager;
 import tempApp.base.AbstractAppRunner;
 import tendril.TendrilStartupException;
@@ -49,6 +51,13 @@ public class LaunchTest {
         AbstractAppRunner.reset();
         RunnableConfig.reset();
     }
+    
+    private void addEnumBlueprints(ApplicationContextBuilder builder) {
+        for (StaticBlueprint sd: StaticBlueprint.values())
+        	builder.addBlueprint(sd);
+        for (EnumBlueprint ed: EnumBlueprint.values())
+        	builder.addBlueprint(ed);
+    }
 
     @Test
     public void testAppRunner1LowerCaseQwerty() {
@@ -61,11 +70,12 @@ public class LaunchTest {
         
         ApplicationContextBuilder builder = new ApplicationContextBuilder();
         builder.setEnvironments("lowercase", "qwerty", "AppRunner1", "production");
-        builder.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
-        builder.addDynamicBlueprint(new DuplicationDetails("b", 234, 2.34));
-        builder.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
-        builder.addDynamicBlueprint(new ClassDuplicate("t1"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t2"));
+        builder.addBlueprint(new DuplicationBlueprint("a", 123, 1.23));
+        builder.addBlueprint(new DuplicationBlueprint("b", 234, 2.34));
+        builder.addBlueprint(new DuplicationBlueprint("c", 345, 3.45));
+        builder.addBlueprint(new ClassBlueprint("t1"));
+        builder.addBlueprint(new ClassBlueprint("t2"));
+        addEnumBlueprints(builder);
         ApplicationContext ctx = builder.build();
         ctx.registerBean(new ManualBean(975), new Descriptor<>(ManualBean.class));
         ctx.start();
@@ -88,11 +98,12 @@ public class LaunchTest {
         System.setProperty("testProperty", "");
         ApplicationContextBuilder builder = new ApplicationContextBuilder();
         builder.setEnvironments("uppercase", "qwerty", "AppRunner1", "production");
-        builder.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
-        builder.addDynamicBlueprint(new DuplicationDetails("b", 234, 2.34));
-        builder.addDynamicBlueprint(new DuplicationDetails("c", 345, 3.45));
-        builder.addDynamicBlueprint(new ClassDuplicate("t1"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t2"));
+        builder.addBlueprint(new DuplicationBlueprint("a", 123, 1.23));
+        builder.addBlueprint(new DuplicationBlueprint("b", 234, 2.34));
+        builder.addBlueprint(new DuplicationBlueprint("c", 345, 3.45));
+        builder.addBlueprint(new ClassBlueprint("t1"));
+        builder.addBlueprint(new ClassBlueprint("t2"));
+        addEnumBlueprints(builder);
         ApplicationContext ctx = builder.build();
         ctx.start();
         
@@ -114,8 +125,9 @@ public class LaunchTest {
         
         ApplicationContextBuilder builder = new ApplicationContextBuilder();
         builder.setEnvironments("lowercase", "qwerty", "AppRunner1", "production");
-        builder.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
-        builder.addDynamicBlueprint(new DuplicationDetails("a", 123, 1.23));
+        builder.addBlueprint(new DuplicationBlueprint("a", 123, 1.23));
+        builder.addBlueprint(new DuplicationBlueprint("a", 123, 1.23));
+        addEnumBlueprints(builder);
         Assertions.assertThrows(TendrilStartupException.class, () -> builder.build());
 
         // Everything should fail before any beans are created
@@ -136,16 +148,17 @@ public class LaunchTest {
         System.setProperty("testProperty", "");
         ApplicationContextBuilder builder = new ApplicationContextBuilder();
         builder.setEnvironments("lowercase", "qwerty", "test");
-        builder.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
-        builder.addDynamicBlueprint(new DuplicationDetails("e", 432, 4.32));
-        builder.addDynamicBlueprint(new DuplicationDetails("f", 543, 5.43));
-        builder.addDynamicBlueprint(new DuplicationDetails("g", 654, 6.54));
-        builder.addDynamicBlueprint(new DuplicationDetails("h", 765, 7.65));
-        builder.addDynamicBlueprint(new DuplicationDetails("i", 876, 8.76));
-        builder.addDynamicBlueprint(new ClassDuplicate("t1"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t2"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t3"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t4"));
+        builder.addBlueprint(new DuplicationBlueprint("d", 321, 3.21));
+        builder.addBlueprint(new DuplicationBlueprint("e", 432, 4.32));
+        builder.addBlueprint(new DuplicationBlueprint("f", 543, 5.43));
+        builder.addBlueprint(new DuplicationBlueprint("g", 654, 6.54));
+        builder.addBlueprint(new DuplicationBlueprint("h", 765, 7.65));
+        builder.addBlueprint(new DuplicationBlueprint("i", 876, 8.76));
+        builder.addBlueprint(new ClassBlueprint("t1"));
+        builder.addBlueprint(new ClassBlueprint("t2"));
+        builder.addBlueprint(new ClassBlueprint("t3"));
+        builder.addBlueprint(new ClassBlueprint("t4"));
+        addEnumBlueprints(builder);
         ApplicationContext ctx = builder.build();
         ctx.start();
         
@@ -168,16 +181,17 @@ public class LaunchTest {
         
         ApplicationContextBuilder builder = new ApplicationContextBuilder();
         builder.setEnvironments("uppercase", "qwerty", "test");
-        builder.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
-        builder.addDynamicBlueprint(new DuplicationDetails("e", 432, 4.32));
-        builder.addDynamicBlueprint(new DuplicationDetails("f", 543, 5.43));
-        builder.addDynamicBlueprint(new DuplicationDetails("g", 654, 6.54));
-        builder.addDynamicBlueprint(new DuplicationDetails("h", 765, 7.65));
-        builder.addDynamicBlueprint(new DuplicationDetails("i", 876, 8.76));
-        builder.addDynamicBlueprint(new ClassDuplicate("t1"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t2"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t3"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t4"));
+        builder.addBlueprint(new DuplicationBlueprint("d", 321, 3.21));
+        builder.addBlueprint(new DuplicationBlueprint("e", 432, 4.32));
+        builder.addBlueprint(new DuplicationBlueprint("f", 543, 5.43));
+        builder.addBlueprint(new DuplicationBlueprint("g", 654, 6.54));
+        builder.addBlueprint(new DuplicationBlueprint("h", 765, 7.65));
+        builder.addBlueprint(new DuplicationBlueprint("i", 876, 8.76));
+        builder.addBlueprint(new ClassBlueprint("t1"));
+        builder.addBlueprint(new ClassBlueprint("t2"));
+        builder.addBlueprint(new ClassBlueprint("t3"));
+        builder.addBlueprint(new ClassBlueprint("t4"));
+        addEnumBlueprints(builder);
         ApplicationContext ctx = builder.build();
         ctx.registerBean(new ManualBean(786), new Descriptor<>(ManualBean.class));
         ctx.start();
@@ -199,16 +213,17 @@ public class LaunchTest {
         
         ApplicationContextBuilder builder = new ApplicationContextBuilder();
         builder.setEnvironments("lowercase", "abc123", "test");
-        builder.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
-        builder.addDynamicBlueprint(new DuplicationDetails("e", 432, 4.32));
-        builder.addDynamicBlueprint(new DuplicationDetails("f", 543, 5.43));
-        builder.addDynamicBlueprint(new DuplicationDetails("g", 654, 6.54));
-        builder.addDynamicBlueprint(new DuplicationDetails("h", 765, 7.65));
-        builder.addDynamicBlueprint(new DuplicationDetails("i", 876, 8.76));
-        builder.addDynamicBlueprint(new ClassDuplicate("t1"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t2"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t3"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t4"));
+        builder.addBlueprint(new DuplicationBlueprint("d", 321, 3.21));
+        builder.addBlueprint(new DuplicationBlueprint("e", 432, 4.32));
+        builder.addBlueprint(new DuplicationBlueprint("f", 543, 5.43));
+        builder.addBlueprint(new DuplicationBlueprint("g", 654, 6.54));
+        builder.addBlueprint(new DuplicationBlueprint("h", 765, 7.65));
+        builder.addBlueprint(new DuplicationBlueprint("i", 876, 8.76));
+        builder.addBlueprint(new ClassBlueprint("t1"));
+        builder.addBlueprint(new ClassBlueprint("t2"));
+        builder.addBlueprint(new ClassBlueprint("t3"));
+        builder.addBlueprint(new ClassBlueprint("t4"));
+        addEnumBlueprints(builder);
         ApplicationContext ctx = builder.build();
         ctx.start();
         
@@ -231,16 +246,17 @@ public class LaunchTest {
         System.setProperty("testProperty", "");
         ApplicationContextBuilder builder = new ApplicationContextBuilder();
         builder.setEnvironments("uppercase", "abc123", "test");
-        builder.addDynamicBlueprint(new DuplicationDetails("d", 321, 3.21));
-        builder.addDynamicBlueprint(new DuplicationDetails("e", 432, 4.32));
-        builder.addDynamicBlueprint(new DuplicationDetails("f", 543, 5.43));
-        builder.addDynamicBlueprint(new DuplicationDetails("g", 654, 6.54));
-        builder.addDynamicBlueprint(new DuplicationDetails("h", 765, 7.65));
-        builder.addDynamicBlueprint(new DuplicationDetails("i", 876, 8.76));
-        builder.addDynamicBlueprint(new ClassDuplicate("t1"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t2"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t3"));
-        builder.addDynamicBlueprint(new ClassDuplicate("t4"));
+        builder.addBlueprint(new DuplicationBlueprint("d", 321, 3.21));
+        builder.addBlueprint(new DuplicationBlueprint("e", 432, 4.32));
+        builder.addBlueprint(new DuplicationBlueprint("f", 543, 5.43));
+        builder.addBlueprint(new DuplicationBlueprint("g", 654, 6.54));
+        builder.addBlueprint(new DuplicationBlueprint("h", 765, 7.65));
+        builder.addBlueprint(new DuplicationBlueprint("i", 876, 8.76));
+        builder.addBlueprint(new ClassBlueprint("t1"));
+        builder.addBlueprint(new ClassBlueprint("t2"));
+        builder.addBlueprint(new ClassBlueprint("t3"));
+        builder.addBlueprint(new ClassBlueprint("t4"));
+        addEnumBlueprints(builder);
         ApplicationContext ctx = builder.build();
         ctx.registerBean(new ManualBean(111), new Descriptor<>(ManualBean.class));
         ctx.start();
