@@ -89,10 +89,10 @@ public class RunnableConfig {
     }
     
     @Inject
-    void methodInject(@Message String msg) {
+    void methodInject(@Message String consumer) {
     	timesMethodInjectCalled++;
     	
-    	if (!this.msg.equals(msg))
-    		throw new AssertionError("Messages injected were not the same, field injection is \"" + this.msg + "\" but method injection is \"" + msg + "\"");
+    	if (!this.msg.equals(consumer))
+    		throw new AssertionError("Messages injected were not the same, field injection is \"" + this.msg + "\" but method injection is \"" + consumer + "\"");
     }
 }

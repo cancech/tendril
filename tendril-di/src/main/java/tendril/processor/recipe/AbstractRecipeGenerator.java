@@ -218,9 +218,9 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 			Type pType = p.getType();
 			if (pType instanceof ClassType)
 				pType.registerImport(externalImports);
-			code.add(retrievePrefix + pType.getSimpleName() + p.getGenericsApplicationKeyword(true) + p.getName() + " = " + createParameterInjectionCodeRhs(p) + ";");
+			code.add(retrievePrefix + pType.getSimpleName() + p.getGenericsApplicationKeyword(true) + "_" + p.getName() + " = " + createParameterInjectionCodeRhs(p) + ";");
 		}
-		code.add(applyPrefix + TendrilStringUtil.join(params, ", ", p -> p.getName()) + ");");
+		code.add(applyPrefix + TendrilStringUtil.join(params, ", ", p -> "_" + p.getName()) + ");");
 	}
 
 	/**
