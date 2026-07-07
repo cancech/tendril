@@ -32,8 +32,8 @@ public class FactoryClass {
     private final SingletonClass singleton;
     
     @Inject
-    public FactoryClass(@Named("TempName") SingletonClass singleton) {
-        this.singleton = singleton;
+    public FactoryClass(@Named("TempName") SingletonClass config) {
+        this.singleton = config;
         index = numClasses++;
     }
     

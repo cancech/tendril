@@ -64,9 +64,9 @@ public class TempManager {
 	@Singleton
 	@Named("TempString")
 	@MyTypeId(MyType.VAL1)
-	public String doSomething(SingletonClass sgClass, FactoryClass fClass, @MyTypeId(MyType.VAL2) Object something) {
+	public String doSomething(SingletonClass sgClass, FactoryClass fClass, @MyTypeId(MyType.VAL2) Object config) {
 	    numVal1Instances++;
-		return "Singleton = " + sgClass.toString() + ", Factory Field = " + cls.toString() + ", Factory Param = " + fClass.toString() + " something: " + something;
+		return "Singleton = " + sgClass.toString() + ", Factory Field = " + cls.toString() + ", Factory Param = " + fClass.toString() + " something: " + config;
 	}
     
     @Bean

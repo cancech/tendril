@@ -329,7 +329,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 	protected void generateCreateInstance(JMethod<?> creator, ClassBuilder builder) throws InvalidConfigurationException {
 		// Build the internals of the method
 		List<String> lines = new ArrayList<>();
-		addParameterInjection(lines, creator.getParameters(), "", "return config.get()." + creator.getName() + "(");
+		addParameterInjection(lines, creator.getParameters(), "", "return this.config.get()." + creator.getName() + "(");
 
 		// Add the method to the recipe
 		builder.buildMethod(creatorType, "createInstance").addException(TypeFactory.createClassType(Throwable.class)).setVisibility(VisibilityType.PROTECTED)

@@ -28,8 +28,8 @@ public class DynamicDuplicate {
 	ParentDuplicate parentDuplicate;
 
 	@Inject
-	public DynamicDuplicate(@Sibling DuplicationBlueprint details, @Named("COPY_1") StaticDuplicateBean bean1, @Named("COPY_2") StaticDuplicateBean2 bean2, @Named("COPY_3") StaticDuplicateBean3 bean3) {
-		this.ctorDetails = details;
+	public DynamicDuplicate(@Sibling DuplicationBlueprint config, @Named("COPY_1") StaticDuplicateBean bean1, @Named("COPY_2") StaticDuplicateBean2 bean2, @Named("COPY_3") StaticDuplicateBean3 bean3) {
+		this.ctorDetails = config;
 		this.bean1 = bean1;
 		this.bean2 = bean2;
 		this.bean3 = bean3;
