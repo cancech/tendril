@@ -5,7 +5,7 @@ import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 
-public class BasicStringRecipe2 extends AbstractRecipe<String> {
+public class BasicStringRecipe2 extends AbstractRecipe<String, String> {
 
     /** The value that the recipe produces */
     public static final String VALUE = "BasicString2";

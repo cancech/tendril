@@ -23,7 +23,7 @@ import tendril.context.Engine;
 /**
  * Recipe to use for testing where a {@link Double} 3.21 is produced. This is a duplicate of {@link Double1TestRecipe} in terms of the bean it produces.
  */
-public class Double1DuplicateTestRecipe extends AbstractRecipe<Double> {
+public class Double1DuplicateTestRecipe extends AbstractRecipe<Double, Double> {
 
     /** The name under which the double 1 bean is provided */
     public static final String NAME = "dbl1";

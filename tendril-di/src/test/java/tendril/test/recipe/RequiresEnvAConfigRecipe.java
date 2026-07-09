@@ -41,7 +41,7 @@ public class RequiresEnvAConfigRecipe extends ConfigurationRecipe<TestConfig>{
      * @see tendril.bean.recipe.ConfigurationRecipe#getNestedRecipes()
      */
     @Override
-    public Map<String, AbstractRecipe<?>> getNestedRecipes() {
+    public Map<String, AbstractRecipe<?, ?>> getNestedRecipes() {
         return Map.of("int1", new IntTestRecipe(engine),
                 RequiresEnvBNestedRecipe.NAME, new RequiresEnvBNestedRecipe(engine));
     }
@@ -67,7 +67,7 @@ public class RequiresEnvAConfigRecipe extends ConfigurationRecipe<TestConfig>{
 	}
 
 	@Override
-	public Map<String, AbstractRecipe<?>> getNestedReplacementRecipes() {
+	public Map<String, AbstractRecipe<?, ?>> getNestedReplacementRecipes() {
 		return new HashMap<>();
 	}
 

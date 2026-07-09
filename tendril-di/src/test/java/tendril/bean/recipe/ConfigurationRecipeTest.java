@@ -37,12 +37,12 @@ public class ConfigurationRecipeTest extends AbstractUnitTest {
 		}
 
 		@Override
-		public Map<String, AbstractRecipe<?>> getNestedRecipes() {
+		public Map<String, AbstractRecipe<?, ?>> getNestedRecipes() {
 			return new HashMap<>();
 		}
 
 		@Override
-		public Map<String, AbstractRecipe<?>> getNestedReplacementRecipes() {
+		public Map<String, AbstractRecipe<?, ?>> getNestedReplacementRecipes() {
 			return new HashMap<>();
 		}
 

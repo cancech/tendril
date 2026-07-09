@@ -25,6 +25,8 @@ import tempApp.EnumBlueprint;
 import tempApp.ExceptionCtorBean;
 import tempApp.FactoryClass;
 import tempApp.GenericWrapper;
+import tempApp.IntWrapper;
+import tempApp.IntWrapperImpl;
 import tempApp.Lib2DataStruct;
 import tempApp.Lib2StaticBean;
 import tempApp.ManualBean;
@@ -281,6 +283,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	
 	@Inject
 	private ExceptionCtorBean exCtorBean;
+	
+	@InjectAll
+	protected List<IntWrapper> allIntWrappers;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationBlueprint[] expectedDynamicDuplicates;
@@ -590,6 +595,14 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		
 		assertion(exCtorBean != null, "exCtorBean should not be null");
 		assertion(exCtorBean.isCreated(), "exCtorBean was not created");
+
+		assertion(allIntWrappers.size() == 3, "There should be three " + IntWrapper.class.getSimpleName() + " instances");
+		assertion(ctx.getAllBeans(new Descriptor<>(IntWrapperImpl.class)).size() == 0, "There should be no " + IntWrapperImpl.class.getSimpleName() + " instances");
+		for (IntWrapper w: allIntWrappers) {
+			assertion(w instanceof IntWrapperImpl, "Should be instance of " + IntWrapperImpl.class.getSimpleName() + " but was " + w.getClass().getSimpleName());
+			int actual = w.getInt();
+			assertion(actual == 12345 || actual == 1 || actual == 2, "Unexpected value " + actual + " should have been either 1, 2, or 12345");
+		}
 	}
 
 	protected static void assertion(boolean value, String msg) {

@@ -31,9 +31,10 @@ import tendril.context.Engine;
 /**
  * The base abstract Recipe, which provides the mechanisms for how to create a bean and process it dependencies, but leaving it up to the concrete recipe for how the created bean is to be handled.
  * 
- * @param <BEAN_TYPE> indicating the type of bean that the recipe is to build
+ * @param <BEAN_TYPE> indicating the type of bean that the recipe is "announcing" as creating
+ * @param <INSTANCE_TYPE> the actual type of the object that is created for the bean. This must extend {@code BEAN_TYPE}
  */
-public abstract class AbstractRecipe<BEAN_TYPE> {
+public abstract class AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE> {
 
 	/** The {@link Engine} which drives the overall dependency injection */
 	protected final Engine engine;
@@ -98,7 +99,7 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
 	 * 
 	 * @param other {@link AbstractRecipe} from which to update priorities
 	 */
-	public void updatePriorities(AbstractRecipe<?> other) {
+	public void updatePriorities(AbstractRecipe<?, ?> other) {
 		this.isPrimary = other.isPrimary();
 		this.isFallback = other.isFallback();
 	}
@@ -212,7 +213,7 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
 	 * @return The (an) instance of the bean that the recipe is to create
 	 * @throws BeanCreationException if there is an issue creating the bean
 	 */
-	protected BEAN_TYPE buildBean() {
+	protected INSTANCE_TYPE buildBean() {
 		if (isUnderConstruction)
 			throw new BeanCreationException(descriptor, "Cycle detected");
 
@@ -220,7 +221,7 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
 		try {
 			// Create the instance
 			isUnderConstruction = true;
-			BEAN_TYPE bean = createInstance(engine);
+			INSTANCE_TYPE bean = createInstance(engine);
 			// Apply dependencies
 			consumers.forEach(c -> c.inject(bean, engine));
 			isUnderConstruction = false;
@@ -240,14 +241,14 @@ public abstract class AbstractRecipe<BEAN_TYPE> {
 	 * @throws Throwable accounting for the possibility that the nested bean creation could throw an exception
 	 * @return BEAN_TYPE
 	 */
-	protected abstract BEAN_TYPE createInstance(Engine engine) throws Throwable;
+	protected abstract INSTANCE_TYPE createInstance(Engine engine) throws Throwable;
 
 	/**
 	 * Called after the bean has been initialized, to allow all {@link PostConstruct} annotated methods to be called
 	 * 
-	 * @param bean BEAN_TYPE that the recipe is building
+	 * @param bean INSTANCE_TYPE that the recipe is building
 	 */
-	protected void postConstruct(BEAN_TYPE bean) {
+	protected void postConstruct(INSTANCE_TYPE bean) {
 		// Intentionally left blank, concrete recipe to trigger the appropriate @PostConstruct called
 	}
 	

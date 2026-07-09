@@ -22,7 +22,7 @@ import javax.lang.model.SourceVersion;
 
 import com.google.auto.service.AutoService;
 
-import tendril.processor.AbstactBeanProcessor;
+import tendril.processor.AbstractBeanProcessor;
 
 /**
  * Processor for the {@code TendrilTest} annotation, which will generate a recipe for the test class which is not registered. A test annotated in this manner will have a recipe created for it, however
@@ -31,7 +31,7 @@ import tendril.processor.AbstactBeanProcessor;
 @SupportedAnnotationTypes("tendril.test.TendrilTest")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class TestProcessor extends AbstactBeanProcessor {
+public class TestProcessor extends AbstractBeanProcessor {
 
 	/**
 	 * CTOR

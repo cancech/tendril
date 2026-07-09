@@ -20,7 +20,7 @@ public class RecipeSearchResult<BEAN_TYPE> {
 	// The type of result
 	private final String type;
 	// The list of resulting recipes
-	private final List<AbstractRecipe<BEAN_TYPE>> result;
+	private final List<AbstractRecipe<BEAN_TYPE, BEAN_TYPE>> result;
 	
 	/**
 	 * CTOR
@@ -28,7 +28,7 @@ public class RecipeSearchResult<BEAN_TYPE> {
 	 * @param type {@link String} representing the type of result retrieved
 	 * @param result {@link List} of {@link AbstractRecipe}s which were found in the search
 	 */
-	public RecipeSearchResult(String type, List<AbstractRecipe<BEAN_TYPE>> result) {
+	public RecipeSearchResult(String type, List<AbstractRecipe<BEAN_TYPE, BEAN_TYPE>> result) {
 		this.type = type;
 		this.result = result;
 	}
@@ -47,7 +47,7 @@ public class RecipeSearchResult<BEAN_TYPE> {
 	 * 
 	 * @return {@link List} of {@link AbstractRecipe}s
 	 */
-	public List<AbstractRecipe<BEAN_TYPE>> getRecipes() {
+	public List<AbstractRecipe<BEAN_TYPE, BEAN_TYPE>> getRecipes() {
 		return result;
 	}
 }

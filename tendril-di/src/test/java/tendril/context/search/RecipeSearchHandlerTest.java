@@ -18,23 +18,23 @@ public class RecipeSearchHandlerTest extends AbstractUnitTest {
 	
 	// Mocks to use for testing
 	@Mock
-	private AbstractRecipe<Object> mockPrimary1;
+	private AbstractRecipe<Object, Object> mockPrimary1;
 	@Mock
-	private AbstractRecipe<Object> mockPrimary2;
+	private AbstractRecipe<Object, Object> mockPrimary2;
 	@Mock
-	private AbstractRecipe<Object> mockPrimary3;
+	private AbstractRecipe<Object, Object> mockPrimary3;
 	@Mock
-	private AbstractRecipe<Object> mockBasic1;
+	private AbstractRecipe<Object, Object> mockBasic1;
 	@Mock
-	private AbstractRecipe<Object> mockBasic2;
+	private AbstractRecipe<Object, Object> mockBasic2;
 	@Mock
-	private AbstractRecipe<Object> mockBasic3;
+	private AbstractRecipe<Object, Object> mockBasic3;
 	@Mock
-	private AbstractRecipe<Object> mockFallback1;
+	private AbstractRecipe<Object, Object> mockFallback1;
 	@Mock
-	private AbstractRecipe<Object> mockFallback2;
+	private AbstractRecipe<Object, Object> mockFallback2;
 	@Mock
-	private AbstractRecipe<Object> mockFallback3;
+	private AbstractRecipe<Object, Object> mockFallback3;
 	
 	// Instance to test
 	private RecipeSearchHandler<Object> handler;

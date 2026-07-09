@@ -35,10 +35,10 @@ public class SingletonRecipeTest extends AbstractUnitTest {
     private Engine mockEngine;
     
     // Instance to test
-    private SingletonRecipe<SingleCtorBean> recipe;
+    private SingletonRecipe<SingleCtorBean, SingleCtorBean> recipe;
 
     // Concrete instance to use for testing
-    private class TestSingletonRecipe extends SingletonRecipe<SingleCtorBean> {
+    private class TestSingletonRecipe extends SingletonRecipe<SingleCtorBean, SingleCtorBean> {
 
 		protected TestSingletonRecipe(boolean isPrimary, boolean isFallback) {
 			super(mockEngine, SingleCtorBean.class, isPrimary, isFallback);

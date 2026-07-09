@@ -53,6 +53,25 @@ public class MyFactoryBean {
 }
 ```
 
+#### Override Bean Class Type
+By default, the type of the bean is determined by the annotated type. For a bean class, this means that the type of the class is applied to the recipe and that is how the bean is "advertised" for dependency injection. However it is possible to override this by specify the desired class within the `@Bean` injection. The main purpose for this would be to hide the exact implementation employed and for the bean to only be accessed through the desired interface (or other parent).
+
+```java
+// The bean will only be accessible as a Parent
+@Bean(Parent.class)
+@Singleton
+public class Child extends Parent {
+}
+
+// The bean will only be accessible as an IFace
+@Bean(IFace.class)
+@Factory
+public class MyBean implements IFace {
+}
+```
+
+Note that the override type must be an ancestor of the actual bean object, meaning that not just _anything_ can be used.
+
 #### Multiple Constructors
 If a bean class has a single valid constructor, this constructor is automatically employed for the purpose of creating the bean instance(s). In situations where a class has multiple valid constructors, it cannot be automatically inferred which constructor to use, thus one constructor must be identified using `@Inject` to indicate which constructor is to be used when initializing the bean.
 
@@ -93,6 +112,23 @@ public class MyConfiguration {
 ```
 
 In this situation, the `Configuration` will be initialized before any beans it provides are created, but only the beans it provides will be made available for injection (i.e.: the `Configuration` itself is transient, a means to an end). This allows for classes from outside of the codebase to be incorporated into `Tendril` dependency injection, as well as having multiple distinct copies of the same class to be made available as well. The same `Configuration` instance is employed for all beans it provides, meaning that the `Configuration` class itself is only initialized/created once.
+
+#### Override Bean Method Type
+Much as the case with a bean class, when the bean is defined via a method it can be overridden by way of the `@Bean` annotation. The only difference in this case is that by default the return type of the method is applied as the advertised as the bean type, but again this can be overridden by specifying the desired type in the `@Bean` annotation.
+
+```java
+@Configuration
+public class MyConfiguration {
+
+  @Bean(Object.class)
+  @Singleton
+  public Integer createIntegerBean() {
+    return 123;
+  }
+}
+```
+
+The limitation and implications are the same as when employed with a bean class.
 
 ### Placing Restriction on Bean Creation
 Requirements can be placed on Beans and Configurations to limit under what circumstance they will be created. For example to use a different bean in a development, production, or test environment with little to no changes required in the code itself. Note that when a requirement is applied to a `Configuration` directly, it is implicitly applied to all Beans within (the whole `Configuration` will not be employed if the `Configuration` requirements are not met). Any requirements applied to Beans defined within a `Configuration` are in effect applied on top of the `Configuration` requirements. Multiples requirements can be applied, with them acting additively (i.e.: all specified requirements must be met).

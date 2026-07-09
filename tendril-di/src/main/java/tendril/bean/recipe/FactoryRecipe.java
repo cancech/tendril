@@ -19,32 +19,32 @@ import tendril.context.ApplicationContext;
 import tendril.context.Engine;
 
 /**
- * Abstract recipe for creating factory beans, where each retrieved bean is a separate and unique instance. Thus as many beans are retrieved, that many copies of the bean are
- * created and provided
+ * Abstract recipe for creating factory beans, where each retrieved bean is a separate and unique instance. Thus as many beans are retrieved, that many copies of the bean are created and provided
  * 
- * @param <BEAN_TYPE> the type of bean the recipe creates
+ * @param <BEAN_TYPE>     indicating the type of bean that the recipe is "announcing" as creating
+ * @param <INSTANCE_TYPE> the actual type of the object that is created for the bean. This must extend {@code BEAN_TYPE}
  */
-public abstract class FactoryRecipe<BEAN_TYPE> extends AbstractRecipe<BEAN_TYPE> {
+public abstract class FactoryRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE> extends AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE> {
 
-    /**
-     * CTOR
-     * 
-     * @param engine {@link Engine} powering the {@link ApplicationContext} in which the bean lives
-     * @param beanClass {@link Class} of the bean instance
-     * @param isPrimary true if the bean is a Primary bean
-     * @param isFallback true if the bean is a fallback bean
-     */
-    protected FactoryRecipe(Engine engine, Class<BEAN_TYPE> beanClass, boolean isPrimary, boolean isFallback) {
-        super(engine, beanClass, isPrimary, isFallback);
-    }
-    
-    /**
-     * A new instance is created for each retrieval
-     * 
-     * @see tendril.bean.recipe.AbstractRecipe#get()
-     */
-    @Override
-    public BEAN_TYPE get() {
-        return buildBean();
-    }
+	/**
+	 * CTOR
+	 * 
+	 * @param engine     {@link Engine} powering the {@link ApplicationContext} in which the bean lives
+	 * @param beanClass  {@link Class} of the bean instance
+	 * @param isPrimary  true if the bean is a Primary bean
+	 * @param isFallback true if the bean is a fallback bean
+	 */
+	protected FactoryRecipe(Engine engine, Class<BEAN_TYPE> beanClass, boolean isPrimary, boolean isFallback) {
+		super(engine, beanClass, isPrimary, isFallback);
+	}
+
+	/**
+	 * A new instance is created for each retrieval
+	 * 
+	 * @see tendril.bean.recipe.AbstractRecipe#get()
+	 */
+	@Override
+	public BEAN_TYPE get() {
+		return buildBean();
+	}
 }

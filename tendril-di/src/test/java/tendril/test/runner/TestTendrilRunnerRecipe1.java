@@ -26,7 +26,7 @@ import tendril.context.Engine;
 /**
  * {@link AbstractRecipe} to use for the purpose of allowing the {@link TestTendrilRunner1} to be "injected" into tests
  */
-public class TestTendrilRunnerRecipe1 extends AbstractRecipe<TestTendrilRunner1> {
+public class TestTendrilRunnerRecipe1 extends AbstractRecipe<TestTendrilRunner1, TestTendrilRunner1> {
 
 	public static final List<String> envAnd = new ArrayList<String>();
 	public static final List<String> envOr = new ArrayList<String>();

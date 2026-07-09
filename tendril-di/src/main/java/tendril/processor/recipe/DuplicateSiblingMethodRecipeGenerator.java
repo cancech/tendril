@@ -35,7 +35,7 @@ public class DuplicateSiblingMethodRecipeGenerator extends MethodRecipeGenerator
 	 * @param blueprintType {@link ClassType} of the enum which drives the duplication
 	 */
 	DuplicateSiblingMethodRecipeGenerator(ClassType configType, ClassType beanType, JMethod<?> beanCreator, Messager messager, ClassType blueprintType) {
-		super(configType, beanType, beanCreator, messager);
+		super(configType, beanType, beanType, beanCreator, messager);
 		siblingHelper = new SiblingRecipeGeneratorHelper(beanCreator, beanType, blueprintType, messager, this);
 	}
 
@@ -60,7 +60,7 @@ public class DuplicateSiblingMethodRecipeGenerator extends MethodRecipeGenerator
 
 		// Add the constructor
 		List<String> ctorCode = new ArrayList<>();
-		ctorCode.add("super(engine, " + RecipeGeneratorHelper.getClassReference(creatorType) + ", " + isPrimary + ", " + isFallback + ");");
+		ctorCode.add("super(engine, " + RecipeGeneratorHelper.getClassReference(advertisedType) + ", " + isPrimary + ", " + isFallback + ");");
 		ctorCode.add("this.config = config;");
 		siblingHelper.addCtorCode(ctorCode);
 

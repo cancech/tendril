@@ -41,7 +41,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     /**
      * Concrete implementation of the {@link AbstractRecipe} to use for testing
      */
-    private class TestRecipe extends AbstractRecipe<SingleCtorBean> {
+    private class TestRecipe extends AbstractRecipe<SingleCtorBean, SingleCtorBean> {
 
         private boolean isDescriptorSetup;
         private boolean isEnvRequirementSetup;
@@ -156,7 +156,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     @Mock
     private Injector<SingleCtorBean> mockInjector3;
     @Mock
-    private AbstractRecipe<?> mockOtherRecipe;
+    private AbstractRecipe<Object, Object> mockOtherRecipe;
     
     // Instance to test
     private TestRecipe recipe;
@@ -444,7 +444,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
      * @param expectedPrimary boolean the expected primary state of the recipe
      * @param expectedFallback boolean the expected fallback state of the recipe
      */
-    private void assertPriorities(AbstractRecipe<?> toCheck, boolean expectedPrimary, boolean expectedFallback) {
+    private <B, I extends B> void assertPriorities(AbstractRecipe<B, I> toCheck, boolean expectedPrimary, boolean expectedFallback) {
     	Assertions.assertEquals(expectedPrimary, toCheck.isPrimary());
     	Assertions.assertEquals(expectedFallback, toCheck.isFallback());
     }

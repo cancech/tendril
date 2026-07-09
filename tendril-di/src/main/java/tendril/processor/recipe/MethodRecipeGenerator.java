@@ -42,15 +42,24 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
 	 * CTOR
 	 * 
 	 * @param configType  {@link ClassType} indicating the configuration class
-	 * @param beanType    {@link ClassType} of the bean which is to be produced
+	 * @param advertisedType {@link ClassType} which the bean is advertised as
+	 * @param actualType     {@link ClassType} of the bean instance
 	 * @param beanCreator {@link JMethod} which is to produce the bean
 	 * @param messager    {@link Messager} that is used by the annotation processor
 	 */
-	MethodRecipeGenerator(ClassType configType, ClassType beanType, JMethod<?> beanCreator, Messager messager) {
-		super(beanType, beanCreator, messager);
+	MethodRecipeGenerator(ClassType configType, ClassType advertisedType, ClassType actualType, JMethod<?> beanCreator, Messager messager) {
+		super(advertisedType, actualType, beanCreator, messager);
 		this.configType = configType;
 		this.beanCreator = beanCreator;
 	}
+	
+	/**
+	 * @see tendril.processor.recipe.AbstractRecipeGenerator#defineRecipeGenerics(tendril.codegen.classes.ClassBuilder)
+	 */
+    @Override
+    protected ClassBuilder defineRecipeGenerics(ClassBuilder recipeClassBuilder) {
+		return recipeClassBuilder.addGeneric(GenericFactory.create(advertisedType)).addGeneric(GenericFactory.create(actualType));
+    }
 
 	/**
 	 * @see tendril.processor.recipe.AbstractRecipeGenerator#validateCreator()
@@ -98,7 +107,7 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
 		builder.buildField(configRecipeType, "config").setVisibility(VisibilityType.PRIVATE).setFinal(true).finish();
 		// Add the constructor
 		builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).buildParameter(configRecipeType, "config").finish().buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish()
-				.addCode("super(engine, " + RecipeGeneratorHelper.getClassReference(creatorType) + ", " + isPrimary + ", " + isFallback + ");", "this.config = config;").finish();
+				.addCode("super(engine, " + RecipeGeneratorHelper.getClassReference(advertisedType) + ", " + isPrimary + ", " + isFallback + ");", "this.config = config;").finish();
 	}
 
 }

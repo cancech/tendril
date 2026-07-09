@@ -16,7 +16,7 @@ public class RecipeSearchResultTest extends AbstractUnitTest {
 
 	// Mocks to use for testing
 	@Mock
-	private List<AbstractRecipe<Object>> mockResult;
+	private List<AbstractRecipe<Object, Object>> mockResult;
 	
 	// Instance to test
 	private RecipeSearchResult<Object> result;

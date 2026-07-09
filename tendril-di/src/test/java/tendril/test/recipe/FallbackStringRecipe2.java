@@ -5,7 +5,7 @@ import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 
-public class FallbackStringRecipe2 extends AbstractRecipe<String> {
+public class FallbackStringRecipe2 extends AbstractRecipe<String, String> {
 
     /** The value that the recipe produces */
     public static final String VALUE = "FallbackString2";

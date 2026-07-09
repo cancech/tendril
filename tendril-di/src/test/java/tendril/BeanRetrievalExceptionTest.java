@@ -38,15 +38,15 @@ public class BeanRetrievalExceptionTest extends AbstractUnitTest {
     @Mock
     private Descriptor<Object> mockBeanDescriptor;
     @Mock
-    private AbstractRecipe<Object> mockRecipe1;
+    private AbstractRecipe<Object, Object> mockRecipe1;
     @Mock
     private Descriptor<Object> mockRecipeDescriptor1;
     @Mock
-    private AbstractRecipe<Object> mockRecipe2;
+    private AbstractRecipe<Object, Object> mockRecipe2;
     @Mock
     private Descriptor<Object> mockRecipeDescriptor2;
     @Mock
-    private AbstractRecipe<Object> mockRecipe3;
+    private AbstractRecipe<Object, Object> mockRecipe3;
     @Mock
     private Descriptor<Object> mockRecipeDescriptor3;
     @Mock

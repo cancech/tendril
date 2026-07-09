@@ -102,6 +102,26 @@ public abstract class JBase extends JGeneric {
     }
     
     /**
+     * Get the specific annotation of a given type
+     * 
+     * @param type {@link ClassType} the type of annotatio to find
+     * @return {@link JAnnotation} that is applied, or {@code null} if no such annotation is present
+     */
+    public JAnnotation getAnnotation(ClassType type) {
+    	List<JAnnotation> matches = new ArrayList<>();
+    	for (JAnnotation a: annotations) {
+    		if (a.getType().equals(type))
+    			matches.add(a);
+    	}
+    	
+    	if (matches.isEmpty())
+    		return null;
+    	else if (matches.size() > 1)
+    		throw new DefinitionException(this + " has " + matches.size() + " " + type + " annotations applied");
+    	return matches.get(0);
+    }
+    
+    /**
      * Check if an annotation is placed on the item
      * 
      * @param annotation {@link Class} extending {@link Annotation} indicating which annotation to look for

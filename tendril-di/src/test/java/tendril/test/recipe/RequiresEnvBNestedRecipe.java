@@ -23,7 +23,7 @@ import tendril.context.Engine;
 /**
  * 
  */
-public class RequiresEnvBNestedRecipe extends AbstractRecipe<Double> {
+public class RequiresEnvBNestedRecipe extends AbstractRecipe<Double, Double> {
 
     public static final String NAME = "EnvNestedB";
     /** The value that the recipe produces */

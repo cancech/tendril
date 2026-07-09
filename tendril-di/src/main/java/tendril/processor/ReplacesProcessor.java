@@ -31,7 +31,7 @@ import tendril.bean.recipe.ReplacesRegistry;
 @SupportedAnnotationTypes("tendril.bean.Replaces")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class ReplacesProcessor extends AbstactBeanProcessor {
+public class ReplacesProcessor extends AbstractBeanProcessor {
 
 	/**
 	 * CTOR

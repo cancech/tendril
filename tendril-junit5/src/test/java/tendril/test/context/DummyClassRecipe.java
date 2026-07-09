@@ -9,7 +9,7 @@ import tendril.context.Engine;
  * Recipe through which the {@link DummyClass} is loaded by the {@link TestEngine}. This is done so that it is not part of the dependency injection and full control can be exerted over the creation of
  * the {@link DummyClass}
  */
-public class DummyClassRecipe extends SingletonRecipe<DummyClass> {
+public class DummyClassRecipe extends SingletonRecipe<DummyClass, DummyClass> {
 
 	/**
 	 * CTOR

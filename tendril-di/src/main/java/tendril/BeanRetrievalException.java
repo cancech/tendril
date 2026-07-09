@@ -25,65 +25,69 @@ import tendril.context.search.RecipeSearchResult;
  * Exception to be thrown when there is a failure to retrieve a bean
  */
 public class BeanRetrievalException extends RuntimeException {
-    /** Serial ID */
-    private static final long serialVersionUID = -1120827002093381126L;
+	/** Serial ID */
+	private static final long serialVersionUID = -1120827002093381126L;
 
-    /**
-     * CTOR
-     * 
-     * @param desc {@link Descriptor} describing the bean that was attempted to be retrieved
-     */
-    public BeanRetrievalException(Descriptor<?> desc) {
-        super("No matching Bean found for " + desc.toString());
-    }
+	/**
+	 * CTOR
+	 * 
+	 * @param desc {@link Descriptor} describing the bean that was attempted to be retrieved
+	 */
+	public BeanRetrievalException(Descriptor<?> desc) {
+		super("No matching Bean found for " + desc.toString());
+	}
 
-    /**
-     * CTOR
-     * 
-     * @param desc {@link Descriptor} describing the bean that was attempted to be retrieved
-     * @param options {@link List} of {@link AbstractRecipe}s that were all matched
-     * @param beanLabel {@link String} to apply as a label (adjective) on the bean when generating the exception message
-     */
-    public BeanRetrievalException(Descriptor<?> desc, List<AbstractRecipe<?>> options, String beanLabel) {
-        super(buildMultipleOptionsMessage(desc, options, beanLabel));
-    }
+	/**
+	 * CTOR
+	 * 
+	 * @param <BEAN_TYPE>     indicating the type of bean that the recipe is "announcing" as creating
+	 * @param <INSTANCE_TYPE> the actual type of the object that is created for the bean. This must extend {@code BEAN_TYPE}
+	 * @param desc            {@link Descriptor} describing the bean that was attempted to be retrieved
+	 * @param options         {@link List} of {@link AbstractRecipe}s that were all matched
+	 * @param beanLabel       {@link String} to apply as a label (adjective) on the bean when generating the exception message
+	 */
+	public <BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE> BeanRetrievalException(Descriptor<BEAN_TYPE> desc, List<AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE>> options, String beanLabel) {
+		super(buildMultipleOptionsMessage(desc, options, beanLabel));
+	}
 
-    /**
-     * Helper to assemble the message which is to be reported when multiple bean options are available
-     * 
-     * @param desc {@link Descriptor} of the bean that was desired
-     * @param options {@link List} of {@link AbstractRecipe}s that were all matched
-     * @param beanLabel {@link String} to apply as a label (adjective) on the bean when generating the exception message
-     * @return {@link String} message with the full details
-     */
-    private static String buildMultipleOptionsMessage(Descriptor<?> desc, List<AbstractRecipe<?>> options, String beanLabel) {
-        StringBuilder str = new StringBuilder("Multiple " + beanLabel + " matches available for " + desc.toString() + ":");
-        for (AbstractRecipe<?> opt: options)
-            str.append("\n    - " + opt.getDescription());
-        return str.toString();
-    }
-    
-    /**
-     * CTOR
-     * 
-     * @param desc {@link Descriptor} of the bean that was desired
-     * @param result {@link RecipeSearchResult} containing the multiple results which were found
-     */
-    public BeanRetrievalException(Descriptor<?> desc, RecipeSearchResult<?> result) {
-    	super(buildMultipleOptionsMessage(desc, result));
-    }
+	/**
+	 * Helper to assemble the message which is to be reported when multiple bean options are available
+	 * 
+	 * @param <BEAN_TYPE> indicating the type of bean that the recipe is "announcing" as creating
+	 * @param desc        {@link Descriptor} of the bean that was desired
+	 * @param options     {@link List} of {@link AbstractRecipe}s that were all matched
+	 * @param beanLabel   {@link String} to apply as a label (adjective) on the bean when generating the exception message
+	 * @return {@link String} message with the full details
+	 */
+	private static <BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE> String buildMultipleOptionsMessage(Descriptor<BEAN_TYPE> desc, List<AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE>> options,
+			String beanLabel) {
+		StringBuilder str = new StringBuilder("Multiple " + beanLabel + " matches available for " + desc.toString() + ":");
+		for (AbstractRecipe<?, ?> opt : options)
+			str.append("\n    - " + opt.getDescription());
+		return str.toString();
+	}
 
-    /**
-     * Helper to assemble the message which is to be reported when multiple bean options are available
-     * 
-     * @param desc {@link Descriptor} of the bean that was desired
-     * @param options {@link RecipeSearchResult} containing the multiple results which were found
-     * @return {@link String} message with the full details
-     */
-    private static String buildMultipleOptionsMessage(Descriptor<?> desc, RecipeSearchResult<?> options) {
-        StringBuilder str = new StringBuilder("Multiple " + options.getType() + " matches available for " + desc.toString() + ":");
-        for (AbstractRecipe<?> opt: options.getRecipes())
-            str.append("\n    - " + opt.getDescription());
-        return str.toString();
-    }
+	/**
+	 * CTOR
+	 * 
+	 * @param desc   {@link Descriptor} of the bean that was desired
+	 * @param result {@link RecipeSearchResult} containing the multiple results which were found
+	 */
+	public BeanRetrievalException(Descriptor<?> desc, RecipeSearchResult<?> result) {
+		super(buildMultipleOptionsMessage(desc, result));
+	}
+
+	/**
+	 * Helper to assemble the message which is to be reported when multiple bean options are available
+	 * 
+	 * @param desc    {@link Descriptor} of the bean that was desired
+	 * @param options {@link RecipeSearchResult} containing the multiple results which were found
+	 * @return {@link String} message with the full details
+	 */
+	private static String buildMultipleOptionsMessage(Descriptor<?> desc, RecipeSearchResult<?> options) {
+		StringBuilder str = new StringBuilder("Multiple " + options.getType() + " matches available for " + desc.toString() + ":");
+		for (AbstractRecipe<?, ?> opt : options.getRecipes())
+			str.append("\n    - " + opt.getDescription());
+		return str.toString();
+	}
 }

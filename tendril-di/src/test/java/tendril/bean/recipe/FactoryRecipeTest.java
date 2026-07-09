@@ -35,10 +35,10 @@ public class FactoryRecipeTest extends AbstractUnitTest {
     private Engine mockEngine;
     
     // Instance to test
-    private FactoryRecipe<SingleCtorBean> recipe;
+    private FactoryRecipe<SingleCtorBean, SingleCtorBean> recipe;
 
     // Concrete instance to use for testing
-    private class TestFactoryRecipe extends FactoryRecipe<SingleCtorBean> {
+    private class TestFactoryRecipe extends FactoryRecipe<SingleCtorBean ,SingleCtorBean> {
     	
         protected TestFactoryRecipe(boolean isPrimary, boolean isFallback) {
 			super(mockEngine, SingleCtorBean.class, isPrimary, isFallback);

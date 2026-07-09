@@ -62,7 +62,7 @@ public class MethodRecipeGeneratorTest extends AbstractUnitTest {
                 .addAnnotation(JAnnotationFactory.create(Singleton.class)).emptyImplementation();
         builder.setStatic(true);
         
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(configType, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(configType, null, builder.build(), mockMessager));
     }
 
     /**
@@ -75,7 +75,7 @@ public class MethodRecipeGeneratorTest extends AbstractUnitTest {
                 .addAnnotation(JAnnotationFactory.create(Singleton.class)).emptyImplementation();
         builder.setVisibility(VisibilityType.PRIVATE);
         
-        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(configType, builder.build(), mockMessager));
+        Assertions.assertThrows(TendrilException.class, () -> RecipeGenerator.generate(configType, null, builder.build(), mockMessager));
     }
 
     /**
@@ -88,6 +88,6 @@ public class MethodRecipeGeneratorTest extends AbstractUnitTest {
         MethodBuilder<Type> builder = new ConcreteMethodBuilder<>(null, "method").setType(PrimitiveType.INT)
                 .addAnnotation(JAnnotationFactory.create(Singleton.class)).emptyImplementation();
         
-        Assertions.assertFalse(RecipeGenerator.generate(configType, builder.build(), mockMessager).getCode().isBlank());
+        Assertions.assertFalse(RecipeGenerator.generate(configType, null, builder.build(), mockMessager).getCode().isBlank());
     }
 }

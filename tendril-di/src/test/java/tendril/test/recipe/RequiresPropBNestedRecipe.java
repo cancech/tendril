@@ -23,7 +23,7 @@ import tendril.context.Engine;
 /**
  * 
  */
-public class RequiresPropBNestedRecipe extends AbstractRecipe<Double> {
+public class RequiresPropBNestedRecipe extends AbstractRecipe<Double, Double> {
 
     public static final String NAME = "PropNestedB";
     /** The value that the recipe produces */

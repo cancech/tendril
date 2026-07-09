@@ -23,9 +23,10 @@ import tendril.context.Engine;
  * Abstract recipe for creating singleton beans. This takes on the responsibility for creating and managing the singleton instance of the bean. The class of the bean does not need to be singleton,
  * rather the recipe ensures that the specific instance of an concrete bean is only created once and simply returns the created instance for every subsequent access to the bean.
  * 
- * @param <BEAN_TYPE> the type of bean the recipe creates
+ * @param <BEAN_TYPE>     indicating the type of bean that the recipe is "announcing" as creating
+ * @param <INSTANCE_TYPE> the actual type of the object that is created for the bean. This must extend {@code BEAN_TYPE}
  */
-public abstract class SingletonRecipe<BEAN_TYPE> extends AbstractRecipe<BEAN_TYPE> {
+public abstract class SingletonRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE> extends AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE> {
 
 	/** The singleton instance of the bean */
 	private BEAN_TYPE bean = null;

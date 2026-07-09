@@ -101,7 +101,7 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 	 */
 	@Override
 	protected void generateCreateInstance(ClassBuilder builder) throws TendrilException {
-		builder.buildMethod(creatorType, "createInstance").addException(TypeFactory.createClassType(Throwable.class)).setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
+		builder.buildMethod(actualType, "createInstance").addException(TypeFactory.createClassType(Throwable.class)).setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
 				.buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish().addCode("return null;").finish();
 	}
 
@@ -113,12 +113,12 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 		if (isReplacement)
 			return new String[] { "return new HashMap<>();" };
 		
-		ClassType siblingType = RecipeGenerator.getSiblingRecipeType(creatorType);
+		ClassType siblingType = RecipeGenerator.getSiblingRecipeType(actualType);
 		externalImports.add(siblingType);
 		externalImports.add(TypeFactory.createClassType(HashMap.class));
 		externalImports.add(blueprintType);
 		List<String> code = new ArrayList<>();
-		code.add("Map<String, AbstractRecipe<?>> recipes = new HashMap<>();");
+		code.add("Map<String, AbstractRecipe<?, ?>> recipes = new HashMap<>();");
 		
 		externalImports.add(TypeFactory.createClassType(TendrilStartupException.class));
 		code.add("for(" + blueprintType.getSimpleName() + " copy: engine.getBlueprints(" + RecipeGeneratorHelper.getClassReference(blueprintType) + ")) {");

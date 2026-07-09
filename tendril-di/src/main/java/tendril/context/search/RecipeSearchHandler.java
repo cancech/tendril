@@ -14,11 +14,11 @@ import tendril.bean.recipe.AbstractRecipe;
  */
 public abstract class RecipeSearchHandler<BEAN_TYPE> {
 	/** List of the primary recipes that were found during the search */
-	protected final List<AbstractRecipe<BEAN_TYPE>> primaryRecipes = new ArrayList<>();
+	protected final List<AbstractRecipe<BEAN_TYPE, BEAN_TYPE>> primaryRecipes = new ArrayList<>();
 	/** List of the basic (no explicit type) recipes that were found during the search */
-	protected final List<AbstractRecipe<BEAN_TYPE>> basicRecipes = new ArrayList<>();
+	protected final List<AbstractRecipe<BEAN_TYPE, BEAN_TYPE>> basicRecipes = new ArrayList<>();
 	/** List of the fallback recipes that were found during the search */
-	protected final List<AbstractRecipe<BEAN_TYPE>> fallbackRecipes = new ArrayList<>();
+	protected final List<AbstractRecipe<BEAN_TYPE, BEAN_TYPE>> fallbackRecipes = new ArrayList<>();
 	
 	/**
 	 * CTOR
@@ -31,7 +31,7 @@ public abstract class RecipeSearchHandler<BEAN_TYPE> {
 	 * 
 	 * @param recipe {@link AbstractRecipe} for building the {@link Primary} bean
 	 */
-	public void addPrimaryRecipe(AbstractRecipe<BEAN_TYPE> recipe) {
+	public void addPrimaryRecipe(AbstractRecipe<BEAN_TYPE, BEAN_TYPE> recipe) {
 		primaryRecipes.add(recipe);
 	}
 
@@ -40,7 +40,7 @@ public abstract class RecipeSearchHandler<BEAN_TYPE> {
 	 * 
 	 * @param recipe {@link AbstractRecipe} for building the basic bean
 	 */
-	public void addBasicRecipe(AbstractRecipe<BEAN_TYPE> recipe) {
+	public void addBasicRecipe(AbstractRecipe<BEAN_TYPE, BEAN_TYPE> recipe) {
 		basicRecipes.add(recipe);
 	}
 
@@ -49,7 +49,7 @@ public abstract class RecipeSearchHandler<BEAN_TYPE> {
 	 * 
 	 * @param recipe {@link AbstractRecipe} for building the {@link Fallback} bean
 	 */
-	public void addFallbackRecipe(AbstractRecipe<BEAN_TYPE> recipe) {
+	public void addFallbackRecipe(AbstractRecipe<BEAN_TYPE, BEAN_TYPE> recipe) {
 		fallbackRecipes.add(recipe);
 	}
 	
@@ -67,7 +67,7 @@ public abstract class RecipeSearchHandler<BEAN_TYPE> {
 	 * 
 	 * @return {@link List} of {@link AbstractRecipe} instances which can be used to build the {@link Primary} bean
 	 */
-	public List<AbstractRecipe<BEAN_TYPE>> getPrimaryRecipes() {
+	public List<AbstractRecipe<BEAN_TYPE, BEAN_TYPE>> getPrimaryRecipes() {
 		return primaryRecipes;
 	}
 	
@@ -85,7 +85,7 @@ public abstract class RecipeSearchHandler<BEAN_TYPE> {
 	 * 
 	 * @return {@link List} of {@link AbstractRecipe} instances which can be used to build the basic bean
 	 */
-	public List<AbstractRecipe<BEAN_TYPE>> getBasicRecipes() {
+	public List<AbstractRecipe<BEAN_TYPE, BEAN_TYPE>> getBasicRecipes() {
 		return basicRecipes;
 	}
 	
@@ -103,7 +103,7 @@ public abstract class RecipeSearchHandler<BEAN_TYPE> {
 	 * 
 	 * @return {@link List} of {@link AbstractRecipe} instances which can be used to build the {@link Fallback} bean
 	 */
-	public List<AbstractRecipe<BEAN_TYPE>> getFallbackRecipes() {
+	public List<AbstractRecipe<BEAN_TYPE, BEAN_TYPE>> getFallbackRecipes() {
 		return fallbackRecipes;
 	}
 	

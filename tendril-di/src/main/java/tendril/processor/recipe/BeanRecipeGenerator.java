@@ -27,27 +27,28 @@ import tendril.codegen.field.type.ClassType;
  */
 class BeanRecipeGenerator extends ClassRecipeGenerator {
 
-    /**
-     * CTOR
-     * 
-     * @param beanType {@link ClassType} indicating the type of the bean
-     * @param bean {@link JClass} where the bean is defined
-     * @param messager {@link Messager} that is used by the annotation processor
-     */
-    BeanRecipeGenerator(ClassType beanType, JClass bean, Messager messager) {
-        super(beanType, bean, messager);
-    }
+	/**
+	 * CTOR
+	 * 
+	 * @param advertisedType {@link ClassType} which the bean is advertised as
+	 * @param actualType     {@link ClassType} of the bean instance
+	 * @param bean           {@link JClass} where the bean is defined
+	 * @param messager       {@link Messager} that is used by the annotation processor
+	 */
+	BeanRecipeGenerator(ClassType advertisedType, ClassType actualType, JClass bean, Messager messager) {
+		super(advertisedType, actualType, bean, messager);
+	}
 
-    /**
-     * @see tendril.processor.recipe.RecipeGenerator#populateBuilder(tendril.codegen.classes.ClassBuilder)
-     */
-    protected void populateBuilder(ClassBuilder builder) throws TendrilException {
-        // Build up the contents of the recipe
-        generateConstructor(builder);
-        generateRecipeDescriptor(builder);
-        generateRecipeRequirements(builder);
-        generateCreateInstance(builder);
-        processPostConstruct(builder);
-    }
+	/**
+	 * @see tendril.processor.recipe.RecipeGenerator#populateBuilder(tendril.codegen.classes.ClassBuilder)
+	 */
+	protected void populateBuilder(ClassBuilder builder) throws TendrilException {
+		// Build up the contents of the recipe
+		generateConstructor(builder);
+		generateRecipeDescriptor(builder);
+		generateRecipeRequirements(builder);
+		generateCreateInstance(builder);
+		processPostConstruct(builder);
+	}
 
 }

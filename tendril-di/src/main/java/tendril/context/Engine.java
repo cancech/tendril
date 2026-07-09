@@ -60,9 +60,9 @@ public class Engine implements ApplicationContext {
 	/** Cache of all blueprints which have been added for a given class type */
 	private final Map<Class<? extends Blueprint>, List<Blueprint>> blueprintsForClass = new HashMap<>();
 	/** All recipes that have been registered */
-	private final List<AbstractRecipe<?>> recipes = new ArrayList<>();
+	private final List<AbstractRecipe<?, ?>> recipes = new ArrayList<>();
 	/** All replacement recipes that are defined in a configuration */
-	private final List<Map<String, AbstractRecipe<?>>> configReplacements = new ArrayList<>();
+	private final List<Map<String, AbstractRecipe<?, ?>>> configReplacements = new ArrayList<>();
 	/** List of environments that are applied to the context */
 	private List<String> environments = new ArrayList<>();
 	/** Flag for whether or not the engine has been started */
@@ -167,7 +167,7 @@ public class Engine implements ApplicationContext {
 	 * Process the replacement recipes that have been delayed during configuration processing
 	 */
 	private void processConfigReplacements() {
-		for (Map<String, AbstractRecipe<?>> m : configReplacements) {
+		for (Map<String, AbstractRecipe<?, ?>> m : configReplacements) {
 			m.forEach((name, r) -> tryReplaceRecipe(name, r));
 		}
 
@@ -191,7 +191,7 @@ public class Engine implements ApplicationContext {
 			// Regular beans can be processed immediately
 			config.getNestedRecipes().forEach((name, r) -> tryAddRecipe(recipe + "::" + name, r));
 			// Replacements must be delayed until later
-			Map<String, AbstractRecipe<?>> delayedReplacements = new HashMap<>();
+			Map<String, AbstractRecipe<?, ?>> delayedReplacements = new HashMap<>();
 			config.getNestedReplacementRecipes().forEach((name, r) -> {
 				delayedReplacements.put(recipe + "::" + name, r);
 			});
@@ -210,7 +210,7 @@ public class Engine implements ApplicationContext {
 	 * @param object {@link Object} recipe instance
 	 */
 	private void tryAddRecipe(String name, Object object) {
-		AbstractRecipe<?> recipe = (AbstractRecipe<?>) object;
+		AbstractRecipe<?, ?> recipe = (AbstractRecipe<?, ?>) object;
 
 		if (requirementsMet(recipe)) {
 			recipes.add(recipe);
@@ -233,7 +233,7 @@ public class Engine implements ApplicationContext {
 				// Find the recipe this is to replace
 				Descriptor<?> description = recipe.getDescription();
 				try {
-					AbstractRecipe<?> orig = getRecipe(description, findOriginalRecipes(description, SearchType.SINGLE_BEAN));
+					AbstractRecipe<?, ?> orig = getRecipe(description, findOriginalRecipes(description, SearchType.SINGLE_BEAN));
 					recipes.remove(orig);
 					recipe.updatePriorities(orig);
 					description.updateFrom(orig.getDescription());
@@ -255,7 +255,7 @@ public class Engine implements ApplicationContext {
 	 * @param recipe {@link AbstractRecipe} to check
 	 * @return boolean true if all requirements for the recipe have been met
 	 */
-	boolean requirementsMet(AbstractRecipe<?> recipe) {
+	boolean requirementsMet(AbstractRecipe<?, ?> recipe) {
 		return requirementsMet(recipe, recipe.getEnvironmentRequirement(), environments) && requirementsMet(recipe, recipe.getPropertyRequirement(), systemPropertyList());
 	}
 
@@ -279,7 +279,7 @@ public class Engine implements ApplicationContext {
 	 * @param values {@link List} of {@link String} values that are to be checked against
 	 * @return boolean {@code true} if the requirement has been met
 	 */
-	private boolean requirementsMet(AbstractRecipe<?> recipe, Requirement req, List<String> values) {
+	private boolean requirementsMet(AbstractRecipe<?, ?> recipe, Requirement req, List<String> values) {
 		List<String> reqEnvs = req.getRequired();
 		List<String> notReqEnvs = req.getRequiredNot();
 
@@ -335,7 +335,6 @@ public class Engine implements ApplicationContext {
 	/**
 	 * @see tendril.context.ApplicationContext#getBean(tendril.bean.qualifier.Descriptor)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public <BEAN_TYPE> BEAN_TYPE getBean(Descriptor<BEAN_TYPE> descriptor) {
 		return (BEAN_TYPE) getRecipe(descriptor, findRecipes(descriptor, SearchType.SINGLE_BEAN)).get();
@@ -350,14 +349,14 @@ public class Engine implements ApplicationContext {
 	 * @throws BeanRetrievalException if there is an issue retrieving the desired bean
 	 */
 	@SuppressWarnings("unchecked")
-	private AbstractRecipe<?> getRecipe(Descriptor<?> descriptor, RecipeSearchResult<?> matchingRecipes) throws BeanReplacementException {
+	private <BEAN_TYPE> AbstractRecipe<BEAN_TYPE, BEAN_TYPE> getRecipe(Descriptor<BEAN_TYPE> descriptor, RecipeSearchResult<?> matchingRecipes) throws BeanReplacementException {
 		List<?> matches = matchingRecipes.getRecipes();
 		if (matches.isEmpty())
 			throw new BeanRetrievalException(descriptor);
 		if (matches.size() > 1)
-			throw new BeanRetrievalException(descriptor, (List<AbstractRecipe<?>>) matches, matchingRecipes.getType());
+			throw new BeanRetrievalException(descriptor, (List<AbstractRecipe<BEAN_TYPE, BEAN_TYPE>>) matches, matchingRecipes.getType());
 
-		return (AbstractRecipe<?>) matches.get(0);
+		return (AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) matches.get(0);
 	}
 
 	/**
@@ -386,11 +385,11 @@ public class Engine implements ApplicationContext {
 		recipes.forEach((r) -> {
 			if (r.getDescription().matches(descriptor)) {
 				if (r.isPrimary())
-					foundRecipes.addPrimaryRecipe((AbstractRecipe<BEAN_TYPE>) r);
+					foundRecipes.addPrimaryRecipe((AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) r);
 				else if (r.isFallback())
-					foundRecipes.addFallbackRecipe((AbstractRecipe<BEAN_TYPE>) r);
+					foundRecipes.addFallbackRecipe((AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) r);
 				else
-					foundRecipes.addBasicRecipe((AbstractRecipe<BEAN_TYPE>) r);
+					foundRecipes.addBasicRecipe((AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) r);
 			}
 		});
 
@@ -403,11 +402,11 @@ public class Engine implements ApplicationContext {
 		recipes.forEach((r) -> {
 			if (r.getDescription().replacedBy(descriptor)) {
 				if (r.isPrimary())
-					foundRecipes.addPrimaryRecipe((AbstractRecipe<BEAN_TYPE>) r);
+					foundRecipes.addPrimaryRecipe((AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) r);
 				else if (r.isFallback())
-					foundRecipes.addFallbackRecipe((AbstractRecipe<BEAN_TYPE>) r);
+					foundRecipes.addFallbackRecipe((AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) r);
 				else
-					foundRecipes.addBasicRecipe((AbstractRecipe<BEAN_TYPE>) r);
+					foundRecipes.addBasicRecipe((AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) r);
 			}
 		});
 
@@ -466,9 +465,9 @@ public class Engine implements ApplicationContext {
 	@Override
     public void start() {
         try {
-            List<AbstractRecipe<?>> runnerRecipes = new ArrayList<>();
+            List<AbstractRecipe<?, ?>> runnerRecipes = new ArrayList<>();
             for (String runnerClass: RunnerFile.read()) {
-                AbstractRecipe<?> runnerRecipe = (AbstractRecipe<?>)Class.forName(runnerClass).getDeclaredConstructor(Engine.class).newInstance(this);
+                AbstractRecipe<?, ?> runnerRecipe = (AbstractRecipe<?, ?>)Class.forName(runnerClass).getDeclaredConstructor(Engine.class).newInstance(this);
                 if (requirementsMet(runnerRecipe))
                     runnerRecipes.add(runnerRecipe);
             }

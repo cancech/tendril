@@ -33,6 +33,8 @@ public class AbstractRecipeGeneratorTest extends AbstractUnitTest {
 	@Mock
 	private ClassType mockClassType;
 	@Mock
+	private ClassType mockAdvertisedType;
+	@Mock
 	private JBase mockCreator;
 	@Mock
 	private JBase mockElement;
@@ -42,8 +44,13 @@ public class AbstractRecipeGeneratorTest extends AbstractUnitTest {
 	// Concrete instance to use for testing
 	private class TestAbstractRecipeGenerator extends AbstractRecipeGenerator<JBase> {
 
-		TestAbstractRecipeGenerator() {
-			super(mockClassType, mockCreator, mockMessager);
+		TestAbstractRecipeGenerator(ClassType advertisedType) {
+			super(advertisedType, mockClassType, mockCreator, mockMessager);
+		}
+
+		@Override
+		protected ClassBuilder defineRecipeGenerics(ClassBuilder recipeClassBuilder) {
+			return recipeClassBuilder;
 		}
 
 		@Override
@@ -63,6 +70,46 @@ public class AbstractRecipeGeneratorTest extends AbstractUnitTest {
 	protected void prepareTest() {
 		// Not required
 	}
+	
+	/**
+	 * Verify that the advertised recipe type is properly handled
+	 */
+	@Test
+	public void testAdvertisedRecipeNull() {
+		TestAbstractRecipeGenerator gen = new TestAbstractRecipeGenerator(null);
+		verify(mockCreator, times(1)).hasAnnotation(Primary.class);
+		verify(mockCreator, times(1)).hasAnnotation(Fallback.class);
+		
+		Assertions.assertEquals(mockClassType, gen.advertisedType);
+		Assertions.assertEquals(mockClassType, gen.actualType);
+	}
+	
+	/**
+	 * Verify that the advertised recipe type is properly handled
+	 */
+	@Test
+	public void testAdvertisedRecipeAdvertisedNotAssignable() {
+		when(mockClassType.getFullyQualifiedName()).thenReturn("MockClass");
+		when(mockClassType.isAssignableFrom(mockAdvertisedType)).thenReturn(false);
+		Assertions.assertThrows(ProcessingException.class, () -> new TestAbstractRecipeGenerator(mockAdvertisedType));
+		verify(mockClassType).getFullyQualifiedName();
+	}
+	
+	/**
+	 * Verify that the advertised recipe type is properly handled
+	 */
+	@Test
+	public void testAdvertisedRecipeAdvertisedIsAssignable() {
+		when(mockCreator.hasAnnotation(Primary.class)).thenReturn(false);
+		when(mockCreator.hasAnnotation(Fallback.class)).thenReturn(false);
+		when(mockClassType.isAssignableFrom(mockAdvertisedType)).thenReturn(true);
+		TestAbstractRecipeGenerator gen = new TestAbstractRecipeGenerator(mockAdvertisedType);
+		verify(mockCreator, times(1)).hasAnnotation(Primary.class);
+		verify(mockCreator, times(1)).hasAnnotation(Fallback.class);
+		
+		Assertions.assertEquals(mockAdvertisedType, gen.advertisedType);
+		Assertions.assertEquals(mockClassType, gen.actualType);
+	}
 
 	/**
 	 * Verify that the flags for the recipe are properly handled
@@ -74,7 +121,7 @@ public class AbstractRecipeGeneratorTest extends AbstractUnitTest {
 		// Both not applied, should work fine
 		when(mockCreator.hasAnnotation(Primary.class)).thenReturn(false);
 		when(mockCreator.hasAnnotation(Fallback.class)).thenReturn(false);
-		Assertions.assertDoesNotThrow(() -> new TestAbstractRecipeGenerator());
+		Assertions.assertDoesNotThrow(() -> new TestAbstractRecipeGenerator(null));
 		verify(mockCreator, times(1)).hasAnnotation(Primary.class);
 		verify(mockCreator, times(1)).hasAnnotation(Fallback.class);
 		verify(mockClassType, never()).getFullyQualifiedName();
@@ -82,7 +129,7 @@ public class AbstractRecipeGeneratorTest extends AbstractUnitTest {
 		// Only Primary applied, should work fine
 		when(mockCreator.hasAnnotation(Primary.class)).thenReturn(true);
 		when(mockCreator.hasAnnotation(Fallback.class)).thenReturn(false);
-		Assertions.assertDoesNotThrow(() -> new TestAbstractRecipeGenerator());
+		Assertions.assertDoesNotThrow(() -> new TestAbstractRecipeGenerator(null));
 		verify(mockCreator, times(2)).hasAnnotation(Primary.class);
 		verify(mockCreator, times(2)).hasAnnotation(Fallback.class);
 		verify(mockClassType, never()).getFullyQualifiedName();
@@ -90,7 +137,7 @@ public class AbstractRecipeGeneratorTest extends AbstractUnitTest {
 		// Only Fallback applied, should work fine
 		when(mockCreator.hasAnnotation(Primary.class)).thenReturn(false);
 		when(mockCreator.hasAnnotation(Fallback.class)).thenReturn(true);
-		Assertions.assertDoesNotThrow(() -> new TestAbstractRecipeGenerator());
+		Assertions.assertDoesNotThrow(() -> new TestAbstractRecipeGenerator(null));
 		verify(mockCreator, times(3)).hasAnnotation(Primary.class);
 		verify(mockCreator, times(3)).hasAnnotation(Fallback.class);
 		verify(mockClassType, never()).getFullyQualifiedName();
@@ -98,7 +145,7 @@ public class AbstractRecipeGeneratorTest extends AbstractUnitTest {
 		// Both applied, should throw an exception
 		when(mockCreator.hasAnnotation(Primary.class)).thenReturn(true);
 		when(mockCreator.hasAnnotation(Fallback.class)).thenReturn(true);
-		Assertions.assertThrows(ProcessingException.class, () -> new TestAbstractRecipeGenerator());
+		Assertions.assertThrows(ProcessingException.class, () -> new TestAbstractRecipeGenerator(null));
 		verify(mockCreator, times(4)).hasAnnotation(Primary.class);
 		verify(mockCreator, times(4)).hasAnnotation(Fallback.class);
 		verify(mockClassType, times(1)).getFullyQualifiedName();
@@ -111,7 +158,7 @@ public class AbstractRecipeGeneratorTest extends AbstractUnitTest {
 	public void testSiblingWarning() {
 		when(mockCreator.hasAnnotation(Primary.class)).thenReturn(false);
 		when(mockCreator.hasAnnotation(Fallback.class)).thenReturn(false);
-		AbstractRecipeGenerator<JBase> generator = new TestAbstractRecipeGenerator();
+		AbstractRecipeGenerator<JBase> generator = new TestAbstractRecipeGenerator(null);
 		verify(mockCreator, times(1)).hasAnnotation(Primary.class);
 		verify(mockCreator, times(1)).hasAnnotation(Fallback.class);
 		

@@ -78,15 +78,14 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 
 	/** Mapping of the types of life cycle annotations that are supported to the recipe that implements it */
 	@SuppressWarnings("rawtypes")
-	private static final Map<ClassType, Class<? extends AbstractRecipe>> recipeTypeMap = Map.of(
-			TypeFactory.createClassType(Singleton.class), SingletonRecipe.class,
-			TypeFactory.createClassType(Factory.class), FactoryRecipe.class,
-			TypeFactory.createClassType(Runner.class), SingletonRecipe.class,
-			TypeFactory.createClassType(Configuration.class), ConfigurationRecipe.class,
-			TypeFactory.createClassType("tendril.test.TendrilTest"), SingletonRecipe.class);
+	private static final Map<ClassType, Class<? extends AbstractRecipe>> recipeTypeMap = Map.of(TypeFactory.createClassType(Singleton.class), SingletonRecipe.class,
+			TypeFactory.createClassType(Factory.class), FactoryRecipe.class, TypeFactory.createClassType(Runner.class), SingletonRecipe.class, TypeFactory.createClassType(Configuration.class),
+			ConfigurationRecipe.class, TypeFactory.createClassType("tendril.test.TendrilTest"), SingletonRecipe.class);
 
-	/** The type of the creator */
-	protected final ClassType creatorType;
+	/** The type that the bean advertises itself as */
+	protected final ClassType advertisedType;
+	/** The actual type of the bean that is being created */
+	protected final ClassType actualType;
 	/** The element which is triggering the creation of the bean */
 	protected final CREATOR creator;
 	/** Flag indicating whether the bean the recipe is creating is a primary bean */
@@ -107,20 +106,31 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 	/**
 	 * CTOR
 	 * 
-	 * @param creatorType {@link ClassType} which is triggering the creation
-	 * @param creator     {@link JBase} which is performing the creation
-	 * @param messager    {@link Messager} that is used by the annotation processor
+	 * @param advertisedType {@link ClassType} which the bean is advertised as
+	 * @param actualType     {@link ClassType} of the bean instance
+	 * @param creator        {@link JBase} which is performing the creation
+	 * @param messager       {@link Messager} that is used by the annotation processor
 	 */
-	AbstractRecipeGenerator(ClassType creatorType, CREATOR creator, Messager messager) {
-		this.creatorType = creatorType;
+	AbstractRecipeGenerator(ClassType advertisedType, ClassType actualType, CREATOR creator, Messager messager) {
+		this.actualType = actualType;
 		this.creator = creator;
 		this.messager = messager;
+
+		if (advertisedType == null)
+			// The advertised type is optional and if not specified default the actual type
+			this.advertisedType = actualType;
+		else {
+			// If the advertised type is specified, make sure that it value before using it
+			if (!actualType.isAssignableFrom(advertisedType))
+				throw new ProcessingException(actualType.getFullyQualifiedName() + " has invalid type override: " + advertisedType + " is not a valid ancestor");
+			this.advertisedType = advertisedType;
+		}
 
 		isPrimary = creator.hasAnnotation(Primary.class);
 		isFallback = creator.hasAnnotation(Fallback.class);
 		if (isPrimary && isFallback)
-			throw new ProcessingException(creatorType.getFullyQualifiedName() + " is marked as both " + Primary.class.getSimpleName() + " and " + Fallback.class.getSimpleName()
-					+ ". At most one can be employed at a time.");
+			throw new ProcessingException(
+					actualType.getFullyQualifiedName() + " is marked as both " + Primary.class.getSimpleName() + " and " + Fallback.class.getSimpleName() + ". At most one can be employed at a time.");
 	}
 
 	/**
@@ -153,7 +163,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 		validateCreator();
 
 		// The parent class
-		JClass parent = ClassBuilder.forConcreteClass(getRecipeClass()).addGeneric(GenericFactory.create(creatorType)).build();
+		JClass parent = defineRecipeGenerics(ClassBuilder.forConcreteClass(getRecipeClass())).build();
 
 		// Configure the basic information about the recipe
 		ClassBuilder clsBuilder = ClassBuilder.forConcreteClass(recipeType).setVisibility(VisibilityType.PUBLIC).extendsClass(parent);
@@ -163,6 +173,14 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 		populateBuilder(clsBuilder);
 		return new ClassDefinition(recipeType, clsBuilder.build().generateCode(externalImports));
 	}
+
+	/**
+	 * Define the generics that are to be applied to the recipe class
+	 * 
+	 * @param recipeClassBuilder {@link ClassBuilder} where the recipe class is being built
+	 * @return {@link ClassBuilder} where the recipe class is being built
+	 */
+	protected abstract ClassBuilder defineRecipeGenerics(ClassBuilder recipeClassBuilder);
 
 	/**
 	 * Validate the creator, to make sure that it can actually be used by/for the recipe
@@ -197,9 +215,9 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 		}
 
 		if (foundTypes.isEmpty())
-			throw new InvalidConfigurationException(creatorType.getFullyQualifiedName() + " must have a single life cycle indicated");
+			throw new InvalidConfigurationException(actualType.getFullyQualifiedName() + " must have a single life cycle indicated");
 		if (foundTypes.size() > 1)
-			throw new InvalidConfigurationException(creatorType.getFullyQualifiedName() + "has multiple life cycles indicated [" + TendrilStringUtil.join(foundTypes) + "]");
+			throw new InvalidConfigurationException(actualType.getFullyQualifiedName() + " has multiple life cycles indicated [" + TendrilStringUtil.join(foundTypes) + "]");
 
 		return recipeTypeMap.get(foundTypes.get(0));
 	}
@@ -282,7 +300,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 	 */
 	protected void generateRecipeDescriptor(ClassBuilder builder) {
 		builder.buildMethod("setupDescriptor").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PROTECTED)
-				.buildParameter(TypeFactory.createClassType(Descriptor.class, GenericFactory.create(creatorType)), "descriptor").finish()
+				.buildParameter(TypeFactory.createClassType(Descriptor.class, GenericFactory.create(advertisedType)), "descriptor").finish()
 				.addCode(wrapLines(getDescriptorLines(creator), "descriptor.", ";")).finish();
 	}
 
@@ -332,7 +350,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 		addParameterInjection(lines, creator.getParameters(), "", "return this.config.get()." + creator.getName() + "(");
 
 		// Add the method to the recipe
-		builder.buildMethod(creatorType, "createInstance").addException(TypeFactory.createClassType(Throwable.class)).setVisibility(VisibilityType.PROTECTED)
+		builder.buildMethod(actualType, "createInstance").addException(TypeFactory.createClassType(Throwable.class)).setVisibility(VisibilityType.PROTECTED)
 				.addAnnotation(JAnnotationFactory.create(Override.class)).buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish().addCode(lines.toArray(new String[lines.size()]))
 				.finish();
 	}

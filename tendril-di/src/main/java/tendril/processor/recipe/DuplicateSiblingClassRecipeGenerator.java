@@ -50,7 +50,7 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 	 * @param blueprintType {@link ClassType} of the enum which drives the duplication
 	 */
 	DuplicateSiblingClassRecipeGenerator(ClassType beanType, JClass bean, Messager messager, ClassType blueprintType) {
-		super(beanType, bean, messager);
+		super(beanType, beanType, bean, messager);
 		siblingHelper = new SiblingRecipeGeneratorHelper(bean, beanType, blueprintType, messager, this);
 	}
 
@@ -72,7 +72,7 @@ class DuplicateSiblingClassRecipeGenerator extends BeanRecipeGenerator {
 	protected void generateConstructor(ClassBuilder builder) throws InvalidConfigurationException {
 		// CTOR contents
 		List<String> ctorCode = new ArrayList<>();
-		ctorCode.add("super(engine, " + RecipeGeneratorHelper.getClassReference(creatorType) + ", " + isPrimary + ", " + isFallback + ");");
+		ctorCode.add("super(engine, " + RecipeGeneratorHelper.getClassReference(advertisedType) + ", " + isPrimary + ", " + isFallback + ");");
 		siblingHelper.addCtorCode(ctorCode);
 
 		generateFieldConsumers(ctorCode);

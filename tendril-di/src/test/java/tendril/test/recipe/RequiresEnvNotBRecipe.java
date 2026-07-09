@@ -23,7 +23,7 @@ import tendril.context.Engine;
 /**
  * 
  */
-public class RequiresEnvNotBRecipe extends AbstractRecipe<String> {
+public class RequiresEnvNotBRecipe extends AbstractRecipe<String, String> {
 
     public static final String NAME = "EnvNotB";
     /** The value that the recipe produces */

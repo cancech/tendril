@@ -46,7 +46,7 @@ public class ClassRecipeGeneratorTest extends AbstractUnitTest {
          * @param creator
          */
         TestClassRecipeGenerator(ClassType beanType, JClass creator) {
-            super(beanType, creator, mockMessager);
+            super(null, beanType, creator, mockMessager);
         }
 
         /**

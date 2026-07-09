@@ -40,41 +40,44 @@ public final class RecipeGenerator {
     /**
      * Generate the {@link ClassDefinition} for a {@link JClass} which defines and is the bean
      * 
+     * @param advertisedType {@link ClassType} that the bean is to be advertised under
      * @param creator {@link JClass} defining the bean
      * @param messager {@link Messager} that is used by the annotation processor
      * @param registryAnnotation {@link Class} extending {@link Annotation} to apply as the registry annotation (null if no registration is to be performed)
      * @return {@link ClassDefinition}
      * @throws TendrilException when an issue generating the recipe is encountered
      */
-    public static ClassDefinition generate(JClass creator, Messager messager, Class<? extends Annotation> registryAnnotation) throws TendrilException {
-        return generate(creator.getType(), creator, messager, registryAnnotation);
+    public static ClassDefinition generate(ClassType advertisedType, JClass creator, Messager messager, Class<? extends Annotation> registryAnnotation) throws TendrilException {
+        return generate(advertisedType, creator.getType(), creator, messager, registryAnnotation);
     }
 
     /**
      * Generate the {@link ClassDefinition} for a {@link JClass} which defines and is the bean
      * 
-     * @param beanType {@link ClassType} indicating the type of the bean
+	 * @param advertisedType {@link ClassType} which the bean is advertised as
+	 * @param actualType     {@link ClassType} of the bean instance
      * @param creator {@link JClass} defining the bean
      * @param messager {@link Messager} that is used by the annotation processor
      * @param registryAnnotation {@link Class} extending {@link Annotation} to apply as the registry annotation (null if no registration is to be performed)
      * @return {@link ClassDefinition}
      * @throws TendrilException when an issue generating the recipe is encountered
      */
-    public static ClassDefinition generate(ClassType beanType, JClass creator, Messager messager, Class<? extends Annotation> registryAnnotation) throws TendrilException {
-        return new BeanRecipeGenerator(beanType, creator, messager).generate(getRecipeType(beanType), registryAnnotation);
+    public static ClassDefinition generate(ClassType advertisedType, ClassType actualType, JClass creator, Messager messager, Class<? extends Annotation> registryAnnotation) throws TendrilException {
+        return new BeanRecipeGenerator(advertisedType, actualType, creator, messager).generate(getRecipeType(actualType), registryAnnotation);
     }
     
     /**
      * Generate the {@link ClassDefinition} for a {@link JMethod} which creates a bean as part of a {@link Configuration}.
      * 
      * @param configType {@link ClassType} of the configuration (i.e.: contains the method)
+     * @param advertisedType {@link ClassType} that the bean is to be advertised under
      * @param creator {@link JMethod} which creates the bean
      * @param messager {@link Messager} that is used by the annotation processor
      * @return {@link ClassDefinition}
      * @throws TendrilException when an issue generating the recipe is encountered
      */
-    public static ClassDefinition generate(ClassType configType, JMethod<?> creator, Messager messager) throws TendrilException {
-        MethodRecipeGenerator generator = new MethodRecipeGenerator(configType, creator.getType().asClassType(), creator, messager);
+    public static ClassDefinition generate(ClassType configType, ClassType advertisedType, JMethod<?> creator, Messager messager) throws TendrilException {
+        MethodRecipeGenerator generator = new MethodRecipeGenerator(configType, advertisedType, creator.getType().asClassType(), creator, messager);
         return generator.generate(getRecipeType(configType, creator), null);
     }
     

@@ -1,6 +1,7 @@
 package tendril.processor.recipe;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import javax.annotation.processing.Messager;
 
@@ -35,9 +36,11 @@ public class DuplicateRecipeGeneratorTest extends AbstractUnitTest {
 	 */
 	@Override
 	protected void prepareTest() {
+		when(mockBeanType.isAssignableFrom(mockBeanType)).thenReturn(true);
 		generator = new DuplicateRecipeGenerator(mockBlueprint, mockBeanType, mockCreator, mockMessager);
 		verify(mockCreator).hasAnnotation(Primary.class);
 		verify(mockCreator).hasAnnotation(Fallback.class);
+		verify(mockBeanType).isAssignableFrom(mockBeanType);
 	}
 
 	/**

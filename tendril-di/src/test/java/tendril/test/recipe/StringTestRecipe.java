@@ -23,7 +23,7 @@ import tendril.context.Engine;
 /**
  * Recipe to use for testing where a "StringBean" string is produced.
  */
-public class StringTestRecipe extends AbstractRecipe<String> {
+public class StringTestRecipe extends AbstractRecipe<String, String> {
 
     /** The value that the recipe produces */
     public static final String VALUE = "StringBean";

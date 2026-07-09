@@ -23,7 +23,7 @@ import tendril.context.Engine;
 /**
  * Recipe to use for testing where a {@link Integer} 123 is produced.
  */
-public class IntTestRecipe extends AbstractRecipe<Integer> {
+public class IntTestRecipe extends AbstractRecipe<Integer, Integer> {
 
     public static final String NAME = "int1";
     /** The value that the recipe produces */

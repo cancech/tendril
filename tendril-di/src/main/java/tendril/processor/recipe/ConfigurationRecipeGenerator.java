@@ -37,7 +37,7 @@ import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.generics.GenericFactory;
-import tendril.processor.BlueprintHelper;
+import tendril.processor.AnnotationHelper;
 
 /**
  * Generator for {@link Configuration} recipes
@@ -52,7 +52,15 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 	 * @param messager   {@link Messager} that is used by the annotation processor
 	 */
 	ConfigurationRecipeGenerator(ClassType configType, JClass config, Messager messager) {
-		super(configType, config, messager);
+		super(configType, configType, config, messager);
+	}
+	
+	/**
+	 * @see tendril.processor.recipe.ClassRecipeGenerator#defineRecipeGenerics(tendril.codegen.classes.ClassBuilder)
+	 */
+	@Override
+	protected ClassBuilder defineRecipeGenerics(ClassBuilder recipeClassBuilder) {
+		return recipeClassBuilder.addGeneric(GenericFactory.create(advertisedType));
 	}
 
 	/**
@@ -77,7 +85,7 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 	 */
 	private void generateNestedRecipes(ClassBuilder builder, String methodName, String[] code) throws TendrilException {
 		ClassType returnType = TypeFactory.createClassType(Map.class, GenericFactory.create(TypeFactory.createClassType(String.class)),
-				GenericFactory.create(TypeFactory.createClassType(AbstractRecipe.class, GenericFactory.createWildcard())));
+				GenericFactory.create(TypeFactory.createClassType(AbstractRecipe.class, GenericFactory.createWildcard(), GenericFactory.createWildcard())));
 		builder.buildMethod(returnType, methodName).setVisibility(VisibilityType.PUBLIC).addAnnotation(JAnnotationFactory.create(Override.class)).addCode(code).finish();
 	}
 	
@@ -91,7 +99,7 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 	protected String[] nestedRecipesCode(boolean isReplacement) throws TendrilException {
 		externalImports.add(TypeFactory.createClassType(HashMap.class));
 		List<String> code = new ArrayList<>();
-		code.add("Map<String, AbstractRecipe<?>> recipes = new HashMap<>();");
+		code.add("Map<String, AbstractRecipe<?, ?>> recipes = new HashMap<>();");
 		
 		if (isReplacement)
 			populateNestedReplacements(code);
@@ -114,10 +122,10 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 		
 		// Handle the methods which create duplicated beans
 		for (JMethod<?> method : creator.getMethods()) {
-			ClassType blueprintType = BlueprintHelper.retrieveBlueprint(method);
+			ClassType blueprintType = AnnotationHelper.retrieveDuplicateBlueprint(method);
 			if (blueprintType != null) {
 				externalImports.add(blueprintType);
-				ClassType nestedRecipeType = RecipeGenerator.getSiblingRecipeType(creatorType, method);
+				ClassType nestedRecipeType = RecipeGenerator.getSiblingRecipeType(actualType, method);
 				
 				// Class based duplicates get the blueprints from the engine
 				externalImports.add(TypeFactory.createClassType(TendrilStartupException.class));
@@ -149,7 +157,7 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 	 */
 	private void appendBeanRecipes(Class<? extends Annotation> annotation, List<String> code) {
 		for (JMethod<?> method : creator.getMethods(annotation)) {
-			ClassType nestedRecipeType = RecipeGenerator.getRecipeType(creatorType, method);
+			ClassType nestedRecipeType = RecipeGenerator.getRecipeType(actualType, method);
 			code.add("recipes.put(\"" + method.getName() + "\", new " + nestedRecipeType.getSimpleName() + "(this, engine));");
 		}
 	}

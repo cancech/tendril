@@ -23,7 +23,7 @@ public class AllRecipeSearchHandler<BEAN_TYPE> extends RecipeSearchHandler<BEAN_
 	 */
 	@Override
 	public RecipeSearchResult<BEAN_TYPE> processResults() {
-		List<AbstractRecipe<BEAN_TYPE>> recipes = new ArrayList<>();
+		List<AbstractRecipe<BEAN_TYPE, BEAN_TYPE>> recipes = new ArrayList<>();
 		// First and foremost primary and basic recipes
 		recipes.addAll(primaryRecipes);
 		recipes.addAll(basicRecipes);

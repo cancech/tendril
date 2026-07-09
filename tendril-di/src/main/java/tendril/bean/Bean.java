@@ -26,9 +26,19 @@ import java.lang.annotation.Target;
  * bean, unless it is itself appropriately annotated as such. In this manner a bean can be the source of beans, or merely created and its nested beans extracted before discarding the encompassing 
  * class.
  * <p>Note that a Provider method must return something, and can be considered analogous to a factory method.</p>
+ * By default the Bean will registered as the "type" of what it is applied to (namely the class it is applied to or to return type of the method), though this can be overridden through the
+ * attribute. {@code @Bean(MyOverride.class)} will override the default type with {@code MyOverride.class}.
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Bean {
 
+	/**
+	 * Optionally specify a class/type that the bean should be "advertised" under. Meaning that regardless of what the actual of the bean is, it will be made available purely under the override type.
+	 * If not specified, it will default to the type as defined in the code (i.e.: the class it is applied to or to return type of the method). Note that the override must be a parent of the "default"
+	 * type.
+	 * 
+	 * @return {@link Class} to use for the override, must be a parent of the actual bean type
+	 */
+	Class<?> value() default NoBeanOverrideClass.class;
 }

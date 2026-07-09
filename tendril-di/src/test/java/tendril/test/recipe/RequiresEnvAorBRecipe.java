@@ -23,7 +23,7 @@ import tendril.context.Engine;
 /**
  * 
  */
-public class RequiresEnvAorBRecipe extends AbstractRecipe<Integer> {
+public class RequiresEnvAorBRecipe extends AbstractRecipe<Integer, Integer> {
 
     /** The name under which the double 2 bean is provided */
     public static final String NAME = "EnvAorB";

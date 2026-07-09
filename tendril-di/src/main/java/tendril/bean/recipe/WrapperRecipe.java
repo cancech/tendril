@@ -11,7 +11,7 @@ import tendril.context.Engine;
  * 
  * @param <BEAN_TYPE> the type of bean the recipe contains
  */
-public class WrapperRecipe<BEAN_TYPE> extends SingletonRecipe<BEAN_TYPE> {
+public class WrapperRecipe<BEAN_TYPE> extends SingletonRecipe<BEAN_TYPE, BEAN_TYPE> {
 	/** The manually created bean instance */
 	private final BEAN_TYPE bean;
 

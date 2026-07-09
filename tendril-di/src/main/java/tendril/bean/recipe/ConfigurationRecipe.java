@@ -27,7 +27,7 @@ import tendril.context.Engine;
  * 
  * @param <CONFIGURATION_TYPE> indicating the class of the configuration the recipe is creating
  */
-public abstract class ConfigurationRecipe<CONFIGURATION_TYPE> extends SingletonRecipe<CONFIGURATION_TYPE> {
+public abstract class ConfigurationRecipe<CONFIGURATION_TYPE> extends SingletonRecipe<CONFIGURATION_TYPE, CONFIGURATION_TYPE> {
 
     /**
      * CTOR
@@ -54,12 +54,12 @@ public abstract class ConfigurationRecipe<CONFIGURATION_TYPE> extends SingletonR
      * 
      * @return {@link Map} of {@link String} (method name) to the {@link AbstractRecipe} which creates the nested bean
      */
-    public abstract Map<String, AbstractRecipe<?>> getNestedRecipes();
+    public abstract Map<String, AbstractRecipe<?, ?>> getNestedRecipes();
 
     /**
      * Get the replacement recipes for the nested method beans
      * 
      * @return {@link Map} of {@link String} (method name) to the {@link AbstractRecipe} which creates the replacement nested bean
      */
-    public abstract Map<String, AbstractRecipe<?>> getNestedReplacementRecipes();
+    public abstract Map<String, AbstractRecipe<?, ?>> getNestedReplacementRecipes();
 }

@@ -42,8 +42,9 @@ public class TestEngine extends Engine {
 	 */
 	public Object getTestRunner() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SecurityException, ClassNotFoundException {
 		@SuppressWarnings("unchecked")
-		Class<? extends AbstractRecipe<?>> recipeClass = (Class<? extends AbstractRecipe<?>>) Class.forName(testClass.getName() + "Recipe");
-		AbstractRecipe<?> recipe = (AbstractRecipe<?>) recipeClass.getConstructors()[0].newInstance(this);
+		Class<? extends AbstractRecipe<Object, Object>> recipeClass = (Class<? extends AbstractRecipe<Object, Object>>) Class.forName(testClass.getName() + "Recipe");
+		@SuppressWarnings("unchecked")
+		AbstractRecipe<Object, Object> recipe = (AbstractRecipe<Object, Object>) recipeClass.getConstructors()[0].newInstance(this);
 		return recipe.get();
 	}
 

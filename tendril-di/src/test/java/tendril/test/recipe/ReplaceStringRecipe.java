@@ -8,7 +8,7 @@ import tendril.context.Engine;
 /**
  * Recipe to replace the {@link IntTestRecipe} in testing
  */
-public class ReplaceStringRecipe extends AbstractRecipe<String> {
+public class ReplaceStringRecipe extends AbstractRecipe<String, String> {
 	
     /** The value that the replacement recipe produces */
     public static final String VALUE = "replacement";

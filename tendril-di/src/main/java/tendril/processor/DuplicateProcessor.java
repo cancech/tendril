@@ -71,7 +71,7 @@ public class DuplicateProcessor extends AbstractDelayedAnnotationTendrilProcesso
 	protected ClassDefinition processType() throws TendrilException {
 		try {
 			// Determine the type of blueprint
-			ClassType blueprint = BlueprintHelper.retrieveBlueprint(currentClass);
+			ClassType blueprint = AnnotationHelper.retrieveDuplicateBlueprint(currentClass);
 			if (blueprint == null)
 				throw new TendrilException("Unable to retrieve bluerprint class type");
 
@@ -92,7 +92,7 @@ public class DuplicateProcessor extends AbstractDelayedAnnotationTendrilProcesso
 		if (!currentClass.hasAnnotation(Configuration.class))
 			throw new InvalidConfigurationException(currentMethod.getFullElementPath() + " - Blueprint methods cannot be outside of a configuration");
 
-		return RecipeGenerator.generateDuplicateSiblingBean(BlueprintHelper.retrieveBlueprint(currentMethod), currentClassType, currentMethod, processingEnv.getMessager());
+		return RecipeGenerator.generateDuplicateSiblingBean(AnnotationHelper.retrieveDuplicateBlueprint(currentMethod), currentClassType, currentMethod, processingEnv.getMessager());
 	}
 
 }

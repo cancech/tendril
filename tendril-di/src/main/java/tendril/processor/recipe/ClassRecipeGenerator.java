@@ -45,6 +45,7 @@ import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypeFactory;
+import tendril.codegen.generics.GenericFactory;
 import tendril.context.Engine;
 import tendril.util.TendrilStringUtil;
 
@@ -54,16 +55,27 @@ import tendril.util.TendrilStringUtil;
 abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     /** Logger for the processor */
     private static final Logger LOGGER = Logger.getLogger(ClassRecipeGenerator.class.getSimpleName());
+    
+    // TODO When bean extends another class with injections, should it extend its recipe?
 
     /**
      * CTOR
      * 
-     * @param beanType {@link ClassType} of the bean
+	 * @param advertisedType {@link ClassType} which the bean is advertised as
+	 * @param actualType     {@link ClassType} of the bean instance
      * @param creator  {@link JClass} which defines and creates the bean
      * @param messager {@link Messager} that is used by the annotation processor
      */
-    ClassRecipeGenerator(ClassType beanType, JClass creator, Messager messager) {
-        super(beanType, creator, messager);
+    ClassRecipeGenerator(ClassType advertisedType, ClassType actualType, JClass creator, Messager messager) {
+        super(advertisedType, actualType, creator, messager);
+    }
+    
+    /**
+     * @see tendril.processor.recipe.AbstractRecipeGenerator#defineRecipeGenerics(tendril.codegen.classes.ClassBuilder)
+     */
+    @Override
+    protected ClassBuilder defineRecipeGenerics(ClassBuilder recipeClassBuilder) {
+		return recipeClassBuilder.addGeneric(GenericFactory.create(advertisedType)).addGeneric(GenericFactory.create(actualType));
     }
 
     /**
@@ -88,7 +100,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      * @throws InvalidConfigurationException
      */
     private void throwValidationException(String reason) throws InvalidConfigurationException {
-        throw new InvalidConfigurationException(creatorType.getFullyQualifiedName() + " cannot be a bean because it is " + reason);
+        throw new InvalidConfigurationException(actualType.getFullyQualifiedName() + " cannot be a bean because it is " + reason);
     }
 
     /**
@@ -100,7 +112,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     protected void generateConstructor(ClassBuilder builder) throws InvalidConfigurationException {
         // CTOR contents
         List<String> ctorCode = new ArrayList<>();
-        ctorCode.add("super(engine, " + RecipeGeneratorHelper.getClassReference(creatorType) + ", " + isPrimary + ", " + isFallback + ");");
+        ctorCode.add("super(engine, " + RecipeGeneratorHelper.getClassReference(advertisedType) + ", " + isPrimary + ", " + isFallback + ");");
         generateFieldConsumers(ctorCode);
         generateMethodConsumers(ctorCode);
 
@@ -145,15 +157,15 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     	
         addImport(Descriptor.class);
 
-        if (RecipeGeneratorHelper.requiresReflection(creatorType, field)) {
+        if (RecipeGeneratorHelper.requiresReflection(actualType, field)) {
             addImport(ReflectedFieldApplicator.class);
 	        ctorLines.add("registerDependency(" + getDependencyDescriptor(field) + ",");
-	        ctorLines.add("        new " + ReflectedFieldApplicator.class.getSimpleName() + "<" + creatorType.getSimpleName() + ", " + fieldTypeName + ">(\"" + field.getFullElementPath() + "\", \"" + field.getName() + "\"));");
+	        ctorLines.add("        new " + ReflectedFieldApplicator.class.getSimpleName() + "<" + actualType.getSimpleName() + ", " + fieldTypeName + ">(\"" + field.getFullElementPath() + "\", \"" + field.getName() + "\"));");
         } else {
             addImport(Applicator.class);
-	        ctorLines.add("registerDependency(" + getDependencyDescriptor(field) + ", new " + Applicator.class.getSimpleName() + "<" + creatorType.getSimpleName() + ", " + fieldTypeName + ">() {");
+	        ctorLines.add("registerDependency(" + getDependencyDescriptor(field) + ", new " + Applicator.class.getSimpleName() + "<" + actualType.getSimpleName() + ", " + fieldTypeName + ">() {");
 	        ctorLines.add("    @Override");
-	        ctorLines.add("    public void apply(" + creatorType.getSimpleName() + " consumer, " + fieldTypeName + " bean) {");
+	        ctorLines.add("    public void apply(" + actualType.getSimpleName() + " consumer, " + fieldTypeName + " bean) {");
 	    	ctorLines.add("        consumer." + field.getName() + " = bean;");
 	        ctorLines.add("    }");
 	        ctorLines.add("});");
@@ -172,17 +184,17 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
             addImport(beanType);
             addImport(Descriptor.class);
             
-            if (RecipeGeneratorHelper.requiresReflection(creatorType, field)) {
+            if (RecipeGeneratorHelper.requiresReflection(actualType, field)) {
                 addImport(ReflectedFieldInjector.class);
-    	        ctorLines.add("registerInjector(new " + ReflectedFieldInjector.class.getSimpleName() + "<" + creatorType.getSimpleName() + ", " + beanType.getSimpleName() + ">(\"" + field.getFullElementPath() +
+    	        ctorLines.add("registerInjector(new " + ReflectedFieldInjector.class.getSimpleName() + "<" + actualType.getSimpleName() + ", " + beanType.getSimpleName() + ">(\"" + field.getFullElementPath() +
     	        		"\", \"" + field.getName() + "\",");
         		ctorLines.add("        " + getDependencyDescriptor(field, beanType) + "));");
         	} else {
                 // Add imports
                 addImport(Injector.class);
-                ctorLines.add("registerInjector(new Injector<" + creatorType.getSimpleName() + ">() {");
+                ctorLines.add("registerInjector(new Injector<" + actualType.getSimpleName() + ">() {");
                 ctorLines.add("    @Override");
-                ctorLines.add("    public void inject(" + creatorType.getSimpleName() + " consumer, Engine engine) {");
+                ctorLines.add("    public void inject(" + actualType.getSimpleName() + " consumer, Engine engine) {");
             	ctorLines.add("        consumer." + field.getName() + " = engine.getAllBeans(" + getDependencyDescriptor(field, beanType) + ");");
 	            ctorLines.add("    }");
 	            ctorLines.add("});");
@@ -208,16 +220,16 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
             if (!method.getType().isVoid())
                 LOGGER.warning(method.getFullElementPath() + " consumer has a non-void return type");
 
-            ctorLines.add("registerInjector(new Injector<" + creatorType.getSimpleName() + ">() {");
+            ctorLines.add("registerInjector(new Injector<" + actualType.getSimpleName() + ">() {");
             ctorLines.add("    @Override");
-            ctorLines.add("    public void inject(" + creatorType.getSimpleName() + " consumer, Engine engine) {");
+            ctorLines.add("    public void inject(" + actualType.getSimpleName() + " consumer, Engine engine) {");
 
             List<JParameter<?>> params = method.getParameters();
             if (params.isEmpty())
                 messager.printWarning(method.getFullElementPath() + " has no parameters, this is a meaningless injection. Use @" + 
                         PostConstruct.class.getSimpleName() + " instead");
 
-            if (RecipeGeneratorHelper.requiresReflection(creatorType, method))
+            if (RecipeGeneratorHelper.requiresReflection(actualType, method))
             	addReflectedMethodInjection(ctorLines, method, params);
             else
             	addParameterInjection(ctorLines, method.getParameters(), "        ", "        consumer." + method.getName() + "(");
@@ -262,7 +274,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
             // If not, then check any non-annotated constructors
             if (!attemptGenerateCreateInstanceFromConstructor(builder, creator.getConstructors(), ", the one to be used must be annotated with @" + Inject.class.getSimpleName(), false))
                 // Still not, therefore there are no viable constructors
-                throw new InvalidConfigurationException(creatorType.getFullyQualifiedName() + " has no viable constructors. At least one must be available (and not private).");
+                throw new InvalidConfigurationException(actualType.getFullyQualifiedName() + " has no viable constructors. At least one must be available (and not private).");
         }
     }
 
@@ -290,7 +302,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
 
         // If there are too many, throw an exception
         if (viable.size() > 1)
-            throw new InvalidConfigurationException(creatorType.getFullyQualifiedName() + " has " + ctors.size() + " constructors (" + viable.size() + " viable)" + errorMessageDetail);
+            throw new InvalidConfigurationException(actualType.getFullyQualifiedName() + " has " + ctors.size() + " constructors (" + viable.size() + " viable)" + errorMessageDetail);
         else if (viable.size() == 1) {
             // If there is only one viable, then make use of it
             generateCreateInstanceFromConstructor(builder, viable.get(0));
@@ -310,10 +322,10 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     private void generateCreateInstanceFromConstructor(ClassBuilder builder, JConstructor ctor) throws InvalidConfigurationException {
         // Build the internals of the method
         List<String> lines = new ArrayList<>();
-        addParameterInjection(lines, ctor.getParameters(), "", "return new " + creatorType.getSimpleName() + "(");
+        addParameterInjection(lines, ctor.getParameters(), "", "return new " + actualType.getSimpleName() + "(");
 
         // Add the method to the recipe
-        builder.buildMethod(creatorType, "createInstance").addException(TypeFactory.createClassType(Throwable.class)).setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
+        builder.buildMethod(actualType, "createInstance").addException(TypeFactory.createClassType(Throwable.class)).setVisibility(VisibilityType.PROTECTED).addAnnotation(JAnnotationFactory.create(Override.class))
                 .buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish().addCode(lines.toArray(new String[lines.size()])).finish();
     }
 
@@ -351,7 +363,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
         }
 
         // Add the method to the recipe
-        builder.buildMethod("postConstruct").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PROTECTED).buildParameter(creatorType, "bean").finish()
+        builder.buildMethod("postConstruct").addAnnotation(JAnnotationFactory.create(Override.class)).setVisibility(VisibilityType.PROTECTED).buildParameter(actualType, "bean").finish()
                 .addCode(code.toArray(new String[code.size()])).finish();
     }
 
