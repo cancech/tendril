@@ -213,7 +213,7 @@ public abstract class AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE>
 	 * @return The (an) instance of the bean that the recipe is to create
 	 * @throws BeanCreationException if there is an issue creating the bean
 	 */
-	protected INSTANCE_TYPE buildBean() {
+	protected synchronized INSTANCE_TYPE buildBean() {
 		if (isUnderConstruction)
 			throw new BeanCreationException(descriptor, "Cycle detected");
 
