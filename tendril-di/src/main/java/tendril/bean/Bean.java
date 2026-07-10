@@ -34,11 +34,11 @@ import java.lang.annotation.Target;
 public @interface Bean {
 
 	/**
-	 * Optionally specify a class/type that the bean should be "advertised" under. Meaning that regardless of what the actual of the bean is, it will be made available purely under the override type.
+	 * Optionally specify a class/type that the bean should be "advertised" under. Meaning that regardless of what the actual type of the bean is, it will be made available purely under the override type.
 	 * If not specified, it will default to the type as defined in the code (i.e.: the class it is applied to or to return type of the method). Note that the override must be a parent of the "default"
 	 * type.
 	 * 
-	 * @return {@link Class} to use for the override, must be a parent of the actual bean type
+	 * @return {@link Class} to use for the override
 	 */
 	Class<?> value() default NoBeanOverrideClass.class;
 }

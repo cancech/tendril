@@ -37,6 +37,6 @@ public class ReplacesProcessor extends AbstractBeanProcessor {
 	 * CTOR
 	 */
 	public ReplacesProcessor() {
-		super(ReplacesRegistry.class);
+		super(Replaces.class, ReplacesRegistry.class);
 	}
 }

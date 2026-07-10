@@ -5,7 +5,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.bean.Bean;
 import tendril.bean.duplicate.Duplicate;
 import tendril.codegen.JBase;
 import tendril.codegen.annotation.JAnnotation;
@@ -163,32 +161,7 @@ public class AnnotationHelperTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testRetrieveBlueprintValue() {
-		testSpecificHelper(Duplicate.class, (e) -> AnnotationHelper.retrieveDuplicateBlueprint(e));
-	}
-
-	/**
-	 * Verify the bean override values can be retrieved successfully from the correct method
-	 */
-	@Test
-	public void testRetrieveOverrideValue() {
-		testSpecificHelper(Bean.class, (e) -> AnnotationHelper.retrieveBeanOverride(e));
-	}
-
-	/**
-	 * Helper to obscure what method is called
-	 */
-	private interface Caller {
-		ClassType getClassType(JBase element);
-	}
-
-	/**
-	 * Perform the test for calling a specific {@link ClassType} retrieval method
-	 * 
-	 * @param annotationClass {@link Class} extending {@link Annotation} of the annotation which is to be looked for
-	 * @param methodCall      {@link Caller} which calls the specific {@link AnnotationHelper} method
-	 */
-	private void testSpecificHelper(Class<? extends Annotation> annotationClass, Caller methodCall) {
-		ClassType specificAnnotationType = TypeFactory.createClassType(annotationClass);
+		ClassType specificAnnotationType = TypeFactory.createClassType(Duplicate.class);
 
 		// Invalid methods are present
 		when(mockBase.getAnnotation(specificAnnotationType)).thenReturn(mockAnnotation);
@@ -198,7 +171,7 @@ public class AnnotationHelperTest extends AbstractUnitTest {
 		when(mockClassType1.getGenerics()).thenReturn(Collections.singletonList(mockGenericType));
 		when(mockGenericType.asClassType()).thenReturn(mockClassType2);
 
-		Assertions.assertEquals(mockClassType2, methodCall.getClassType(mockBase));
+		Assertions.assertEquals(mockClassType2, AnnotationHelper.retrieveDuplicateBlueprint(mockBase));
 		verify(mockBase).getAnnotation(specificAnnotationType);
 		verify(mockAnnotation).getAttributes();
 		verify(mockMethod1).getName();

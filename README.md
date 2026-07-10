@@ -934,6 +934,17 @@ public class Replacement extends Original {
 }
 ```
 
+By default the replacement bean will be advertised as itself, following the same rules as `@Bean` (i.e.: the class or method return type it is applied to). Following in the `@Bean` parallel, `@Replaces` also allows for the advertised type of the replacement bean to be overridden by supplying the "override type" as a parameter to the annotation. For example, this allows for the override to "masquerade" as the original type and thus completely obfuscate that the replacement took place.
+
+```java
+@Replaces(Original.class)
+@Factory
+public class Replacement extends Original {
+}
+```
+
+The same rules for the override class apply to `@Replaces` as apply to `@Bean`, namely that it must be a valid parent class or interface of the actual replacement bean instance, however it has one additional stipulation. The override class must also be a valid parent class/interface of the original bean as well. In otherwords, the override must be a common ancestor of both the replacement bean as well as the original one.
+
 ## Transferable Annotations
 Certain annotations (namely Qualifiers and Requirements) are transferable, which in this context means that they can be applied anywhere in the annotation hierarchy and have an effect on the element (namely Bean and Configuration) as if they were applied to the element directly. Thus, common combinations can be placed into a shared/reusable annotation which is then applied to the appropriate Beans or Configurations, avoiding the need to "redefine" the combination in multiple places. Note that the reusable annotation must include `@Retention(RetentionPolicy.RUNTIME)` and have the appropriate `@Target` configured for its various use cases. This allows for defining custom annotation, and refactoring these transferable annotations away from concrete Beans or Configurations.
 

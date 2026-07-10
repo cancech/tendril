@@ -36,6 +36,7 @@ import tempApp.Option1;
 import tempApp.Option2;
 import tempApp.PrimitiveGenericWrapperConsumer;
 import tempApp.PriorityConfig;
+import tempApp.ReplaceIntWrapper;
 import tempApp.RunnableConfig;
 import tempApp.SingletonClass;
 import tempApp.StaticBlueprint;
@@ -286,6 +287,12 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	
 	@InjectAll
 	protected List<IntWrapper> allIntWrappers;
+	@Inject
+	@Named("standaloneIntWrapper")
+	IntWrapper replacedStandaloneWrapper;
+	@Inject
+	@Named("configIntWrapper")
+	public IntWrapper replacedConfigWrapper;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationBlueprint[] expectedDynamicDuplicates;
@@ -596,12 +603,23 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		assertion(exCtorBean != null, "exCtorBean should not be null");
 		assertion(exCtorBean.isCreated(), "exCtorBean was not created");
 
-		assertion(allIntWrappers.size() == 3, "There should be three " + IntWrapper.class.getSimpleName() + " instances");
+		assertion(allIntWrappers.size() == 4, "There should be three " + IntWrapper.class.getSimpleName() + " instances");
 		assertion(ctx.getAllBeans(new Descriptor<>(IntWrapperImpl.class)).size() == 0, "There should be no " + IntWrapperImpl.class.getSimpleName() + " instances");
+		assertion(ctx.getAllBeans(new Descriptor<>(ReplaceIntWrapper.class)).size() == 0, "There should be no " + ReplaceIntWrapper.class.getSimpleName() + " instances");
 		for (IntWrapper w: allIntWrappers) {
-			assertion(w instanceof IntWrapperImpl, "Should be instance of " + IntWrapperImpl.class.getSimpleName() + " but was " + w.getClass().getSimpleName());
-			int actual = w.getInt();
-			assertion(actual == 12345 || actual == 1 || actual == 2, "Unexpected value " + actual + " should have been either 1, 2, or 12345");
+			if (w == replacedStandaloneWrapper) {
+				assertion(w instanceof ReplaceIntWrapper, "Should be instance of " + ReplaceIntWrapper.class.getSimpleName() + " but was " + w.getClass().getSimpleName());
+				int actual = w.getInt();
+				assertion(actual == -123, "Unexpected value " + actual + " should be -123");
+			} else if (w == replacedConfigWrapper) {
+				assertion(w instanceof ReplaceIntWrapper, "Should be instance of " + ReplaceIntWrapper.class.getSimpleName() + " but was " + w.getClass().getSimpleName());
+				int actual = w.getInt();
+				assertion(actual == -321, "Unexpected value " + actual + " should be -123");
+			} else {
+				assertion(w instanceof IntWrapperImpl, "Should be instance of " + IntWrapperImpl.class.getSimpleName() + " but was " + w.getClass().getSimpleName());
+				int actual = w.getInt();
+				assertion(actual == 1 || actual == 2, "Unexpected value " + actual + " should have been either 1, 2");
+			}
 		}
 	}
 

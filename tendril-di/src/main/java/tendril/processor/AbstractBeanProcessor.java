@@ -6,9 +6,13 @@ import tendril.annotationprocessor.AbstractDelayedAnnotationTendrilProcessor;
 import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.exception.InvalidConfigurationException;
 import tendril.annotationprocessor.exception.TendrilException;
+import tendril.bean.Bean;
 import tendril.bean.Configuration;
+import tendril.bean.NoBeanOverrideClass;
+import tendril.codegen.JBase;
 import tendril.codegen.annotation.JAnnotationFactory;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.processor.recipe.RecipeGenerator;
 
 /**
@@ -16,15 +20,20 @@ import tendril.processor.recipe.RecipeGenerator;
  * generation.
  */
 public abstract class AbstractBeanProcessor extends AbstractDelayedAnnotationTendrilProcessor {
+	/** The type which indicate no override is present */
+	private static final ClassType noOverride = TypeFactory.createClassType(NoBeanOverrideClass.class);
 	/** The class of the registry annotation which is to be applied to the generated recipe */
 	private final Class<? extends Annotation> registryAnnotation;
+	private final ClassType annotationType;
 
 	/**
 	 * CTOR
 	 * 
+	 * @param annotation         {@link Class} representing the annotation marking the element as a bean (producer)
 	 * @param registryAnnotation {@link Class} indicating the registry annotation to apply to the generated recipe. Leave {@code null} to skip
 	 */
-	public AbstractBeanProcessor(Class<? extends Annotation> registryAnnotation) {
+	public AbstractBeanProcessor(Class<? extends Annotation> annotation, Class<? extends Annotation> registryAnnotation) {
+		this.annotationType = TypeFactory.createClassType(annotation);
 		this.registryAnnotation = registryAnnotation;
 		// Disable JAnnotationFactory logging to keep the output cleaner
 		JAnnotationFactory.setLoggingEnabled(false);
@@ -35,16 +44,7 @@ public abstract class AbstractBeanProcessor extends AbstractDelayedAnnotationTen
 	 */
 	@Override
 	protected ClassDefinition processType() throws TendrilException {
-		return RecipeGenerator.generate(getClassOverrideType(), currentClassType, currentClass, processingEnv.getMessager(), registryAnnotation);
-	}
-
-	/**
-	 * Get the override type that is to be applied when advertising the type of the class based bean in the recipe
-	 * 
-	 * @return {@link ClassType} to apply as override, or {@code null} if no override is to be applied
-	 */
-	protected ClassType getClassOverrideType() {
-		return null;
+		return RecipeGenerator.generate(getOverride(currentClass), currentClassType, currentClass, processingEnv.getMessager(), registryAnnotation);
 	}
 
 	/**
@@ -56,15 +56,20 @@ public abstract class AbstractBeanProcessor extends AbstractDelayedAnnotationTen
 		if (!currentClass.hasAnnotation(Configuration.class))
 			throw new InvalidConfigurationException(currentMethod.getFullElementPath() + "() - Bean methods cannot be outside of a configuration");
 
-		return RecipeGenerator.generate(currentClassType, getMethodOverrideType(), currentMethod, processingEnv.getMessager());
+		return RecipeGenerator.generate(currentClassType, getOverride(currentMethod), currentMethod, processingEnv.getMessager());
 	}
 
 	/**
-	 * Get the override type that is to be applied when advertising the type of the method based bean in the recipe
+	 * Get the override that is applied to the {@link Bean} annotation on the element
 	 * 
-	 * @return {@link ClassType} to apply as override, or {@code null} if no override is to be applied
+	 * @param element {@link JBase} where to look for the annotation
+	 * @return {@link ClassType} to use as the override or {@code null} if none specified
 	 */
-	protected ClassType getMethodOverrideType() {
-		return null;
+	private ClassType getOverride(JBase element) {
+		ClassType overrideType = AnnotationHelper.retrieveClassType(element, annotationType, "value");
+		if (overrideType == null || overrideType.equals(noOverride))
+			return null;
+
+		return overrideType;
 	}
 }

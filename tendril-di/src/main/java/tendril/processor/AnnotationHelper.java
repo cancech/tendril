@@ -15,8 +15,6 @@ import tendril.codegen.field.value.JValueClass;
 public class AnnotationHelper {
 	/** The annotation which denotes a duplicate */
 	private static final ClassType duplicateAnnotation = TypeFactory.createClassType(Duplicate.class);
-	/** The annotation which denotes a bean */
-	private static final ClassType beanAnnotation = TypeFactory.createClassType(Bean.class);
 
 	/**
 	 * Retrieve the blueprint class from the {@link Duplicate} annotated element
@@ -26,16 +24,6 @@ public class AnnotationHelper {
 	 */
 	public static ClassType retrieveDuplicateBlueprint(JBase element) {
 		return retrieveClassType(element, duplicateAnnotation, "value");
-	}
-
-	/**
-	 * Retrieve the override class from the {@link Bean} annotated element
-	 * 
-	 * @param element {@link JBase} element on which the annotation is expected to be placed
-	 * @return {@link ClassType} indicated in the {@link Bean} annotation as the override or {@code null} if it is not retrieved
-	 */
-	public static ClassType retrieveBeanOverride(JBase element) {
-		return retrieveClassType(element, beanAnnotation, "value");
 	}
 
 	/**
