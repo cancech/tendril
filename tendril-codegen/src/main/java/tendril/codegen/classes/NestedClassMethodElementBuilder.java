@@ -116,7 +116,7 @@ public abstract class NestedClassMethodElementBuilder<DATA_TYPE extends Type, EL
     @Override
     protected void validate() {
         super.validate();
-        Utilities.throwIfNotValidIdentifier(name);
+        Utilities.throwIfNotValidIdentifier(name, true);
     }
 
     /**

@@ -86,6 +86,7 @@ public class GenericFactoryTest extends AbstractUnitTest {
         ClassAssert.assertInstance(SimpleGeneric.class, GenericFactory.create("_123T"));
         
         // Invalid names generate exception
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create("a.b.c"));
         Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create("123"));
         Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create("?"));
         Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create(""));
@@ -153,6 +154,7 @@ public class GenericFactoryTest extends AbstractUnitTest {
         Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.createExtends("MyGeneric", new JClass[0]));
         // Must have a valid name
         Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.createExtends("123", mockClassType1, mockClassType2, mockClassType3));
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.createExtends("a.b.c", mockClassType1, mockClassType2, mockClassType3));
 
         ClassAssert.assertInstance(CompoundExtendsGeneric.class, GenericFactory.createExtends("MyGeneric", mockClassType1));
         ClassAssert.assertInstance(CompoundExtendsGeneric.class, GenericFactory.createExtends("MyGeneric", mockClassType1, mockClassType2));
@@ -171,16 +173,20 @@ public class GenericFactoryTest extends AbstractUnitTest {
         verify(mockClass1).getType();
         verify(mockClass2).getType();
         verify(mockClass3).getType();
+        Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.createExtends("a.b.c", mockClass1, mockClass2, mockClass3));
+        verify(mockClass1, times(2)).getType();
+        verify(mockClass2, times(2)).getType();
+        verify(mockClass3, times(2)).getType();
 
         ClassAssert.assertInstance(CompoundExtendsGeneric.class, GenericFactory.createExtends("MyGeneric", mockClass1));
-        verify(mockClass1, times(2)).getType();
-        ClassAssert.assertInstance(CompoundExtendsGeneric.class, GenericFactory.createExtends("MyGeneric", mockClass1, mockClass2));
         verify(mockClass1, times(3)).getType();
-        verify(mockClass2, times(2)).getType();
-        ClassAssert.assertInstance(CompoundExtendsGeneric.class, GenericFactory.createExtends("MyGeneric", mockClass1, mockClass2, mockClass3));
+        ClassAssert.assertInstance(CompoundExtendsGeneric.class, GenericFactory.createExtends("MyGeneric", mockClass1, mockClass2));
         verify(mockClass1, times(4)).getType();
         verify(mockClass2, times(3)).getType();
-        verify(mockClass3, times(2)).getType();
+        ClassAssert.assertInstance(CompoundExtendsGeneric.class, GenericFactory.createExtends("MyGeneric", mockClass1, mockClass2, mockClass3));
+        verify(mockClass1, times(5)).getType();
+        verify(mockClass2, times(4)).getType();
+        verify(mockClass3, times(3)).getType();
     }
     
     /**

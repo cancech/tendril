@@ -55,7 +55,7 @@ public class NestedClassMethodElementBuilderTest extends AbstractUnitTest {
          * CTOR
          */
         protected TestElementBuilder() {
-            super(mockClassBuilder, "ElementName");
+            super(mockClassBuilder, "a.b.c.D");
             setType(mockDataType);
         }
 
@@ -242,7 +242,7 @@ public class NestedClassMethodElementBuilderTest extends AbstractUnitTest {
     public void testFinishWithoutAnnotation() {
         try (MockedStatic<Utilities> mockUtil = Mockito.mockStatic(Utilities.class)) {
             builder.finish();
-            mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("ElementName"));
+            mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("a.b.c.D", true));
             verify(mockElement).setFinal(false);
             verify(mockElement).setStatic(false);
             verify(mockElement).setVisibility(VisibilityType.PACKAGE_PRIVATE);
@@ -260,7 +260,7 @@ public class NestedClassMethodElementBuilderTest extends AbstractUnitTest {
             builder.addAnnotation(mockAnnotation2);
             builder.addAnnotation(mockAnnotation3);
             builder.finish();
-            mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("ElementName"));
+            mockUtil.verify(() -> Utilities.throwIfNotValidIdentifier("a.b.c.D", true));
             verify(mockElement).add(mockAnnotation1);
             verify(mockElement).add(mockAnnotation2);
             verify(mockElement).add(mockAnnotation3);

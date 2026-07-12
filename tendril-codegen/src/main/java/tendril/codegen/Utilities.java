@@ -23,37 +23,39 @@ import java.time.format.DateTimeFormatter;
  */
 public abstract class Utilities {
 
-    /**
-     * Hidden CTOR
-     */
-    private Utilities() {
-    }
+	/**
+	 * Hidden CTOR
+	 */
+	private Utilities() {
+	}
 
 	/**
 	 * Generate a time stamp (current time) per the ISO 8061 standard
 	 * 
 	 * @return {@link String} containing the ISO 8061 current time stamp
 	 */
-    public static String iso8061TimeStamp() {
-        return DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.now());
-    }
-    
-    /**
-     * Validate whether the name is considered a valid identifier
-     * 
-     * @param name {@link String} to check
-     * @throws DefinitionException if it is not a valid identifier
-     */
-    public static void throwIfNotValidIdentifier(String name) {
+	public static String iso8061TimeStamp() {
+		return DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.now());
+	}
+
+	/**
+	 * Validate whether the name is considered a valid identifier. Depending on whether or not this represents a full class name (as in fully qualified class name) periods are permitted to be included
+	 * within the name. 
+	 * 
+	 * @param name            {@link String} to check
+	 * @param isFullClassName boolean {@code true} if the name represents a full class name.
+	 * @throws DefinitionException if it is not a valid identifier
+	 */
+	public static void throwIfNotValidIdentifier(String name, boolean isFullClassName) {
 		// Check basic name characteristics
 		if (name == null)
 			throw new DefinitionException("Identifier name cannot be null");
-		
+
 		// Make sure that it is not an empty name
 		String trimmed = name.trim();
 		if (trimmed.isEmpty())
 			throw new DefinitionException("Identifier name cannot be empty");
-		
+
 		// Ensure that only valid characters are employed
 		char c = trimmed.charAt(0);
 		if (!Character.isJavaIdentifierStart(c))
@@ -64,8 +66,9 @@ public abstract class Utilities {
 		for (int i = 1; i < trimmed.length(); i++) {
 			c = trimmed.charAt(i);
 
-			if (c != '.' && !Character.isJavaIdentifierPart(c))
+			boolean checkPeriod = isFullClassName ? c != '.' : true;
+			if (checkPeriod && !Character.isJavaIdentifierPart(c))
 				throw new DefinitionException("Identifier cannot contain " + c);
 		}
-    }
+	}
 }

@@ -43,7 +43,7 @@ public class GenericFactory {
      * @return {@link GenericType}
      */
     public static GenericType create(String name) {
-        Utilities.throwIfNotValidIdentifier(name);
+        Utilities.throwIfNotValidIdentifier(name, false);
         return new SimpleGeneric(name);
     }
     
@@ -100,7 +100,7 @@ public class GenericFactory {
      * @return {@link GenericType}
      */
     public static GenericType createExtends(String name, ClassType...extended) {
-        Utilities.throwIfNotValidIdentifier(name);
+        Utilities.throwIfNotValidIdentifier(name, false);
         if (extended.length == 0)
             throw new DefinitionException("Generic must extend at least one class");
         
