@@ -15,7 +15,6 @@
  */
 package tendril.codegen.classes.method;
 
-import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -52,9 +51,9 @@ public class JMethodAnnotationTest extends AbstractMethodTest {
     public void testMethodSignatureEndWithDefaultValue() {
         JMethodAnnotation<Type> method = new JMethodAnnotation<Type>(mockReturnType, "attribute", mockDefaultValue);
         
-        when(mockDefaultValue.generate(anySet())).thenReturn("mockValue");
+        when(mockDefaultValue.generate()).thenReturn("mockValue");
         Assertions.assertEquals(" default mockValue;", method.generateSignatureEnd(false));
-        verify(mockDefaultValue).generate(anySet());
+        verify(mockDefaultValue).generate();
     }
     
     /**
@@ -66,7 +65,7 @@ public class JMethodAnnotationTest extends AbstractMethodTest {
         Assertions.assertFalse(method.isStatic());
         
         Assertions.assertThrows(DefinitionException.class, () -> method.setStatic(true));
-        verify(mockReturnType).getSimpleName();
+        verify(mockReturnType).getCodeName();
         Assertions.assertFalse(method.isStatic());
         method.setStatic(false);
         Assertions.assertFalse(method.isStatic());

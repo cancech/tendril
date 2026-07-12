@@ -22,7 +22,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Array;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -42,8 +41,6 @@ public class ArrayTypeTest extends AbstractUnitTest {
     // Mocks to use for testing
     @Mock
     private Type mockType;
-    @Mock
-    private Set<ClassType> mockImports;
     @Mock
     private Type mockOtherType;
     @Mock
@@ -66,16 +63,6 @@ public class ArrayTypeTest extends AbstractUnitTest {
     @Test
     public void testContainedDataType() {
         Assertions.assertEquals(mockType, type.getContainedType());
-    }
-    
-
-    /**
-     * Verify that the array properly registers imports
-     */
-    @Test
-    public void testRegisterImports() {
-        type.registerImport(mockImports);
-        verify(mockType).registerImport(mockImports);
     }
     
     /**
@@ -105,9 +92,9 @@ public class ArrayTypeTest extends AbstractUnitTest {
      */
     @Test
     public void testGetSimpleName() {
-        when(mockType.getSimpleName()).thenReturn("SimpleName");
-        Assertions.assertEquals("SimpleName[]", type.getSimpleName());
-        verify(mockType).getSimpleName();
+        when(mockType.getCodeName()).thenReturn("SimpleName");
+        Assertions.assertEquals("SimpleName[]", type.getCodeName());
+        verify(mockType).getCodeName();
     }
     
     /**
@@ -184,7 +171,7 @@ public class ArrayTypeTest extends AbstractUnitTest {
         when(mockType.isAssignableFrom(any())).thenReturn(false);
         Assertions.assertThrows(DefinitionException.class, () -> type.asValue(new String[] {"a", "b", "c"}));
         verify(mockType).isAssignableFrom(any());
-        verify(mockType, times(2)).getSimpleName();
+        verify(mockType, times(2)).getCodeName();
     }
     
     /**

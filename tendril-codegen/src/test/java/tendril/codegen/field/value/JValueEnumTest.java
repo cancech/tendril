@@ -25,7 +25,6 @@ import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
-import tendril.codegen.field.type.TypeFactory;
 import tendril.test.helper.TestEnum;
 
 /**
@@ -38,9 +37,6 @@ public class JValueEnumTest extends SharedJValueTest {
     private ClassType mockType;
     @Mock
     private EnumerationEntry mockEntry;
-
-    /** Tracks which import should have been last registered */
-    private ClassType currentImport = null;
 
     /**
      * Verify that the appropriate code is generated
@@ -57,11 +53,9 @@ public class JValueEnumTest extends SharedJValueTest {
      */
     @Test
     public void testGenerateFromValueAndType() {
-        when(mockType.getSimpleName()).thenReturn("SIMPLE");
-        currentImport = mockType;
-        
+        when(mockType.getCodeName()).thenReturn("SIMPLE");
         assertCode("SIMPLE.PUBLIC", new JValueEnum(mockType, VisibilityType.PUBLIC));
-        verify(mockType).getSimpleName();
+        verify(mockType).getCodeName();
     }
     
     /**
@@ -71,13 +65,12 @@ public class JValueEnumTest extends SharedJValueTest {
     public void testGenerateFromEnumerationEntry() {
         when(mockEntry.getEnclosingClass()).thenReturn(mockType);
         when(mockEntry.getName()).thenReturn("ENTRY");
-        when(mockType.getSimpleName()).thenReturn("NAME");
-        currentImport = mockType;
+        when(mockType.getCodeName()).thenReturn("NAME");
 
         assertCode("NAME.ENTRY", new JValueEnum(mockEntry));
         verify(mockEntry).getEnclosingClass();
         verify(mockEntry).getName();
-        verify(mockType).getSimpleName();
+        verify(mockType).getCodeName();
     }
 
     /**
@@ -88,15 +81,6 @@ public class JValueEnumTest extends SharedJValueTest {
      * @param enumClass {@link Class} of the Enum
      */
     private <T extends Enum<T>> void testEnum(T value, Class<T> enumClass) {
-        currentImport = TypeFactory.createClassType(enumClass);
-        assertCode(enumClass.getSimpleName() + "." + value.name(), new JValueEnum(value));
-    }
-
-    /**
-     * @see tendril.codegen.field.value.SharedJValueTest#verifyMockImports()
-     */
-    @Override
-    protected void verifyMockImports() {
-        verify(mockImports).add(currentImport);
+        assertCode(enumClass.getName() + "." + value.name(), new JValueEnum(value));
     }
 }

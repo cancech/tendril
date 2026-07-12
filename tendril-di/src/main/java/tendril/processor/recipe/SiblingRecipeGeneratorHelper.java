@@ -16,6 +16,7 @@ import tendril.codegen.classes.FieldBuilder;
 import tendril.codegen.classes.JParameter;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.type.ClassType;
+import tendril.context.Engine;
 
 /**
  * Helper which centralized the necessary code for the generation of sibling recipes. This is not a generator as such, but rather container the appropriate features to allow a generator to produce the
@@ -31,8 +32,6 @@ class SiblingRecipeGeneratorHelper {
 	private final ClassType blueprintType;
 	/** Messager through which to provide "proper" feedback */
 	private final Messager messager;
-	/** The generator which is preparing the recipe proper */
-	private final AbstractRecipeGenerator<?> generator;
 
 	/**
 	 * CTOR
@@ -43,12 +42,11 @@ class SiblingRecipeGeneratorHelper {
 	 * @param messager      {@link Messager} that is used by the annotation processor
 	 * @param generator     {@link AbstractRecipeGenerator} which is generating the recipe the helper is helping with
 	 */
-	SiblingRecipeGeneratorHelper(JBase creator, ClassType beanType, ClassType blueprintType, Messager messager, AbstractRecipeGenerator<?> generator) {
+	SiblingRecipeGeneratorHelper(JBase creator, ClassType beanType, ClassType blueprintType, Messager messager) {
 		this.creator = creator;
 		this.beanType = beanType;
 		this.blueprintType = blueprintType;
 		this.messager = messager;
-		this.generator = generator;
 	}
 
 	/**
@@ -111,10 +109,9 @@ class SiblingRecipeGeneratorHelper {
 		// @Named should not be applied
 		checkIfNamed(field);
 
-		generator.addImport(Injector.class);
-		ctorLines.add("registerInjector(new " + Injector.class.getSimpleName() + "<" + beanType.getSimpleName() + ">() {");
+		ctorLines.add("registerInjector(new " + Injector.class.getName() + "<" + beanType.getCodeName() + ">() {");
 		ctorLines.add("    @Override");
-		ctorLines.add("    public void inject(" + beanType.getSimpleName() + " consumer, Engine engine) {");
+		ctorLines.add("    public void inject(" + beanType.getCodeName() + " consumer, " + Engine.class.getName() + " engine) {");
 		ctorLines.add("        consumer." + field.getName() + " = siblingCopy;");
 		ctorLines.add("    }");
 		ctorLines.add("});");

@@ -35,7 +35,7 @@ public abstract class ClassAssert {
 	 * @param actual       {@link Object} the instance to check
 	 */
 	public static void assertInstance(Class<?> expectedType, Object actual) {
-		Assertions.assertTrue(expectedType.isInstance(actual), "Not an instance: expected " + expectedType.getSimpleName() + " but was " + actual.getClass().getSimpleName());
+		Assertions.assertTrue(expectedType.isInstance(actual), "Not an instance: expected " + expectedType.getName() + " but was " + actual.getClass().getName());
 	}
 
 	/**
@@ -45,6 +45,6 @@ public abstract class ClassAssert {
 	 * @param actual       {@link Object} the instance to check
 	 */
 	public static void assertNotInstance(Class<?> expectedType, Object actual) {
-		Assertions.assertFalse(expectedType.isInstance(actual), "Should not have been an instance of " + expectedType.getSimpleName() + " but was");
+		Assertions.assertFalse(expectedType.isInstance(actual), "Should not have been an instance of " + expectedType.getName() + " but was");
 	}
 }

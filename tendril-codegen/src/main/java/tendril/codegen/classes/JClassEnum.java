@@ -17,7 +17,6 @@ package tendril.codegen.classes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.DefinitionException;
@@ -102,22 +101,22 @@ public class JClassEnum extends JClass {
     /**
      * Prior to appending the fields, the various enumeration entries are incorporated
      * 
-     * @see tendril.codegen.classes.JClass#processFields(tendril.codegen.CodeBuilder, java.util.Set)
+     * @see tendril.codegen.classes.JClass#processFields(tendril.codegen.CodeBuilder)
      */
     @Override
-    protected void processFields(CodeBuilder builder, Set<ClassType> classImports) {
+    protected void processFields(CodeBuilder builder) {
         boolean addEmptyLine = false;
         
         for (int i = 0; i < entries.size(); i++) {
             addEmptyLine = true;
             String terminator = (i < entries.size() - 1) ? "," : ";";
-            entries.get(i).generateSelf(builder, classImports, terminator);
+            entries.get(i).generateSelf(builder, terminator);
         }
         
         if (addEmptyLine)
             builder.blankLine();
         
-        super.processFields(builder, classImports);
+        super.processFields(builder);
     }
 
 }

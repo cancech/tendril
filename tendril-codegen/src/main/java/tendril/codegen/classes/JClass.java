@@ -18,9 +18,7 @@ package tendril.codegen.classes;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.DefinitionException;
@@ -30,13 +28,11 @@ import tendril.codegen.classes.method.JMethod;
 import tendril.codegen.field.JField;
 import tendril.codegen.field.JVisibleType;
 import tendril.codegen.field.type.ClassType;
-import tendril.codegen.field.type.Importable;
-import tendril.codegen.generics.GenericType;
 
 /**
  * Representation of a class, the core construct of any generated code
  */
-public abstract class JClass extends JVisibleType<ClassType> implements Importable {
+public abstract class JClass extends JVisibleType<ClassType> {
     /** The fields that appear in this class */
     private final List<JField<?>> fields = new ArrayList<>();
     /** The CTORs that are available for creating instances of the class */
@@ -300,86 +296,41 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
      * @return {@link String} the code for the class
      */
     public String generateCode() {
-        return generateCode(new HashSet<>());
-    }
-    
-    /**
-     * Generate the code which represents this class, with a starting point of additional "external" imports. These "external" imports would be for items which are external
-     * to the API of the class, meaning listing imports required for elements which appear in the internal code of the methods/constructors for the class to be generated.
-     * 
-     * @param imports {@link Set} of {@link ClassType}s indicating the external elements to be imported
-     * 
-     * @return {@link String} the code for the class
-     */
-    public String generateCode(Set<ClassType> imports) {
         // Generate the class body
         CodeBuilder body = new CodeBuilder();
-        generate(body, imports);
+        generate(body);
 
         // Generate the package and import statements
         CodeBuilder preamble = new CodeBuilder();
         preamble.append("package " + pkg + ";");
         preamble.blankLine();
-        addImports(preamble, imports);
-        preamble.blankLine();
 
         // Combine it to build the whole class
         return preamble.get() + body.get();
     }
-
-    /**
-     * Process the registered imports to generate the import code
-     * 
-     * @param builder {@link CodeBuilder} where to populate the import statements
-     */
-    private void addImports(CodeBuilder builder, Set<ClassType> imports) {
-        List<ClassType> sortedImports = new ArrayList<>(imports);
-        sortedImports.sort((l, r) -> l.getFullyQualifiedName().compareTo(r.getFullyQualifiedName()));
-        for (ClassType toImport : sortedImports) {
-            String importPkg = toImport.getPackageName();
-            if (importPkg == null || importPkg.isBlank() || importPkg.equals(pkg) || importPkg.equals("java.lang"))
-                continue;
-            builder.append("import " + toImport.getFullyQualifiedName() + ";");
-        }
-    }
     
     /**
-     * @see tendril.codegen.field.type.Importable#registerImport(java.util.Set)
+     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder)
      */
     @Override
-    public void registerImport(Set<ClassType> classImports) {
-        classImports.add(type);
-        if (extendedClass != null)
-            extendedClass.registerImport(classImports);
-        implementedInterfaces.forEach(i -> i.registerImport(classImports));
-        for(GenericType gen: getGenerics())
-            gen.registerImport(classImports);
+    protected void appendSelf(CodeBuilder builder) {
+        builder.appendMultiLine(generateSelf());
     }
 
     /**
-     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
+     * @see tendril.codegen.JBase#generateSelf()
      */
     @Override
-    protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
-        builder.appendMultiLine(generateSelf(classImports));
-    }
-
-    /**
-     * @see tendril.codegen.JBase#generateSelf(java.util.Set)
-     */
-    @Override
-    public String generateSelf(Set<ClassType> classImports) {
-        registerImport(classImports);
-        
+    public String generateSelf() {
         CodeBuilder builder = new CodeBuilder();
         builder.append(visibility.getKeyword() + getFinalKeyword() + getClassKeyword() + name + getGenericsDefinitionKeyword(true) + parentHierarchy() + "{");
         builder.blankLine();
         builder.indent();
 
         // Process elements within the class
-        processFields(builder, classImports);
-        processElements(builder, classImports, ctors);
-        processElements(builder, classImports, methods);
+        processFields(builder);
+        processElements(builder, ctors);
+        processElements(builder, methods);
 
         builder.deIndent();
         builder.append("}");
@@ -391,12 +342,11 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
      * Process the elements, generate their code, and add them to the builder
      * 
      * @param builder {@link CodeBuilder} where the code for the class is assembled
-     * @param classImports {@link Set} of {@link ClassType} where the imports for the class are collected
      * @param elements {@link List} of {@link JBase} extending elements which are to be processed
      */
-    private void processElements(CodeBuilder builder, Set<ClassType> classImports, List<? extends JBase> elements) {
+    private void processElements(CodeBuilder builder, List<? extends JBase> elements) {
         for (JBase el: elements) {
-            el.generate(builder, classImports);
+            el.generate(builder);
             builder.blankLine();
         }
     }
@@ -463,8 +413,8 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
      * 
      * @return {@link String} the code for applying the class
      */
-    public String getAppliedCode(boolean appendSpace) {
-        return getName() + getGenericsApplicationKeyword(appendSpace);
+    String getAppliedCode(boolean appendSpace) {
+        return type.getCodeName() + getGenericsApplicationKeyword(appendSpace);
     }
 
     /**
@@ -480,10 +430,9 @@ public abstract class JClass extends JVisibleType<ClassType> implements Importab
      * Process the field portion of the class, and append the results to the {@link CodeBuilder}.
      * 
      * @param builder {@link CodeBuilder} where the overall class code is being assembled
-     * @param classImports {@link Set} of {@link ClassType}s representing the imports for the class
      */
-    protected void processFields(CodeBuilder builder, Set<ClassType> classImports) {
-        processElements(builder, classImports, fields);
+    protected void processFields(CodeBuilder builder) {
+        processElements(builder, fields);
     }
     
     /**

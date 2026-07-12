@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.DefinitionException;
@@ -106,32 +105,31 @@ public class JAnnotation extends JBase {
     }
 
     /**
-     * @see tendril.codegen.JBase#generate(tendril.codegen.CodeBuilder, java.util.Set)
+     * @see tendril.codegen.JBase#generate(tendril.codegen.CodeBuilder)
      */
     @Override
-    public void generate(CodeBuilder builder, Set<ClassType> classImports) {
-        appendSelf(builder, classImports);
+    public void generate(CodeBuilder builder) {
+        appendSelf(builder);
     }
 
     /**
-     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
+     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder)
      */
     @Override
-    protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
-        builder.append(generateSelf(classImports));
+    protected void appendSelf(CodeBuilder builder) {
+        builder.append(generateSelf());
     }
 
     /**
-     * @see tendril.codegen.JBase#generateSelf(java.util.Set)
+     * @see tendril.codegen.JBase#generateSelf()
      */
     @Override
-    public String generateSelf(Set<ClassType> classImports) {
-        classImports.add(annotationClass);
+    public String generateSelf() {
         if (attributes.isEmpty())
             return generateMarker();
         else if (attributes.size() == 1 && attributes.get(0).getName().equals("value"))
-            return generateDefaultValue(classImports);
-        return generateFull(classImports);
+            return generateDefaultValue();
+        return generateFull();
     }
 
     /**
@@ -141,28 +139,26 @@ public class JAnnotation extends JBase {
      * @return {@link String} the code for the marker annotation
      */
     private String generateMarker() {
-        return name;
+        return "@" + annotationClass.getCodeName();
     }
 
     /**
      * Generate the code for an annotation with a single default value
      * 
-     * @param classImports {@link Set} of {@link ClassType} where the imports for the overall class are being assembled
      * @return {@link String} the code for the default value annotation
      */
-    private String generateDefaultValue(Set<ClassType> classImports) {
-        return name + "(" + values.get(attributes.get(0)).generate(classImports) + ")";
+    private String generateDefaultValue() {
+        return generateMarker() + "(" + values.get(attributes.get(0)).generate() + ")";
     }
 
     /**
      * Generate the code for an annotation with arbitrary attributes
      * 
-     * @param classImports {@link Set} of {@link ClassType} where the imports for the overall class are being assembled
      * @return {@link String} the code for the annotation with arbitrary values
      */
-    private String generateFull(Set<ClassType> classImports) {
-        String code = name + "(";
-        code += TendrilStringUtil.join(attributes, p -> p.getName() + " = " + values.get(p).generate(classImports));
+    private String generateFull() {
+        String code = generateMarker() + "(";
+        code += TendrilStringUtil.join(attributes, p -> p.getName() + " = " + values.get(p).generate());
         return code + ")";
     }
     

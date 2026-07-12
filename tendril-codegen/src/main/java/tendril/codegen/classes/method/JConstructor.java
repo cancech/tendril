@@ -16,7 +16,6 @@
 package tendril.codegen.classes.method;
 
 import java.util.List;
-import java.util.Set;
 
 import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
@@ -33,7 +32,7 @@ public class JConstructor extends JAbstractMethodElement<ClassType> {
 	 * @param implementation {@link List} of {@link String}s being the code the CTOR executes
 	 */
 	public JConstructor(ClassType enclosingClass, List<String> implementation) {
-		super(enclosingClass, enclosingClass.getSimpleName(), implementation);
+		super(enclosingClass, enclosingClass.getClassName(), implementation);
 	}
 
 	/**
@@ -63,15 +62,15 @@ public class JConstructor extends JAbstractMethodElement<ClassType> {
 	}
 
 	/**
-	 * @see tendril.codegen.classes.method.JAbstractMethodElement#generateSignature(java.util.Set, boolean)
+	 * @see tendril.codegen.classes.method.JAbstractMethodElement#generateSignature(boolean)
 	 */
 	@Override
-	protected String generateSignature(Set<ClassType> classImports, boolean hasImplementation) {
+	protected String generateSignature(boolean hasImplementation) {
 		// A CTOR without implementation is not possible
 		if (!hasImplementation)
 			throw new DefinitionException(type, "Constructor must have a valid implementation");
 
-		return visibility.getKeyword() + getGenericsDefinitionKeyword(false) + getName() + "(" + generateParameters(classImports) + ")" + generateThrows(classImports, true) + "{";
+		return visibility.getKeyword() + getGenericsDefinitionKeyword(false) + getName() + "(" + generateParameters() + ")" + generateThrows(true) + "{";
 	}
 
 	/**

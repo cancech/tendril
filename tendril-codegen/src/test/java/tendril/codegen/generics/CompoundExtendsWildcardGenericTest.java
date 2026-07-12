@@ -65,13 +65,13 @@ public class CompoundExtendsWildcardGenericTest  extends AbstractUnitTest {
      */
     @Test
     public void testGenerateApplication() {
-        when(mockParent1.getSimpleName()).thenReturn("mockParent1");
-        when(mockParent2.getSimpleName()).thenReturn("mockParent2");
-        when(mockParent3.getSimpleName()).thenReturn("mockParent3");
+        when(mockParent1.getCodeName()).thenReturn("mockParent1");
+        when(mockParent2.getCodeName()).thenReturn("mockParent2");
+        when(mockParent3.getCodeName()).thenReturn("mockParent3");
         Assertions.assertEquals("? extends mockParent1 & mockParent2 & mockParent3", gen.generateApplication());
-        verify(mockParent1).getSimpleName();
-        verify(mockParent2).getSimpleName();
-        verify(mockParent3).getSimpleName();
+        verify(mockParent1).getCodeName();
+        verify(mockParent2).getCodeName();
+        verify(mockParent3).getCodeName();
     }
 
     /**

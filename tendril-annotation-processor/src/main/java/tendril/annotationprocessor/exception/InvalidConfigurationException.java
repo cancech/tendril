@@ -18,7 +18,7 @@ package tendril.annotationprocessor.exception;
 /**
  * Exception to be thrown when an invalid configuration is encountered
  */
-public class InvalidConfigurationException extends TendrilException{
+public class InvalidConfigurationException extends TendrilException {
     /** Serial ID */
     private static final long serialVersionUID = -3513542401048886484L;
 

@@ -20,7 +20,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Set;
 
 import javax.lang.model.type.TypeKind;
 
@@ -42,8 +41,6 @@ public class EnumerationEntryTest extends AbstractUnitTest {
     // Mocks to use for testing
     @Mock
     private CodeBuilder mockCodeBuilder;
-    @Mock
-    private Set<ClassType> mockImports;
     @Mock
     private ClassType mockType;
     @Mock
@@ -73,7 +70,7 @@ public class EnumerationEntryTest extends AbstractUnitTest {
         Assertions.assertEquals("NoName", entry.getName());
         Assertions.assertIterableEquals(Collections.emptyList(), entry.getParameters());
         
-        entry.generateSelf(mockCodeBuilder, mockImports, ",");
+        entry.generateSelf(mockCodeBuilder, ",");
         verify(mockCodeBuilder).append("NoName,");
     }
 
@@ -82,16 +79,16 @@ public class EnumerationEntryTest extends AbstractUnitTest {
      */
     @Test
     public void testEntryWithSingleParameter() {
-        when(mockValue1.generate(mockImports)).thenReturn("blah");
+        when(mockValue1.generate()).thenReturn("blah");
         
         EnumerationEntry entry = new EnumerationEntry(mockType, "MyName", Collections.singletonList(mockValue1));
         Assertions.assertEquals(mockType, entry.getEnclosingClass());
         Assertions.assertEquals("MyName", entry.getName());
         Assertions.assertIterableEquals(Collections.singletonList(mockValue1), entry.getParameters());
         
-        entry.generateSelf(mockCodeBuilder, mockImports, ";");
+        entry.generateSelf(mockCodeBuilder, ";");
         verify(mockCodeBuilder).append("MyName(blah);");
-        verify(mockValue1).generate(mockImports);
+        verify(mockValue1).generate();
     }
 
     /**
@@ -99,18 +96,18 @@ public class EnumerationEntryTest extends AbstractUnitTest {
      */
     @Test
     public void testEntryWithMultipleParameter() {
-        when(mockValue1.generate(mockImports)).thenReturn("1");
-        when(mockValue2.generate(mockImports)).thenReturn("2");
-        when(mockValue3.generate(mockImports)).thenReturn("3");
+        when(mockValue1.generate()).thenReturn("1");
+        when(mockValue2.generate()).thenReturn("2");
+        when(mockValue3.generate()).thenReturn("3");
         
         EnumerationEntry entry = new EnumerationEntry(mockType, "Entry", Arrays.asList(mockValue1, mockValue2, mockValue3));
         Assertions.assertEquals(mockType, entry.getEnclosingClass());
         Assertions.assertEquals("Entry", entry.getName());
         Assertions.assertIterableEquals(Arrays.asList(mockValue1, mockValue2, mockValue3), entry.getParameters());
         
-        entry.generateSelf(mockCodeBuilder, mockImports, "-`-");
+        entry.generateSelf(mockCodeBuilder, "-`-");
         verify(mockCodeBuilder).append("Entry(1, 2, 3)-`-");
-        verify(mockValue1).generate(mockImports);
+        verify(mockValue1).generate();
     }
     
     /**

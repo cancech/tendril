@@ -26,10 +26,10 @@ public abstract class RecipeGeneratorHelper {
 	 */
 	public static String getClassReference(Type type) {
 		// TODO the resulting code generates a warning, see about either getting rid of it or adding @SuppressWarnings("unchecked") to the containing method
-		String classReference = type.getClassName() + ".class";
+		String classReference = type.asClassType().getFullyQualifiedName() + ".class";
 
 		if (type instanceof ClassType classType && classType.hasGenerics())
-			return "(Class<" + type.getSimpleName() + ">) (Class<?>) " + classReference;
+			return "(Class<" + type.getCodeName() + ">) (Class<?>) " + classReference;
 
 		return classReference;
 	}

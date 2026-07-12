@@ -65,12 +65,11 @@ public class JFieldTestWithoutValue extends CommonJFieldTest {
      */
     @Test
     public void testGenerateSelfAllDefaults() {
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockType.getCodeName()).thenReturn("MockType");
 
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder).append("MockType fieldName;");
-        verify(mockType).getSimpleName();
+        verify(mockType).getCodeName();
     }
 
     /**
@@ -78,16 +77,15 @@ public class JFieldTestWithoutValue extends CommonJFieldTest {
      */
     @Test
     public void testGenerateSelfAllUpdateVisibility() {
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockType.getCodeName()).thenReturn("MockType");
 
         int timesRepeated = 0;
         for (VisibilityType visType: VisibilityType.values()) {
             timesRepeated++;
             
             field.setVisibility(visType);
-            field.appendSelf(mockBuilder, mockImports);
-            verify(mockType, times(timesRepeated)).registerImport(mockImports);
-            verify(mockType, times(timesRepeated)).getSimpleName();
+            field.appendSelf(mockBuilder);
+            verify(mockType, times(timesRepeated)).getCodeName();
             verify(mockBuilder).append(visType.getKeyword() + "MockType fieldName;");
         }
     }
@@ -97,24 +95,21 @@ public class JFieldTestWithoutValue extends CommonJFieldTest {
      */
     @Test
     public void testGenerateSelfStaticUpdate() {
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockType.getCodeName()).thenReturn("MockType");
 
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder).append("MockType fieldName;");
-        verify(mockType).getSimpleName();
+        verify(mockType).getCodeName();
         
         field.setStatic(true);
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType, times(2)).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder).append("static MockType fieldName;");
-        verify(mockType, times(2)).getSimpleName();
+        verify(mockType, times(2)).getCodeName();
         
         field.setStatic(false);
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType, times(3)).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder, times(2)).append("MockType fieldName;");
-        verify(mockType, times(3)).getSimpleName();
+        verify(mockType, times(3)).getCodeName();
     }
     
     /**
@@ -122,24 +117,21 @@ public class JFieldTestWithoutValue extends CommonJFieldTest {
      */
     @Test
     public void testGenerateSelfFinalUpdate() {
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockType.getCodeName()).thenReturn("MockType");
 
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder).append("MockType fieldName;");
-        verify(mockType).getSimpleName();
+        verify(mockType).getCodeName();
         
         field.setFinal(true);
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType, times(2)).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder).append("final MockType fieldName;");
-        verify(mockType, times(2)).getSimpleName();
+        verify(mockType, times(2)).getCodeName();
         
         field.setFinal(false);
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType, times(3)).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder, times(2)).append("MockType fieldName;");
-        verify(mockType, times(3)).getSimpleName();
+        verify(mockType, times(3)).getCodeName();
     }
     
     /**
@@ -147,13 +139,12 @@ public class JFieldTestWithoutValue extends CommonJFieldTest {
      */
     @Test
     public void testSingleGeneric() {
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockType.getCodeName()).thenReturn("MockType");
         when(mockGeneric1.generateApplication()).thenReturn("GEN1");
         field.addGeneric(mockGeneric1);
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
-        verify(mockType).getSimpleName();
+        field.appendSelf(mockBuilder);
+        verify(mockType).getCodeName();
         verify(mockGeneric1).generateApplication();
         verify(mockBuilder).append("MockType<GEN1> fieldName;");
     }
@@ -163,7 +154,7 @@ public class JFieldTestWithoutValue extends CommonJFieldTest {
      */
     @Test
     public void testMultipleGenerics() {
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockType.getCodeName()).thenReturn("MockType");
         when(mockGeneric1.generateApplication()).thenReturn("GEN1");
         when(mockGeneric2.generateApplication()).thenReturn("GEN2");
         when(mockGeneric3.generateApplication()).thenReturn("GEN3");
@@ -171,9 +162,8 @@ public class JFieldTestWithoutValue extends CommonJFieldTest {
         field.addGeneric(mockGeneric2);
         field.addGeneric(mockGeneric3);
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
-        verify(mockType).getSimpleName();
+        field.appendSelf(mockBuilder);
+        verify(mockType).getCodeName();
         verify(mockGeneric1).generateApplication();
         verify(mockGeneric2).generateApplication();
         verify(mockGeneric3).generateApplication();
@@ -188,11 +178,10 @@ public class JFieldTestWithoutValue extends CommonJFieldTest {
         field = create(VisibilityType.PROTECTED, mockGeneric1, "fieldName");
         field.setStatic(true);
         
-        when(mockGeneric1.getSimpleName()).thenReturn("GEN1");
+        when(mockGeneric1.getCodeName()).thenReturn("GEN1");
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockGeneric1).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder).append("protected static GEN1 fieldName;");
-        verify(mockGeneric1).getSimpleName();
+        verify(mockGeneric1).getCodeName();
     }
 }

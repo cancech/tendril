@@ -15,8 +15,6 @@
  */
 package tendril.codegen.generics;
 
-import java.util.Set;
-
 import tendril.codegen.CodeGenerationException;
 import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.ClassType;
@@ -38,7 +36,7 @@ class SimpleExplicitGeneric extends GenericType {
      * @param type {@link ClassType} that the generic resolves to
      */
     SimpleExplicitGeneric(ClassType type) {
-        super(type.getSimpleName());
+        super(type.getCodeName());
         this.classType = type;
     }
 
@@ -48,14 +46,6 @@ class SimpleExplicitGeneric extends GenericType {
     @Override
     public String generateDefinition() {
         throw new CodeGenerationException("A generic explicitely resolved to a type cannot be used in a definition");
-    }
-
-    /**
-     * @see tendril.codegen.field.type.Importable#registerImport(java.util.Set)
-     */
-    @Override
-    public void registerImport(Set<ClassType> classImports) {
-    	classType.registerImport(classImports);
     }
 
     /**
@@ -80,7 +70,7 @@ class SimpleExplicitGeneric extends GenericType {
     @Override
     public JValue<?, ?> asValue(Object value) {
         if (!isTypeOf(value))
-            throw new DefinitionException("Invalid object provided: require " + getSimpleName() + " but received " + value.getClass().getName());
+            throw new DefinitionException("Invalid object provided: require " + getCodeName() + " but received " + value.getClass().getName());
 
         return JValueFactory.create(value);
     }

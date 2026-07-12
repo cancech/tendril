@@ -127,10 +127,10 @@ public class ClassBuilderTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
-        when(mockClassType.getSimpleName()).thenReturn("MockClass");
+        when(mockClassType.getCodeName()).thenReturn("MockClass");
         when(mockClassType.getGenerics()).thenReturn(Collections.emptyList());
         builder = new TestClassBuilder();
-        verify(mockClassType).getSimpleName();
+        verify(mockClassType).getCodeName();
         verify(mockClassType).getGenerics();
     }
     
@@ -193,7 +193,7 @@ public class ClassBuilderTest extends AbstractUnitTest {
     @Test
     public void testConstructorBuilder() {
         Assertions.assertNotNull(builder.buildConstructor());
-        verify(mockClassType, times(2)).getSimpleName();
+        verify(mockClassType, times(2)).getCodeName();
     }
     
     /**

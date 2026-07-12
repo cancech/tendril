@@ -30,6 +30,12 @@ import tendril.processor.recipe.RecipeGenerator;
 public class DuplicateProcessor extends AbstractDelayedAnnotationTendrilProcessor {
 
 	/**
+	 * CTOR
+	 */
+	public DuplicateProcessor() {
+	}
+
+	/**
 	 * Ensure that the type is not also annotated as a {@link Bean}. Thrown an exception caused by conflicting definitions if true.
 	 * 
 	 * @see tendril.annotationprocessor.AbstractTendrilProccessor#validateType(javax.lang.model.element.TypeElement)

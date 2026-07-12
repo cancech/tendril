@@ -15,9 +15,6 @@
  */
 package tendril.codegen.field.value;
 
-import java.util.Set;
-
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 
 /**
@@ -58,10 +55,10 @@ public class JValueSimple<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<DAT
     }
 
     /**
-     * @see tendril.codegen.field.value.JValue#generate(java.util.Set)
+     * @see tendril.codegen.field.value.JValue#generate()
      */
     @Override
-    public String generate(Set<ClassType> classImports) {
+    public String generate() {
         return prefix + value.toString() + suffix;
     }
     
@@ -82,6 +79,6 @@ public class JValueSimple<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<DAT
      */
     @Override
     public String toString() {
-        return "[" + getType().getSimpleName() + " = " + value + "]";
+        return "[" + getType().getCodeName() + " = " + value + "]";
     }
 }

@@ -17,13 +17,10 @@ package tendril.codegen.classes.method;
 
 import static org.mockito.Mockito.lenient;
 
-import java.util.Set;
-
 import org.junit.jupiter.api.Assertions;
 import org.mockito.Mock;
 
 import tendril.codegen.VisibilityType;
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
 
@@ -39,8 +36,6 @@ public class AbstractMethodTest extends AbstractUnitTest {
     protected VisibilityType mockVisibility;
     @Mock
     protected Type mockReturnType;
-    @Mock
-    protected Set<ClassType> mockImports;
 
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
@@ -48,7 +43,7 @@ public class AbstractMethodTest extends AbstractUnitTest {
     @Override
     protected void prepareTest() {
         lenient().when(mockVisibility.getKeyword()).thenReturn("mockVisibility ");
-        lenient().when(mockReturnType.getSimpleName()).thenReturn(SIMPLE_MOCK_RETURN_TYPE);    
+        lenient().when(mockReturnType.getCodeName()).thenReturn(SIMPLE_MOCK_RETURN_TYPE);    
     }
 
     /**

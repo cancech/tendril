@@ -15,7 +15,6 @@
  */
 package tendril.processor;
 
-import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -87,36 +86,27 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
         when(mockAnnotatedClass.isVoid()).thenReturn(false);
         when(mockAnnotatedClass.getPackageName()).thenReturn("a.b.c.d");
         when(mockAnnotatedClass.getClassName()).thenReturn("MockEnum");
-        when(mockAnnotatedClass.getSimpleName()).thenReturn("MockEnum");
+        when(mockAnnotatedClass.getCodeName()).thenReturn("MockEnumCode");
 
         ClassDefinition generated = processor.processType();
         verify(mockAnnotatedClass).isVoid();
-        verify(mockAnnotatedClass).registerImport(anySet());
         verify(mockAnnotatedClass).getPackageName();
         verify(mockAnnotatedClass).getClassName();
-        verify(mockAnnotatedClass).getSimpleName();
+        verify(mockAnnotatedClass).getCodeName();
         verify(mockAnnotatedClass).getGenerics();
 
         // The code which should be generated
         MultiLineStringMatcher matcher = new MultiLineStringMatcher();
         matcher.eq("package a.b.c.d;");
         matcher.eq("");
-        matcher.eq("import " + ElementType.class.getName() + ";");
-        matcher.eq("import " + Retention.class.getName() + ";");
-        matcher.eq("import " + RetentionPolicy.class.getName() + ";");
-        matcher.eq("import " + Target.class.getName() + ";");
-        matcher.eq("import " + Generated.class.getName() + ";");
-        matcher.eq("import " + EnumQualifier.class.getName() + ";");
-        matcher.eq("import " + GeneratedQualifier.class.getName() + ";");
-        matcher.eq("");
-        matcher.regex("@" + Generated.class.getSimpleName() + "\\(.+\\)");
-        matcher.eq("@" + GeneratedQualifier.class.getSimpleName());
-        matcher.eq("@" + Retention.class.getSimpleName() + "(" + enumToString(RetentionPolicy.RUNTIME) + ")");
-        matcher.eq("@" + Target.class.getSimpleName() + "({" + enumsToString(ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER) + "})");
-        matcher.eq("@" + EnumQualifier.class.getSimpleName());
+        matcher.regex("@" + Generated.class.getName() + "\\(.+\\)");
+        matcher.eq("@" + GeneratedQualifier.class.getName());
+        matcher.eq("@" + Retention.class.getName() + "(" + enumToString(RetentionPolicy.RUNTIME) + ")");
+        matcher.eq("@" + Target.class.getName() + "({" + enumsToString(ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER) + "})");
+        matcher.eq("@" + EnumQualifier.class.getName());
         matcher.eq("public @interface MockEnumId {");
         matcher.eq("");
-        matcher.eq("    MockEnum value();");
+        matcher.eq("    MockEnumCode value();");
         matcher.eq("");
         matcher.eq("}");
 
@@ -133,7 +123,7 @@ public class BeanEnumProcessorTest extends AbstractUnitTest {
      * @return {@link String} representation of the enum value in code
      */
     private <T extends Enum<T>> String enumToString(Enum<T> value) {
-        return value.getClass().getSimpleName() + "." + value.name();
+        return value.getClass().getName() + "." + value.name();
     }
 
     /**

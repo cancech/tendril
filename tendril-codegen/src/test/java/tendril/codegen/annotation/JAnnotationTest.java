@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -52,8 +51,6 @@ public class JAnnotationTest extends AbstractUnitTest {
     private ClassType mockOtherAnnotationClass;
     @Mock
     private CodeBuilder mockBuilder;
-    @Mock
-    private Set<ClassType> mockImportSet;
     @Mock
     private JMethod<Type> mockMethod1;
     @Mock
@@ -91,6 +88,7 @@ public class JAnnotationTest extends AbstractUnitTest {
     @Test
     public void testMarkerAnnotation() {
         when(mockAnnotationClass.getClassName()).thenReturn(TestMarkerAnnotation.class.getSimpleName());
+        when(mockAnnotationClass.getCodeName()).thenReturn(TestMarkerAnnotation.class.getSimpleName());
         String expectedName = "@TestMarkerAnnotation";
 
         // Create the annotation
@@ -103,9 +101,9 @@ public class JAnnotationTest extends AbstractUnitTest {
         Assertions.assertEquals(Collections.emptyList(), annotation.getAttributes());
 
         // Verify the code is properly generated
-        annotation.generate(mockBuilder, mockImportSet);
+        annotation.generate(mockBuilder);
+        verify(mockAnnotationClass).getCodeName();
         verify(mockBuilder).append(expectedName);
-        verify(mockImportSet).add(mockAnnotationClass);
     }
 
     /**
@@ -114,8 +112,9 @@ public class JAnnotationTest extends AbstractUnitTest {
     @Test
     public void testDefaultValueAnnotation() {
         when(mockAnnotationClass.getClassName()).thenReturn(TestDefaultAttrAnnotation.class.getSimpleName());
+        when(mockAnnotationClass.getCodeName()).thenReturn(TestDefaultAttrAnnotation.class.getSimpleName());
         when(mockMethod1.getName()).thenReturn("value");
-        when(mockStringValue.generate(mockImportSet)).thenReturn("abc123");
+        when(mockStringValue.generate()).thenReturn("abc123");
 
         String expectedName = "@TestDefaultAttrAnnotation";
         String expectedCode = expectedName + "(abc123)";
@@ -132,10 +131,10 @@ public class JAnnotationTest extends AbstractUnitTest {
         Assertions.assertEquals(mockStringValue, annotation.getValue(mockMethod1));
 
         // Verify the code is properly generated
-        annotation.generate(mockBuilder, mockImportSet);
+        annotation.generate(mockBuilder);
+        verify(mockAnnotationClass).getCodeName();
         verify(mockBuilder).append(expectedCode);
-        verify(mockStringValue).generate(mockImportSet);
-        verify(mockImportSet).add(mockAnnotationClass);
+        verify(mockStringValue).generate();
     }
 
     /**
@@ -144,8 +143,9 @@ public class JAnnotationTest extends AbstractUnitTest {
     @Test
     public void testSingleValueNonDefaultAnnotation() {
         when(mockAnnotationClass.getClassName()).thenReturn(TestNonDefaultAttrAnnotation.class.getSimpleName());
+        when(mockAnnotationClass.getCodeName()).thenReturn(TestNonDefaultAttrAnnotation.class.getSimpleName());
         when(mockMethod1.getName()).thenReturn("myString");
-        when(mockStringValue.generate(mockImportSet)).thenReturn("abc123");
+        when(mockStringValue.generate()).thenReturn("abc123");
 
         String expectedName = "@TestNonDefaultAttrAnnotation";
         String expectedCode = expectedName + "(myString = abc123)";
@@ -162,10 +162,10 @@ public class JAnnotationTest extends AbstractUnitTest {
         Assertions.assertEquals(mockStringValue, annotation.getValue(mockMethod1));
 
         // Verify the code is properly generated
-        annotation.generate(mockBuilder, mockImportSet);
+        annotation.generate(mockBuilder);
+        verify(mockAnnotationClass).getCodeName();
         verify(mockBuilder).append(expectedCode);
-        verify(mockStringValue).generate(mockImportSet);
-        verify(mockImportSet).add(mockAnnotationClass);
+        verify(mockStringValue).generate();
     }
 
     /**
@@ -174,10 +174,11 @@ public class JAnnotationTest extends AbstractUnitTest {
     @Test
     public void testMultiParamAnnotation() {
         when(mockAnnotationClass.getClassName()).thenReturn(TestDefaultAttrAnnotation.class.getSimpleName());
+        when(mockAnnotationClass.getCodeName()).thenReturn(TestDefaultAttrAnnotation.class.getSimpleName());
         when(mockMethod1.getName()).thenReturn("valStr");
-        when(mockStringValue.generate(mockImportSet)).thenReturn("123abc");
+        when(mockStringValue.generate()).thenReturn("123abc");
         when(mockMethod2.getName()).thenReturn("valInt");
-        when(mockIntValue.generate(mockImportSet)).thenReturn("5678");
+        when(mockIntValue.generate()).thenReturn("5678");
 
         String expectedName = "@TestDefaultAttrAnnotation";
         String expectedCode = expectedName + "(valStr = 123abc, valInt = 5678)";
@@ -196,11 +197,11 @@ public class JAnnotationTest extends AbstractUnitTest {
         Assertions.assertEquals(mockIntValue, annotation.getValue(mockMethod2));
 
         // Verify the code is properly generated
-        annotation.generate(mockBuilder, mockImportSet);
+        annotation.generate(mockBuilder);
         verify(mockBuilder).append(expectedCode);
-        verify(mockImportSet).add(mockAnnotationClass);
-        verify(mockStringValue).generate(mockImportSet);
-        verify(mockIntValue).generate(mockImportSet);
+        verify(mockAnnotationClass).getCodeName();
+        verify(mockStringValue).generate();
+        verify(mockIntValue).generate();
     }
     
     /**

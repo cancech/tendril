@@ -53,13 +53,13 @@ public class JMethodDefaultTest extends AbstractMethodTest {
         
         method.setFinal(true);
         Assertions.assertThrows(DefinitionException.class, () -> method.generateSignatureStart(false));
-        verify(mockReturnType).getSimpleName();
+        verify(mockReturnType).getCodeName();
         verify(mockVisibility, times(2)).getKeyword();
         
         method.setFinal(false);
         method.setStatic(true);
         Assertions.assertThrows(DefinitionException.class, () -> method.generateSignatureStart(false));
-        verify(mockReturnType, times(2)).getSimpleName();
+        verify(mockReturnType, times(2)).getCodeName();
         verify(mockVisibility, times(3)).getKeyword();
         
         method.setStatic(false);

@@ -21,14 +21,12 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.annotation.JAnnotation;
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
@@ -61,7 +59,7 @@ public class JBaseTest extends AbstractUnitTest {
          * Does nothing other than count how many times it has been called
          */
         @Override
-        protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
+        protected void appendSelf(CodeBuilder builder) {
             timesAppendSelfCalled++;
         }
 
@@ -69,8 +67,7 @@ public class JBaseTest extends AbstractUnitTest {
          * @see tendril.codegen.JBase#generateSelf(java.util.Set)
          */
         @Override
-        public String generateSelf(Set<ClassType> classImports) {
-            Assertions.assertEquals(mockImports, classImports);
+        public String generateSelf() {
             timesGenerateSelfCalled++;
             return "generateSelf";
         }
@@ -91,8 +88,6 @@ public class JBaseTest extends AbstractUnitTest {
     // Mocks to use for testing
     @Mock
     private CodeBuilder mockCodeBuilder;
-    @Mock
-    private Set<ClassType> mockImports;
     @Mock
     private JAnnotation mockAnnotation1;
     @Mock
@@ -129,7 +124,7 @@ public class JBaseTest extends AbstractUnitTest {
     	Assertions.assertNull(element.getAnnotation(TypeFactory.createClassType(Test.class)));
     	Assertions.assertNull(element.getAnnotation(TypeFactory.createClassType(Deprecated.class)));
 
-        element.generate(mockCodeBuilder, mockImports);
+        element.generate(mockCodeBuilder);
         element.verifyTimesCalled(1, 0);
     }
 
@@ -144,8 +139,8 @@ public class JBaseTest extends AbstractUnitTest {
         element.add(mockAnnotation1);
         CollectionAssert.assertEquivalent(element.getAnnotations(), mockAnnotation1);
 
-        element.generate(mockCodeBuilder, mockImports);
-        verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
+        element.generate(mockCodeBuilder);
+        verify(mockAnnotation1).generate(mockCodeBuilder);
         element.verifyTimesCalled(1, 0);
 
         Assertions.assertFalse(element.hasAnnotation(Deprecated.class));
@@ -174,8 +169,8 @@ public class JBaseTest extends AbstractUnitTest {
         element.add(mockAnnotation1);
         Assertions.assertIterableEquals(Collections.singleton(mockAnnotation1), element.getAnnotations());
 
-        element.generate(mockCodeBuilder, mockImports);
-        verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
+        element.generate(mockCodeBuilder);
+        verify(mockAnnotation1).generate(mockCodeBuilder);
         element.verifyTimesCalled(1, 0);
 
         Assertions.assertFalse(element.hasAnnotation(TypeFactory.createClassType("a.B")));
@@ -209,10 +204,10 @@ public class JBaseTest extends AbstractUnitTest {
         element.add(mockAnnotation3);
         Assertions.assertIterableEquals(Arrays.asList(mockAnnotation1, mockAnnotation2, mockAnnotation3), element.getAnnotations());
 
-        element.generate(mockCodeBuilder, mockImports);
-        verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
-        verify(mockAnnotation2).generate(mockCodeBuilder, mockImports);
-        verify(mockAnnotation3).generate(mockCodeBuilder, mockImports);
+        element.generate(mockCodeBuilder);
+        verify(mockAnnotation1).generate(mockCodeBuilder);
+        verify(mockAnnotation2).generate(mockCodeBuilder);
+        verify(mockAnnotation3).generate(mockCodeBuilder);
         element.verifyTimesCalled(1, 0);
         
 
@@ -256,10 +251,10 @@ public class JBaseTest extends AbstractUnitTest {
         element.add(mockAnnotation3);
         Assertions.assertIterableEquals(Arrays.asList(mockAnnotation1, mockAnnotation2, mockAnnotation3), element.getAnnotations());
 
-        element.generate(mockCodeBuilder, mockImports);
-        verify(mockAnnotation1).generate(mockCodeBuilder, mockImports);
-        verify(mockAnnotation2).generate(mockCodeBuilder, mockImports);
-        verify(mockAnnotation3).generate(mockCodeBuilder, mockImports);
+        element.generate(mockCodeBuilder);
+        verify(mockAnnotation1).generate(mockCodeBuilder);
+        verify(mockAnnotation2).generate(mockCodeBuilder);
+        verify(mockAnnotation3).generate(mockCodeBuilder);
         element.verifyTimesCalled(1, 0);
         
 
@@ -293,7 +288,7 @@ public class JBaseTest extends AbstractUnitTest {
     @Test
     public void testGenerateSelf() {
         element.setFinal(true);
-        Assertions.assertEquals("generateSelf", element.generateSelf(mockImports));
+        Assertions.assertEquals("generateSelf", element.generateSelf());
         element.verifyTimesCalled(0, 1);
     }
 
@@ -337,7 +332,7 @@ public class JBaseTest extends AbstractUnitTest {
         element.addGeneric(mockGeneric1);
 
         // Generating will register the generics
-        element.generate(mockCodeBuilder, mockImports);
+        element.generate(mockCodeBuilder);
         element.verifyTimesCalled(1, 0);
     }
 
@@ -351,7 +346,7 @@ public class JBaseTest extends AbstractUnitTest {
         element.addGeneric(mockGeneric3);
 
         // Generating will register the generics
-        element.generate(mockCodeBuilder, mockImports);
+        element.generate(mockCodeBuilder);
         element.verifyTimesCalled(1, 0);
     }
     

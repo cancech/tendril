@@ -19,13 +19,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
 
@@ -43,8 +41,6 @@ public class JValueArrayTest extends AbstractUnitTest {
     private JValue<Type, Type> mockValue2;
     @Mock
     private JValue<Type, Type> mockValue3;
-    @Mock
-    private Set<ClassType> mockImports;
 
     // Instance to use for testing
     private JValueArray<Type, Type> value;
@@ -62,14 +58,14 @@ public class JValueArrayTest extends AbstractUnitTest {
      */
     @Test
     public void testGenerate() {
-        when(mockValue1.generate(mockImports)).thenReturn("mockValue1");
-        when(mockValue2.generate(mockImports)).thenReturn("mockValue2");
-        when(mockValue3.generate(mockImports)).thenReturn("mockValue3");
+        when(mockValue1.generate()).thenReturn("mockValue1");
+        when(mockValue2.generate()).thenReturn("mockValue2");
+        when(mockValue3.generate()).thenReturn("mockValue3");
         
-        Assertions.assertEquals("{mockValue1, mockValue2, mockValue3}", value.generate(mockImports));
-        verify(mockValue1).generate(mockImports);
-        verify(mockValue2).generate(mockImports);
-        verify(mockValue3).generate(mockImports);
+        Assertions.assertEquals("{mockValue1, mockValue2, mockValue3}", value.generate());
+        verify(mockValue1).generate();
+        verify(mockValue2).generate();
+        verify(mockValue3).generate();
     }
     
     /** Verify that the appropriate string is produces */

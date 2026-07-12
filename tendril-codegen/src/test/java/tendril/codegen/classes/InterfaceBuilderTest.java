@@ -66,10 +66,10 @@ public class InterfaceBuilderTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
-        when(mockClassType1.getSimpleName()).thenReturn("MockClass");
+        when(mockClassType1.getCodeName()).thenReturn("MockClass");
         when(mockClassType1.getGenerics()).thenReturn(Arrays.asList(mockGeneric1, mockGeneric2, mockGeneric3));
         builder = new InterfaceBuilder(mockClassType1);
-        verify(mockClassType1).getSimpleName();
+        verify(mockClassType1).getCodeName();
         verify(mockClassType1).getGenerics();
     }
     

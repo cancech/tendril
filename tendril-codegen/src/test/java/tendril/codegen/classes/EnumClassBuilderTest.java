@@ -65,11 +65,11 @@ public class EnumClassBuilderTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
-        when(mockType.getSimpleName()).thenReturn("SimpleName");
+        when(mockType.getCodeName()).thenReturn("SimpleName");
         when(mockType.getGenerics()).thenReturn(Collections.emptyList());
         
         builder = new EnumClassBuilder(mockType);
-        verify(mockType).getSimpleName();
+        verify(mockType).getCodeName();
         verify(mockType).getGenerics();
     }
 

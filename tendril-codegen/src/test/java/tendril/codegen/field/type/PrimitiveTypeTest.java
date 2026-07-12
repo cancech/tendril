@@ -15,10 +15,9 @@
  */
 package tendril.codegen.field.type;
 
-import static org.mockito.Mockito.verifyNoInteractions;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import tendril.codegen.DefinitionException;
 import tendril.codegen.field.value.JValueFactory;
@@ -28,6 +27,10 @@ import tendril.test.helper.assertions.TendrilAssert;
  * Test case for {@link PrimitiveType}
  */
 public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
+	
+	// Mocks to use for testing
+	@Mock
+	private Object mockObject;
 
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
@@ -94,8 +97,6 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
     @Test
     public void testBoolean() {
         type = PrimitiveType.BOOLEAN;
-        type.registerImport(mockImports);
-        verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.BOOLEAN);
         Assertions.assertEquals("Boolean", type.getClassName());
 
@@ -109,8 +110,6 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
     @Test
     public void testByte() {
         type = PrimitiveType.BYTE;
-        type.registerImport(mockImports);
-        verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.BYTE);
         Assertions.assertEquals("Byte", type.getClassName());
 
@@ -124,8 +123,6 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
     @Test
     public void testChar() {
         type = PrimitiveType.CHAR;
-        type.registerImport(mockImports);
-        verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.CHAR);
         Assertions.assertEquals("Character", type.getClassName());
 
@@ -139,8 +136,6 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
     @Test
     public void testDouble() {
         type = PrimitiveType.DOUBLE;
-        type.registerImport(mockImports);
-        verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.DOUBLE);
         Assertions.assertEquals("Double", type.getClassName());
 
@@ -154,8 +149,6 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
     @Test
     public void testFloat() {
         type = PrimitiveType.FLOAT;
-        type.registerImport(mockImports);
-        verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.FLOAT);
         Assertions.assertEquals("Float", type.getClassName());
 
@@ -169,8 +162,6 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
     @Test
     public void testInteger() {
         type = PrimitiveType.INT;
-        type.registerImport(mockImports);
-        verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.INT);
         Assertions.assertEquals("Integer", type.getClassName());
 
@@ -184,8 +175,6 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
     @Test
     public void testLong() {
         type = PrimitiveType.LONG;
-        type.registerImport(mockImports);
-        verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.LONG);
         Assertions.assertEquals("Long", type.getClassName());
 
@@ -199,8 +188,6 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
     @Test
     public void testShort() {
         type = PrimitiveType.SHORT;
-        type.registerImport(mockImports);
-        verifyNoInteractions(mockImports);
         verifyDataState(PrimitiveType.SHORT);
         Assertions.assertEquals("Short", type.getClassName());
 
@@ -213,14 +200,14 @@ public class PrimitiveTypeTest extends SharedTypeTest<PrimitiveType> {
      */
     @Test
     public void testInvalidAsValueObject() {
-        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.BOOLEAN.asValue(mockImports));
-        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.BYTE.asValue(mockImports));
-        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.CHAR.asValue(mockImports));
-        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.DOUBLE.asValue(mockImports));
-        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.FLOAT.asValue(mockImports));
-        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.INT.asValue(mockImports));
-        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.LONG.asValue(mockImports));
-        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.SHORT.asValue(mockImports));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.BOOLEAN.asValue(mockObject));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.BYTE.asValue(mockObject));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.CHAR.asValue(mockObject));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.DOUBLE.asValue(mockObject));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.FLOAT.asValue(mockObject));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.INT.asValue(mockObject));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.LONG.asValue(mockObject));
+        Assertions.assertThrows(DefinitionException.class, () -> PrimitiveType.SHORT.asValue(mockObject));
     }
     
     /**

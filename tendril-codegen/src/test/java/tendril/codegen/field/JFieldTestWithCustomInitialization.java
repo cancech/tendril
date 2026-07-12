@@ -68,12 +68,11 @@ public class JFieldTestWithCustomInitialization extends CommonJFieldTest {
      */
     @Test
     public void testGenerateSelf_PublicNotStaticNotFinal() {
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockType.getCodeName()).thenReturn("MockType");
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder).append("public MockType fieldName = abc123;");
-        verify(mockType).getSimpleName();
+        verify(mockType).getCodeName();
     }
     
     /**
@@ -85,12 +84,11 @@ public class JFieldTestWithCustomInitialization extends CommonJFieldTest {
         field.setStatic(true);
         field.setFinal(true);
         
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockType.getCodeName()).thenReturn("MockType");
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder).append("private static final MockType fieldName = qwerty;");
-        verify(mockType).getSimpleName();
+        verify(mockType).getCodeName();
     }
     
     /**
@@ -98,14 +96,13 @@ public class JFieldTestWithCustomInitialization extends CommonJFieldTest {
      */
     @Test
     public void testSingleGeneric() {
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockType.getCodeName()).thenReturn("MockType");
         when(mockGeneric1.generateApplication()).thenReturn("GEN1");
         
         field.addGeneric(mockGeneric1);
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
-        verify(mockType).getSimpleName();
+        field.appendSelf(mockBuilder);
+        verify(mockType).getCodeName();
         verify(mockGeneric1).generateApplication();
         verify(mockBuilder).append("public MockType<GEN1> fieldName = abc123;");
     }
@@ -115,7 +112,7 @@ public class JFieldTestWithCustomInitialization extends CommonJFieldTest {
      */
     @Test
     public void testMultipleGenerics() {
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockType.getCodeName()).thenReturn("MockType");
         when(mockGeneric1.generateApplication()).thenReturn("GEN1");
         when(mockGeneric2.generateApplication()).thenReturn("GEN2");
         when(mockGeneric3.generateApplication()).thenReturn("GEN3");
@@ -124,9 +121,8 @@ public class JFieldTestWithCustomInitialization extends CommonJFieldTest {
         field.addGeneric(mockGeneric2);
         field.addGeneric(mockGeneric3);
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
-        verify(mockType).getSimpleName();
+        field.appendSelf(mockBuilder);
+        verify(mockType).getCodeName();
         verify(mockGeneric1).generateApplication();
         verify(mockGeneric2).generateApplication();
         verify(mockGeneric3).generateApplication();
@@ -141,12 +137,11 @@ public class JFieldTestWithCustomInitialization extends CommonJFieldTest {
         field = create(VisibilityType.PACKAGE_PRIVATE, mockGeneric1, "fieldName", "asdf");
         field.setFinal(true);
         
-        when(mockGeneric1.getSimpleName()).thenReturn("GEN1");
+        when(mockGeneric1.getCodeName()).thenReturn("GEN1");
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockGeneric1).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder).append("final GEN1 fieldName = asdf;");
-        verify(mockGeneric1).getSimpleName();
+        verify(mockGeneric1).getCodeName();
     }
     
     /**
@@ -156,13 +151,12 @@ public class JFieldTestWithCustomInitialization extends CommonJFieldTest {
     public void testGenerateSelf_ValueAndCustomInitializationl() {
         field = create(VisibilityType.PRIVATE, mockType, "fieldName", mockOtherValue, "qwerty");
         
-        when(mockOtherValue.generate(mockImports)).thenReturn("mockOtherValue");
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockOtherValue.generate()).thenReturn("mockOtherValue");
+        when(mockType.getCodeName()).thenReturn("MockType");
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder).append("private MockType fieldName = mockOtherValue;");
-        verify(mockType).getSimpleName();
-        verify(mockOtherValue).generate(mockImports);
+        verify(mockType).getCodeName();
+        verify(mockOtherValue).generate();
     }
 }

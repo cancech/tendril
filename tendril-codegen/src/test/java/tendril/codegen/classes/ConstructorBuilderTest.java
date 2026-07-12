@@ -51,9 +51,9 @@ public class ConstructorBuilderTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
-        when(mockEnclosingClass.getSimpleName()).thenReturn("MockClass");
+        when(mockEnclosingClass.getCodeName()).thenReturn("MockClass");
         builder = new ConstructorBuilder(mockClassBuilder, mockEnclosingClass);
-        verify(mockEnclosingClass).getSimpleName();
+        verify(mockEnclosingClass).getCodeName();
     }
     
     /**
@@ -111,7 +111,9 @@ public class ConstructorBuilderTest extends AbstractUnitTest {
      */
     @Test
     public void testCreate() {
+    	when(mockEnclosingClass.getClassName()).thenReturn("MockClassName");
         JConstructor actual = builder.create();
-        Assertions.assertEquals("MockClass", actual.getName());
+        Assertions.assertEquals("MockClassName", actual.getName());
+        verify(mockEnclosingClass).getClassName();
     }
 }

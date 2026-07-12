@@ -15,10 +15,7 @@
  */
 package tendril.codegen.field;
 
-import java.util.Set;
-
 import tendril.codegen.CodeBuilder;
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 
@@ -100,25 +97,23 @@ public class JField<DATA_TYPE extends Type> extends JVisibleType<DATA_TYPE> {
     }
 
     /**
-     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
+     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder)
      */
     @Override
-    protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
-        builder.append(generateSelf(classImports));
+    protected void appendSelf(CodeBuilder builder) {
+        builder.append(generateSelf());
     }
 
     /**
-     * @see tendril.codegen.JBase#generateSelf(java.util.Set)
+     * @see tendril.codegen.JBase#generateSelf()
      */
     @Override
-    public String generateSelf(Set<ClassType> classImports) {
-        type.registerImport(classImports);
-
+    public String generateSelf() {
         String code = visibility.getKeyword() + getStaticKeyword() + getFinalKeyword();
-        code += type.getSimpleName() + getGenericsApplicationKeyword(true) + name;
+        code += type.getCodeName() + getGenericsApplicationKeyword(true) + name;
 
         if (value != null)
-            code += " = " + value.generate(classImports);
+            code += " = " + value.generate();
         else if (!customInitialization.isEmpty())
         	code += " = " + customInitialization;
 

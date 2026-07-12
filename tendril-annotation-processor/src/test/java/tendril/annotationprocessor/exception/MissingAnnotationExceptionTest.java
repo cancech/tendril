@@ -93,9 +93,9 @@ public class MissingAnnotationExceptionTest extends AbstractUnitTest {
      */
     @Test
     public void testClassTypeException() {
-        when(mockAnnotationType.getSimpleName()).thenReturn("blah");
+        when(mockAnnotationType.getFullyQualifiedName()).thenReturn("blah");
         MissingAnnotationException exception = new MissingAnnotationException("type", mockAnnotationType);
-        verify(mockAnnotationType).getSimpleName();
+        verify(mockAnnotationType).getFullyQualifiedName();
     	
         Assertions.assertEquals("Unknown type annotation mockAnnotationType", exception.getMessage());
         Assertions.assertEquals("blah", exception.getMissingAnnotationName());

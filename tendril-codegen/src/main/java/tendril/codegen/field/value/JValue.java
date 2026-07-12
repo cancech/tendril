@@ -15,9 +15,6 @@
  */
 package tendril.codegen.field.value;
 
-import java.util.Set;
-
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypedElement;
 
@@ -92,8 +89,7 @@ public abstract class JValue<DATA_TYPE extends Type, VALUE_TYPE> implements Type
     /**
      * Generate a code representation of the value
      * 
-     * @param classImports {@link Set} of {@link ClassType} where any imports for this value are to be registered
      * @return {@link String} code representing the value
      */
-    public abstract String generate(Set<ClassType> classImports);
+    public abstract String generate();
 }

@@ -73,14 +73,13 @@ public class JFieldTestWithValue extends CommonJFieldTest {
      */
     @Test
     public void testGenerateSelf_PublicNotStaticNotFinal() {
-        when(mockType.getSimpleName()).thenReturn("MockType");
-        when(mockValue.generate(mockImports)).thenReturn("value");
+        when(mockType.getCodeName()).thenReturn("MockType");
+        when(mockValue.generate()).thenReturn("value");
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder).append("public MockType fieldName = value;");
-        verify(mockType).getSimpleName();
-        verify(mockValue).generate(mockImports);
+        verify(mockType).getCodeName();
+        verify(mockValue).generate();
     }
     
     /**
@@ -92,14 +91,13 @@ public class JFieldTestWithValue extends CommonJFieldTest {
         field.setStatic(true);
         field.setFinal(true);
         
-        when(mockType.getSimpleName()).thenReturn("MockType");
-        when(mockValue.generate(mockImports)).thenReturn("value");
+        when(mockType.getCodeName()).thenReturn("MockType");
+        when(mockValue.generate()).thenReturn("value");
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder).append("private static final MockType fieldName = value;");
-        verify(mockType).getSimpleName();
-        verify(mockValue).generate(mockImports);
+        verify(mockType).getCodeName();
+        verify(mockValue).generate();
     }
     
     /**
@@ -107,15 +105,14 @@ public class JFieldTestWithValue extends CommonJFieldTest {
      */
     @Test
     public void testSingleGeneric() {
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockType.getCodeName()).thenReturn("MockType");
         when(mockGeneric1.generateApplication()).thenReturn("GEN1");
-        when(mockValue.generate(mockImports)).thenReturn("value");
+        when(mockValue.generate()).thenReturn("value");
         
         field.addGeneric(mockGeneric1);
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
-        verify(mockType).getSimpleName();
+        field.appendSelf(mockBuilder);
+        verify(mockType).getCodeName();
         verify(mockGeneric1).generateApplication();
         verify(mockBuilder).append("public MockType<GEN1> fieldName = value;");
     }
@@ -125,19 +122,18 @@ public class JFieldTestWithValue extends CommonJFieldTest {
      */
     @Test
     public void testMultipleGenerics() {
-        when(mockType.getSimpleName()).thenReturn("MockType");
+        when(mockType.getCodeName()).thenReturn("MockType");
         when(mockGeneric1.generateApplication()).thenReturn("GEN1");
         when(mockGeneric2.generateApplication()).thenReturn("GEN2");
         when(mockGeneric3.generateApplication()).thenReturn("GEN3");
-        when(mockValue.generate(mockImports)).thenReturn("value");
+        when(mockValue.generate()).thenReturn("value");
         
         field.addGeneric(mockGeneric1);
         field.addGeneric(mockGeneric2);
         field.addGeneric(mockGeneric3);
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
-        verify(mockType).getSimpleName();
+        field.appendSelf(mockBuilder);
+        verify(mockType).getCodeName();
         verify(mockGeneric1).generateApplication();
         verify(mockGeneric2).generateApplication();
         verify(mockGeneric3).generateApplication();
@@ -152,13 +148,12 @@ public class JFieldTestWithValue extends CommonJFieldTest {
         field = create(VisibilityType.PACKAGE_PRIVATE, mockGeneric1, "fieldName", mockValue);
         field.setFinal(true);
         
-        when(mockGeneric1.getSimpleName()).thenReturn("GEN1");
-        when(mockValue.generate(mockImports)).thenReturn("value");
+        when(mockGeneric1.getCodeName()).thenReturn("GEN1");
+        when(mockValue.generate()).thenReturn("value");
         
-        field.appendSelf(mockBuilder, mockImports);
-        verify(mockGeneric1).registerImport(mockImports);
+        field.appendSelf(mockBuilder);
         verify(mockBuilder).append("final GEN1 fieldName = value;");
-        verify(mockGeneric1).getSimpleName();
-        verify(mockValue).generate(mockImports);
+        verify(mockGeneric1).getCodeName();
+        verify(mockValue).generate();
     }
 }

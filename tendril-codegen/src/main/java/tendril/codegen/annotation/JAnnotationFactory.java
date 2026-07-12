@@ -256,7 +256,7 @@ public abstract class JAnnotationFactory {
             // Make sure that this is a correct instance
             Type returnType = TypeFactory.create(expectedReturn);
             if (!value.isInstanceOf(returnType))
-                throw new DefinitionException(annotationClass, "Incompatible attribute " + attrName + ", expect " + returnType.getSimpleName() + " but got " + value.getType());
+                throw new DefinitionException(annotationClass, "Incompatible attribute " + attrName + ", expect " + returnType.getCodeName() + " but got " + value.getType());
         } catch (NoSuchMethodException e) {
             throw new DefinitionException(annotationClass, "Attribute " + attrName + " does not exist in " + annotationClass.getName());
         } catch (SecurityException e) {

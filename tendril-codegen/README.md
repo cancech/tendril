@@ -129,4 +129,4 @@ protected class B extends Y implements Y, F {
 Additional examples of this in action can be seen in various places in the code, primarily in the `tendril-codegen` unit tests as well as `tendril-di` for the purpose of loading and generating code.
 
 ## Generating Code
-Once a `JClass` is defined and built, generating its code is as simple as calling `JClass.generateCode()`. This produces a multi-line `String` containing the entire code for the `JClass`. It is possible to generate the code of individual elements (rather than the entire class) by calling `generateSelf()` on the element in question.
+Once a `JClass` is defined and built, generating its code is as simple as calling `JClass.generateCode()`. This produces a multi-line `String` containing the entire code for the `JClass`. It is possible to generate the code of individual elements (rather than the entire class) by calling `generateSelf()` on the element in question. The generated code does not employ any `import` statements, instead writing out all class references fully qualified so ensure that there are no name or import clashes within the generated file.

@@ -81,7 +81,7 @@ public class ParameterBuilderTest extends AbstractUnitTest {
         // Void is not OK
         when(mockType.isVoid()).thenReturn(true);
         Assertions.assertThrows(DefinitionException.class, () -> builder.validate());
-        verify(mockType).getSimpleName();
+        verify(mockType).getCodeName();
         verify(mockType, times(2)).isVoid();
     }
 

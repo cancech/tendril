@@ -16,7 +16,6 @@
 package tendril.codegen.field.type;
 
 import java.lang.reflect.Array;
-import java.util.Set;
 
 import tendril.codegen.DefinitionException;
 import tendril.codegen.field.value.JValue;
@@ -51,14 +50,6 @@ public class ArrayType<DATA_TYPE extends Type> implements Type {
     }
 
     /**
-     * @see tendril.codegen.field.type.Importable#registerImport(java.util.Set)
-     */
-    @Override
-    public void registerImport(Set<ClassType> classImports) {
-        containedType.registerImport(classImports);
-    }
-
-    /**
      * @see tendril.codegen.field.type.Type#isVoid()
      */
     @Override
@@ -74,11 +65,11 @@ public class ArrayType<DATA_TYPE extends Type> implements Type {
     }
 
     /**
-     * @see tendril.codegen.field.type.Type#getSimpleName()
+     * @see tendril.codegen.field.type.Type#getCodeName()
      */
     @Override
-    public String getSimpleName() {
-        return containedType.getSimpleName() + "[]";
+    public String getCodeName() {
+        return containedType.getCodeName() + "[]";
     }
 
     /**
@@ -112,7 +103,7 @@ public class ArrayType<DATA_TYPE extends Type> implements Type {
         if (isTypeOf(value))
             return JValueFactory.createArray(ArrayConverter.toObjectArray(value));
         
-        throw new DefinitionException(containedType, "Incompatible value, expected " + getSimpleName() + " but received " + value);
+        throw new DefinitionException(containedType, "Incompatible value, expected " + getCodeName() + " but received " + value);
     }
 
     /**

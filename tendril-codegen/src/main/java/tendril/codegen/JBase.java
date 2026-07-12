@@ -18,7 +18,6 @@ package tendril.codegen;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.field.type.ClassType;
@@ -171,12 +170,11 @@ public abstract class JBase extends JGeneric {
      * Generate the code for the element. Performs the common code generation, relying on {@code generateSelf()} to perform the specific code generation for this specific element.
      * 
      * @param builder      {@link CodeBuilder} which is assembling/building the code
-     * @param classImports {@link Set} of {@link ClassType}s representing the imports for the code
      */
-    public void generate(CodeBuilder builder, Set<ClassType> classImports) {
+    public void generate(CodeBuilder builder) {
         for (JAnnotation annon : annotations)
-            annon.generate(builder, classImports);
-        appendSelf(builder, classImports);
+            annon.generate(builder);
+        appendSelf(builder);
     }
 
 	/**
@@ -193,16 +191,14 @@ public abstract class JBase extends JGeneric {
      * this particular element. Can be thought of an as wrapper for generating the code and appending it directly to the larger code.
      * 
      * @param builder      {@link CodeBuilder} which is assembling/building the code
-     * @param classImports {@link Set} of {@link ClassType}s representing the imports for the code
      */
-    protected abstract void appendSelf(CodeBuilder builder, Set<ClassType> classImports);
+    protected abstract void appendSelf(CodeBuilder builder);
 
     /**
      * Generate the appropriate code that is specific and unique to this element. Regardless of where this elements fits into the larger code, produce a {@link String} which is representative of this
      * element.
      * 
-     * @param classImports {@link Set} of {@link ClassType}s representing the imports for the code
      * @return {@link String} code representing this element
      */
-    public abstract String generateSelf(Set<ClassType> classImports);
+    public abstract String generateSelf();
 }

@@ -1,7 +1,6 @@
 package tendril.codegen.field.value;
 
 import java.util.List;
-import java.util.Set;
 
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
@@ -42,12 +41,11 @@ public class JValueClass extends JValue<ClassType, ClassType> {
 	}
 
 	/**
-	 * @see tendril.codegen.field.value.JValue#generate(java.util.Set)
+	 * @see tendril.codegen.field.value.JValue#generate()
 	 */
 	@Override
-	public String generate(Set<ClassType> classImports) {
-		classImports.add(type);
-		return type.getClassName() + ".class";
+	public String generate() {
+		return type.getFullyQualifiedName() + ".class";
 	}
 
 }

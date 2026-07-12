@@ -16,7 +16,6 @@
 package tendril.codegen.field.type;
 
 import java.util.List;
-import java.util.Set;
 
 import tendril.codegen.DefinitionException;
 import tendril.codegen.JGeneric;
@@ -174,15 +173,6 @@ public class ClassType extends JGeneric implements Type {
     }
 
     /**
-     * @see tendril.codegen.field.type.Importable#registerImport(java.util.Set)
-     */
-    @Override
-    public void registerImport(Set<ClassType> classImports) {
-        classImports.add(this);
-        registerGenerics(classImports);
-    }
-
-    /**
      * @see tendril.codegen.field.type.Type#isVoid()
      */
     @Override
@@ -191,11 +181,11 @@ public class ClassType extends JGeneric implements Type {
     }
 
     /**
-     * @see tendril.codegen.field.type.Type#getSimpleName()
+     * @see tendril.codegen.field.type.Type#getCodeName()
      */
     @Override
-    public String getSimpleName() {
-        return getClassName() + getGenericsApplicationKeyword(false);
+    public String getCodeName() {
+        return getFullyQualifiedName() + getGenericsApplicationKeyword(false);
     }
 
     /**

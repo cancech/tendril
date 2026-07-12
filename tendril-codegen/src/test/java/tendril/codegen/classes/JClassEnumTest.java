@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -42,8 +41,6 @@ public class JClassEnumTest extends AbstractUnitTest {
     private ClassType mockType;
     @Mock
     private CodeBuilder mockCodeBuilder;
-    @Mock
-    private Set<ClassType> mockImports;
     @Mock
     private EnumerationEntry mockEntry1;
     @Mock
@@ -91,7 +88,7 @@ public class JClassEnumTest extends AbstractUnitTest {
     @Test
     public void testNoEntries() {
         Assertions.assertIterableEquals(Collections.emptyList(), enumCls.getEnumerations());
-        enumCls.processFields(mockCodeBuilder, mockImports);
+        enumCls.processFields(mockCodeBuilder);
         
         // None to retrieve by name
         Assertions.assertThrows(DefinitionException.class, () -> enumCls.getEnumeration("abc"));
@@ -110,8 +107,8 @@ public class JClassEnumTest extends AbstractUnitTest {
         enumCls.add(mockEntry1);
         
         Assertions.assertIterableEquals(Collections.singletonList(mockEntry1), enumCls.getEnumerations());
-        enumCls.processFields(mockCodeBuilder, mockImports);
-        verify(mockEntry1).generateSelf(mockCodeBuilder, mockImports, ";");
+        enumCls.processFields(mockCodeBuilder);
+        verify(mockEntry1).generateSelf(mockCodeBuilder, ";");
         verify(mockCodeBuilder).blankLine();
         
         when(mockEntry1.getName()).thenReturn("abc");
@@ -133,10 +130,10 @@ public class JClassEnumTest extends AbstractUnitTest {
         enumCls.add(mockEntry3);
         
         Assertions.assertIterableEquals(Arrays.asList(mockEntry1, mockEntry2, mockEntry3), enumCls.getEnumerations());
-        enumCls.processFields(mockCodeBuilder, mockImports);
-        verify(mockEntry1).generateSelf(mockCodeBuilder, mockImports, ",");
-        verify(mockEntry2).generateSelf(mockCodeBuilder, mockImports, ",");
-        verify(mockEntry3).generateSelf(mockCodeBuilder, mockImports, ";");
+        enumCls.processFields(mockCodeBuilder);
+        verify(mockEntry1).generateSelf(mockCodeBuilder, ",");
+        verify(mockEntry2).generateSelf(mockCodeBuilder, ",");
+        verify(mockEntry3).generateSelf(mockCodeBuilder, ";");
         verify(mockCodeBuilder).blankLine();
 
         when(mockEntry1.getName()).thenReturn("abc");

@@ -49,9 +49,9 @@ public class ConcreteClassBuilderTest extends AbstractUnitTest {
     @Override
     protected void prepareTest() {
         when(mockClassType.getGenerics()).thenReturn(Collections.emptyList());
-        when(mockClassType.getSimpleName()).thenReturn("MockClass");
+        when(mockClassType.getCodeName()).thenReturn("MockClass");
         builder = new ConcreteClassBuilder(mockClassType);
-        verify(mockClassType).getSimpleName();
+        verify(mockClassType).getCodeName();
         verify(mockClassType).getGenerics();
     }
     

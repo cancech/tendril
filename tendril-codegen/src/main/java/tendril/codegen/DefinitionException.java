@@ -72,7 +72,7 @@ public class DefinitionException extends RuntimeException {
      * @param reason {@link String} the reason for the exception
      */
     public DefinitionException(Type type, String reason) {
-        this(type.getSimpleName(), reason);
+        this(type.getCodeName(), reason);
     }
 
     /**
@@ -83,7 +83,7 @@ public class DefinitionException extends RuntimeException {
      * @param cause {@link Exception} which ultimately cause this exception to happen
      */
     public DefinitionException(Type type, String reason, Exception cause) {
-        this(type.getSimpleName(), reason, cause);
+        this(type.getCodeName(), reason, cause);
     }
 
     /**

@@ -17,9 +17,7 @@ package tendril.codegen;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.generics.GenericType;
 import tendril.util.TendrilStringUtil;
 
@@ -92,15 +90,5 @@ public class JGeneric {
 			return end;
 
 		return "<" + TendrilStringUtil.join(generics, g -> g.generateApplication()) + ">" + end;
-	}
-
-	/**
-	 * Registers the necessary imports for the generics
-	 * 
-	 * @param classImports {@link Set} of {@link ClassType}s representing the imports for the code
-	 */
-	protected void registerGenerics(Set<ClassType> classImports) {
-		for (GenericType gen : generics)
-			gen.registerImport(classImports);
 	}
 }

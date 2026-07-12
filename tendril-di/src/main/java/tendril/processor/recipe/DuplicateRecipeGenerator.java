@@ -18,6 +18,7 @@ package tendril.processor.recipe;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.processing.Messager;
 
@@ -111,21 +112,17 @@ public class DuplicateRecipeGenerator extends ConfigurationRecipeGenerator {
 	@Override
 	protected String[] nestedRecipesCode(boolean isReplacement) throws TendrilException {
 		if (isReplacement)
-			return new String[] { "return new HashMap<>();" };
+			return new String[] { "return new " + HashMap.class.getName() + "<>();" };
 		
 		ClassType siblingType = RecipeGenerator.getSiblingRecipeType(actualType);
-		externalImports.add(siblingType);
-		externalImports.add(TypeFactory.createClassType(HashMap.class));
-		externalImports.add(blueprintType);
 		List<String> code = new ArrayList<>();
-		code.add("Map<String, AbstractRecipe<?, ?>> recipes = new HashMap<>();");
+		code.add(Map.class.getName() + "<String, " + AbstractRecipe.class.getName() + "<?, ?>> recipes = new " + HashMap.class.getName() + "<>();");
 		
-		externalImports.add(TypeFactory.createClassType(TendrilStartupException.class));
-		code.add("for(" + blueprintType.getSimpleName() + " copy: engine.getBlueprints(" + RecipeGeneratorHelper.getClassReference(blueprintType) + ")) {");
+		code.add("for(" + blueprintType.getCodeName() + " copy: engine.getBlueprints(" + RecipeGeneratorHelper.getClassReference(blueprintType) + ")) {");
 		code.add("	String copyName = copy.getName();");
 		code.add("	if (recipes.containsKey(copyName))");
-		code.add("		throw new TendrilStartupException(\"" + blueprintType + " has more than one copies named \" + copyName);");
-		code.add("	recipes.put(copy.getName(), new " + siblingType.getSimpleName() + "(engine, copy));");
+		code.add("		throw new " + TendrilStartupException.class.getName() + "(\"" + blueprintType + " has more than one copies named \" + copyName);");
+		code.add("	recipes.put(copy.getName(), new " + siblingType.getCodeName() + "(engine, copy));");
 		code.add("}");
 		
 		code.add("return recipes;");

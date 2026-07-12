@@ -15,18 +15,15 @@
  */
 package tendril.codegen;
 
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
 
@@ -36,8 +33,6 @@ import tendril.test.AbstractUnitTest;
 public class JGenericTest extends AbstractUnitTest {
 
     // Mocks to use for testing
-    @Mock
-    private Set<ClassType> mockImports;
     @Mock
     private GenericType mockGeneric1;
     @Mock
@@ -86,10 +81,6 @@ public class JGenericTest extends AbstractUnitTest {
         Assertions.assertEquals("<GEN_1_APP>", element.getGenericsApplicationKeyword(false));
         Assertions.assertEquals("<GEN_1_DEF> ", element.getGenericsDefinitionKeyword(true));
         Assertions.assertEquals("<GEN_1_DEF> ", element.getGenericsDefinitionKeyword(false));
-
-        // Generating will register the generics
-        element.registerGenerics(mockImports);
-        verify(mockGeneric1).registerImport(mockImports);
     }
 
     /**
@@ -117,12 +108,6 @@ public class JGenericTest extends AbstractUnitTest {
         Assertions.assertEquals("<GEN_1_APP, GEN_2_APP, GEN_3_APP>", element.getGenericsApplicationKeyword(false));
         Assertions.assertEquals("<GEN_1_DEF, GEN_2_DEF, GEN_3_DEF> ", element.getGenericsDefinitionKeyword(true));
         Assertions.assertEquals("<GEN_1_DEF, GEN_2_DEF, GEN_3_DEF> ", element.getGenericsDefinitionKeyword(false));
-
-        // Generating will register the generics
-        element.registerGenerics(mockImports);
-        verify(mockGeneric1).registerImport(mockImports);
-        verify(mockGeneric2).registerImport(mockImports);
-        verify(mockGeneric3).registerImport(mockImports);
     }
 
 }

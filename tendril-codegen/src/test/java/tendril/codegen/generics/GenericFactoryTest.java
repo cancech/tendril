@@ -70,9 +70,9 @@ public class GenericFactoryTest extends AbstractUnitTest {
         lenient().when(mockClass1.getType()).thenReturn(mockClassType1);
         lenient().when(mockClass2.getType()).thenReturn(mockClassType1);
         lenient().when(mockClass3.getType()).thenReturn(mockClassType1);
-        lenient().when(mockClassType1.getSimpleName()).thenReturn("MockClass1");
-        lenient().when(mockClassType2.getSimpleName()).thenReturn("MockClass2");
-        lenient().when(mockClassType3.getSimpleName()).thenReturn("MockClass3");
+        lenient().when(mockClassType1.getCodeName()).thenReturn("MockClass1");
+        lenient().when(mockClassType2.getCodeName()).thenReturn("MockClass2");
+        lenient().when(mockClassType3.getCodeName()).thenReturn("MockClass3");
     }
     
     /**
@@ -97,7 +97,7 @@ public class GenericFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateWithClassType () {
         ClassAssert.assertInstance(SimpleExplicitGeneric.class, GenericFactory.create(mockClassType1));
-        verify(mockClassType1).getSimpleName();
+        verify(mockClassType1).getCodeName();
     }
     
     /**
@@ -114,16 +114,16 @@ public class GenericFactoryTest extends AbstractUnitTest {
     @Test
     public void testCreateWithOtherType() {
         Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create(mockType));
-        verify(mockType).getSimpleName();
+        verify(mockType).getCodeName();
 
         Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create(mockPrimitiveType));
-        verify(mockPrimitiveType).getSimpleName();
+        verify(mockPrimitiveType).getCodeName();
 
         Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create(mockVoidType));
-        verify(mockVoidType).getSimpleName();
+        verify(mockVoidType).getCodeName();
 
         Assertions.assertThrows(DefinitionException.class, () -> GenericFactory.create(mockArrayType));
-        verify(mockArrayType).getSimpleName();
+        verify(mockArrayType).getCodeName();
     }
     
     /**
@@ -133,7 +133,7 @@ public class GenericFactoryTest extends AbstractUnitTest {
     public void testCreateWithJClass () {
         ClassAssert.assertInstance(SimpleExplicitGeneric.class, GenericFactory.create(mockClass1));
         verify(mockClass1).getType();
-        verify(mockClassType1).getSimpleName();
+        verify(mockClassType1).getCodeName();
     }
     
     /**

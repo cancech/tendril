@@ -157,7 +157,7 @@ public abstract class ClassBuilder extends VisibileTypeBuilder<ClassType, JClass
 	 * @param type {@link ClassType} which has the basic class description included
 	 */
 	ClassBuilder(ClassType type) {
-		super(type.getSimpleName());
+		super(type.getCodeName());
 		setType(type);
 		addAnnotation(JAnnotationFactory.create(Generated.class, Map.of("value", JValueFactory.create("tendril"), "date", JValueFactory.create(Utilities.iso8061TimeStamp()))));
 

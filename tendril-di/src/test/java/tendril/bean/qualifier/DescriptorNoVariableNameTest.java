@@ -748,7 +748,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 	 */
 	private void assertDescriptorToStringMatches(Descriptor<?> actualDescriptor, Class<?> recipe, String name, Enum<?>... qualifiers) {
 		String actual = actualDescriptor.toString();
-		String expected = "Bean type " + recipe.getSimpleName();
+		String expected = "Bean type " + recipe.getName();
 		if (name == null) {
 			Assertions.assertEquals(expected, actual.toString());
 			return;
@@ -763,7 +763,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		expected += " Enum Qualifiers[";
 		List<String> qualifierNames = new ArrayList<>();
 		for (Enum<?> q : qualifiers)
-			qualifierNames.add(q.getClass().getSimpleName() + "." + q.name());
+			qualifierNames.add(q.getClass().getName() + "." + q.name());
 
 		// Verify the "static" part
 		Assertions.assertTrue(actual.startsWith(expected), "Should start with \"" + expected + "\" but was \"" + actual + "\"");

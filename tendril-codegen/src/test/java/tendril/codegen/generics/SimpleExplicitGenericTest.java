@@ -20,8 +20,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -49,8 +47,6 @@ class SimpleExplicitGenericTest extends AbstractUnitTest {
     private GenericType mockGenericType;
     @Mock
     private Type mockType;
-    @Mock
-    private Set<ClassType> mockImports;
     
     // Instance to test
     private SimpleExplicitGeneric gen;
@@ -60,9 +56,9 @@ class SimpleExplicitGenericTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
-        when(mockClassType.getSimpleName()).thenReturn("GenericTypeName");
+        when(mockClassType.getCodeName()).thenReturn("GenericTypeName");
         gen = new SimpleExplicitGeneric(mockClassType);
-        verify(mockClassType).getSimpleName();
+        verify(mockClassType).getCodeName();
     }
     
     /**
@@ -70,7 +66,7 @@ class SimpleExplicitGenericTest extends AbstractUnitTest {
      */
     @Test
     public void testName() {
-        Assertions.assertEquals("GenericTypeName", gen.getSimpleName());
+        Assertions.assertEquals("GenericTypeName", gen.getCodeName());
     }
 
     /**
@@ -87,15 +83,6 @@ class SimpleExplicitGenericTest extends AbstractUnitTest {
     @Test
     public void testGenerateApplication() {
         Assertions.assertEquals("GenericTypeName", gen.generateApplication());
-    }
-    
-    /**
-     * Verify that the imports are properly registered
-     */
-    @Test
-    public void testRegisterImports() {
-        gen.registerImport(mockImports);
-        verify(mockClassType).registerImport(mockImports);
     }
     
     /**

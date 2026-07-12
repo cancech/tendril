@@ -17,7 +17,6 @@ package tendril.codegen.classes.method;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.classes.JParameter;
@@ -93,23 +92,21 @@ public abstract class JAbstractMethodElement<RETURN_TYPE extends Type> extends J
     }
 
     /**
-     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
+     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder)
      */
     @Override
-    protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
-        builder.appendMultiLine(generateSelf(classImports));
+    protected void appendSelf(CodeBuilder builder) {
+        builder.appendMultiLine(generateSelf());
     }
 
     /**
-     * @see tendril.codegen.JBase#generateSelf(java.util.Set)
+     * @see tendril.codegen.JBase#generateSelf()
      */
     @Override
-    public String generateSelf(Set<ClassType> classImports) {
+    public String generateSelf() {
         CodeBuilder builder = new CodeBuilder();
-        getType().registerImport(classImports);
-
         boolean hasImplementation = implementation != null;
-        builder.append(generateSignature(classImports, hasImplementation));
+        builder.append(generateSignature(hasImplementation));
 
         if (hasImplementation) {
             builder.indent();
@@ -124,37 +121,33 @@ public abstract class JAbstractMethodElement<RETURN_TYPE extends Type> extends J
     /**
      * Generate the full method signature
      * 
-     * @param classImports      {@link Set} of {@link ClassType} where the imports for the generate class as collected
      * @param hasImplementation boolean true if the method has an implementation provided
      * @return {@link String}
      */
-    protected abstract String generateSignature(Set<ClassType> classImports, boolean hasImplementation);
+    protected abstract String generateSignature(boolean hasImplementation);
 
     /**
      * Generate the code for the parameters of the method
      * 
-     * @param classImports {@link Set} of {@link ClassType} where the imports for the generate class as collected
      * @return {@link String} containing the details of the parameters
      */
-    protected String generateParameters(Set<ClassType> classImports) {
-        return TendrilStringUtil.join(parameters, param -> param.generateSelf(classImports));
+    protected String generateParameters() {
+        return TendrilStringUtil.join(parameters, param -> param.generateSelf());
     }
     
     /**
      * Generate the code for the throws portion of the method.
      * 
-     * @param classImports {@link Set} of {@link ClassType} where the imports for the generate class as collected
      * @param includeSpace {@code boolean} flag for whether the section should include wrapping spaces
      * @return {@link String} containing the throws portion of the method
      */
-    protected String generateThrows(Set<ClassType> classImports, boolean includeSpace) {
+    protected String generateThrows(boolean includeSpace) {
     	String space = includeSpace ? " " : "";
     	if (exceptions.isEmpty())
     		return space;
     	
     	return space + "throws " + TendrilStringUtil.join(exceptions, (ex) -> {
-    		classImports.add(ex);
-    		return ex.getSimpleName();
+    		return ex.getCodeName();
     	}) + space;
     }
 

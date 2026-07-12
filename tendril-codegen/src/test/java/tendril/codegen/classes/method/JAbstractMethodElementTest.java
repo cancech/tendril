@@ -15,13 +15,11 @@
  */
 package tendril.codegen.classes.method;
 
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -91,10 +89,9 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
          * @see tendril.codegen.classes.method.JAbstractMethodElement#generateSignature(java.util.Set, boolean)
          */
         @Override
-        protected String generateSignature(Set<ClassType> classImports, boolean hasImplementation) {
+        protected String generateSignature(boolean hasImplementation) {
             timesCalled++;
             this.hasImplementation = hasImplementation;
-            Assertions.assertEquals(mockImports, classImports);
             return GENERATED_TEXT;
         }
         
@@ -165,7 +162,7 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
     public void testGenerateNoParameters() {
         initMethod(null, Collections.emptyList());
         CollectionAssert.assertEmpty(element.getParameters());
-        Assertions.assertEquals("", element.generateParameters(mockImports));
+        Assertions.assertEquals("", element.generateParameters());
     }
     
     /**
@@ -173,10 +170,10 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
      */
     @Test
     public void testGenerateSingleParameter() {
-        when(mockParam1.generateSelf(mockImports)).thenReturn("mockParam1");
+        when(mockParam1.generateSelf()).thenReturn("mockParam1");
         initMethod(null, Collections.singletonList(mockParam1));
         Assertions.assertIterableEquals(Collections.singletonList(mockParam1), element.getParameters());
-        Assertions.assertEquals("mockParam1", element.generateParameters(mockImports));
+        Assertions.assertEquals("mockParam1", element.generateParameters());
     }
     
     /**
@@ -184,12 +181,12 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
      */
     @Test
     public void testGenerateMultipleParameters() {
-        when(mockParam1.generateSelf(mockImports)).thenReturn("mockParam1");
-        when(mockParam2.generateSelf(mockImports)).thenReturn("mockParam2");
-        when(mockParam3.generateSelf(mockImports)).thenReturn("mockParam3");
+        when(mockParam1.generateSelf()).thenReturn("mockParam1");
+        when(mockParam2.generateSelf()).thenReturn("mockParam2");
+        when(mockParam3.generateSelf()).thenReturn("mockParam3");
         initMethod(null, Arrays.asList(mockParam1, mockParam2, mockParam3));
         Assertions.assertIterableEquals(Arrays.asList(mockParam1, mockParam2, mockParam3), element.getParameters());
-        Assertions.assertEquals("mockParam1, mockParam2, mockParam3", element.generateParameters(mockImports));
+        Assertions.assertEquals("mockParam1, mockParam2, mockParam3", element.generateParameters());
     }
 
     /**
@@ -213,7 +210,7 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
     public void testGenerateNoExceptionWithSpace() {
     	initMethod(null);
     	CollectionAssert.assertEmpty(element.getExceptions());
-    	Assertions.assertEquals(" ", element.generateThrows(mockImports, true));
+    	Assertions.assertEquals(" ", element.generateThrows(true));
     }
     
     /**
@@ -223,7 +220,7 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
     public void testGenerateNoExceptionWithoutSpace() {
     	initMethod(null);
     	CollectionAssert.assertEmpty(element.getExceptions());
-    	Assertions.assertEquals("", element.generateThrows(mockImports, false));
+    	Assertions.assertEquals("", element.generateThrows(false));
     }
     
     /**
@@ -231,12 +228,11 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
      */
     @Test
     public void testGenerateSingleExceptionWithSpace() {
-    	when(mockEx1.getSimpleName()).thenReturn("mockEx1");
+    	when(mockEx1.getCodeName()).thenReturn("mockEx1");
     	
     	initMethod(null, mockEx1);
     	CollectionAssert.assertEquivalent(Collections.singletonList(mockEx1), element.getExceptions());
-    	Assertions.assertEquals(" throws mockEx1 ", element.generateThrows(mockImports, true));
-    	verify(mockImports).add(mockEx1);
+    	Assertions.assertEquals(" throws mockEx1 ", element.generateThrows(true));
     }
     
     /**
@@ -244,12 +240,11 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
      */
     @Test
     public void testGenerateSingleExceptionWithoutSpace() {
-    	when(mockEx1.getSimpleName()).thenReturn("mockEx1");
+    	when(mockEx1.getCodeName()).thenReturn("mockEx1");
     	
     	initMethod(null, mockEx1);
     	CollectionAssert.assertEquivalent(Collections.singletonList(mockEx1), element.getExceptions());
-    	Assertions.assertEquals("throws mockEx1", element.generateThrows(mockImports, false));
-    	verify(mockImports).add(mockEx1);
+    	Assertions.assertEquals("throws mockEx1", element.generateThrows(false));
     }
     
     /**
@@ -257,16 +252,13 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
      */
     @Test
     public void testGenerateMultipleExceptionsWithSpace() {
-    	when(mockEx1.getSimpleName()).thenReturn("mockEx1");
-    	when(mockEx2.getSimpleName()).thenReturn("mockEx2");
-    	when(mockEx3.getSimpleName()).thenReturn("mockEx3");
+    	when(mockEx1.getCodeName()).thenReturn("mockEx1");
+    	when(mockEx2.getCodeName()).thenReturn("mockEx2");
+    	when(mockEx3.getCodeName()).thenReturn("mockEx3");
     	
     	initMethod(null, mockEx1, mockEx2, mockEx3);
     	CollectionAssert.assertEquivalent(Arrays.asList(mockEx1, mockEx2, mockEx3), element.getExceptions());
-    	Assertions.assertEquals(" throws mockEx1, mockEx2, mockEx3 ", element.generateThrows(mockImports, true));
-    	verify(mockImports).add(mockEx1);
-    	verify(mockImports).add(mockEx2);
-    	verify(mockImports).add(mockEx3);
+    	Assertions.assertEquals(" throws mockEx1, mockEx2, mockEx3 ", element.generateThrows(true));
     }
     
     /**
@@ -274,16 +266,13 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
      */
     @Test
     public void testGenerateMultipleExceptionsWithoutSpace() {
-    	when(mockEx1.getSimpleName()).thenReturn("mockEx1");
-    	when(mockEx2.getSimpleName()).thenReturn("mockEx2");
-    	when(mockEx3.getSimpleName()).thenReturn("mockEx3");
+    	when(mockEx1.getCodeName()).thenReturn("mockEx1");
+    	when(mockEx2.getCodeName()).thenReturn("mockEx2");
+    	when(mockEx3.getCodeName()).thenReturn("mockEx3");
     	
     	initMethod(null, mockEx1, mockEx2, mockEx3);
     	CollectionAssert.assertEquivalent(Arrays.asList(mockEx1, mockEx2, mockEx3), element.getExceptions());
-    	Assertions.assertEquals("throws mockEx1, mockEx2, mockEx3", element.generateThrows(mockImports, false));
-    	verify(mockImports).add(mockEx1);
-    	verify(mockImports).add(mockEx2);
-    	verify(mockImports).add(mockEx3);
+    	Assertions.assertEquals("throws mockEx1, mockEx2, mockEx3", element.generateThrows(false));
     }
 
     /**
@@ -502,9 +491,8 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
      * @param expectedHasImplementation boolean true if generateSignatureStart is expected to be called with an implementation
      */
     private void generateAndVerifyCode(boolean expectedHasImplementation) {
-        element.generate(builder, mockImports);
+        element.generate(builder);
         element.verifyTimesCalled(1, expectedHasImplementation);
-        verify(mockReturnType).registerImport(mockImports);
 
         matcher.match(builder.get());
     }

@@ -16,9 +16,7 @@
 package tendril.codegen.classes.method;
 
 import java.util.List;
-import java.util.Set;
 
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 
 /**
@@ -40,15 +38,15 @@ public abstract class JMethod<RETURN_TYPE extends Type> extends JAbstractMethodE
     }
 
     /**
-     * @see tendril.codegen.classes.method.JAbstractMethodElement#generateSignature(java.util.Set, boolean)
+     * @see tendril.codegen.classes.method.JAbstractMethodElement#generateSignature(boolean)
      */
     @Override
-    protected String generateSignature(Set<ClassType> classImports, boolean hasImplementation) {
+    protected String generateSignature(boolean hasImplementation) {
         StringBuilder signature = new StringBuilder(generateSignatureStart(hasImplementation));
-        signature.append(getGenericsDefinitionKeyword(false) + getType().getSimpleName() + " " + getName());
-        signature.append("(" + generateParameters(classImports) + ")");
+        signature.append(getGenericsDefinitionKeyword(false) + getType().getCodeName() + " " + getName());
+        signature.append("(" + generateParameters() + ")");
         
-        String throwsEx = generateThrows(classImports, false);
+        String throwsEx = generateThrows(false);
         if (!throwsEx.isBlank())
         	signature.append(" " + throwsEx);
         

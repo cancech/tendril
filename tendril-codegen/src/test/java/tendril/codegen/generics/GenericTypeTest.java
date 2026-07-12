@@ -15,12 +15,8 @@
  */
 package tendril.codegen.generics;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.Set;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Assertions;
@@ -92,8 +88,6 @@ public class GenericTypeTest extends AbstractUnitTest {
     @Mock
     private ClassType mockClassType;
     @Mock
-    private Set<ClassType> mockImports;
-    @Mock
     private Object mockObject;
     @Mock
     private JValue<?,?> mockValue;
@@ -116,7 +110,7 @@ public class GenericTypeTest extends AbstractUnitTest {
      */
     @Test
     public void testName() {
-        Assertions.assertEquals("TestGenericName", gen.getSimpleName());
+        Assertions.assertEquals("TestGenericName", gen.getCodeName());
     }
     
     /**
@@ -141,15 +135,6 @@ public class GenericTypeTest extends AbstractUnitTest {
     @Test
     public void testGenerateApplication() {
         Assertions.assertEquals("TestGenericName", gen.generateApplication());
-    }
-    
-    /**
-     * Verify that registering imports does nothing.
-     */
-    @Test
-    public void testRegisterImport() {
-        gen.registerImport(mockImports);
-        verify(mockImports, never()).add(any());
     }
     
     /**

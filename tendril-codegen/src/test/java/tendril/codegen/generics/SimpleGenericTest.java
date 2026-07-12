@@ -57,7 +57,7 @@ class SimpleGenericTest extends AbstractUnitTest {
      */
     @Test
     public void testName() {
-        Assertions.assertEquals("T", gen.getSimpleName());
+        Assertions.assertEquals("T", gen.getCodeName());
     }
 
     /**

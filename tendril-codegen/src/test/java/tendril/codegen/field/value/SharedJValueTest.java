@@ -15,14 +15,8 @@
  */
 package tendril.codegen.field.value;
 
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import java.util.Set;
-
 import org.junit.jupiter.api.Assertions;
-import org.mockito.Mock;
 
-import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -30,10 +24,6 @@ import tendril.test.AbstractUnitTest;
  */
 public class SharedJValueTest extends AbstractUnitTest {
     
-    // Mocks to use for testing
-    @Mock
-    protected Set<ClassType> mockImports;
-
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
      */
@@ -49,14 +39,6 @@ public class SharedJValueTest extends AbstractUnitTest {
      * @param actualValue {@link JValue} which generates the code
      */
     protected void assertCode(String expectedCode, JValue<?, ?> actualValue) {
-        Assertions.assertEquals(expectedCode, actualValue.generate(mockImports));
-        verifyMockImports();
-    }
-    
-    /**
-     * Verify that the expected interactions took place with the mockImports
-     */
-    protected void verifyMockImports() {
-        verifyNoMoreInteractions(mockImports);
+        Assertions.assertEquals(expectedCode, actualValue.generate());
     }
 }

@@ -254,20 +254,20 @@ public class Descriptor<BEAN_TYPE> {
         StringBuilder str = new StringBuilder();
         
         if (variableName.isBlank())
-        	str.append("Bean type " + beanClass.getSimpleName());
+        	str.append("Bean type " + beanClass.getName());
         else
-        	str.append(beanClass.getSimpleName() + " " + variableName);
+        	str.append(beanClass.getName() + " " + variableName);
         
         if (!name.isEmpty())
             str.append(" named \"" + name + "\"");
         if (!enumQualifiers.isEmpty()) {
             str.append(" Enum Qualifiers[");
-            str.append(TendrilStringUtil.join(enumQualifiers, e -> e.getClass().getSimpleName() + "." + e.name()));
+            str.append(TendrilStringUtil.join(enumQualifiers, e -> e.getClass().getName() + "." + e.name()));
             str.append("]");
         }
         if (!qualifiers.isEmpty()) {
             str.append(" Qualifiers[");
-            str.append(TendrilStringUtil.join(qualifiers, e -> "@" + e.getSimpleName()));
+            str.append(TendrilStringUtil.join(qualifiers, e -> "@" + e.getName()));
             str.append("]");
         }
         if (blueprint != null) {

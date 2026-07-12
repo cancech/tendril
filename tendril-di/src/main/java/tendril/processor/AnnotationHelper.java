@@ -12,9 +12,15 @@ import tendril.codegen.field.value.JValueClass;
 /**
  * Helper for retrieving values from annotations
  */
-public class AnnotationHelper {
+public abstract class AnnotationHelper {
 	/** The annotation which denotes a duplicate */
 	private static final ClassType duplicateAnnotation = TypeFactory.createClassType(Duplicate.class);
+
+	/**
+	 * Hidden CTOR
+	 */
+	private AnnotationHelper() {
+	}
 
 	/**
 	 * Retrieve the blueprint class from the {@link Duplicate} annotated element

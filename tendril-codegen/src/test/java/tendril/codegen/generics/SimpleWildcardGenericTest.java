@@ -57,7 +57,7 @@ class SimpleWildcardGenericTest extends AbstractUnitTest {
      */
     @Test
     public void testName() {
-        Assertions.assertEquals("?", gen.getSimpleName());
+        Assertions.assertEquals("?", gen.getCodeName());
     }
 
     /**

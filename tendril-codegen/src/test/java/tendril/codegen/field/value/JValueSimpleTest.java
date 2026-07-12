@@ -49,7 +49,7 @@ public class JValueSimpleTest extends SharedJValueTest {
     /** Verify that the appropriate string it produced */
     @Test
     public void testToString() {
-        Assertions.assertEquals("[String = dsf]", new JValueSimple<ClassType, String>(TypeFactory.createClassType(String.class), "dsf", "`", "'").toString());
+        Assertions.assertEquals("[" + String.class.getName() + " = dsf]", new JValueSimple<ClassType, String>(TypeFactory.createClassType(String.class), "dsf", "`", "'").toString());
         Assertions.assertEquals("[int = 123]", new JValueSimple<PrimitiveType, Integer>(PrimitiveType.INT, 123, "abc", "efg").toString());
         Assertions.assertEquals("[double = 1.23]", new JValueSimple<PrimitiveType, Double>(PrimitiveType.DOUBLE, 1.23, "", "").toString());
         Assertions.assertEquals("[short = 321]", new JValueSimple<PrimitiveType, Short>(PrimitiveType.SHORT, (short) 321).toString());

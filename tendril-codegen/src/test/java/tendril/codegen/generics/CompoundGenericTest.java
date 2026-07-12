@@ -20,7 +20,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -75,8 +74,6 @@ public class CompoundGenericTest extends AbstractUnitTest {
     private ClassType mockParent2;
     @Mock
     private ClassType mockParent3;
-    @Mock
-    private Set<ClassType> mockImports;
     
     // Instance to test
     private List<ClassType> parentList;
@@ -92,26 +89,17 @@ public class CompoundGenericTest extends AbstractUnitTest {
     }
     
     /**
-     * Verify that the imports are properly registered
-     */
-    @Test
-    public void testRegisterImports() {
-        gen.registerImport(mockImports);
-        verify(mockImports).addAll(parentList);
-    }
-    
-    /**
      * Verify that the definition is properly generated
      */
     @Test
     public void testGenerateDefinition() {
-        when(mockParent1.getSimpleName()).thenReturn("mockParent1");
-        when(mockParent2.getSimpleName()).thenReturn("mockParent2");
-        when(mockParent3.getSimpleName()).thenReturn("mockParent3");
+        when(mockParent1.getCodeName()).thenReturn("mockParent1");
+        when(mockParent2.getCodeName()).thenReturn("mockParent2");
+        when(mockParent3.getCodeName()).thenReturn("mockParent3");
         Assertions.assertEquals("testGeneric KEYWORD mockParent1 & mockParent2 & mockParent3", gen.generateDefinition());
-        verify(mockParent1).getSimpleName();
-        verify(mockParent2).getSimpleName();
-        verify(mockParent3).getSimpleName();
+        verify(mockParent1).getCodeName();
+        verify(mockParent2).getCodeName();
+        verify(mockParent3).getCodeName();
     }
 
     /**

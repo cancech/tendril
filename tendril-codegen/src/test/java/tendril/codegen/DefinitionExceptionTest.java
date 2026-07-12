@@ -85,15 +85,15 @@ public class DefinitionExceptionTest extends AbstractUnitTest {
      */
     @Test
     public void testType() {
-        when(mockType.getSimpleName()).thenReturn("Simple");
+        when(mockType.getCodeName()).thenReturn("Simple");
         
         DefinitionException ex = new DefinitionException(mockType, "message");
-        verify(mockType).getSimpleName();
+        verify(mockType).getCodeName();
         Assertions.assertEquals("Simple - message", ex.getMessage());
         Assertions.assertNull(ex.getCause());
 
         ex = new DefinitionException(mockType, "message2");
-        verify(mockType, times(2)).getSimpleName();
+        verify(mockType, times(2)).getCodeName();
         Assertions.assertEquals("Simple - message2", ex.getMessage());
         Assertions.assertNull(ex.getCause());
     }

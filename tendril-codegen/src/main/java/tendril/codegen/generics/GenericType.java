@@ -15,9 +15,6 @@
  */
 package tendril.codegen.generics;
 
-import java.util.Set;
-
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 
 /**
@@ -53,7 +50,7 @@ public abstract class GenericType implements Type {
      * @return {@link String} the code for the generic when used to define a class or method
      */
     public String generateDefinition() {
-        return getSimpleName();
+        return getCodeName();
     }
 
     /**
@@ -70,15 +67,7 @@ public abstract class GenericType implements Type {
      * @return {@link String} the code for the generic when used to apply it to a variable
      */
     public String generateApplication() {
-        return getSimpleName();
-    }
-
-    /**
-     * @see tendril.codegen.field.type.Importable#registerImport(java.util.Set)
-     */
-    @Override
-    public void registerImport(Set<ClassType> classImports) {
-        // Intentionally left blank, few will actually need this
+        return getCodeName();
     }
 
     /**
@@ -98,10 +87,10 @@ public abstract class GenericType implements Type {
     }
 
     /**
-     * @see tendril.codegen.field.type.Type#getSimpleName()
+     * @see tendril.codegen.field.type.Type#getCodeName()
      */
     @Override
-    public String getSimpleName() {
+    public String getCodeName() {
         return name;
     }
     
@@ -110,7 +99,7 @@ public abstract class GenericType implements Type {
      */
     @Override
     public String toString() {
-        return "<" + getSimpleName() + ">";
+        return "<" + getCodeName() + ">";
     }
     
     /**

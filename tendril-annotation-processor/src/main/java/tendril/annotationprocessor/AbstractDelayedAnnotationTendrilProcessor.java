@@ -55,7 +55,7 @@ public abstract class AbstractDelayedAnnotationTendrilProcessor extends Abstract
     public void annotationGenerated(ClassType annotation) {
         // Make sure that there is something waiting for this annotation
     	// TODO should use fully qualified name rather than simple name
-        List<WaitingElement> canProcessNow = delayedElements.remove(annotation.getSimpleName());
+        List<WaitingElement> canProcessNow = delayedElements.remove(annotation.getClassName());
         if (canProcessNow == null)
             return;
         

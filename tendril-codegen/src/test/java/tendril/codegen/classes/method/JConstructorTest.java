@@ -20,7 +20,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -55,8 +54,7 @@ public class JConstructorTest extends AbstractUnitTest {
          * Overriding to simplify the tests that need to be covered.
          */
         @Override
-        protected String generateParameters(Set<ClassType> classImports) {
-            Assertions.assertEquals(mockImports, classImports);
+        protected String generateParameters() {
             return "PARAMETERS";
         }
 
@@ -65,8 +63,7 @@ public class JConstructorTest extends AbstractUnitTest {
          * Overriding to simplify the tests that need to be covered.
          */
         @Override
-        protected String generateThrows(Set<ClassType> classImports, boolean includeSpace) {
-            Assertions.assertEquals(mockImports, classImports);
+        protected String generateThrows( boolean includeSpace) {
             if (includeSpace)
             	return " THROWS ";
             return "THROWS";
@@ -78,8 +75,6 @@ public class JConstructorTest extends AbstractUnitTest {
     private ClassType mockClass;
     @Mock
     private List<String> mockCode;
-    @Mock
-    private Set<ClassType> mockImports;
     @Mock
     private GenericType mockGeneric1;
     @Mock
@@ -97,9 +92,9 @@ public class JConstructorTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
-        when(mockClass.getSimpleName()).thenReturn("MockClass");
+        when(mockClass.getClassName()).thenReturn("MockClass");
         ctor = new TestConstructor();
-        verify(mockClass).getSimpleName();
+        verify(mockClass).getClassName();
     }
 
     /**
@@ -109,7 +104,7 @@ public class JConstructorTest extends AbstractUnitTest {
     public void testGenerateSignatureWithCode() {
         for (VisibilityType type: VisibilityType.values()) {
             ctor.setVisibility(type);
-            Assertions.assertEquals(type.getKeyword() + "MockClass(PARAMETERS) THROWS {", ctor.generateSignature(mockImports, true));
+            Assertions.assertEquals(type.getKeyword() + "MockClass(PARAMETERS) THROWS {", ctor.generateSignature(true));
         }
     }
 
@@ -123,7 +118,7 @@ public class JConstructorTest extends AbstractUnitTest {
         
         for (VisibilityType type: VisibilityType.values()) {
             ctor.setVisibility(type);
-            Assertions.assertEquals(type.getKeyword() + "<GEN1> MockClass(PARAMETERS) THROWS {", ctor.generateSignature(mockImports, true));
+            Assertions.assertEquals(type.getKeyword() + "<GEN1> MockClass(PARAMETERS) THROWS {", ctor.generateSignature(true));
             verify(mockGeneric1, times(type.ordinal() + 1)).generateDefinition();
         }
     }
@@ -142,7 +137,7 @@ public class JConstructorTest extends AbstractUnitTest {
         
         for (VisibilityType type: VisibilityType.values()) {
             ctor.setVisibility(type);
-            Assertions.assertEquals(type.getKeyword() + "<GEN1, GEN2, GEN3> MockClass(PARAMETERS) THROWS {", ctor.generateSignature(mockImports, true));
+            Assertions.assertEquals(type.getKeyword() + "<GEN1, GEN2, GEN3> MockClass(PARAMETERS) THROWS {", ctor.generateSignature(true));
             verify(mockGeneric1, times(type.ordinal() + 1)).generateDefinition();
             verify(mockGeneric2, times(type.ordinal() + 1)).generateDefinition();
             verify(mockGeneric3, times(type.ordinal() + 1)).generateDefinition();
@@ -154,7 +149,7 @@ public class JConstructorTest extends AbstractUnitTest {
      */
     @Test
     public void testCtorWithoutCode() {
-        Assertions.assertThrows(DefinitionException.class, () -> ctor.generateSignature(mockImports, false));
+        Assertions.assertThrows(DefinitionException.class, () -> ctor.generateSignature(false));
         verify(mockClass).getFullyQualifiedName();
     }
     

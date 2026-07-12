@@ -50,6 +50,7 @@ public class UtilitiesTest {
 		verifyIdentifier("po_P_F_SPed_as123", false);
 		verifyIdentifier("_something_", false);
 		verifyIdentifier("$something$", false);
+		verifyIdentifier("a.b.c", false);
 
 		// Invalid identifiers
 		verifyIdentifier("1", true);
@@ -93,6 +94,7 @@ public class UtilitiesTest {
 		verifyIdentifier("`", true);
 		verifyIdentifier("~", true);
 
+		verifyIdentifier(".a", true);
 		verifyIdentifier("a-", true);
 		verifyIdentifier("a!", true);
 		verifyIdentifier("a@", true);

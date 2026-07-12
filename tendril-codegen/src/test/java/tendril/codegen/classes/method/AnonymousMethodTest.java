@@ -15,14 +15,11 @@
  */
 package tendril.codegen.classes.method;
 
-import java.util.Set;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.CodeGenerationException;
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
 
@@ -34,8 +31,6 @@ public class AnonymousMethodTest extends AbstractUnitTest {
     // Mocks to be used for testing
     @Mock
     private Type mockReturnType;
-    @Mock
-    private Set<ClassType> mockImports;
     
     /**
      * @see tendril.test.AbstractUnitTest#prepareTest()
@@ -53,6 +48,6 @@ public class AnonymousMethodTest extends AbstractUnitTest {
         AnonymousMethod<Type> method = new AnonymousMethod<Type>(mockReturnType, "anonymousMethod");
         Assertions.assertThrows(CodeGenerationException.class, () -> method.generateSignatureStart(true));
         Assertions.assertThrows(CodeGenerationException.class, () -> method.generateSignatureStart(false));
-        Assertions.assertThrows(CodeGenerationException.class, () -> method.generateSelf(mockImports));
+        Assertions.assertThrows(CodeGenerationException.class, () -> method.generateSelf());
     }
 }

@@ -15,10 +15,7 @@
  */
 package tendril.codegen.field.type;
 
-import static org.mockito.Mockito.verifyNoInteractions;
-
 import java.lang.reflect.Constructor;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -36,8 +33,6 @@ public class VoidTypeTest extends SharedTypeTest<VoidType> {
     private Type mockType;
     @Mock
     private Object mockObject;
-    @Mock
-    private Set<ClassType> mockImports;
     
     @Override
     protected void prepareTest() {
@@ -56,15 +51,6 @@ public class VoidTypeTest extends SharedTypeTest<VoidType> {
         Assertions.assertFalse(type.isTypeOf("abc"));
         Assertions.assertFalse(type.isTypeOf(Integer.valueOf(123)));
         Assertions.assertFalse(type.isTypeOf(this));
-    }
-    
-    /**
-     * Verify that it has nothing to import
-     */
-    @Test
-    public void testRegisterImport() {
-        type.registerImport(mockImports);
-        verifyNoInteractions(mockImports);
     }
     
     /**

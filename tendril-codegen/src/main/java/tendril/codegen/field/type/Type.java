@@ -20,7 +20,7 @@ import tendril.codegen.field.value.JValue;
 /**
  * Marker interface through which to identify legitimate types for {@link TypedElement}s
  */
-public interface Type extends Importable {
+public interface Type {
     
     /**
      * Check if the type is void.
@@ -37,11 +37,11 @@ public interface Type extends Importable {
     String getClassName();
     
     /**
-     * Get the simple name/code of the type
+     * Get the name for how this should appear in the code
      * 
      * @return {@link String}
      */
-    String getSimpleName();
+    String getCodeName();
     
     /**
      * Check if the value is of this type

@@ -5,4 +5,9 @@ package tendril.bean;
  */
 public final class NoBeanOverrideClass {
 
+	/**
+	 * Hidden CTOR
+	 */
+	private NoBeanOverrideClass() {
+	}
 }

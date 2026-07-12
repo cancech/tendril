@@ -53,10 +53,10 @@ public class AnnotationBuilderTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
-        when(mockClassType.getSimpleName()).thenReturn("MockClass");
+        when(mockClassType.getCodeName()).thenReturn("MockClass");
         when(mockClassType.getGenerics()).thenReturn(Collections.emptyList());
         builder = new AnnotationBuilder(mockClassType);
-        verify(mockClassType).getSimpleName();
+        verify(mockClassType).getCodeName();
         verify(mockClassType).getGenerics();
     }
 

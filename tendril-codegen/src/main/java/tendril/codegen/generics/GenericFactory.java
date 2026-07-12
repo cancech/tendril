@@ -64,7 +64,7 @@ public class GenericFactory {
             return (GenericType)type;
         
         throw new DefinitionException(GenericType.class.getSimpleName() + " can only be used with " + ClassType.class.getSimpleName() + " or " +
-                GenericType.class.getSimpleName() + ". " + type.getSimpleName() + " cannot be used.");
+                GenericType.class.getSimpleName() + ". " + type.getCodeName() + " cannot be used.");
     }
     
     /**

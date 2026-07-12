@@ -41,10 +41,10 @@ public class JMethodInterfaceTest extends AbstractMethodTest {
         Assertions.assertEquals(VisibilityType.PUBLIC, method.getVisibility());
 
         Assertions.assertThrows(DefinitionException.class, () -> method.setVisibility(VisibilityType.PACKAGE_PRIVATE));
-        verify(mockReturnType).getSimpleName();
+        verify(mockReturnType).getCodeName();
         Assertions.assertEquals(VisibilityType.PUBLIC, method.getVisibility());
         Assertions.assertThrows(DefinitionException.class, () -> method.setVisibility(VisibilityType.PROTECTED));
-        verify(mockReturnType, times(2)).getSimpleName();
+        verify(mockReturnType, times(2)).getCodeName();
         Assertions.assertEquals(VisibilityType.PUBLIC, method.getVisibility());
         
         method.setVisibility(VisibilityType.PRIVATE);
@@ -60,7 +60,7 @@ public class JMethodInterfaceTest extends AbstractMethodTest {
         Assertions.assertFalse(method.isFinal());
         
         Assertions.assertThrows(DefinitionException.class, () -> method.setFinal(true));
-        verify(mockReturnType).getSimpleName();
+        verify(mockReturnType).getCodeName();
         Assertions.assertFalse(method.isFinal());
         
         method.setFinal(false);
@@ -79,7 +79,7 @@ public class JMethodInterfaceTest extends AbstractMethodTest {
         
         method.setStatic(true);
         Assertions.assertThrows(DefinitionException.class, () -> method.generateSignatureStart(false));
-        verify(mockReturnType).getSimpleName();
+        verify(mockReturnType).getCodeName();
         Assertions.assertEquals("static ", method.generateSignatureStart(true));
     }
     
@@ -92,12 +92,12 @@ public class JMethodInterfaceTest extends AbstractMethodTest {
         method.setVisibility(VisibilityType.PRIVATE);
         verifyMethodInit("publicInterfaceMethod", method);
         Assertions.assertThrows(DefinitionException.class, () -> method.generateSignatureStart(false));
-        verify(mockReturnType).getSimpleName();
+        verify(mockReturnType).getCodeName();
         Assertions.assertEquals("private ", method.generateSignatureStart(true));
         
         method.setStatic(true);
         Assertions.assertThrows(DefinitionException.class, () -> method.generateSignatureStart(false));
-        verify(mockReturnType, times(2)).getSimpleName();
+        verify(mockReturnType, times(2)).getCodeName();
         Assertions.assertEquals("private static ", method.generateSignatureStart(true));
     }
 }

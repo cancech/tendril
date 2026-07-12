@@ -97,9 +97,8 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 	 * @throws TendrilException if an issue is encountered generating the configuration recipe
 	 */
 	protected String[] nestedRecipesCode(boolean isReplacement) throws TendrilException {
-		externalImports.add(TypeFactory.createClassType(HashMap.class));
 		List<String> code = new ArrayList<>();
-		code.add("Map<String, AbstractRecipe<?, ?>> recipes = new HashMap<>();");
+		code.add(Map.class.getName() + "<String, " + AbstractRecipe.class.getName() + "<?, ?>> recipes = new " + HashMap.class.getName() + "<>();");
 		
 		if (isReplacement)
 			populateNestedReplacements(code);
@@ -124,16 +123,14 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 		for (JMethod<?> method : creator.getMethods()) {
 			ClassType blueprintType = AnnotationHelper.retrieveDuplicateBlueprint(method);
 			if (blueprintType != null) {
-				externalImports.add(blueprintType);
 				ClassType nestedRecipeType = RecipeGenerator.getSiblingRecipeType(actualType, method);
 				
 				// Class based duplicates get the blueprints from the engine
-				externalImports.add(TypeFactory.createClassType(TendrilStartupException.class));
-				code.add("for(" + blueprintType.getSimpleName() + " b: engine.getBlueprints(" + RecipeGeneratorHelper.getClassReference(blueprintType) + ")) {");
+				code.add("for(" + blueprintType.getCodeName() + " b: engine.getBlueprints(" + RecipeGeneratorHelper.getClassReference(blueprintType) + ")) {");
 				code.add("	String copyName = \"" + method.getName() + "\" + b.getName();");
 				code.add("	if (recipes.containsKey(copyName))");
-				code.add("		throw new TendrilStartupException(\"" + blueprintType + " has more than one copies named \" + copyName);");
-				code.add("    recipes.put(copyName, new " + nestedRecipeType.getSimpleName() + "(this, engine, b));");
+				code.add("		throw new " + TendrilStartupException.class.getName() + "(\"" + blueprintType + " has more than one copies named \" + copyName);");
+				code.add("    recipes.put(copyName, new " + nestedRecipeType.getCodeName() + "(this, engine, b));");
 				code.add("}");
 			}
 		}
@@ -158,7 +155,7 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 	private void appendBeanRecipes(Class<? extends Annotation> annotation, List<String> code) {
 		for (JMethod<?> method : creator.getMethods(annotation)) {
 			ClassType nestedRecipeType = RecipeGenerator.getRecipeType(actualType, method);
-			code.add("recipes.put(\"" + method.getName() + "\", new " + nestedRecipeType.getSimpleName() + "(this, engine));");
+			code.add("recipes.put(\"" + method.getName() + "\", new " + nestedRecipeType.getCodeName() + "(this, engine));");
 		}
 	}
 }

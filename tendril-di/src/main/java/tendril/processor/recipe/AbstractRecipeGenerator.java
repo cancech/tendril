@@ -17,10 +17,8 @@ package tendril.processor.recipe;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.processing.Messager;
 
@@ -97,13 +95,6 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 	protected final Messager messager;
 
 	/**
-	 * {@link Set} of the {@link ClassType}s that the class being generated needs to import in order to compile. Items only need to be added if they are being added within the code of generated
-	 * methods and not if they are part of the class/method/field signature.
-	 */
-	protected final Set<ClassType> externalImports = new HashSet<>();
-	// TODO remove imports and switch to using fully qualified name only
-
-	/**
 	 * CTOR
 	 * 
 	 * @param advertisedType {@link ClassType} which the bean is advertised as
@@ -134,24 +125,6 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 	}
 
 	/**
-	 * Add the type as an import, if it is a {@link ClassType}
-	 * 
-	 * @param type {@link Type} to potentially import
-	 */
-	protected void addImport(Type type) {
-		type.registerImport(externalImports);
-	}
-
-	/**
-	 * Add the specified {@link Class} as an import
-	 * 
-	 * @param klass {@link Class} which is to be imported
-	 */
-	protected void addImport(Class<?> klass) {
-		externalImports.add(TypeFactory.createClassType(klass));
-	}
-
-	/**
 	 * Generate the recipe class
 	 * 
 	 * @param recipeType         {@link ClassType} which is to become the recipe
@@ -171,7 +144,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 			clsBuilder.addAnnotation(JAnnotationFactory.create(registryAnnotation));
 
 		populateBuilder(clsBuilder);
-		return new ClassDefinition(recipeType, clsBuilder.build().generateCode(externalImports));
+		return new ClassDefinition(recipeType, clsBuilder.build().generateCode());
 	}
 
 	/**
@@ -233,10 +206,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 	 */
 	protected void addParameterInjection(List<String> code, List<JParameter<?>> params, String retrievePrefix, String applyPrefix) throws InvalidConfigurationException {
 		for (JParameter<?> p : params) {
-			Type pType = p.getType();
-			if (pType instanceof ClassType)
-				pType.registerImport(externalImports);
-			code.add(retrievePrefix + pType.getSimpleName() + p.getGenericsApplicationKeyword(true) + "_" + p.getName() + " = " + createParameterInjectionCodeRhs(p) + ";");
+			code.add(retrievePrefix + p.getType().getCodeName() + p.getGenericsApplicationKeyword(true) + "_" + p.getName() + " = " + createParameterInjectionCodeRhs(p) + ";");
 		}
 		code.add(applyPrefix + TendrilStringUtil.join(params, ", ", p -> "_" + p.getName()) + ");");
 	}
@@ -253,9 +223,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 
 		String engineCall = "engine.";
 		if (param.hasAnnotation(InjectAll.class)) {
-			Type beanType = getInjectAllType(param);
-			addImport(beanType);
-			engineCall += "getAllBeans" + "(" + getDependencyDescriptor(param, beanType) + ")";
+			engineCall += "getAllBeans" + "(" + getDependencyDescriptor(param, getInjectAllType(param)) + ")";
 		} else {
 			engineCall += "getBean" + "(" + getDependencyDescriptor(param) + ")";
 		}
@@ -270,7 +238,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 	 */
 	protected void warnSiblingInjection(JBase element) {
 		if (element.hasAnnotation(Sibling.class))
-			messager.printWarning(element.getFullElementPath() + " has an @Sibling annotation but this is not supported for this bean and thus ignored.");
+			messager.printWarning(element.getFullElementPath() + " has an @" + Sibling.class.getSimpleName() + " annotation but this is not supported for this bean and thus ignored.");
 	}
 
 	/**
@@ -284,10 +252,10 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 		// InjectAll must be applied to a List
 		Type itemType = item.getType();
 		if (!(itemType instanceof ClassType))
-			throw new InvalidConfigurationException("@" + InjectAll.class.getSimpleName() + " cannot be applied to " + itemType.getSimpleName() + ", it must be applied to classes");
+			throw new InvalidConfigurationException("@" + InjectAll.class.getSimpleName() + " cannot be applied to " + itemType.getCodeName() + ", it must be applied to classes");
 		ClassType classType = (ClassType) itemType;
 		if (!classType.equals(TypeFactory.createClassType(List.class)))
-			throw new InvalidConfigurationException("@" + InjectAll.class.getSimpleName() + " cannot be applied to " + classType.getSimpleName() + ", it must be a " + List.class.getSimpleName());
+			throw new InvalidConfigurationException("@" + InjectAll.class.getSimpleName() + " cannot be applied to " + classType.getCodeName() + ", it must be a " + List.class.getSimpleName());
 
 		// The bean type is the first generic applied to it
 		return classType.getGenerics().getFirst();
@@ -373,8 +341,7 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 	 * @return {@link String} containing the code defining the dependency
 	 */
 	protected String getDependencyDescriptor(JType<?> describedBean, Type beanType) {
-		externalImports.add(TypeFactory.createClassType(Descriptor.class));
-		String desc = "new " + Descriptor.class.getSimpleName() + "<>(" + RecipeGeneratorHelper.getClassReference(beanType) + ", \"" + describedBean.getName() + "\")";
+		String desc = "new " + Descriptor.class.getName() + "<>(" + RecipeGeneratorHelper.getClassReference(beanType) + ", \"" + describedBean.getName() + "\")";
 		return desc + joinLines(getDescriptorLines(describedBean), ".", "", "\n            ");
 	}
 
@@ -414,10 +381,8 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 				lines.add("setName(\"" + a.getValue(a.getAttributes().get(0)).getValue() + "\")");
 			} else if (a.hasAnnotation(EnumQualifier.class)) {
 				EnumerationEntry entry = (EnumerationEntry) a.getValue(a.getAttributes().get(0)).getValue();
-				externalImports.add(entry.getEnclosingClass());
-				lines.add("addEnumQualifier(" + entry.getEnclosingClass().getClassName() + "." + entry.getName() + ")");
+				lines.add("addEnumQualifier(" + entry.getEnclosingClass().getCodeName() + "." + entry.getName() + ")");
 			} else if (a.hasAnnotation(Qualifier.class)) {
-				externalImports.add(a.getType());
 				lines.add("addQualifier(" + RecipeGeneratorHelper.getClassReference(a.getType()) + ")");
 			} else {
 				lines.addAll(getDescriptorLines(a));

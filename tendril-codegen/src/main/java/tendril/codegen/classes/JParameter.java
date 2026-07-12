@@ -16,12 +16,10 @@
 package tendril.codegen.classes;
 
 import java.util.List;
-import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.annotation.JAnnotation;
 import tendril.codegen.field.JContainedType;
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.util.TendrilStringUtil;
 
@@ -43,37 +41,35 @@ public class JParameter<DATA_TYPE extends Type> extends JContainedType<DATA_TYPE
     }
 
     /**
-     * @see tendril.codegen.JBase#generate(tendril.codegen.CodeBuilder, java.util.Set)
+     * @see tendril.codegen.JBase#generate(tendril.codegen.CodeBuilder)
      */
     @Override
-    public void generate(CodeBuilder builder, Set<ClassType> classImports) {
+    public void generate(CodeBuilder builder) {
         // Parameters place annotations as a prefix on the same line, meaning that they are included in generateSelf
-        appendSelf(builder, classImports);
+        appendSelf(builder);
     }
 
     /**
-     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
+     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder)
      */
     @Override
-    protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
-        builder.append(generateSelf(classImports));
+    protected void appendSelf(CodeBuilder builder) {
+        builder.append(generateSelf());
     }
 
     /**
-     * @see tendril.codegen.JBase#generateSelf(java.util.Set)
+     * @see tendril.codegen.JBase#generateSelf()
      */
     @Override
-    public String generateSelf(Set<ClassType> classImports) {
-        type.registerImport(classImports);
-
+    public String generateSelf() {
         List<JAnnotation> appliedAnnotations = getAnnotations();
         String prefix = "";
         if (!appliedAnnotations.isEmpty()) {
-            prefix = TendrilStringUtil.join(appliedAnnotations, " ", anno -> anno.generateSelf(classImports));
+            prefix = TendrilStringUtil.join(appliedAnnotations, " ", anno -> anno.generateSelf());
             prefix += " ";
         }
 
-        return prefix + getFinalKeyword() + type.getSimpleName() + getGenericsApplicationKeyword(true) + name;
+        return prefix + getFinalKeyword() + type.getCodeName() + getGenericsApplicationKeyword(true) + name;
     }
 
 }

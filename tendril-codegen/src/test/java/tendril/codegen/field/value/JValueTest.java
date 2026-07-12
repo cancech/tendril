@@ -20,8 +20,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -66,9 +64,8 @@ public class JValueTest extends SharedJValueTest {
          * @see tendril.codegen.field.value.JValue#generate(java.util.Set)
          */
         @Override
-        public String generate(Set<ClassType> classImports) {
+        public String generate() {
             timesGenerateCalled++;
-            Assertions.assertEquals(mockImports, classImports);
             return GENERATED_TEXT;
         }
         

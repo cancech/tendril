@@ -15,8 +15,6 @@
  */
 package tendril.codegen.field.type;
 
-import java.util.Set;
-
 import tendril.codegen.DefinitionException;
 import tendril.codegen.field.value.JValue;
 
@@ -49,7 +47,7 @@ public class VoidType implements Type {
      */
     @Override
     public String toString() {
-        return getSimpleName();
+        return getCodeName();
     }
 
     /**
@@ -71,13 +69,6 @@ public class VoidType implements Type {
     }
 
     /**
-     * @see tendril.codegen.field.type.Importable#registerImport(java.util.Set)
-     */
-    @Override
-    public void registerImport(Set<ClassType> classImports) {
-    }
-
-    /**
      * @see tendril.codegen.field.type.Type#isVoid()
      */
     @Override
@@ -94,10 +85,10 @@ public class VoidType implements Type {
     }
 
     /**
-     * @see tendril.codegen.field.type.Type#getSimpleName()
+     * @see tendril.codegen.field.type.Type#getCodeName()
      */
     @Override
-    public String getSimpleName() {
+    public String getCodeName() {
         return "void";
     }
 

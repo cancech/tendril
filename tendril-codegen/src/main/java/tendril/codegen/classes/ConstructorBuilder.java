@@ -31,7 +31,7 @@ public class ConstructorBuilder extends NestedClassMethodElementBuilder<ClassTyp
      * @param enclosingClass {@link ClassType} of the enclosing class
      */
     protected ConstructorBuilder(ClassBuilder classBuilder, ClassType enclosingClass) {
-        super(classBuilder, enclosingClass.getSimpleName());
+        super(classBuilder, enclosingClass.getCodeName());
         super.setType(enclosingClass);
     }
     

@@ -22,6 +22,8 @@ public class RecipeGeneratorHelperTest extends AbstractUnitTest {
 	@Mock
 	private ClassType mockClassType;
 	@Mock
+	private ClassType mockClassTypeAsType;
+	@Mock
 	private JVisibleType<?> mockElement;
 	@Mock
 	private JClass mockClassContainer;
@@ -41,7 +43,8 @@ public class RecipeGeneratorHelperTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testClassReferenceNotGeneric() {
-		when(mockClassType.getClassName()).thenReturn("ClassName");
+		when(mockClassType.asClassType()).thenReturn(mockClassTypeAsType);
+		when(mockClassTypeAsType.getFullyQualifiedName()).thenReturn("ClassName");
 		when(mockClassType.hasGenerics()).thenReturn(false);
 		Assertions.assertEquals("ClassName.class", RecipeGeneratorHelper.getClassReference(mockClassType));
 	}
@@ -51,9 +54,10 @@ public class RecipeGeneratorHelperTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testClassReferenceWithGeneric() {
-		when(mockClassType.getClassName()).thenReturn("Other");
+		when(mockClassType.asClassType()).thenReturn(mockClassTypeAsType);
+		when(mockClassTypeAsType.getFullyQualifiedName()).thenReturn("Other");
 		when(mockClassType.hasGenerics()).thenReturn(true);
-		when(mockClassType.getSimpleName()).thenReturn("Simple");
+		when(mockClassType.getCodeName()).thenReturn("Simple");
 		Assertions.assertEquals("(Class<Simple>) (Class<?>) Other.class", RecipeGeneratorHelper.getClassReference(mockClassType));
 	}
 	

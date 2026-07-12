@@ -15,9 +15,7 @@
  */
 package tendril.codegen.field.value;
 
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Assertions;
@@ -42,27 +40,12 @@ public class JValueFactoryTest extends SharedJValueTest {
     @Mock
     private ClassType mockType;
 
-    private int timesImported = 1;
-    private ClassType lastImport = null;
-    
     /**
      * @see tendril.codegen.field.value.SharedJValueTest#prepareTest()
      */
     @Override
     protected void prepareTest() {
         super.prepareTest();
-        lastImport = null;
-        timesImported = 1;
-    }
-
-    /**
-     * @see tendril.codegen.field.value.SharedJValueTest#verifyMockImports()
-     */
-    @Override
-    protected void verifyMockImports() {
-        if (lastImport != null)
-            verify(mockImports, times(timesImported)).add(lastImport);
-        verifyNoMoreInteractions(mockImports);
     }
 
     /**
@@ -71,8 +54,7 @@ public class JValueFactoryTest extends SharedJValueTest {
     @Test
     public void testCreatedValues() {
     	ClassType classType = TypeFactory.createClassType(ClassType.class);
-        lastImport = classType;
-    	assertCode("ClassType.class", JValueFactory.create(classType));
+    	assertCode(ClassType.class.getName() + ".class", JValueFactory.create(classType));
     	
         assertCode("\"StringValue\"", JValueFactory.create("StringValue"));
         assertCode("'a'", JValueFactory.create('a'));
@@ -84,21 +66,16 @@ public class JValueFactoryTest extends SharedJValueTest {
         assertCode("false", JValueFactory.create(false));
         assertCode("true", JValueFactory.create(true));
         assertCode("10", JValueFactory.create((byte) Byte.valueOf("10")));
-        verifyMockImports();
 
-        lastImport = TypeFactory.createClassType(VisibilityType.class);
-        assertCode("VisibilityType.PACKAGE_PRIVATE", JValueFactory.create(VisibilityType.PACKAGE_PRIVATE));
-        verifyMockImports();
+        assertCode(VisibilityType.class.getName() + ".PACKAGE_PRIVATE", JValueFactory.create(VisibilityType.PACKAGE_PRIVATE));
         
-        lastImport = mockType;
         when(mockEntry.getEnclosingClass()).thenReturn(mockType);
         when(mockEntry.getName()).thenReturn("ELSE");
-        when(mockType.getSimpleName()).thenReturn("SOMETHING");
+        when(mockType.getCodeName()).thenReturn("SOMETHING");
         assertCode("SOMETHING.ELSE", JValueFactory.create(mockEntry));
         verify(mockEntry).getEnclosingClass();
         verify(mockEntry).getName();
-        verify(mockType).getSimpleName();
-        verifyMockImports();
+        verify(mockType).getCodeName();
         
         Assertions.assertThrows(DefinitionException.class, () -> JValueFactory.create(new Object()));
     }
@@ -118,20 +95,14 @@ public class JValueFactoryTest extends SharedJValueTest {
         assertCode("{123456l, 234567l, 345678l, 456789l}", JValueFactory.createArray(123456l, 234567l, 345678l, 456789l));
         assertCode("{(short) 1, (short) 2, (short) 3, (short) 4}", JValueFactory.createArray((short) 1, (short)2, (short) 3, (short) 4));
 
-        lastImport = TypeFactory.createClassType(TestEnum.class);
-        timesImported = 3;
-        assertCode("{TestEnum.VALUE1, TestEnum.VALUE2, TestEnum.VALUE3}", JValueFactory.createArray(TestEnum.values()));
-        verifyMockImports();
+        assertCode("{" + TestEnum.class.getName() + ".VALUE1, " + TestEnum.class.getName() + ".VALUE2, " + TestEnum.class.getName() + ".VALUE3}", JValueFactory.createArray(TestEnum.values()));
 
-        lastImport = mockType;
         when(mockEntry.getEnclosingClass()).thenReturn(mockType);
         when(mockEntry.getName()).thenReturn("ELSE");
-        when(mockType.getSimpleName()).thenReturn("SOMETHING");
-        timesImported = 1;
+        when(mockType.getCodeName()).thenReturn("SOMETHING");
         assertCode("{SOMETHING.ELSE}", JValueFactory.createArray(mockEntry));
         verify(mockEntry).getEnclosingClass();
         verify(mockEntry).getName();
-        verify(mockType).getSimpleName();
-        verifyMockImports();
+        verify(mockType).getCodeName();
     }
 }

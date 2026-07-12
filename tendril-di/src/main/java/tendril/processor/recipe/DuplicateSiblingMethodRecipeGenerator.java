@@ -36,7 +36,7 @@ public class DuplicateSiblingMethodRecipeGenerator extends MethodRecipeGenerator
 	 */
 	DuplicateSiblingMethodRecipeGenerator(ClassType configType, ClassType beanType, JMethod<?> beanCreator, Messager messager, ClassType blueprintType) {
 		super(configType, beanType, beanType, beanCreator, messager);
-		siblingHelper = new SiblingRecipeGeneratorHelper(beanCreator, beanType, blueprintType, messager, this);
+		siblingHelper = new SiblingRecipeGeneratorHelper(beanCreator, beanType, blueprintType, messager);
 	}
 
 	/**

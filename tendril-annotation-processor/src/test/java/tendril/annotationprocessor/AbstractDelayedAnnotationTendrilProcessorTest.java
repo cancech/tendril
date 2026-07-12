@@ -129,10 +129,10 @@ public class AbstractDelayedAnnotationTendrilProcessorTest extends CommonProcess
             loader.when(() -> ElementLoader.retrieveClass(mockProcessingEnv, mockClassElement)).thenReturn(mockClass);
 
             setupMocksForWriting();
-            when(mockWaitingAnnotationType.getSimpleName()).thenReturn("abc");
+            when(mockWaitingAnnotationType.getClassName()).thenReturn("abc");
             processor.annotationGenerated(mockWaitingAnnotationType);
             loader.verify(() -> ElementLoader.retrieveClass(mockProcessingEnv, mockClassElement));
-            verify(mockWaitingAnnotationType).getSimpleName();
+            verify(mockWaitingAnnotationType).getClassName();
             verifyFileWritten();
         }
         
@@ -168,10 +168,10 @@ public class AbstractDelayedAnnotationTendrilProcessorTest extends CommonProcess
             loader.when(() -> ElementLoader.retrieveMethod(mockProcessingEnv, mockMethodElement)).thenReturn(Pair.of(mockClass, mockMethod));
 
             setupMocksForWriting();
-            when(mockWaitingAnnotationType.getSimpleName()).thenReturn("abc");
+            when(mockWaitingAnnotationType.getClassName()).thenReturn("abc");
             processor.annotationGenerated(mockWaitingAnnotationType);
             loader.verify(() -> ElementLoader.retrieveMethod(mockProcessingEnv, mockMethodElement));
-            verify(mockWaitingAnnotationType).getSimpleName();
+            verify(mockWaitingAnnotationType).getClassName();
             verifyFileWritten();
         }
         
@@ -184,8 +184,8 @@ public class AbstractDelayedAnnotationTendrilProcessorTest extends CommonProcess
      */
     @Test
     public void testGeneratedButNotWaiting() {
-        when(mockWaitingAnnotationType.getSimpleName()).thenReturn("SOMETHING");
+        when(mockWaitingAnnotationType.getClassName()).thenReturn("SOMETHING");
         processor.annotationGenerated(mockWaitingAnnotationType);
-        verify(mockWaitingAnnotationType).getSimpleName();
+        verify(mockWaitingAnnotationType).getClassName();
     }
 }

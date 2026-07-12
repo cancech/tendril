@@ -16,7 +16,6 @@
 package tendril.codegen.generics;
 
 import java.util.List;
-import java.util.Set;
 
 import tendril.codegen.field.type.ClassType;
 import tendril.util.TendrilStringUtil;
@@ -39,14 +38,6 @@ abstract class CompoundGeneric extends SimpleGeneric {
         super(name);
         this.parents = parents;
     }
-    
-    /**
-     * @see tendril.codegen.generics.GenericType#registerImport(java.util.Set)
-     */
-    @Override
-    public void registerImport(Set<ClassType> classImports) {
-        classImports.addAll(parents);
-    }
 
     /**
      * Get the keyword that is to be used to describe the relationship between the generic type and the parent(s)
@@ -60,7 +51,7 @@ abstract class CompoundGeneric extends SimpleGeneric {
      */
     @Override
     public String generateDefinition() {
-        String parentsCode = TendrilStringUtil.join(parents, " & ", (p) -> p.getSimpleName());
+        String parentsCode = TendrilStringUtil.join(parents, " & ", (p) -> p.getCodeName());
         return super.generateDefinition() + " " + getKeyword() + parentsCode;
     }
     

@@ -1,7 +1,5 @@
 package tendril.codegen.field.value;
 
-import static org.mockito.Mockito.verify;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -22,14 +20,6 @@ public class JValueClassTest extends SharedJValueTest {
 
 	/** Tracks which import should have been last registered */
 	private ClassType currentImport = null;
-
-	/**
-	 * @see tendril.codegen.field.value.SharedJValueTest#verifyMockImports()
-	 */
-	@Override
-	protected void verifyMockImports() {
-		verify(mockImports).add(currentImport);
-	}
 
 	/**
 	 * Verify that the appropriate code is generated
@@ -72,7 +62,7 @@ public class JValueClassTest extends SharedJValueTest {
 	 */
 	private <T> void testClassCode(Class<T> klass) {
 		currentImport = TypeFactory.createClassType(klass);
-		assertCode(klass.getSimpleName() + ".class", new JValueClass(currentImport));
+		assertCode(klass.getName() + ".class", new JValueClass(currentImport));
 	}
 
 	/**

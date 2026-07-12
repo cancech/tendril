@@ -15,10 +15,7 @@
  */
 package tendril.codegen.field.type;
 
-import static org.mockito.Mockito.verify;
-
 import java.awt.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -67,8 +64,6 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	 */
 	@Test
 	public void testRegisterImports() {
-		type.registerImport(mockImports);
-		verify(mockImports).add(type);
 		verifyDataState();
 	}
 
@@ -141,12 +136,12 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 		Assertions.assertFalse(type.isTypeOf(create(JGeneric.class)));
 		Assertions.assertFalse(type.isTypeOf(new JBase("") {
 			@Override
-			public String generateSelf(Set<ClassType> classImports) {
+			public String generateSelf() {
 				return null;
 			}
 
 			@Override
-			protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
+			protected void appendSelf(CodeBuilder builder) {
 			}
 		}));
 
@@ -321,7 +316,7 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 	 * Verify that the data state is correct
 	 */
 	private void verifyDataState(Class<?> expectedClass) {
-		verifyDataState(expectedClass.getSimpleName(), false);
+		verifyDataState(expectedClass.getName(), false);
 	}
 
 	/**

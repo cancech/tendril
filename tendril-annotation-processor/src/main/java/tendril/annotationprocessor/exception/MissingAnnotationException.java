@@ -60,7 +60,7 @@ public class MissingAnnotationException extends TendrilException {
 	 */
 	public MissingAnnotationException(String annotationType, ClassType annotationName) {
 		super("Unknown " + annotationType + " annotation " + annotationName);
-		this.annotationName = annotationName.getSimpleName();
+		this.annotationName = annotationName.getFullyQualifiedName();
 	}
 
 	/**

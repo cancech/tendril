@@ -15,10 +15,7 @@
  */
 package tendril.codegen.classes.method;
 
-import java.util.Set;
-
 import tendril.codegen.CodeGenerationException;
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 
 /**
@@ -48,10 +45,10 @@ public class AnonymousMethod<RETURN_TYPE extends Type> extends JMethod<RETURN_TY
     }
 
     /**
-     * @see tendril.codegen.JBase#generateSelf(java.util.Set)
+     * @see tendril.codegen.JBase#generateSelf()
      */
     @Override
-    public String generateSelf(Set<ClassType> classImports) {
+    public String generateSelf() {
         throw new CodeGenerationException("An annonymous method cannot be used to generate code");
     }
 

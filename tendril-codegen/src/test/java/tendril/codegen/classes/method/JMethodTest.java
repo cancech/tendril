@@ -19,14 +19,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.field.JContainedType;
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.generics.GenericType;
 
@@ -67,8 +65,7 @@ public class JMethodTest extends AbstractMethodTest {
 		 * Override to produce a "mock" value, simplifying the testing
 		 */
 		@Override
-		protected String generateParameters(Set<ClassType> classImports) {
-			Assertions.assertEquals(mockImports, classImports);
+		protected String generateParameters() {
 			return GENERATED_PARAMS;
 		}
 
@@ -76,8 +73,7 @@ public class JMethodTest extends AbstractMethodTest {
 		 * Override to produce a "mock" value, simplifying the testing
 		 */
 		@Override
-		protected String generateThrows(Set<ClassType> classImports, boolean includeSpace) {
-			Assertions.assertEquals(mockImports, classImports);
+		protected String generateThrows(boolean includeSpace) {
 			if (includeSpace)
 				return " " + GENERATED_THROWS + " ";
 			return GENERATED_THROWS;
@@ -127,8 +123,8 @@ public class JMethodTest extends AbstractMethodTest {
 	 */
 	@Test
 	public void testGenerateSignatureNoImplementation() {
-		Assertions.assertEquals(GENERATED_START + SIMPLE_MOCK_RETURN_TYPE + " method_name(" + GENERATED_PARAMS + ") " + GENERATED_THROWS + ";", method.generateSignature(mockImports, false));
-		verify(mockReturnType).getSimpleName();
+		Assertions.assertEquals(GENERATED_START + SIMPLE_MOCK_RETURN_TYPE + " method_name(" + GENERATED_PARAMS + ") " + GENERATED_THROWS + ";", method.generateSignature(false));
+		verify(mockReturnType).getCodeName();
 		method.verifyCalled(1, false);
 	}
 
@@ -137,8 +133,8 @@ public class JMethodTest extends AbstractMethodTest {
 	 */
 	@Test
 	public void testGenerateSignatureWithImplementation() {
-		Assertions.assertEquals(GENERATED_START + SIMPLE_MOCK_RETURN_TYPE + " method_name(" + GENERATED_PARAMS + ") " + GENERATED_THROWS + " {", method.generateSignature(mockImports, true));
-		verify(mockReturnType).getSimpleName();
+		Assertions.assertEquals(GENERATED_START + SIMPLE_MOCK_RETURN_TYPE + " method_name(" + GENERATED_PARAMS + ") " + GENERATED_THROWS + " {", method.generateSignature(true));
+		verify(mockReturnType).getCodeName();
 		method.verifyCalled(1, true);
 	}
 
@@ -151,9 +147,9 @@ public class JMethodTest extends AbstractMethodTest {
 		method.addGeneric(mockGeneric1);
 
 		Assertions.assertEquals(GENERATED_START + "<GEN1> " + SIMPLE_MOCK_RETURN_TYPE + " method_name(" + GENERATED_PARAMS + ") " + GENERATED_THROWS + " {",
-				method.generateSignature(mockImports, true));
+				method.generateSignature(true));
 		verify(mockGeneric1).generateDefinition();
-		verify(mockReturnType).getSimpleName();
+		verify(mockReturnType).getCodeName();
 		method.verifyCalled(1, true);
 	}
 
@@ -170,11 +166,11 @@ public class JMethodTest extends AbstractMethodTest {
 		method.addGeneric(mockGeneric3);
 
 		Assertions.assertEquals(GENERATED_START + "<GEN1, GEN2, GEN3> " + SIMPLE_MOCK_RETURN_TYPE + " method_name(" + GENERATED_PARAMS + ") " + GENERATED_THROWS + " {",
-				method.generateSignature(mockImports, true));
+				method.generateSignature(true));
 		verify(mockGeneric1).generateDefinition();
 		verify(mockGeneric2).generateDefinition();
 		verify(mockGeneric3).generateDefinition();
-		verify(mockReturnType).getSimpleName();
+		verify(mockReturnType).getCodeName();
 		method.verifyCalled(1, true);
 	}
 

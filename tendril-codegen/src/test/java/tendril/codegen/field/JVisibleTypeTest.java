@@ -15,15 +15,12 @@
  */
 package tendril.codegen.field;
 
-import java.util.Set;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.VisibilityType;
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.test.AbstractUnitTest;
 
@@ -48,7 +45,7 @@ public class JVisibleTypeTest extends AbstractUnitTest {
          * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder, java.util.Set)
          */
         @Override
-        protected void appendSelf(CodeBuilder builder, Set<ClassType> classImports) {
+        protected void appendSelf(CodeBuilder builder) {
             Assertions.fail("Should not be called");
         }
 
@@ -56,7 +53,7 @@ public class JVisibleTypeTest extends AbstractUnitTest {
          * @see tendril.codegen.JBase#generateSelf(java.util.Set)
          */
         @Override
-        public String generateSelf(Set<ClassType> classImports) {
+        public String generateSelf() {
             Assertions.fail("Should not be called");
             return null;
         }

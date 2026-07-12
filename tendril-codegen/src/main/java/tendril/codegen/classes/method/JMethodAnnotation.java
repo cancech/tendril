@@ -15,8 +15,6 @@
  */
 package tendril.codegen.classes.method;
 
-import java.util.HashSet;
-
 import tendril.codegen.DefinitionException;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
@@ -64,7 +62,7 @@ class JMethodAnnotation<RETURN_TYPE extends Type> extends JMethodInterface<RETUR
         if (defaultValue == null)
             return ";";
 
-        return " default " + defaultValue.generate(new HashSet<>()) + ";";
+        return " default " + defaultValue.generate() + ";";
     }
 
 }

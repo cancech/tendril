@@ -15,8 +15,6 @@
  */
 package tendril.codegen.field.value;
 
-import java.util.Set;
-
 import tendril.codegen.classes.EnumerationEntry;
 import tendril.codegen.field.type.ClassType;
 
@@ -54,11 +52,10 @@ public class JValueEnum extends JValue<ClassType, EnumerationEntry> {
     }
 
     /**
-     * @see tendril.codegen.field.value.JValue#generate(java.util.Set)
+     * @see tendril.codegen.field.value.JValue#generate()
      */
     @Override
-    public String generate(Set<ClassType> classImports) {
-        classImports.add(type);
-        return type.getSimpleName() + "." + value.getName();
+    public String generate() {
+        return type.getCodeName() + "." + value.getName();
     }
 }

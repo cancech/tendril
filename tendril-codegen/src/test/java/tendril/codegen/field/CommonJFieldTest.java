@@ -15,13 +15,10 @@
  */
 package tendril.codegen.field;
 
-import java.util.Set;
-
 import org.mockito.Mock;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.VisibilityType;
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.generics.GenericType;
@@ -39,8 +36,6 @@ public abstract class CommonJFieldTest extends AbstractUnitTest {
 	protected JValue<Type, ?> mockOtherValue;
 	@Mock
 	protected CodeBuilder mockBuilder;
-	@Mock
-	protected Set<ClassType> mockImports;
 	@Mock
 	protected GenericType mockGeneric1;
 	@Mock

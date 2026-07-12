@@ -16,10 +16,8 @@
 package tendril.codegen.field.value;
 
 import java.util.List;
-import java.util.Set;
 
 import tendril.codegen.field.type.ArrayType;
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.util.TendrilStringUtil;
 
@@ -43,13 +41,13 @@ public class JValueArray<DATA_TYPE extends Type, VALUE_TYPE> extends JValue<Arra
     }
 
     /**
-     * @see tendril.codegen.field.value.JValue#generate(java.util.Set)
+     * @see tendril.codegen.field.value.JValue#generate()
      */
     @Override
-    public String generate(Set<ClassType> classImports) {
+    public String generate() {
         String result = "{";
         for (int i = 0; i < value.size(); i++) {
-            result += value.get(i).generate(classImports);
+            result += value.get(i).generate();
             if (i < value.size() - 1)
                 result += ", ";
         }

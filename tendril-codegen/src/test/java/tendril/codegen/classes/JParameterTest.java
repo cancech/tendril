@@ -19,14 +19,11 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.annotation.JAnnotation;
-import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.generics.GenericType;
 import tendril.test.AbstractUnitTest;
@@ -41,8 +38,6 @@ public class JParameterTest extends AbstractUnitTest {
     private Type mockType;
     @Mock
     private CodeBuilder mockBuilder;
-    @Mock
-    private Set<ClassType> mockImports;
     @Mock
     private JAnnotation mockAnnotation1;
     @Mock
@@ -64,10 +59,10 @@ public class JParameterTest extends AbstractUnitTest {
      */
     @Override
     protected void prepareTest() {
-        lenient().when(mockType.getSimpleName()).thenReturn("MockType");
-        lenient().when(mockAnnotation1.generateSelf(mockImports)).thenReturn("@MockAnnotation1");
-        lenient().when(mockAnnotation2.generateSelf(mockImports)).thenReturn("@MockAnnotation2");
-        lenient().when(mockAnnotation3.generateSelf(mockImports)).thenReturn("@MockAnnotation3");
+        lenient().when(mockType.getCodeName()).thenReturn("MockType");
+        lenient().when(mockAnnotation1.generateSelf()).thenReturn("@MockAnnotation1");
+        lenient().when(mockAnnotation2.generateSelf()).thenReturn("@MockAnnotation2");
+        lenient().when(mockAnnotation3.generateSelf()).thenReturn("@MockAnnotation3");
         param = new JParameter<Type>(mockType, "parameterName");
     }
     
@@ -76,9 +71,8 @@ public class JParameterTest extends AbstractUnitTest {
      */
     @Test
     public void testGenerateSelfNoAnnotations() {
-        param.generate(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
-        verify(mockType).getSimpleName();
+        param.generate(mockBuilder);
+        verify(mockType).getCodeName();
         verify(mockBuilder).append("MockType parameterName");
     }
     
@@ -88,9 +82,8 @@ public class JParameterTest extends AbstractUnitTest {
     @Test
     public void testGenerateSelfFinalNoAnnotations() {
         param.setFinal(true);
-        param.generate(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
-        verify(mockType).getSimpleName();
+        param.generate(mockBuilder);
+        verify(mockType).getCodeName();
         verify(mockBuilder).append("final MockType parameterName");
     }
     
@@ -100,10 +93,9 @@ public class JParameterTest extends AbstractUnitTest {
     @Test
     public void testGenerateSelfSingleAnnotation() {
         param.add(mockAnnotation1);
-        param.generate(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
-        verify(mockType).getSimpleName();
-        verify(mockAnnotation1).generateSelf(mockImports);
+        param.generate(mockBuilder);
+        verify(mockType).getCodeName();
+        verify(mockAnnotation1).generateSelf();
         verify(mockBuilder).append("@MockAnnotation1 MockType parameterName");
     }
     
@@ -115,12 +107,11 @@ public class JParameterTest extends AbstractUnitTest {
         param.add(mockAnnotation1);
         param.add(mockAnnotation2);
         param.add(mockAnnotation3);
-        param.generate(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
-        verify(mockType).getSimpleName();
-        verify(mockAnnotation1).generateSelf(mockImports);
-        verify(mockAnnotation2).generateSelf(mockImports);
-        verify(mockAnnotation3).generateSelf(mockImports);
+        param.generate(mockBuilder);
+        verify(mockType).getCodeName();
+        verify(mockAnnotation1).generateSelf();
+        verify(mockAnnotation2).generateSelf();
+        verify(mockAnnotation3).generateSelf();
         verify(mockBuilder).append("@MockAnnotation1 @MockAnnotation2 @MockAnnotation3 MockType parameterName");
     }
     
@@ -132,9 +123,8 @@ public class JParameterTest extends AbstractUnitTest {
         when(mockGeneric1.generateApplication()).thenReturn("GEN1");
         param.addGeneric(mockGeneric1);
         
-        param.generate(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
-        verify(mockType).getSimpleName();
+        param.generate(mockBuilder);
+        verify(mockType).getCodeName();
         verify(mockGeneric1).generateApplication();
         verify(mockBuilder).append("MockType<GEN1> parameterName");
     }
@@ -151,9 +141,8 @@ public class JParameterTest extends AbstractUnitTest {
         param.addGeneric(mockGeneric2);
         param.addGeneric(mockGeneric3);
         
-        param.generate(mockBuilder, mockImports);
-        verify(mockType).registerImport(mockImports);
-        verify(mockType).getSimpleName();
+        param.generate(mockBuilder);
+        verify(mockType).getCodeName();
         verify(mockGeneric1).generateApplication();
         verify(mockGeneric2).generateApplication();
         verify(mockGeneric3).generateApplication();
@@ -165,12 +154,11 @@ public class JParameterTest extends AbstractUnitTest {
      */
     @Test
     public void testGenericParameter() {
-        when(mockGeneric1.getSimpleName()).thenReturn("GenericType");
+        when(mockGeneric1.getCodeName()).thenReturn("GenericType");
         JParameter<GenericType> genParam = new JParameter<GenericType>(mockGeneric1, "genericParam");
 
-        genParam.generate(mockBuilder, mockImports);
-        verify(mockGeneric1).registerImport(mockImports);
-        verify(mockGeneric1).getSimpleName();
+        genParam.generate(mockBuilder);
+        verify(mockGeneric1).getCodeName();
         verify(mockBuilder).append("GenericType genericParam");
     }
 }

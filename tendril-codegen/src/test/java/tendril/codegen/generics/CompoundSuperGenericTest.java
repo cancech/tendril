@@ -69,9 +69,9 @@ public class CompoundSuperGenericTest extends AbstractUnitTest {
      */
     @Test
     public void testGenerateApplication() {
-        when(mockParent.getSimpleName()).thenReturn("mockParent");
+        when(mockParent.getCodeName()).thenReturn("mockParent");
         Assertions.assertEquals("? super mockParent", gen.generateApplication());
-        verify(mockParent).getSimpleName();
+        verify(mockParent).getCodeName();
     }
 
     /**

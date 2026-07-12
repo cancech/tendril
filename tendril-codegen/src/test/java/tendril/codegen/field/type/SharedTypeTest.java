@@ -15,10 +15,7 @@
  */
 package tendril.codegen.field.type;
 
-import java.util.Set;
-
 import org.junit.jupiter.api.Assertions;
-import org.mockito.Mock;
 
 import tendril.test.AbstractUnitTest;
 
@@ -26,10 +23,6 @@ import tendril.test.AbstractUnitTest;
  * Shared test features for the various {@link TypeData} tests
  */
 public abstract class SharedTypeTest<TYPE extends Type> extends AbstractUnitTest {
-
-    // Mocks to use for testing
-    @Mock
-    protected Set<ClassType> mockImports;
 
     // Instance to test
     protected TYPE type;
@@ -41,7 +34,7 @@ public abstract class SharedTypeTest<TYPE extends Type> extends AbstractUnitTest
      * @param expectedVoid boolean true if the data is to be void
      */
     protected void verifyDataState(String expectedName, boolean expectedVoid) {
-        Assertions.assertEquals(expectedName, type.getSimpleName());
+        Assertions.assertEquals(expectedName, type.getCodeName());
         Assertions.assertEquals(expectedVoid, type.isVoid());
         verifyAllChecked();
     }

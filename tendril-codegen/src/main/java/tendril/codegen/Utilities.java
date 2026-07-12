@@ -58,10 +58,13 @@ public abstract class Utilities {
 		char c = trimmed.charAt(0);
 		if (!Character.isJavaIdentifierStart(c))
 			throw new DefinitionException("Identifier cannot start with " + c);
+		c = trimmed.charAt(trimmed.length() - 1);
+		if (!Character.isJavaIdentifierPart(c))
+			throw new DefinitionException("Identifier cannot end with " + c);
 		for (int i = 1; i < trimmed.length(); i++) {
 			c = trimmed.charAt(i);
 
-			if (!Character.isJavaIdentifierPart(c))
+			if (c != '.' && !Character.isJavaIdentifierPart(c))
 				throw new DefinitionException("Identifier cannot contain " + c);
 		}
     }

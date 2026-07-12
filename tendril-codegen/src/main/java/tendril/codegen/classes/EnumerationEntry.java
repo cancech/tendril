@@ -17,7 +17,6 @@ package tendril.codegen.classes;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.field.type.ClassType;
@@ -112,13 +111,12 @@ public class EnumerationEntry {
      * Generate the text for representing the entry in code
      * 
      * @param builder      {@link CodeBuilder} where it is to be appended to
-     * @param classImports {@link Set} of {@link ClassType} representing the imports for the code
      * @param terminator   {@link String} to apply as the terminator for the entry
      */
-    void generateSelf(CodeBuilder builder, Set<ClassType> classImports, String terminator) {
+    void generateSelf(CodeBuilder builder, String terminator) {
         String line = name;
         if (!parameters.isEmpty())
-            line += "(" + TendrilStringUtil.join(parameters, (p) -> p.generate(classImports)) + ")";
+            line += "(" + TendrilStringUtil.join(parameters, (p) -> p.generate()) + ")";
         builder.append(line + terminator);
     }
 
