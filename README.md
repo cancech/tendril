@@ -1298,9 +1298,6 @@ public class TestConfig {
 }
 ```
 
-### Repeat class names
-Tendril assumes that every class name is always unique, ergo it can be imported. As such, if a situation arises where the same class name appears on two distinct classes in the same bean a name clash will ensue and the generated code will not work. The work around for this is to ensure that all classes that appear within a single bean are unique.
-
 ## META-INF
 In support of `Tendril` functionality, the build will generate a number of supporting files in the `META-INF/tendril` directory. These files are vital to the runtime operations of the application and must be preserved. If a tool such as `shadow` is used to create a *Fat* or *Uber* jar, care must be taken to ensure that the `META-INF/tendril` files are combined or merged and not overridden. The loss of data which would ensure will directly result in loss of bean (meta) data and failure for the resulting jar/application to work properly. The following `META-INF/tendril` files are produced
 
