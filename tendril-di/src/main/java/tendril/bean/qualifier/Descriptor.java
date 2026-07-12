@@ -18,6 +18,8 @@ package tendril.bean.qualifier;
 import java.util.HashSet;
 import java.util.Set;
 
+import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.context.ApplicationContext;
 import tendril.util.TendrilStringUtil;
 import tendril.util.TendrilUtil;
@@ -30,7 +32,7 @@ import tendril.util.TendrilUtil;
 public class Descriptor<BEAN_TYPE> {
     
     /** The {@link Class} of the bean */
-    private final Class<BEAN_TYPE> beanClass;
+    private final ClassType beanType;
     /** The name of the variable to which the bean is being assigned */
     private final String variableName;
     /** The name of the bean */
@@ -58,17 +60,36 @@ public class Descriptor<BEAN_TYPE> {
      * @param variableName {@link String} the name of the variable/field the descriptor relates to
      */
     public Descriptor(Class<BEAN_TYPE> beanClass, String variableName) {
-        this.beanClass = beanClass;
+    	this(TypeFactory.createClassType(beanClass), variableName);
+    }
+    
+    /**
+     * CTOR
+     * 
+     * @param beanType {@link ClassType} representing the type of the bean
+     */
+    public Descriptor(ClassType beanType) {
+        this(beanType, "");
+    }
+    
+    /**
+     * CTOR
+     * 
+     * @param beanType {@link ClassType} representing the type of the bean
+     * @param variableName {@link String} the name of the variable/field the descriptor relates to
+     */
+    public Descriptor(ClassType beanType, String variableName) {
+        this.beanType = beanType;
         this.variableName = variableName;
     }
     
     /**
-     * Get the {@link Class} of the described bean
+     * Get the type of the described bean
      * 
-     * @return {@link Class}
+     * @return {@link ClassType} representing the bean type
      */
-    public Class<BEAN_TYPE> getBeanClass() {
-        return beanClass;
+    public ClassType getBeanType() {
+        return beanType;
     }
     
     /**
@@ -190,7 +211,7 @@ public class Descriptor<BEAN_TYPE> {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Descriptor<?> other)
-            return other.beanClass.isAssignableFrom(beanClass) && other.name.equals(name) && other.enumQualifiers.size() == enumQualifiers.size() &&
+            return other.beanType.isAssignableFrom(beanType) && other.name.equals(name) && other.enumQualifiers.size() == enumQualifiers.size() &&
             enumQualifiers.containsAll(other.enumQualifiers) && qualifiers.containsAll(other.qualifiers) && TendrilUtil.objectEquals(blueprint, other.blueprint);
 
         return false;
@@ -206,7 +227,7 @@ public class Descriptor<BEAN_TYPE> {
      * @return boolean true if the 
      */
     public boolean matches(Descriptor<?> other) {
-        if (!other.beanClass.isAssignableFrom(beanClass))
+        if (!other.beanType.isAssignableFrom(beanType))
             return false;
         return metadataMatches(other);
     }
@@ -241,7 +262,7 @@ public class Descriptor<BEAN_TYPE> {
      * @return boolean true if it can be replaced by the other
      */
     public boolean replacedBy(Descriptor<?> other) {
-        if (!beanClass.isAssignableFrom(other.beanClass))
+        if (!beanType.isAssignableFrom(other.beanType))
             return false;
         return metadataMatches(other);
     }
@@ -254,9 +275,9 @@ public class Descriptor<BEAN_TYPE> {
         StringBuilder str = new StringBuilder();
         
         if (variableName.isBlank())
-        	str.append("Bean type " + beanClass.getName());
+        	str.append("Bean type " + beanType.getFullyQualifiedName());
         else
-        	str.append(beanClass.getName() + " " + variableName);
+        	str.append(beanType.getFullyQualifiedName() + " " + variableName);
         
         if (!name.isEmpty())
             str.append(" named \"" + name + "\"");

@@ -293,6 +293,11 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	@Inject
 	@Named("configIntWrapper")
 	public IntWrapper replacedConfigWrapper;
+	
+	@Inject
+	private List<Integer> intList;
+	@Inject
+	protected List<String> stringList;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationBlueprint[] expectedDynamicDuplicates;
@@ -621,6 +626,14 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 				assertion(actual == 1 || actual == 2, "Unexpected value " + actual + " should have been either 1, 2");
 			}
 		}
+
+		assertion(intList.size() == 7, " Integer list should have 7 entries but has " + intList.size() + " instead");
+		assertion(intList.equals(Arrays.asList(1,2,3,4,5,6,7)), "Integer list entries are different");
+		assertion(stringList.size() == 4, " String list should have 4 entries but has " + intList.size() + " instead");
+		assertion(stringList.equals(Arrays.asList("a", "b", "c", "d")), "String list entries are different");
+
+		intList.forEach(i -> System.out.println("INT LIST CONTAINS: " + i));
+		stringList.forEach(s -> System.out.println("STRING LIST CONTAINS: " + s));
 	}
 
 	protected static void assertion(boolean value, String msg) {

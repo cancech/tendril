@@ -23,7 +23,7 @@ public class WrapperRecipe<BEAN_TYPE> extends SingletonRecipe<BEAN_TYPE, BEAN_TY
 	 * @param description {@link Descriptor} describing the bean
 	 */
 	public WrapperRecipe(Engine engine, BEAN_TYPE bean, Descriptor<BEAN_TYPE> description) {
-		super(engine, description.getBeanClass(), description);
+		super(engine, description);
 		this.bean = bean;
 	}
 

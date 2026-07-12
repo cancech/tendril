@@ -26,6 +26,7 @@ import tendril.bean.PostConstruct;
 import tendril.bean.Primary;
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.requirement.Requirement;
+import tendril.codegen.field.type.ClassType;
 import tendril.context.Engine;
 
 /**
@@ -75,9 +76,24 @@ public abstract class AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE>
 	 * 
 	 * @param engine     {@link Engine} powering the dependency injection and bean passing
 	 * @param beanClass  {@link Class} of the bean the recipe is to build
+	 * @param isPrimary  boolean flag for whether the bean is marked as {@link Primary}
+	 * @param isFallback boolean flag for whether the bean is marked as {@link Fallback}
+	 */
+	protected AbstractRecipe(Engine engine, ClassType beanClass, boolean isPrimary, boolean isFallback) {
+		this.engine = engine;
+		this.descriptor = new Descriptor<>(beanClass);
+		this.isPrimary = isPrimary;
+		this.isFallback = isFallback;
+		init();
+	}
+
+	/**
+	 * CTOR
+	 * 
+	 * @param engine     {@link Engine} powering the dependency injection and bean passing
 	 * @param descriptor {@link Descriptor} to apply to the bean/recipe
 	 */
-	protected AbstractRecipe(Engine engine, Class<BEAN_TYPE> beanClass, Descriptor<BEAN_TYPE> descriptor) {
+	protected AbstractRecipe(Engine engine, Descriptor<BEAN_TYPE> descriptor) {
 		this.engine = engine;
 		this.descriptor = descriptor;
 		this.isPrimary = false;

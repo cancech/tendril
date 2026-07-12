@@ -476,7 +476,7 @@ public class Engine implements ApplicationContext {
                 throw new TendrilStartupException("Exactly one runner is required to start the application, however none can be loaded.");
             else if (runnerRecipes.size() > 1)
                 throw new TendrilStartupException("Exactly one runner is required to start the application, however " + runnerRecipes.size() + " can be loaded [" +
-                        TendrilStringUtil.join(runnerRecipes, r -> r.getDescription().getBeanClass().getName()) + "].");
+                        TendrilStringUtil.join(runnerRecipes, r -> r.getDescription().getBeanType().getFullyQualifiedName()) + "].");
             
             TendrilRunner runner = (TendrilRunner) runnerRecipes.get(0).get();
             runner.run();

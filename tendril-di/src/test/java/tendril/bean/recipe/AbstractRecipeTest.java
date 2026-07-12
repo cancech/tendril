@@ -29,6 +29,7 @@ import tendril.BeanCreationException;
 import tendril.bean.Inject;
 import tendril.bean.qualifier.Descriptor;
 import tendril.bean.requirement.Requirement;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.context.Engine;
 import tendril.test.AbstractUnitTest;
 import tendril.test.bean.SingleCtorBean;
@@ -169,7 +170,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         recipe = new TestRecipe(false, false);
         recipe.assertDescriptorSetup();
         recipe.assertRequirementSetup();
-        Assertions.assertEquals(SingleCtorBean.class, recipe.getDescription().getBeanClass());
+        Assertions.assertEquals(TypeFactory.createClassType(SingleCtorBean.class), recipe.getDescription().getBeanType());
     }
     
     /**

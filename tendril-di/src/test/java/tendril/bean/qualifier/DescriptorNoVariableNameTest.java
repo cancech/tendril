@@ -15,6 +15,9 @@
  */
 package tendril.bean.qualifier;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +28,9 @@ import org.mockito.Mock;
 import org.mockito.internal.util.collections.Sets;
 
 import tendril.bean.recipe.AbstractRecipe;
+import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
+import tendril.codegen.field.type.TypeFactory;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.CollectionAssert;
 import tendril.test.bean.SingleCtorBean;
@@ -44,6 +49,8 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 	private Object mockBlueprint;
 	@Mock
 	private Object mockOtherBlueprint;
+	@Mock
+	private ClassType mockClassType;
 
 	// Instance to test
 	private Descriptor<SingleCtorBean> descriptor;
@@ -55,13 +62,25 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 	protected void prepareTest() {
 		descriptor = new Descriptor<>(SingleCtorBean.class);
 	}
+	
+	/**
+	 * Verify that the {@link ClassType} CTOR works as expected
+	 */
+	@Test
+	public void testClassTypeCtor() {
+		when(mockClassType.getFullyQualifiedName()).thenReturn("ClassTypeName");
+		descriptor = new Descriptor<>(mockClassType);
+		Assertions.assertEquals("Bean type ClassTypeName", descriptor.toString());
+		verify(mockClassType).getFullyQualifiedName();
+		Assertions.assertEquals(mockClassType, descriptor.getBeanType());
+	}
 
 	/**
 	 * Verify that the default values are as per expectations
 	 */
 	@Test
 	public void testDefaultValues() {
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals("", descriptor.getName());
 		Assertions.assertEquals(Collections.emptySet(), descriptor.getEnumQualifiers());
 		Assertions.assertFalse(descriptor.hasBlueprint());
@@ -74,7 +93,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 	@Test
 	public void testUpdateName() {
 		descriptor.setName("SomeBeanName");
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals("SomeBeanName", descriptor.getName());
 		Assertions.assertEquals(Collections.emptySet(), descriptor.getEnumQualifiers());
 		Assertions.assertFalse(descriptor.hasBlueprint());
@@ -91,19 +110,19 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 
 		// Can add one
 		descriptor.addEnumQualifier(PrimitiveType.BYTE);
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals(Sets.newSet(PrimitiveType.BYTE), descriptor.getEnumQualifiers());
 
 		// Can add another
 		descriptor.addEnumQualifier(PrimitiveType.SHORT);
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals(Sets.newSet(PrimitiveType.BYTE, PrimitiveType.SHORT), descriptor.getEnumQualifiers());
 
 		// Can add some more
 		descriptor.addEnumQualifier(PrimitiveType.CHAR);
 		descriptor.addEnumQualifier(PrimitiveType.BOOLEAN);
 		descriptor.addEnumQualifier(PrimitiveType.INT);
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals(Sets.newSet(PrimitiveType.BYTE, PrimitiveType.SHORT, PrimitiveType.CHAR, PrimitiveType.BOOLEAN, PrimitiveType.INT), descriptor.getEnumQualifiers());
 
 		// No change on unchanged values
@@ -123,19 +142,19 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 
 		// Can add one
 		descriptor.addQualifier(PrimitiveType.class);
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals(Sets.newSet(PrimitiveType.class), descriptor.getQualifiers());
 
 		// Can add another
 		descriptor.addQualifier(Descriptor.class);
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals(Sets.newSet(PrimitiveType.class, Descriptor.class), descriptor.getQualifiers());
 
 		// Can add some more
 		descriptor.addQualifier(Integer.class);
 		descriptor.addQualifier(String.class);
 		descriptor.addQualifier(AbstractUnitTest.class);
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals(Sets.newSet(PrimitiveType.class, Descriptor.class, Integer.class, String.class, AbstractUnitTest.class), descriptor.getQualifiers());
 
 		// No change on unchanged values
@@ -582,7 +601,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		descriptor.updateFrom(other);
 		
 		// Name was copied over
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals("otherName", descriptor.getName());
 		CollectionAssert.assertEmpty(descriptor.getQualifiers());
 		CollectionAssert.assertEmpty(descriptor.getEnumQualifiers());
@@ -603,7 +622,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		descriptor.updateFrom(other);
 		
 		// Name was copied over
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals("", descriptor.getName());
 		CollectionAssert.assertEmpty(descriptor.getQualifiers());
 		CollectionAssert.assertEmpty(descriptor.getEnumQualifiers());
@@ -626,7 +645,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		descriptor.updateFrom(other);
 		
 		// Qualifiers were copied over
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals("", descriptor.getName());
 		CollectionAssert.assertEquivalent(descriptor.getQualifiers(), String.class, Runnable.class, Descriptor.class);
 		CollectionAssert.assertEmpty(descriptor.getEnumQualifiers());
@@ -650,7 +669,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		descriptor.updateFrom(other);
 		
 		// Qualifiers were copied over
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals("", descriptor.getName());
 		CollectionAssert.assertEmpty(descriptor.getQualifiers());
 		CollectionAssert.assertEquivalent(descriptor.getEnumQualifiers(), TestEnum.A, TestEnum.B, TestEnum.C, TestEnum.D);
@@ -679,7 +698,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		descriptor.updateFrom(other);
 		
 		// Qualifiers were copied over
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals("otherName", descriptor.getName());
 		CollectionAssert.assertEquivalent(descriptor.getQualifiers(), String.class, Runnable.class, Descriptor.class);
 		CollectionAssert.assertEquivalent(descriptor.getEnumQualifiers(), TestEnum.A, TestEnum.B, TestEnum.C, TestEnum.D);
@@ -702,7 +721,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		descriptor.addEnumQualifier(TestEnum.F);
 		descriptor.addEnumQualifier(TestEnum.G);
 		
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals("originalName", descriptor.getName());
 		CollectionAssert.assertEquivalent(descriptor.getQualifiers(), DescriptorWithVariableNameTest.class, DescriptorNoVariableNameTest.class);
 		CollectionAssert.assertEquivalent(descriptor.getEnumQualifiers(), TestEnum.E, TestEnum.F, TestEnum.G);
@@ -723,7 +742,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		descriptor.updateFrom(other);
 		
 		// Qualifiers were copied over
-		Assertions.assertEquals(SingleCtorBean.class, descriptor.getBeanClass());
+		Assertions.assertEquals(TypeFactory.create(SingleCtorBean.class), descriptor.getBeanType());
 		Assertions.assertEquals("otherName", descriptor.getName());
 		CollectionAssert.assertEquivalent(descriptor.getQualifiers(), String.class, Runnable.class, Descriptor.class, DescriptorWithVariableNameTest.class, DescriptorNoVariableNameTest.class);
 		CollectionAssert.assertEquivalent(descriptor.getEnumQualifiers(), TestEnum.A, TestEnum.B, TestEnum.C, TestEnum.D, TestEnum.E, TestEnum.F, TestEnum.G);

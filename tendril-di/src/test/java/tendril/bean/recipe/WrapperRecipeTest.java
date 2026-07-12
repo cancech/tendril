@@ -1,7 +1,6 @@
 package tendril.bean.recipe;
 
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,6 @@ public class WrapperRecipeTest extends AbstractUnitTest {
 	 */
 	@Override
 	protected void prepareTest() {
-		when(mockDescriptor.getBeanClass()).thenReturn(Object.class);
 		recipe = new WrapperRecipe<>(mockEngine, mockBean, mockDescriptor);
 		verifyNoInteractions(mockEngine, mockBean);
 	}

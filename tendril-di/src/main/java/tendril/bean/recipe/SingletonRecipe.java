@@ -16,6 +16,7 @@
 package tendril.bean.recipe;
 
 import tendril.bean.qualifier.Descriptor;
+import tendril.codegen.field.type.ClassType;
 import tendril.context.ApplicationContext;
 import tendril.context.Engine;
 
@@ -42,16 +43,26 @@ public abstract class SingletonRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE
 	protected SingletonRecipe(Engine engine, Class<BEAN_TYPE> beanClass, boolean isPrimary, boolean isFallback) {
 		super(engine, beanClass, isPrimary, isFallback);
 	}
+	/**
+	 * CTOR
+	 * 
+	 * @param engine     {@link Engine} powering the {@link ApplicationContext} in which the bean lives
+	 * @param beanClass  {@link ClassType} of the bean instance
+	 * @param isPrimary  true if the bean is a Primary bean
+	 * @param isFallback true if the bean is a fallback bean
+	 */
+	protected SingletonRecipe(Engine engine, ClassType beanClass, boolean isPrimary, boolean isFallback) {
+		super(engine, beanClass, isPrimary, isFallback);
+	}
 
 	/**
 	 * CTOR
 	 * 
 	 * @param engine     {@link Engine} powering the {@link ApplicationContext} in which the bean lives
-	 * @param beanClass  {@link Class} of the bean instance
 	 * @param descriptor {@link Descriptor} to apply to the bean/recipe
 	 */
-	protected SingletonRecipe(Engine engine, Class<BEAN_TYPE> beanClass, Descriptor<BEAN_TYPE> descriptor) {
-		super(engine, beanClass, descriptor);
+	protected SingletonRecipe(Engine engine, Descriptor<BEAN_TYPE> descriptor) {
+		super(engine, descriptor);
 	}
 
 	/**
