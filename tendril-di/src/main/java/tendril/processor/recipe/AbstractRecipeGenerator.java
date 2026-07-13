@@ -206,7 +206,9 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 	 */
 	protected void addParameterInjection(List<String> code, List<JParameter<?>> params, String retrievePrefix, String applyPrefix) throws InvalidConfigurationException {
 		for (JParameter<?> p : params) {
-			code.add(retrievePrefix + p.getType().getCodeName() + p.getGenericsApplicationKeyword(true) + "_" + p.getName() + " = " + createParameterInjectionCodeRhs(p) + ";");
+			String varName = "_" + p.getName();
+			String varType = p.getType().getCodeName() + p.getGenericsApplicationKeyword(false);
+			code.add(retrievePrefix + varType + " " + varName + " = " + createParameterInjectionCodeRhs(code, p, varName, varType) + ";");
 		}
 		code.add(applyPrefix + TendrilStringUtil.join(params, ", ", p -> "_" + p.getName()) + ");");
 	}
@@ -214,18 +216,26 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 	/**
 	 * Creates the specific code which will is to be used to determine the value to be applied to the parameter. By default this performs a bean retrieval.
 	 * 
+	 * @param code  {@link List} of {@link String}s where each string is a line of code
 	 * @param param {@link JParameter} that is being injected
+	 * @param name  {@link String} the name of the variable into which the parameter is being loaded
+	 * @param type  {@link String} indicating the type of the variable/parameter
 	 * @return {@link String} the code to place on the right hand side of the assignment
 	 * @throws InvalidConfigurationException if the annotated code is improperly configured
 	 */
-	protected String createParameterInjectionCodeRhs(JParameter<?> param) throws InvalidConfigurationException {
+	protected String createParameterInjectionCodeRhs(List<String> code, JParameter<?> param, String name, String type) throws InvalidConfigurationException {
 		warnSiblingInjection(param);
+
+		String descName = name + "Desc";
 
 		String engineCall = "engine.";
 		if (param.hasAnnotation(InjectAll.class)) {
-			engineCall += "getAllBeans" + "(" + getDependencyDescriptor(param, getInjectAllType(param)) + ")";
+			Type nestedType = getInjectAllType(param);
+			addDependencyDescriptor(code, nestedType.getCodeName(), descName, param, nestedType);
+			engineCall += "getAllBeans" + "(" + descName + ")";
 		} else {
-			engineCall += "getBean" + "(" + getDependencyDescriptor(param) + ")";
+			addDependencyDescriptor(code, type, descName, param);
+			engineCall += "getBean" + "(" + descName + ")";
 		}
 
 		return engineCall;
@@ -324,46 +334,35 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 	}
 
 	/**
-	 * Get the code for the descriptor that is to be applied to a dependency of the bean defined by this recipe.
+	 * Add the code for the descriptor, where the details of the dependency to be applied to the bean are specified.
 	 * 
-	 * @param field {@link JType} which defines the dependency
-	 * @return {@link String} containing the code defining the dependency
+	 * @param code     {@link List} of {@link String}s where the code is being collected
+	 * @param descType {@link String} defining what type is being described
+	 * @param descName {@link String} the name of the variable where the description is to be stored
+	 * @param field    {@link JType} which defines the dependency
 	 */
-	protected String getDependencyDescriptor(JType<?> field) {
-		return getDependencyDescriptor(field, field.getType());
+	protected void addDependencyDescriptor(List<String> code, String descType, String descName, JType<?> field) {
+		addDependencyDescriptor(code, descType, descName, field, field.getType());
 	}
 
 	/**
-	 * Get the code for the descriptor that is to be applied to a dependency of the bean defined by this recipe.
+	 * Add the code for the descriptor, where the details of the dependency to be applied to the bean are specified.
 	 * 
+	 * @param code     {@link List} of {@link String}s where the code is being collected
+	 * @param descType {@link String} defining what type is being described
+	 * @param descName {@link String} the name of the variable where the description is to be stored
 	 * @param describedBean {@link JType} which defines the dependency
 	 * @param beanType      {@link Type} representing the bean the descriptor is to describe
-	 * @return {@link String} containing the code defining the dependency
 	 */
-	protected String getDependencyDescriptor(JType<?> describedBean, Type beanType) {
-		String desc = "new " + Descriptor.class.getName() + "<>(" + RecipeGeneratorHelper.getClassReference(beanType) + ", \"" + describedBean.getName() + "\")";
-		return desc + joinLines(getDescriptorLines(describedBean), ".", "", "\n            ");
-	}
+	protected void addDependencyDescriptor(List<String> code, String descType, String descName, JType<?> describedBean, Type beanType) {
+		String descClass = Descriptor.class.getName();
+		code.add(descClass + "<" + descType + "> " + descName + " = new " + descClass + "<>(" + RecipeGeneratorHelper.getClassReference(beanType) + ", \"" + describedBean.getName() + "\");");
 
-	/**
-	 * Helper which converts the text to append to the appropriate in-line code
-	 * 
-	 * @param lines     {@link String} which are to be joined
-	 * @param prefix    {@link String} which is to be placed before each element to be appended
-	 * @param suffix    {@link String} which is to be placed after each element to be appended
-	 * @param delimiter {@link String} which is to be placed between two consecutive elements
-	 * @return {@link List} of {@link String}s that is to be appended
-	 */
-	private String joinLines(List<String> lines, String prefix, String suffix, String delimiter) {
-		List<String> converted = new ArrayList<>();
-		// Each line with the appropriate indentation spacing
-		for (String s : lines) {
+		for (String s : getDescriptorLines(describedBean)) {
 			if (s.isBlank())
 				continue;
-			converted.add(prefix + s + suffix);
+			code.add(descName + "." + s + ";");
 		}
-
-		return TendrilStringUtil.join(converted, delimiter);
 	}
 
 	/**

@@ -151,14 +151,18 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
      */
     protected void generateFieldInjection(JField<?> field, String fieldTypeName, List<String> ctorLines) {
     	warnSiblingInjection(field);
+
+    	String consumerTypeName = actualType.getCodeName();
+    	String descName = "_" + field.getName() + "Desc";
+    	addDependencyDescriptor(ctorLines, fieldTypeName, descName, field);
     	
         if (RecipeGeneratorHelper.requiresReflection(actualType, field)) {
-	        ctorLines.add("registerDependency(" + getDependencyDescriptor(field) + ",");
-	        ctorLines.add("        new " + ReflectedFieldApplicator.class.getName() + "<" + actualType.getCodeName() + ", " + fieldTypeName + ">(\"" + field.getFullElementPath() + "\", \"" + field.getName() + "\"));");
+	        ctorLines.add("registerDependency(" + descName + ",");
+	        ctorLines.add("        new " + ReflectedFieldApplicator.class.getName() + "<" + consumerTypeName + ", " + fieldTypeName + ">(\"" + field.getFullElementPath() + "\", \"" + field.getName() + "\"));");
         } else {
-	        ctorLines.add("registerDependency(" + getDependencyDescriptor(field) + ", new " + Applicator.class.getName() + "<" + actualType.getCodeName() + ", " + fieldTypeName + ">() {");
+	        ctorLines.add("registerDependency(" + descName + ", new " + Applicator.class.getName() + "<" + consumerTypeName + ", " + fieldTypeName + ">() {");
 	        ctorLines.add("    @Override");
-	        ctorLines.add("    public void apply(" + actualType.getCodeName() + " consumer, " + fieldTypeName + " bean) {");
+	        ctorLines.add("    public void apply(" + consumerTypeName + " consumer, " + fieldTypeName + " bean) {");
 	    	ctorLines.add("        consumer." + field.getName() + " = bean;");
 	        ctorLines.add("    }");
 	        ctorLines.add("});");
@@ -173,16 +177,21 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     private void generateInjectAllJFieldDepdendencyConsumers(List<String> ctorLines) throws InvalidConfigurationException {
         for (JField<?> field : creator.getFields(InjectAll.class)) {
             Type beanType = getInjectAllType(field);
+            
+        	String consumerTypeName = actualType.getCodeName();
+        	String descName = "_" + field.getName() + "Desc";
+        	String beanTypeName = beanType.getCodeName();
+        	addDependencyDescriptor(ctorLines, beanTypeName, descName, field, beanType);
 
             if (RecipeGeneratorHelper.requiresReflection(actualType, field)) {
-    	        ctorLines.add("registerInjector(new " + ReflectedFieldInjector.class.getName() + "<" + actualType.getCodeName() + ", " + beanType.getCodeName() + ">(\"" + field.getFullElementPath() +
+    	        ctorLines.add("registerInjector(new " + ReflectedFieldInjector.class.getName() + "<" + consumerTypeName + ", " + beanTypeName + ">(\"" + field.getFullElementPath() +
     	        		"\", \"" + field.getName() + "\",");
-        		ctorLines.add("        " + getDependencyDescriptor(field, beanType) + "));");
+        		ctorLines.add("        " + descName + "));");
         	} else {
-                ctorLines.add("registerInjector(new " + Injector.class.getName() + "<" + actualType.getCodeName() + ">() {");
+                ctorLines.add("registerInjector(new " + Injector.class.getName() + "<" + consumerTypeName + ">() {");
                 ctorLines.add("    @Override");
-                ctorLines.add("    public void inject(" + actualType.getCodeName() + " consumer, " + Engine.class.getName() + " engine) {");
-            	ctorLines.add("        consumer." + field.getName() + " = engine.getAllBeans(" + getDependencyDescriptor(field, beanType) + ");");
+                ctorLines.add("    public void inject(" + consumerTypeName + " consumer, " + Engine.class.getName() + " engine) {");
+            	ctorLines.add("        consumer." + field.getName() + " = engine.getAllBeans(" + descName + ");");
 	            ctorLines.add("    }");
 	            ctorLines.add("});");
     		}

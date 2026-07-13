@@ -83,13 +83,13 @@ public class DuplicateSiblingMethodRecipeGenerator extends MethodRecipeGenerator
 	}
 
 	/**
-	 * @see tendril.processor.recipe.AbstractRecipeGenerator#createParameterInjectionCodeRhs(tendril.codegen.classes.JParameter)
+	 * @see tendril.processor.recipe.AbstractRecipeGenerator#createParameterInjectionCodeRhs(java.util.List, tendril.codegen.classes.JParameter, java.lang.String, java.lang.String)
 	 */
 	@Override
-	protected String createParameterInjectionCodeRhs(JParameter<?> param) throws InvalidConfigurationException {
+	protected String createParameterInjectionCodeRhs(List<String> code, JParameter<?> param, String varName, String varType) throws InvalidConfigurationException {
 		if (siblingHelper.isSiblingParameter(param))
 			return siblingHelper.getSiblingCopyFieldName();
-		return super.createParameterInjectionCodeRhs(param);
+		return super.createParameterInjectionCodeRhs(code, param, varName, varType);
 	}
 	
 	/**

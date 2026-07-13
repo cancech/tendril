@@ -313,7 +313,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	}
 
 	@Inject
-	private void doSomething(SingletonClass singleton1, SingletonClass singleton2, FactoryClass factory1, FactoryClass factory2, FactoryClass factory3) {
+	private void doSomething(SingletonClass singleton1, SingletonClass singleton2, FactoryClass factory1, FactoryClass factory2, FactoryClass factory3, List<Integer> intList) {
 		timesDoSomething++;
 		System.out.println("doSomething()");
 		factoryBean5 = factory1;

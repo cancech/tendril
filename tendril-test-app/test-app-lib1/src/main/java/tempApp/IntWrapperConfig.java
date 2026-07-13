@@ -38,6 +38,7 @@ public class IntWrapperConfig {
 	
 	@Bean
 	@Singleton
+    @Named("stringList")
 	List<String> createStringList() {
 		return Arrays.asList("a", "b", "c", "d");
 	}
