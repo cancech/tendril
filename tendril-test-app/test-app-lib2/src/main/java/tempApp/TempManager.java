@@ -1,5 +1,7 @@
 package tempApp;
 
+import java.util.Map;
+
 import tempApp.id.MyType;
 import tempApp.id.MyTypeId;
 import tendril.bean.Bean;
@@ -83,5 +85,11 @@ public class TempManager {
     public Object buildSomethingElse() {
         numTempQualifierInstances++;
         return new Object();
+    }
+    
+    @Bean
+    @Singleton
+    public Map<String, Integer> getMap() {
+    	return Map.of("1", 1, "2", 2, "3", 3);
     }
 }

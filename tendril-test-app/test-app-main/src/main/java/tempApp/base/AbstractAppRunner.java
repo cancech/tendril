@@ -313,7 +313,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	}
 
 	@Inject
-	private void doSomething(SingletonClass singleton1, SingletonClass singleton2, FactoryClass factory1, FactoryClass factory2, FactoryClass factory3, List<Integer> intList) {
+	private void doSomething(SingletonClass singleton1, SingletonClass singleton2, FactoryClass factory1, FactoryClass factory2, FactoryClass factory3, List<Integer> intList, Map<String, Integer> map) {
 		timesDoSomething++;
 		System.out.println("doSomething()");
 		factoryBean5 = factory1;
@@ -322,10 +322,15 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		System.out.println(factory2);
 		System.out.println(factory3);
 
-		assert (singleton1 == singleton2);
-		assert (factory1 != factory2);
-		assert (factory1 != factory3);
-		assert (factory2 != factory3);
+		assertion(singleton1 == singleton2, "Singleton instance is not the same");
+		assertion(factory1 != factory2, "Factory instance is the same");
+		assertion(factory1 != factory3, "Factory instance is the same");
+		assertion(factory2 != factory3, "Factory instance is the same");
+		
+		assertion(map.size() == 3, "Map should have three pairs, but has " + map.size());
+		assertion(map.get("1") == 1, "Entry 1 should be 1 but is " + map.get("1"));
+		assertion(map.get("2") == 2, "Entry 1 should be 1 but is " + map.get("2"));
+		assertion(map.get("3") == 3, "Entry 1 should be 1 but is " + map.get("3"));
 	}
 
 	@Inject
