@@ -15,7 +15,7 @@
  */
 package tendril.codegen.field.type;
 
-import java.awt.List;
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -36,6 +36,8 @@ import tendril.codegen.field.value.JValueFactory;
 import tendril.codegen.generics.GenericFactory;
 import tendril.test.AbstractUnitTest;
 import tendril.test.helper.assertions.TendrilAssert;
+import tendril.testclasses.TestStringArrayList;
+import tendril.testclasses.TestStringList;
 
 /**
  * Test case for {@link ClassType}
@@ -162,6 +164,20 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 		Assertions.assertTrue(type.isTypeOf(buildClass(JVisibleType.class)));
 		Assertions.assertTrue(type.isTypeOf(buildClass(JClass.class)));
 		Assertions.assertTrue(type.isTypeOf(buildClass(new ClassType("a.b.c", "D")))); // Assumption true since the RHS class doesn't exist
+	}
+
+	/**
+	 * Verify that isTypeOf properly resolves
+	 */
+	@Test
+	public void testIsTypeOfWhenExtendingInterface_sameGenerics() {
+		ClassType me = TypeFactory.createClassType(List.class, GenericFactory.create(TypeFactory.create(String.class)));
+		ClassType stringList = TypeFactory.createClassType(TestStringList.class);
+		ClassType stringArrayList = TypeFactory.createClassType(TestStringArrayList.class);
+		Assertions.assertTrue(me.isTypeOf(stringList));
+		Assertions.assertTrue(me.isTypeOf(stringArrayList));
+		Assertions.assertFalse(stringList.isTypeOf(me));
+		Assertions.assertFalse(stringArrayList.isTypeOf(me));
 	}
 
 	/**

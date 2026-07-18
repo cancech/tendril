@@ -24,6 +24,8 @@ import tempApp.DuplicationBlueprint;
 import tempApp.EnumBlueprint;
 import tempApp.ExceptionCtorBean;
 import tempApp.FactoryClass;
+import tempApp.GenericClassType;
+import tempApp.GenericClassTypeImpl;
 import tempApp.GenericWrapper;
 import tempApp.IntWrapper;
 import tempApp.IntWrapperImpl;
@@ -298,6 +300,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	private List<Integer> intList;
 	@Inject
 	protected List<String> stringList;
+	@Inject
+	@Named("GenericClassType")
+	GenericClassType<String, String> genericClassType;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationBlueprint[] expectedDynamicDuplicates;
@@ -639,6 +644,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 
 		intList.forEach(i -> System.out.println("INT LIST CONTAINS: " + i));
 		stringList.forEach(s -> System.out.println("STRING LIST CONTAINS: " + s));
+		
+		assertion(genericClassType != null, "Generic Class Type should not be null");
+		assertion(genericClassType instanceof GenericClassTypeImpl, "genericClassType should be instance of GenericClassTypeImpl");
 	}
 
 	protected static void assertion(boolean value, String msg) {
