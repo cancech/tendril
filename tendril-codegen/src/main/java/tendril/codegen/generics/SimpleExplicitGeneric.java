@@ -23,7 +23,7 @@ import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
 
 /**
- * {@link GenericType} representing a generic that is given an explicit Class for a type (i.e.: <MyClass>)
+ * {@link GenericType} representing a generic that is given an explicit Class for a type (i.e.: {@code <MyClass>}
  */
 public class SimpleExplicitGeneric extends GenericType {
 

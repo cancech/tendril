@@ -18,7 +18,7 @@ package tendril.codegen.generics;
 import tendril.codegen.CodeGenerationException;
 
 /**
- * {@link GenericType} which represents a situation where a single wildcard is present (i.e: <?>).
+ * {@link GenericType} which represents a situation where a single wildcard is present (i.e: {@code <?>}).
  */
 public class SimpleWildcardGeneric extends SimpleGeneric {
 

@@ -23,7 +23,7 @@ import tendril.codegen.field.type.ClassType;
 /**
  * Representation of a generic where a "no-name" generic extends from one (or more) parent classes/interfaces.
  */
-class CompoundExtendsWildcardGeneric extends CompoundExtendsGeneric {
+public class CompoundExtendsWildcardGeneric extends CompoundExtendsGeneric {
 
     /**
      * CTOR

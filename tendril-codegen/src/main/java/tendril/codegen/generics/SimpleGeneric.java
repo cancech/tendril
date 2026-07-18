@@ -22,9 +22,9 @@ import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
 
 /**
- * {@link GenericType} representing a generic type that can be applied to a class (i.e.: <T>).
+ * {@link GenericType} representing a generic type that can be applied to a class (i.e.: {@code <T>}).
  */
-class SimpleGeneric extends GenericType {
+public class SimpleGeneric extends GenericType {
     
     /**
      * CTOR
