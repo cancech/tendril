@@ -1,5 +1,6 @@
 package tempApp;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,5 +23,11 @@ public class GenericsConfig {
     @Named("stringList")
 	List<String> createStringList() {
 		return Arrays.asList("a", "b", "c", "d");
+	}
+	
+	@Bean
+	@Singleton
+	ArrayList<Double> createDoubleList() {
+		return new ArrayList<Double>(Arrays.asList(1.2, 2.3, 3.4, 4.5));
 	}
 }

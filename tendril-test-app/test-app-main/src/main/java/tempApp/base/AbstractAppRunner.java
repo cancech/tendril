@@ -300,6 +300,8 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	private List<Integer> intList;
 	@Inject
 	protected List<String> stringList;
+	@Inject
+	List<Double> doubleList;
 	@InjectAll
 	List<List<?>> allLists;
 	@Inject
@@ -643,14 +645,17 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		assertion(intList.equals(Arrays.asList(1,2,3,4,5,6,7)), "Integer list entries are different");
 		assertion(stringList.size() == 4, " String list should have 4 entries but has " + intList.size() + " instead");
 		assertion(stringList.equals(Arrays.asList("a", "b", "c", "d")), "String list entries are different");
+		assertion(doubleList.equals(Arrays.asList(1.2, 2.3, 3.4, 4.5)), "Double list entries are different");
 
 		intList.forEach(i -> System.out.println("INT LIST CONTAINS: " + i));
 		stringList.forEach(s -> System.out.println("STRING LIST CONTAINS: " + s));
+		doubleList.forEach(d -> System.out.println("DOUBLE LIST CONTAINS: " + d));
 		
-		assertion(allLists.size() == 3, "Should be three lists present, but were " + allLists.size());
+		assertion(allLists.size() == 4, "Should be four lists present, but were " + allLists.size());
 		assertion(allLists.contains(intList), "intList should be present");
 		assertion(allLists.contains(stringList), "stringList should be present");
 		assertion(allLists.contains(primitives), "primitives should be present");
+		assertion(allLists.contains(doubleList), "doubleList should be present");
 		
 		assertion(genericClassType != null, "Generic Class Type should not be null");
 		assertion(genericClassType instanceof GenericClassTypeImpl, "genericClassType should be instance of GenericClassTypeImpl");
