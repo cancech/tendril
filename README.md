@@ -1298,6 +1298,110 @@ public class TestConfig {
 }
 ```
 
+### Generics Detection for Beans is not Comprehensive
+Though efforts are made to ensure that generics are taken into account when searching for beans (i.e.: `List<String>` being distinct from `List<Integer>`), not all "permutations" possible with generics can be accounted for. Specifically supported are surface level comparisons, and explicit inheritance. For example:
+
+```java
+@Configuration
+public class MyConfig {
+
+	@Bean
+	@Singleton
+	List<String> stringList() {...}
+	
+	@Bean
+	@Singleton
+	List<Integer> integerList() {...}
+
+}
+
+
+@Inject
+List<String> strList;
+@Inject
+List<Integer> intList;
+```
+
+with work, as only a surface level (i.e.: looking at the advertised bean type and the specific type that is requested for injection) will work. As will
+
+```java
+@Bean
+@Singleton
+public class StringToIntMap extends HashMap<String, Integer> {...}
+
+@Inject
+Map<String, Integer> strToIntMap;
+```
+
+as the bean explicitly defines what generic types it is employing in one shot, and these are the same as what the injection is looking for. However, anything more complex may not work. For example
+
+```java
+public class StringKeyMap<V> extends HashMap<String, V> {...}
+
+@Bean
+@Singleton
+public class StringToStringMap extends StringKeyMap<String> {...}
+
+@Inject
+Map<String, String> strToStrMap;
+```
+
+will not work as the two generics are defined at two different places and there is no support in Tendril for these more complex generics combinations. As such, when employing generics in beans, it is recommended to either use a wrapper class which "hides" the generics from Tendril (provide the bean and inject it as said wrapper class)
+
+```java
+// "Hide" the generics applied to MyType via a class
+public interface MyType<T> {...}
+
+@Bean
+@Singleton
+public class MyStringType implements MyType<String> {...}
+
+@Inject
+MyStringType strType;
+```
+
+or explicitly tell Tendril what the generics are by way of a Configuration.
+
+```java
+public interface MyComplexType<A, B, C, D> {...}
+public interface MyMiddleType<A, C> extends MyComplexType<A, String, C, Integer> {...}
+public class MyConcreteType<C> implements MyMiddleType<Double, C> {...}
+
+@Configuration
+public class MyConfig {
+
+	@Bean
+	@Singleton
+	MyComplexType<Double, String, Float, Integer> myInstance() {
+		return new MyConcreteType<Float>(...);
+	}
+}
+
+@Inject
+MyComplexType<Double, String, Float, Integer> myInst;
+```
+
+The configuration option is the recommended solution, as you are able to explicitly tell Tendril what type you want the bean to be advertised as. It need not "go" all the way to the bottom, so long as there is consensus between the type the bean is provided as and the type the injection wants.
+
+```java
+public interface MyComplexType<A, B, C, D> {...}
+public interface MyMiddleType<A, C> extends MyComplexType<A, String, C, Integer> {...}
+public class MyConcreteType<C> implements MyMiddleType<Double, C> {...}
+
+@Configuration
+public class MyConfig {
+
+	@Bean
+	@Singleton
+	MyMiddleType<Double, Float> myInstance() {
+		return new MyConcreteType<Float>(...);
+	}
+}
+
+@Inject
+MyMiddleType<Double, Float> myInst;
+```
+
 ## META-INF
 In support of `Tendril` functionality, the build will generate a number of supporting files in the `META-INF/tendril` directory. These files are vital to the runtime operations of the application and must be preserved. If a tool such as `shadow` is used to create a *Fat* or *Uber* jar, care must be taken to ensure that the `META-INF/tendril` files are combined or merged and not overridden. The loss of data which would ensure will directly result in loss of bean (meta) data and failure for the resulting jar/application to work properly. The following `META-INF/tendril` files are produced
 
