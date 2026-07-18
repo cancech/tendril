@@ -42,6 +42,8 @@ import tempApp.ReplaceIntWrapper;
 import tempApp.RunnableConfig;
 import tempApp.SingletonClass;
 import tempApp.StaticBlueprint;
+import tempApp.StringToGenericMap;
+import tempApp.StringToLongMap;
 import tempApp.StringWrapper;
 import tempApp.TempQualifier;
 import tempApp.duplicate.DynamicDuplicate;
@@ -307,6 +309,11 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	@Inject
 	@Named("GenericClassType")
 	GenericClassType<String, String> genericClassType;
+	
+	@Inject
+	StringToLongMap strToLong;
+	@Inject
+	StringToGenericMap<Long> strToGen;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationBlueprint[] expectedDynamicDuplicates;
@@ -659,6 +666,17 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		
 		assertion(genericClassType != null, "Generic Class Type should not be null");
 		assertion(genericClassType instanceof GenericClassTypeImpl, "genericClassType should be instance of GenericClassTypeImpl");
+
+		assertion(strToLong != null, "strToInt should not be null");
+		assertion(strToGen != null, "strToGen should not be null");
+		
+		for (int i = 0; i < 100; i++) {
+			String key = String.valueOf(i);
+			assertion(i == strToLong.get(key), "strToInt[" + key + "] should be " + i + " but instead is " + strToLong.get(key));
+			assertion(i == strToGen.get(key), "strToGen[" + key + "] should be " + i + " but instead is " + strToGen.get(key));
+		}
+
+		assertion(strToLong == strToGen, "strToInt and strToGen should be the same instance");
 	}
 
 	protected static void assertion(boolean value, String msg) {
