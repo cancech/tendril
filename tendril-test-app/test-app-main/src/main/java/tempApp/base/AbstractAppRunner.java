@@ -300,6 +300,8 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	private List<Integer> intList;
 	@Inject
 	protected List<String> stringList;
+	@InjectAll
+	List<List<?>> allLists;
 	@Inject
 	@Named("GenericClassType")
 	GenericClassType<String, String> genericClassType;
@@ -644,6 +646,11 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 
 		intList.forEach(i -> System.out.println("INT LIST CONTAINS: " + i));
 		stringList.forEach(s -> System.out.println("STRING LIST CONTAINS: " + s));
+		
+		assertion(allLists.size() == 3, "Should be three lists present, but were " + allLists.size());
+		assertion(allLists.contains(intList), "intList should be present");
+		assertion(allLists.contains(stringList), "stringList should be present");
+		assertion(allLists.contains(primitives), "primitives should be present");
 		
 		assertion(genericClassType != null, "Generic Class Type should not be null");
 		assertion(genericClassType instanceof GenericClassTypeImpl, "genericClassType should be instance of GenericClassTypeImpl");

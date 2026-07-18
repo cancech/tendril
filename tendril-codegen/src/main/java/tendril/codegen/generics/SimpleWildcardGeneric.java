@@ -20,7 +20,7 @@ import tendril.codegen.CodeGenerationException;
 /**
  * {@link GenericType} which represents a situation where a single wildcard is present (i.e: <?>).
  */
-class SimpleWildcardGeneric extends SimpleGeneric {
+public class SimpleWildcardGeneric extends SimpleGeneric {
 
     static final String WILD_CARD = "?";
     

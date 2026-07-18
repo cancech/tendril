@@ -105,7 +105,7 @@ public class ClassType extends JGeneric implements Type {
 		if (myGenerics.size() != otherGenerics.size())
 			return false;
 		for (int i = 0; i < myGenerics.size(); i++) {
-			if (!myGenerics.get(i).asClassType().equals(otherGenerics.get(i).asClassType()))
+			if (!myGenerics.get(i).asClassType().isAssignableFrom(otherGenerics.get(i).asClassType()))
 				return false;
 		}
 

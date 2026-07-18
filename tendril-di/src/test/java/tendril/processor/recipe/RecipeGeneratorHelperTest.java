@@ -1,5 +1,6 @@
 package tendril.processor.recipe;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -15,9 +16,13 @@ import tendril.codegen.classes.JClass;
 import tendril.codegen.field.JContainedType;
 import tendril.codegen.field.JVisibleType;
 import tendril.codegen.field.type.ClassType;
+import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypeFactory;
+import tendril.codegen.generics.CompoundExtendsGeneric;
 import tendril.codegen.generics.GenericFactory;
 import tendril.codegen.generics.GenericType;
+import tendril.codegen.generics.SimpleExplicitGeneric;
+import tendril.codegen.generics.SimpleWildcardGeneric;
 import tendril.test.AbstractUnitTest;
 
 /**
@@ -47,6 +52,14 @@ public class RecipeGeneratorHelperTest extends AbstractUnitTest {
 	private JClass mockClassContainer;
 	@Mock
 	private ClassType mockContainerType;
+	@Mock
+	private SimpleExplicitGeneric mockSimpleExplicitGeneric;
+	@Mock
+	private SimpleWildcardGeneric mockSimpleWildcardGeneric;
+	@Mock
+	private CompoundExtendsGeneric mockCompoundExtendsGeneric;
+	@Mock
+	private Type mockType;
 	
 	/**
 	 * @see tendril.test.AbstractUnitTest#prepareTest()
@@ -54,6 +67,16 @@ public class RecipeGeneratorHelperTest extends AbstractUnitTest {
 	@Override
 	protected void prepareTest() {
 		// Not required
+	}
+	
+	/**
+	 * Verify the class reference is properly prepared
+	 */
+	@Test
+	public void testClassReferenceNotClassType() {
+		when(mockType.asClassType()).thenReturn(mockClassTypeAsType);
+		when(mockClassTypeAsType.getFullyQualifiedName()).thenReturn("myName");
+		Assertions.assertEquals("myName.class", RecipeGeneratorHelper.getClassReference(mockType));
 	}
 
 	/**
@@ -174,6 +197,67 @@ public class RecipeGeneratorHelperTest extends AbstractUnitTest {
 	}
 	
 	/**
+	 * Verify that the class reference is properly prepared
+	 */
+	@Test
+	public void testClassReferenceWhenUnsupportedGeneric() {
+		when(mockGeneric1.getCodeName()).thenReturn("codeName");
+		Assertions.assertThrows(DefinitionException.class, () -> RecipeGeneratorHelper.getClassReference(mockGeneric1));
+		verify(mockGeneric1).getCodeName();
+	}
+	
+	/**
+	 * Verify that the class reference is properly prepared
+	 */
+	@Test
+	public void testClassReferenceWhenSimpleExplicitGeneric() {
+		when(mockSimpleExplicitGeneric.asClassType()).thenReturn(mockClassType);
+		when(mockClassType.hasGenerics()).thenReturn(false);
+		when(mockClassType.asClassType()).thenReturn(mockClassTypeAsType);
+		when(mockClassTypeAsType.getFullyQualifiedName()).thenReturn("fullName");
+		Assertions.assertEquals("fullName.class", RecipeGeneratorHelper.getClassReference(mockSimpleExplicitGeneric));
+	}
+	
+	/**
+	 * Verify that the class reference is properly prepared
+	 */
+	@Test
+	public void testClassReferenceWhenSimpleWildcardGeneric() {
+		Assertions.assertEquals(Object.class.getName() + ".class", RecipeGeneratorHelper.getClassReference(mockSimpleWildcardGeneric));
+	}
+	
+	/**
+	 * Verify that the class reference is properly prepared
+	 */
+	@Test
+	public void testClassReferenceWhenCompoundExtendsGeneric_noParents() {
+		when(mockCompoundExtendsGeneric.getParents()).thenReturn(Collections.emptyList());
+		Assertions.assertEquals(Object.class.getName() + ".class", RecipeGeneratorHelper.getClassReference(mockCompoundExtendsGeneric));
+	}
+	
+	/**
+	 * Verify that the class reference is properly prepared
+	 */
+	@Test
+	public void testClassReferenceWhenCompoundExtendsGeneric_singleParent() {
+		when(mockCompoundExtendsGeneric.getParents()).thenReturn(Collections.singletonList(mockClassType));
+		when(mockClassType.hasGenerics()).thenReturn(false);
+		when(mockClassType.asClassType()).thenReturn(mockClassTypeAsType);
+		when(mockClassTypeAsType.getFullyQualifiedName()).thenReturn("genericName");
+		Assertions.assertEquals("genericName.class", RecipeGeneratorHelper.getClassReference(mockCompoundExtendsGeneric));
+	}
+	
+	/**
+	 * Verify that the class reference is properly prepared
+	 */
+	@Test
+	public void testClassReferenceWhenCompoundExtendsGeneric_multipleParents() {
+		when(mockCompoundExtendsGeneric.getParents()).thenReturn(Arrays.asList(mockClassType, mockClassTypeAsType));
+		when(mockCompoundExtendsGeneric.getCodeName()).thenReturn("genericCodeName");
+		Assertions.assertThrows(DefinitionException.class, () -> RecipeGeneratorHelper.getClassReference(mockCompoundExtendsGeneric));
+	}
+	
+	/**
 	 * Verify that the need for reflection can be properly determined
 	 */
 	@Test
@@ -233,4 +317,5 @@ public class RecipeGeneratorHelperTest extends AbstractUnitTest {
 		when(mockElement.getVisibility()).thenReturn(VisibilityType.PUBLIC);
 		Assertions.assertFalse(RecipeGeneratorHelper.requiresReflection(mockClassType, mockElement));
 	}
+	
 }

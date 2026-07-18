@@ -19,6 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -27,6 +28,7 @@ import org.mockito.Mock;
 
 import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
+import tendril.test.assertions.CollectionAssert;
 
 /**
  * Test case for {@link CompoundGeneric}
@@ -46,7 +48,7 @@ public class CompoundGenericTest extends AbstractUnitTest {
         TestCompoundGeneric(String name) {
             this(name, parentList);
         }
-
+        
         /**
          * CTOR
          * 
@@ -86,6 +88,7 @@ public class CompoundGenericTest extends AbstractUnitTest {
     protected void prepareTest() {
         parentList = Arrays.asList(mockParent1, mockParent2, mockParent3);
         gen = new TestCompoundGeneric("testGeneric");
+        CollectionAssert.assertEquivalent(parentList, gen.getParents());
     }
     
     /**
@@ -114,5 +117,15 @@ public class CompoundGenericTest extends AbstractUnitTest {
         Assertions.assertFalse(gen.equals(new TestCompoundGeneric("testGeneric", Arrays.asList(mockParent1, mockParent3))));
         Assertions.assertFalse(gen.equals(Integer.valueOf(123)));
     }
-
+    
+    /**
+     * Verify that the parents can properly be retrieved
+     */
+    @Test
+    public void testGetParents() {
+    	CollectionAssert.assertEmpty(new TestCompoundGeneric("testGeneric", Collections.emptyList()).getParents());
+    	CollectionAssert.assertEquivalent(new TestCompoundGeneric("testGeneric", Collections.singletonList(mockParent2)).getParents(), mockParent2);
+    	CollectionAssert.assertEquivalent(new TestCompoundGeneric("testGeneric", Arrays.asList(mockParent2, mockParent3)).getParents(), mockParent2, mockParent3);
+    	CollectionAssert.assertEquivalent(new TestCompoundGeneric("testGeneric", Arrays.asList(mockParent2, mockParent3, mockParent1)).getParents(), mockParent1, mockParent2, mockParent3);
+    }
 }

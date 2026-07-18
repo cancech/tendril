@@ -23,7 +23,7 @@ import tendril.util.TendrilStringUtil;
 /**
  * Representation of a generic which is built up from a number of elements (i.e.: not a single "word").
  */
-abstract class CompoundGeneric extends SimpleGeneric {
+public abstract class CompoundGeneric extends SimpleGeneric {
     
     /** {@link List} of {@link ClassType}s which are parents for the generic type */
     protected final List<ClassType> parents;
@@ -64,5 +64,14 @@ abstract class CompoundGeneric extends SimpleGeneric {
             return false;
         
         return super.equals(obj) && parents.equals(((CompoundGeneric) obj).parents);
+    }
+    
+    /**
+     * Get the list of parents that are applied to the generic
+     * 
+     * @return {@link List} of {@link ClassType}s which are the parents of the generic
+     */
+    public List<ClassType> getParents() {
+    	return parents;
     }
 }

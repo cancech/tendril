@@ -22,7 +22,7 @@ import tendril.codegen.field.type.ClassType;
 /**
  * Representation of a generic which is built up by extends one (or more) parent classes/interfaces.
  */
-class CompoundExtendsGeneric extends CompoundGeneric {
+public class CompoundExtendsGeneric extends CompoundGeneric {
 
     /**
      * CTOR

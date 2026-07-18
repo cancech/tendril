@@ -288,14 +288,14 @@ public class ClassTypeTest extends SharedTypeTest<ClassType> {
 		rhs.addGeneric(GenericFactory.create(create(JType.class)));
 		rhs.addGeneric(GenericFactory.create(create(JType.class)));
 		Assertions.assertFalse(lhs.isAssignableFrom(rhs));
-		// Must be identical, assignable is insufficient
-		rhs = create(List.class);
-		rhs.addGeneric(GenericFactory.create(create(JVisibleType.class)));
-		Assertions.assertFalse(lhs.isAssignableFrom(rhs));
 
 		// When generics are the same, can assign
 		rhs = create(List.class);
 		rhs.addGeneric(GenericFactory.create(create(JType.class)));
+		Assertions.assertTrue(lhs.isAssignableFrom(rhs));
+		// Assignable is also "good enough"
+		rhs = create(List.class);
+		rhs.addGeneric(GenericFactory.create(create(JVisibleType.class)));
 		Assertions.assertTrue(lhs.isAssignableFrom(rhs));
 	}
 

@@ -1,5 +1,7 @@
 package tendril.processor.recipe;
 
+import java.util.List;
+
 import tendril.codegen.DefinitionException;
 import tendril.codegen.VisibilityType;
 import tendril.codegen.classes.JClass;
@@ -8,8 +10,11 @@ import tendril.codegen.field.JVisibleType;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypeFactory;
+import tendril.codegen.generics.CompoundExtendsGeneric;
 import tendril.codegen.generics.GenericFactory;
 import tendril.codegen.generics.GenericType;
+import tendril.codegen.generics.SimpleExplicitGeneric;
+import tendril.codegen.generics.SimpleWildcardGeneric;
 
 /**
  * Helper containing various static methods which can be used to aid in the generation of bean or configuration recipes.
@@ -29,14 +34,16 @@ public abstract class RecipeGeneratorHelper {
 	 * @return {@link String} with the code necessary to retrieve the class reference
 	 */
 	public static String getClassReference(Type type) {
-		if (type instanceof ClassType cType && cType.hasGenerics())
+		if (type instanceof GenericType gType)
+			return getGenericTypeReference(gType);
+		else if (type instanceof ClassType cType && cType.hasGenerics())
 			return getClassTypeReference(cType);
 
 		return type.asClassType().getFullyQualifiedName() + ".class";
 	}
 
 	/**
-	 * Generate the reference to a class that is defined by a {@link ClassType} in a recipe. To be used with the {@code getGenericsReference} below.
+	 * Generate the reference to a class that is defined by a {@link ClassType} in a recipe. To be used with the {@code getGenericsReference}.
 	 * 
 	 * @param type {@link ClassType} representing the type of class to reference in the recipe
 	 * @return {@link String} code to create the {@link ClassType} reference to for the class
@@ -48,6 +55,29 @@ public abstract class RecipeGeneratorHelper {
 
 		return code + ")";
 	}
+	
+	/**
+	 * Generate the reference to a class that is defined by a {@link GenericType} in a recupe. To be used with the {@code getClassReference}.
+	 * 
+	 * @param type {@link GenericType} representing the type to be used in the recipe
+	 * @return {@link String} code to create the {@link ClassType} reference for the generic
+	 */
+	private static String getGenericTypeReference(GenericType type) {
+		if (type instanceof SimpleExplicitGeneric sGen)
+			return getClassReference(sGen.asClassType());
+		else if (type instanceof SimpleWildcardGeneric)
+			return getClassReference(TypeFactory.createClassType(Object.class));
+		else if (type instanceof CompoundExtendsGeneric cGen) {
+			List<ClassType> parents = cGen.getParents();
+			if (parents.size() > 1)
+				throw new DefinitionException("Cannot proceed if the generic extends more than one class " + type.getCodeName());
+			if (parents.isEmpty())
+				return getClassReference(TypeFactory.createClassType(Object.class));
+			return getClassReference(parents.get(0));
+		}
+		
+		throw new DefinitionException("Unable to determine bean type for " + type.getCodeName());
+	}
 
 	/**
 	 * Helper for generating the code to prepare the generics references to include in a {@link ClassType} reference for the specified class. This is to be used in conjunction with
@@ -57,7 +87,7 @@ public abstract class RecipeGeneratorHelper {
 	 * @return {@link String} the code for adding the generics of the specified {@link ClassType} in recipe code
 	 */
 	private static String getGenericsReference(ClassType cls) {
-		String genericParams = "";
+		StringBuilder genericParams = new StringBuilder();
 		for (GenericType g : cls.getGenerics()) {
 			ClassType gType;
 			try {
@@ -66,10 +96,14 @@ public abstract class RecipeGeneratorHelper {
 				// Ignore, just means we stick with the Object type
 				gType = TypeFactory.createClassType(Object.class);
 			}
-			genericParams += ", " + GenericFactory.class.getName() + ".create(" + getClassTypeReference(gType) + ")";
+			genericParams.append(", ");
+			genericParams.append(GenericFactory.class.getName());
+			genericParams.append(".create(");
+			genericParams.append(getClassTypeReference(gType));
+			genericParams.append(")");
 		}
 
-		return genericParams;
+		return genericParams.toString();
 	}
 
 	/**
