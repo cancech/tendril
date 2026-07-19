@@ -1355,6 +1355,61 @@ public class MyConfig {
 MyMiddleType<Double, Float> myInst;
 ```
 
+### Inherited Injections can be Ignored
+
+With how the injections are handled, if there are injections with the same name across different levels of a bean's inheritance hierarchy, then only the "closest" injection with a given name will be injected. For example:
+
+```java
+public abstract class BeanParent {
+
+	@Inject
+	private MyBean myBean;
+
+}
+
+@Bean
+@Singleton
+public class CocreteBean extends BeanParent {
+
+	@Inject
+	MyBean myBean;
+}
+```
+
+both parent and child have a field `MyBean myBean` that is to be injected, however Tendril will _only_ inject the closest one (i.e.: `ConcreteBean.myBean`) meaning that the parent `myBean` will remain `null` even though injection will be reported as having successfully completed. The workaround to this is either to not reuse names (i.e.: injections at different levels with unique names)
+
+```java
+public abstract class BeanParent {
+	
+	@Inject
+	private MyBean myBean;
+}
+
+@Bean
+@Singleton
+public class ConcreteBean extends BeanParent {
+	@Inject
+	MyBean myBeanInst;
+}
+```
+
+or to leverage inheritance to make the injection in the parent available to the child.
+
+```java
+public abstract class BeanParent {
+	
+	@Inject
+	protected MyBean myBean;
+}
+
+@Bean
+@Singleton
+public class ConcreteBean extends BeanParent {
+} 
+```
+
+Ultimately, if the same bean is being injected more than once in a given inheritance hierarchy, the latter solution is something that makes sense to do regardless of any Tendril limitations.
+
 ## META-INF
 In support of `Tendril` functionality, the build will generate a number of supporting files in the `META-INF/tendril` directory. These files are vital to the runtime operations of the application and must be preserved. If a tool such as `shadow` is used to create a *Fat* or *Uber* jar, care must be taken to ensure that the `META-INF/tendril` files are combined or merged and not overridden. The loss of data which would ensure will directly result in loss of bean (meta) data and failure for the resulting jar/application to work properly. The following `META-INF/tendril` files are produced
 
