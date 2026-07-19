@@ -162,7 +162,7 @@ public final class RecipeGenerator {
      * @return {@link ClassType}
      */
     static ClassType getRecipeType(ClassType configType, JMethod<?> creator) {
-        ClassType providerClass = TypeFactory.createClassType(configType, creator.getName());
+        ClassType providerClass = TypeFactory.createClassType(configType, creator.getOrdinalName());
         return getRecipeType(providerClass);
     }
     

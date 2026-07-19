@@ -155,7 +155,7 @@ class ConfigurationRecipeGenerator extends ClassRecipeGenerator {
 	private void appendBeanRecipes(Class<? extends Annotation> annotation, List<String> code) {
 		for (JMethod<?> method : creator.getMethods(annotation)) {
 			ClassType nestedRecipeType = RecipeGenerator.getRecipeType(actualType, method);
-			code.add("recipes.put(\"" + method.getName() + "\", new " + nestedRecipeType.getCodeName() + "(this, engine));");
+			code.add("recipes.put(\"" + method.getOrdinalName() + "\", new " + nestedRecipeType.getCodeName() + "(this, engine));");
 		}
 	}
 }

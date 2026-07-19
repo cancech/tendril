@@ -1,6 +1,7 @@
 package tempApp;
 
 import java.util.Map;
+import java.util.Set;
 
 import tempApp.id.MyType;
 import tempApp.id.MyTypeId;
@@ -91,5 +92,11 @@ public class TempManager {
     @Singleton
     public Map<String, Integer> getMap() {
     	return Map.of("1", 1, "2", 2, "3", 3);
+    }
+    
+    @Bean
+    @Singleton
+    public Set<String> getMap(Map<String, Integer> map) {
+    	return map.keySet();
     }
 }

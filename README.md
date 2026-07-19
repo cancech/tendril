@@ -1251,53 +1251,6 @@ public class ConcreteTest extends BaseTest {
 ## Known Issues and Limitations
 While every effort is made to provide a fully functional capability and address all issues, there are some which have not been addressed as they would be too invasive to fix and ultimately not worth the effort at this stage. These are issues and limitations are documented here, so that the appropriate mitigation steps can be taken in the client code.
 
-### Repeat bean methods in a Configuration
-While it is technically fully legal to have overloaded methods in a `Configuration` file, such that each overload produces a different instance/variation of a bean, or a completely different type of bean altogether, this is something that is not handled properly within `Tendril` and will result in an exception during annotation processing
-
-```
-javax.annotation.processing.FilerException: Attempt to recreate a file for type <configuration><method>Recipe
-```
-
-For example the following code, while technically legal, will result in this exception being thrown.
-
-```java
-@Configuration
-public class TestConfig {
-
-	@Bean
-	@Singleton
-	MyBean createBean() {
-		return new MyBean("NoArgBean");
-	}
-	
-	@Bean
-	@Singleton
-	MyBean createBean(String msg) {
-		return new MyBean(msg);
-	}
-}
-```
-
-`Tendril` automatically generates the recipe class `TestConfigcreateBeanRecipe` for both `createBean` methods, resulting in the above exception. The work around is to ensure that each bean method in a single `Configuration` class has a unique name. Thus, the above can be updated as follows
-
-```java
-@Configuration
-public class TestConfig {
-
-	@Bean
-	@Singleton
-	MyBean createNoArgBean() {
-		return new MyBean("NoArgBean");
-	}
-	
-	@Bean
-	@Singleton
-	MyBean createMsgBean(String msg) {
-		return new MyBean(msg);
-	}
-}
-```
-
 ### Generics Detection for Beans is not Comprehensive
 Though efforts are made to ensure that generics are taken into account when searching for beans (i.e.: `List<String>` being distinct from `List<Integer>`), not all "permutations" possible with generics can be accounted for. Specifically supported are surface level comparisons, and explicit inheritance. For example:
 

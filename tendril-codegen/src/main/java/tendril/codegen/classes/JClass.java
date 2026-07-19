@@ -18,7 +18,9 @@ package tendril.codegen.classes;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import tendril.codegen.CodeBuilder;
 import tendril.codegen.DefinitionException;
@@ -39,6 +41,8 @@ public abstract class JClass extends JVisibleType<ClassType> {
     private final List<JConstructor> ctors = new ArrayList<>();
     /** The methods that this class is composed of */
     private final List<JMethod<?>> methods = new ArrayList<>();
+    /** Tracker for the number of methods with a given name */
+    private final Map<String, Integer> methodCount = new HashMap<>();
     /** The name of the package in which this class appears */
     private final String pkg;
     /** The parent of the JClass. Null to indicate no explicit parent */
@@ -214,6 +218,10 @@ public abstract class JClass extends JVisibleType<ClassType> {
      */
     public void addMethod(JMethod<?> method) {
         methods.add(method);
+        String name = method.getName();
+        int count = methodCount.getOrDefault(name, 0) + 1;
+        methodCount.put(name, count);
+        method.setOrdinal(count);
     }
 
     /**

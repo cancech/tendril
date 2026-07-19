@@ -49,7 +49,6 @@ public class ConfigurationProcessor extends AbstractDelayedAnnotationTendrilProc
 	 */
 	@Override
 	protected ClassDefinition processType() throws TendrilException {
-		// TODO fix name clash when multiple bean methods exist with the same name
 		return RecipeGenerator.generateConfiguration(currentClassType, currentClass, processingEnv.getMessager(), Registry.class);
 	}
 

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tendril.codegen.CodeBuilder;
+import tendril.codegen.DefinitionException;
 import tendril.codegen.classes.JParameter;
 import tendril.codegen.field.JType;
 import tendril.codegen.field.JVisibleType;
@@ -34,133 +35,161 @@ import tendril.util.TendrilStringUtil;
  */
 public abstract class JAbstractMethodElement<RETURN_TYPE extends Type> extends JVisibleType<RETURN_TYPE> {
 
-    /** List of parameters that the method takes */
-    private final List<JParameter<?>> parameters = new ArrayList<>();
+	/** List of parameters that the method takes */
+	private final List<JParameter<?>> parameters = new ArrayList<>();
+	/** The lines of code that build up the implementation of the method */
+	private final List<String> implementation;
+	/** List of exceptions that the method may throw */
+	private final List<ClassType> exceptions = new ArrayList<>();
+	/** The ordinal is a unique identifier for each method with a given name (i.e.: the first method with a given name is 1) */
+	private int ordinal = -1;
 
-    /** The lines of code that build up the implementation of the method */
-    private final List<String> implementation;
-    
-    /** List of exceptions that the method may throw */
-    private final List<ClassType> exceptions = new ArrayList<>();
+	/**
+	 * CTOR
+	 * 
+	 * @param returnType     RETURN_TYPE representing what the method returns
+	 * @param name           {@link String} the name of the method
+	 * @param implementation {@link List} of {@link String} lines of code with the implementation of the method
+	 */
+	protected JAbstractMethodElement(RETURN_TYPE returnType, String name, List<String> implementation) {
+		super(returnType, name);
+		this.implementation = implementation;
+	}
 
-    /**
-     * CTOR
-     * 
-     * @param returnType     RETURN_TYPE representing what the method returns
-     * @param name           {@link String} the name of the method
-     * @param implementation {@link List} of {@link String} lines of code with the implementation of the method
-     */
-    protected JAbstractMethodElement(RETURN_TYPE returnType, String name, List<String> implementation) {
-        super(returnType, name);
-        this.implementation = implementation;
-    }
+	/**
+	 * Set the ordinal for the method. In this case the ordinal means what number'th method this is with the same name. Meaning, that the first method with a given name will have an ordinal of 1, the
+	 * second 2, third 3, and so on. Note, once the ordinal has been set it cannot be changed, and the ordinal must be valid (greater than 0). A {@link DefinitionException} is thrown if these
+	 * requirements are not met.
+	 * 
+	 * @param ordinal int when added to the class, this is the ordinal'th method added with the same name
+	 */
+	public void setOrdinal(int ordinal) {
+		if (ordinal <= 0)
+			throw new DefinitionException(ordinal + " is an invalid ordinal for " + name + ". Must be greater than 0.");
+		if (this.ordinal > 0)
+			throw new DefinitionException("The ordinal for " + name + " can only be set once");
 
-    /**
-     * Add a parameter to the method. Parameters are expected to be added in the order they appear in the method.
-     * 
-     * @param parameter {@link JType} representing the method parameter
-     */
-    public void addParameter(JParameter<?> parameter) {
-        parameters.add(parameter);
-    }
+		this.ordinal = ordinal;
+	}
 
-    /**
-     * Get all of the parameters of the method
-     * 
-     * @return {@link List} of {@link JType}s representing the parameters
-     */
-    public List<JParameter<?>> getParameters() {
-        return parameters;
-    }
-    
-    /**
-     * Add an exception to be thrown by the method
-     * 
-     * @param thrownEx {@link ClassType} the method should throw
-     */
-    public void addException(ClassType thrownEx) {
-    	exceptions.add(thrownEx);
-    }
-    
-    /**
-     * Get the list of exception that the method can throw
-     * 
-     * @return {@link List} of {@link ClassType}s describing the exceptions which can be thrown
-     */
-    public List<ClassType> getExceptions() {
-    	return exceptions;
-    }
+	/**
+	 * Get the name of the method, such that the ordinal is included. If the ordinal is greater than 1 it is appended to the name, otherwise just the plane name is returned.
+	 * 
+	 * @return {@link String} name of the method with its ordinal included
+	 */
+	public String getOrdinalName() {
+		if (ordinal <= 1)
+			return name;
 
-    /**
-     * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder)
-     */
-    @Override
-    protected void appendSelf(CodeBuilder builder) {
-        builder.appendMultiLine(generateSelf());
-    }
+		return name + String.valueOf(ordinal);
+	}
 
-    /**
-     * @see tendril.codegen.JBase#generateSelf()
-     */
-    @Override
-    public String generateSelf() {
-        CodeBuilder builder = new CodeBuilder();
-        boolean hasImplementation = implementation != null;
-        builder.append(generateSignature(hasImplementation));
+	/**
+	 * Add a parameter to the method. Parameters are expected to be added in the order they appear in the method.
+	 * 
+	 * @param parameter {@link JType} representing the method parameter
+	 */
+	public void addParameter(JParameter<?> parameter) {
+		parameters.add(parameter);
+	}
 
-        if (hasImplementation) {
-            builder.indent();
-            for (String s : implementation)
-                builder.append(s);
-            builder.deIndent();
-            builder.append("}");
-        }
-        return builder.get();
-    }
+	/**
+	 * Get all of the parameters of the method
+	 * 
+	 * @return {@link List} of {@link JType}s representing the parameters
+	 */
+	public List<JParameter<?>> getParameters() {
+		return parameters;
+	}
 
-    /**
-     * Generate the full method signature
-     * 
-     * @param hasImplementation boolean true if the method has an implementation provided
-     * @return {@link String}
-     */
-    protected abstract String generateSignature(boolean hasImplementation);
+	/**
+	 * Add an exception to be thrown by the method
+	 * 
+	 * @param thrownEx {@link ClassType} the method should throw
+	 */
+	public void addException(ClassType thrownEx) {
+		exceptions.add(thrownEx);
+	}
 
-    /**
-     * Generate the code for the parameters of the method
-     * 
-     * @return {@link String} containing the details of the parameters
-     */
-    protected String generateParameters() {
-        return TendrilStringUtil.join(parameters, param -> param.generateSelf());
-    }
-    
-    /**
-     * Generate the code for the throws portion of the method.
-     * 
-     * @param includeSpace {@code boolean} flag for whether the section should include wrapping spaces
-     * @return {@link String} containing the throws portion of the method
-     */
-    protected String generateThrows(boolean includeSpace) {
-    	String space = includeSpace ? " " : "";
-    	if (exceptions.isEmpty())
-    		return space;
-    	
-    	return space + "throws " + TendrilStringUtil.join(exceptions, (ex) -> {
-    		return ex.getCodeName();
-    	}) + space;
-    }
+	/**
+	 * Get the list of exception that the method can throw
+	 * 
+	 * @return {@link List} of {@link ClassType}s describing the exceptions which can be thrown
+	 */
+	public List<ClassType> getExceptions() {
+		return exceptions;
+	}
 
-    /**
-     * @see tendril.codegen.field.JVisibleType#equals(java.lang.Object)
-     */
-    @SuppressWarnings("unchecked")
+	/**
+	 * @see tendril.codegen.JBase#appendSelf(tendril.codegen.CodeBuilder)
+	 */
 	@Override
-    public boolean equals(Object obj) {
-        if (obj instanceof JAbstractMethodElement other) {
-            return super.equals(obj) && parameters.equals(other.parameters) && CollectionUtil.equivalent(exceptions, other.exceptions);
-        }
+	protected void appendSelf(CodeBuilder builder) {
+		builder.appendMultiLine(generateSelf());
+	}
 
-        return false;
-    }
+	/**
+	 * @see tendril.codegen.JBase#generateSelf()
+	 */
+	@Override
+	public String generateSelf() {
+		CodeBuilder builder = new CodeBuilder();
+		boolean hasImplementation = implementation != null;
+		builder.append(generateSignature(hasImplementation));
+
+		if (hasImplementation) {
+			builder.indent();
+			for (String s : implementation)
+				builder.append(s);
+			builder.deIndent();
+			builder.append("}");
+		}
+		return builder.get();
+	}
+
+	/**
+	 * Generate the full method signature
+	 * 
+	 * @param hasImplementation boolean true if the method has an implementation provided
+	 * @return {@link String}
+	 */
+	protected abstract String generateSignature(boolean hasImplementation);
+
+	/**
+	 * Generate the code for the parameters of the method
+	 * 
+	 * @return {@link String} containing the details of the parameters
+	 */
+	protected String generateParameters() {
+		return TendrilStringUtil.join(parameters, param -> param.generateSelf());
+	}
+
+	/**
+	 * Generate the code for the throws portion of the method.
+	 * 
+	 * @param includeSpace {@code boolean} flag for whether the section should include wrapping spaces
+	 * @return {@link String} containing the throws portion of the method
+	 */
+	protected String generateThrows(boolean includeSpace) {
+		String space = includeSpace ? " " : "";
+		if (exceptions.isEmpty())
+			return space;
+
+		return space + "throws " + TendrilStringUtil.join(exceptions, (ex) -> {
+			return ex.getCodeName();
+		}) + space;
+	}
+
+	/**
+	 * @see tendril.codegen.field.JVisibleType#equals(java.lang.Object)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof JAbstractMethodElement other) {
+			return super.equals(obj) && parameters.equals(other.parameters) && CollectionUtil.equivalent(exceptions, other.exceptions);
+		}
+
+		return false;
+	}
 }

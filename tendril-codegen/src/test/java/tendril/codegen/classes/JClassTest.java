@@ -423,6 +423,10 @@ public class JClassTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testGenerateCodeWithMethod() {
+		when(mockVoidMethod.getName()).thenReturn("mockVoidMethod");
+		when(mockPrimitiveMethod.getName()).thenReturn("mockPrimitiveMethod");
+		when(mockClassMethod.getName()).thenReturn("mockClassMethod");
+		
 		// Define what the code is expected to look like
 		startDefinition(true, "");
 		strMatcher.eq(("    mockVoidMethod"));
@@ -437,10 +441,13 @@ public class JClassTest extends AbstractUnitTest {
 		jclass.setFinal(true);
 		Assertions.assertIterableEquals(Collections.emptyList(), jclass.getMethods());
 		jclass.addMethod(mockVoidMethod);
+		verify(mockVoidMethod).setOrdinal(1);
 		Assertions.assertIterableEquals(Collections.singletonList(mockVoidMethod), jclass.getMethods());
 		jclass.addMethod(mockPrimitiveMethod);
+		verify(mockPrimitiveMethod).setOrdinal(1);
 		Assertions.assertIterableEquals(Arrays.asList(mockVoidMethod, mockPrimitiveMethod), jclass.getMethods());
 		jclass.addMethod(mockClassMethod);
+		verify(mockClassMethod).setOrdinal(1);
 		Assertions.assertIterableEquals(Arrays.asList(mockVoidMethod, mockPrimitiveMethod, mockClassMethod), jclass.getMethods());
 
 		// Verify that it matches
@@ -538,6 +545,9 @@ public class JClassTest extends AbstractUnitTest {
 	public void testGenerateComplexCode() {
 		when(mockParentClass.getAppliedCode(true)).thenReturn("mockParentClass<PARENT_GEN> ");
 		when(mockInterface2.getAppliedCode(false)).thenReturn("mockInterface2<IFACE_2_GEN>");
+		when(mockVoidMethod.getName()).thenReturn("mockVoidMethod");
+		when(mockPrimitiveMethod.getName()).thenReturn("mockPrimitiveMethod");
+		when(mockClassMethod.getName()).thenReturn("mockClassMethod");
 
 		// Define what the code is expected to look like
 		startDefinition(Arrays.asList("@" + TestMarkerAnnotation.class.getName(), "@" + TestPrimitiveAnnotation.class.getName() + "(" + PrimitiveType.class.getName() + ".BOOLEAN)"), false,
@@ -564,8 +574,11 @@ public class JClassTest extends AbstractUnitTest {
 		jclass.setParentClass(mockParentClass);
 		jclass.setParentInterfaces(Arrays.asList(mockInterface1, mockInterface2, mockInterface3));
 		jclass.addMethod(mockVoidMethod);
+		verify(mockVoidMethod).setOrdinal(1);
 		jclass.addMethod(mockPrimitiveMethod);
+		verify(mockPrimitiveMethod).setOrdinal(1);
 		jclass.addMethod(mockClassMethod);
+		verify(mockClassMethod).setOrdinal(1);
 		jclass.add(JAnnotationFactory.create(TestMarkerAnnotation.class));
 		jclass.add(JAnnotationFactory.create(TestPrimitiveAnnotation.class, JValueFactory.create(PrimitiveType.BOOLEAN)));
 		jclass.addField(mockField1);
@@ -754,9 +767,16 @@ public class JClassTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testGetMethodByAnnotationNoInheritance() {
+		when(mockVoidMethod.getName()).thenReturn("m1");
+		when(mockPrimitiveMethod.getName()).thenReturn("m1");
+		when(mockClassMethod.getName()).thenReturn("m2");
+		
 		jclass.addMethod(mockVoidMethod);
+		verify(mockVoidMethod).setOrdinal(1);
 		jclass.addMethod(mockPrimitiveMethod);
+		verify(mockPrimitiveMethod).setOrdinal(2);
 		jclass.addMethod(mockClassMethod);
+		verify(mockClassMethod).setOrdinal(1);
 
 		// Annotation is not present on any
 		when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(false);
@@ -800,9 +820,12 @@ public class JClassTest extends AbstractUnitTest {
 	 */
 	@Test
 	public void testGetMethodByAnnotationSingleInheritance() {
+		when(mockVoidMethod.getName()).thenReturn("mockVoidMethod");
 		when(mockParentClass.getParentClass()).thenReturn(null);
+		when(mockVoidMethod.getName()).thenReturn("abc");
 		jclass.setParentClass(mockParentClass);
 		jclass.addMethod(mockVoidMethod);
+		verify(mockVoidMethod).setOrdinal(1);
 
 		// Annotation is not present on any
 		when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(false);
@@ -844,8 +867,10 @@ public class JClassTest extends AbstractUnitTest {
 	public void testGetMethodByAnnotationNestedInheritance() {
 		when(mockParentClass.getParentClass()).thenReturn(mockGrandParentClass);
 		when(mockGrandParentClass.getParentClass()).thenReturn(null);
+		when(mockVoidMethod.getName()).thenReturn("abc");
 		jclass.setParentClass(mockParentClass);
 		jclass.addMethod(mockVoidMethod);
+		verify(mockVoidMethod).setOrdinal(1);
 
 		// Annotation is not present on any
 		when(mockVoidMethod.hasAnnotation(Override.class)).thenReturn(false);
@@ -954,13 +979,19 @@ public class JClassTest extends AbstractUnitTest {
 		when(mockVoidMethod.getName()).thenReturn("c");
 
 		jclass.addMethod(mockClassMethod);
+		verify(mockClassMethod, times(1)).getName();
+		verify(mockClassMethod).setOrdinal(1);
 		jclass.addMethod(mockPrimitiveMethod);
+		verify(mockPrimitiveMethod, times(1)).getName();
+		verify(mockPrimitiveMethod).setOrdinal(1);
 		jclass.addMethod(mockVoidMethod);
+		verify(mockVoidMethod, times(1)).getName();
+		verify(mockVoidMethod).setOrdinal(1);
 
 		CollectionAssert.assertEmpty(jclass.getMethods("d"));
-		verify(mockClassMethod).getName();
-		verify(mockPrimitiveMethod).getName();
-		verify(mockVoidMethod).getName();
+		verify(mockClassMethod, times(2)).getName();
+		verify(mockPrimitiveMethod, times(2)).getName();
+		verify(mockVoidMethod, times(2)).getName();
 	}
 
 	/**
@@ -973,13 +1004,19 @@ public class JClassTest extends AbstractUnitTest {
 		when(mockVoidMethod.getName()).thenReturn("c");
 
 		jclass.addMethod(mockClassMethod);
+		verify(mockClassMethod, times(1)).getName();
+		verify(mockClassMethod).setOrdinal(1);
 		jclass.addMethod(mockPrimitiveMethod);
+		verify(mockPrimitiveMethod, times(1)).getName();
+		verify(mockPrimitiveMethod).setOrdinal(1);
 		jclass.addMethod(mockVoidMethod);
+		verify(mockVoidMethod, times(1)).getName();
+		verify(mockVoidMethod).setOrdinal(1);
 
 		CollectionAssert.assertEquivalent(jclass.getMethods("a"), mockClassMethod);
-		verify(mockClassMethod).getName();
-		verify(mockPrimitiveMethod).getName();
-		verify(mockVoidMethod).getName();
+		verify(mockClassMethod, times(2)).getName();
+		verify(mockPrimitiveMethod, times(2)).getName();
+		verify(mockVoidMethod, times(2)).getName();
 	}
 
 	/**
@@ -992,13 +1029,19 @@ public class JClassTest extends AbstractUnitTest {
 		when(mockVoidMethod.getName()).thenReturn("a");
 
 		jclass.addMethod(mockClassMethod);
+		verify(mockClassMethod).getName();
+		verify(mockClassMethod).setOrdinal(1);
 		jclass.addMethod(mockPrimitiveMethod);
+		verify(mockPrimitiveMethod).getName();
+		verify(mockPrimitiveMethod).setOrdinal(2);
 		jclass.addMethod(mockVoidMethod);
+		verify(mockVoidMethod).getName();
+		verify(mockVoidMethod).setOrdinal(3);
 
 		CollectionAssert.assertEquivalent(jclass.getMethods("a"), mockClassMethod, mockPrimitiveMethod, mockVoidMethod);
-		verify(mockClassMethod).getName();
-		verify(mockPrimitiveMethod).getName();
-		verify(mockVoidMethod).getName();
+		verify(mockClassMethod, times(2)).getName();
+		verify(mockPrimitiveMethod, times(2)).getName();
+		verify(mockVoidMethod, times(2)).getName();
 	}
 
 	/**

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import tempApp.DuplicationBlueprint;
 import tempApp.EnumBlueprint;
@@ -329,7 +330,7 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	}
 
 	@Inject
-	private void doSomething(SingletonClass singleton1, SingletonClass singleton2, FactoryClass factory1, FactoryClass factory2, FactoryClass factory3, List<Integer> intList, Map<String, Integer> map) {
+	private void doSomething(SingletonClass singleton1, SingletonClass singleton2, FactoryClass factory1, FactoryClass factory2, FactoryClass factory3, List<Integer> intList, Map<String, Integer> map, Set<String> keys) {
 		timesDoSomething++;
 		System.out.println("doSomething()");
 		factoryBean5 = factory1;
@@ -347,6 +348,10 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		assertion(map.get("1") == 1, "Entry 1 should be 1 but is " + map.get("1"));
 		assertion(map.get("2") == 2, "Entry 1 should be 1 but is " + map.get("2"));
 		assertion(map.get("3") == 3, "Entry 1 should be 1 but is " + map.get("3"));
+		assertion(map.keySet() == keys, "Key set should match the map");
+		assertion(keys.contains("1"), "Should have 1");
+		assertion(keys.contains("2"), "Should have 2");
+		assertion(keys.contains("3"), "Should have 3");
 	}
 
 	@Inject

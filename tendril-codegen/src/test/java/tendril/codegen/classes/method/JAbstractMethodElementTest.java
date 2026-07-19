@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import tendril.codegen.CodeBuilder;
+import tendril.codegen.DefinitionException;
 import tendril.codegen.classes.JParameter;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
@@ -465,6 +466,56 @@ public class JAbstractMethodElementTest extends AbstractMethodTest {
         Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam2, mockParam1, mockParam3}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
         Assertions.assertFalse(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam3, mockParam2}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
         Assertions.assertTrue(element.equals(build("method", new JParameter<?>[] {mockParam1, mockParam2, mockParam3}, new ClassType[] {mockEx3, mockEx2, mockEx1})));
+    }
+    
+    /**
+     * Verify that the ordinal can be properly set.
+     */
+    @Test
+    public void testInvalidOrdinal() {
+    	for (int i = -10; i <= 0; i++) {
+    		final int ordinal = i;
+    		
+        	TestMethodElement m = new TestMethodElement("name");
+        	Assertions.assertEquals("name", m.getOrdinalName());
+	    	Assertions.assertThrows(DefinitionException.class, () -> m.setOrdinal(ordinal));
+	    	Assertions.assertEquals("name", m.getOrdinalName());
+    	}
+    }
+    
+    /**
+     * Verify that the ordinal can be properly set.
+     */
+    @Test
+    public void testOrdinalOne() {
+    	TestMethodElement m = new TestMethodElement("name");
+    	Assertions.assertEquals("name", m.getOrdinalName());
+    	m.setOrdinal(1);
+    	Assertions.assertEquals("name", m.getOrdinalName());
+
+    	for (int i = 2; i <= 10; i++) {
+    		final int ordinal = i;
+	    	Assertions.assertThrows(DefinitionException.class, () -> m.setOrdinal(ordinal));
+	    	Assertions.assertEquals("name", m.getOrdinalName());
+    	}
+    }
+    
+    /**
+     * Verify that the ordinal can be properly set.
+     */
+    @Test
+    public void testValidOrdinal() {
+    	for (int i = 2; i <= 10; i++) {
+    		final int ordinal = i;
+
+        	TestMethodElement m = new TestMethodElement("name");
+        	Assertions.assertEquals("name", m.getOrdinalName());
+        	m.setOrdinal(ordinal);
+        	Assertions.assertEquals("name" + ordinal, m.getOrdinalName());
+        	
+	    	Assertions.assertThrows(DefinitionException.class, () -> m.setOrdinal(ordinal+1));
+	    	Assertions.assertEquals("name" + ordinal, m.getOrdinalName());
+    	}
     }
     
     private TestMethodElement build(String name, JParameter<?>... paramToApply) {
