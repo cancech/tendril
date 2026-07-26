@@ -74,7 +74,7 @@ public class TendrilTestExtension implements TestInstanceFactory {
 	@SuppressWarnings("unchecked")
 	private List<Blueprint> getBlueprints(Class<?> testClass) {
 		List<Blueprint> blueprints = new ArrayList<>();
-		for (Method m : testClass.getMethods()) {
+		for (Method m : testClass.getDeclaredMethods()) {
 
 			// Make sure that the method is properly configured
 			if (!m.isAnnotationPresent(TestBlueprints.class))
