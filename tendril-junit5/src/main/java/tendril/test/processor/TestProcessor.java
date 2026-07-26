@@ -22,6 +22,8 @@ import javax.lang.model.SourceVersion;
 
 import com.google.auto.service.AutoService;
 
+import tendril.annotationprocessor.ClassDefinition;
+import tendril.annotationprocessor.exception.TendrilException;
 import tendril.processor.AbstractBeanProcessor;
 import tendril.test.TendrilTest;
 
@@ -41,4 +43,17 @@ public class TestProcessor extends AbstractBeanProcessor {
 		super(TendrilTest.class, null);
 	}
 
+	/**
+	 * Abstract classes are skipped, as these are not legit test classes, so that they can be employed in tests and not produce annotation processing failures.
+	 * 
+	 * @see tendril.processor.AbstractBeanProcessor#processType()
+	 */
+	@Override
+	protected ClassDefinition processType() throws TendrilException {
+		// Skip abstract classes
+		if (currentClass.isAbstract())
+			return null;
+		
+		return super.processType();
+	}
 }

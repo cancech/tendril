@@ -18,7 +18,7 @@ import tendril.test.assertions.CollectionAssert;
 /**
  * Test to ensure that the test runs properly when the test details are specified on a parent test class
  */
-public class ExtendTest extends EnvATest {
+public class ExtendTest extends AbstractTest {
 	/** Counter for the number of times that getEnvABlueprints() has been called */
 	protected static int timesExtendBlueprintsCalled = 0;
 
@@ -28,7 +28,7 @@ public class ExtendTest extends EnvATest {
 	 * @return {@link List} of {@link Blueprint}s for the test
 	 */
 	@TestBlueprints
-	public static List<Blueprint> getEnvABlueprints() {
+	public static List<Blueprint> getExtendBlueprints() {
 		timesExtendBlueprintsCalled++;
 		return Arrays.asList(new TestBlueprint("extend_1"), new TestBlueprint("extend_2"));
 	}
@@ -48,7 +48,7 @@ public class ExtendTest extends EnvATest {
 	 */
 	@Override
 	protected int getExpectedNumBeans() {
-		return 7;
+		return 9;
 	}
 	
 	/**
@@ -56,7 +56,7 @@ public class ExtendTest extends EnvATest {
 	 */
 	@Override
 	protected List<Object> getExpectedBeans() {
-		return Arrays.asList(ctx, randomBean, testBean, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"), new DuplicateBean("extend_1"), new DuplicateBean("extend_2"));
+		return Arrays.asList(ctx, randomBean, testBean, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"), new DuplicateBean("extend_1"), new DuplicateBean("extend_2"), new DuplicateBean("abs1"), new DuplicateBean("abs2"));
 	}
 	
 	/**
@@ -64,7 +64,7 @@ public class ExtendTest extends EnvATest {
 	 */
 	@Override
 	protected List<DuplicateBean> getExpectedDuplicates() {
-		return Arrays.asList(new DuplicateBean("enva_a"), new DuplicateBean("enva_b"), new DuplicateBean("extend_1"), new DuplicateBean("extend_2"));
+		return Arrays.asList(new DuplicateBean("enva_a"), new DuplicateBean("enva_b"), new DuplicateBean("extend_1"), new DuplicateBean("extend_2"), new DuplicateBean("abs1"), new DuplicateBean("abs2"));
 	}
 
 	/**
@@ -73,6 +73,7 @@ public class ExtendTest extends EnvATest {
 	@Test
 	public void testExtensionRunsProperly() {
 		Assertions.assertEquals(1, timesEnvABlueprintsCalled);
+		Assertions.assertEquals(1, timesAbstractBlueprintsCalled);
 		Assertions.assertEquals(1, timesExtendBlueprintsCalled);
 		ClassAssert.assertInstance(EnvABean.class, testBean);
 		CollectionAssert.assertEquivalent(getExpectedBeans(), allBeans);
