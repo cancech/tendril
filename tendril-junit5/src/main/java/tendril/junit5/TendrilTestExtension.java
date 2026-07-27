@@ -91,12 +91,13 @@ public class TendrilTestExtension implements TestInstanceFactory {
 			} catch (Exception e) {
 				throw new TendrilStartupException(getIntroMessage(testClass, m), e);
 			}
-
-			// Collect any blueprints defined in the parent class and add those
-			Class<?> parent = testClass.getSuperclass();
-			if (parent != null)
-				blueprints.addAll(getBlueprints(parent));
 		}
+
+		// Collect any blueprints defined in the parent class and add those
+		Class<?> parent = testClass.getSuperclass();
+		if (parent != null)
+			blueprints.addAll(getBlueprints(parent));
+		
 		return blueprints;
 	}
 
