@@ -50,16 +50,16 @@ public class EnvATest {
 	}
 
 	@Inject
-	ApplicationContext ctx;
+	protected ApplicationContext ctx;
 	@Inject
-	RandomBean randomBean;
+	protected RandomBean randomBean;
 	@Inject
-	TestBean testBean;
+	protected TestBean testBean;
 	@InjectAll
-	List<DuplicateBean> duplicates;
+	protected List<DuplicateBean> duplicates;
 
 	@InjectAll
-	List<Object> allBeans;
+	protected List<Object> allBeans;
 	
 	/**
 	 * Get the total number of beans that are expected to be in the application context

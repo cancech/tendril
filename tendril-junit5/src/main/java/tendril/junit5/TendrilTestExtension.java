@@ -79,6 +79,7 @@ public class TendrilTestExtension implements TestInstanceFactory {
 			// Make sure that the method is properly configured
 			if (!m.isAnnotationPresent(TestBlueprints.class))
 				continue;
+
 			if (!Modifier.isStatic(m.getModifiers()))
 				throwException(testClass, m, TestBlueprints.class.getSimpleName() + " can only be applied to static methods");
 			if (m.getReturnType() != List.class)
@@ -86,8 +87,12 @@ public class TendrilTestExtension implements TestInstanceFactory {
 			if (m.getParameterCount() > 0)
 				throwException(testClass, m, "Cannot take any parameters");
 			try {
+				@SuppressWarnings("deprecation")
+				boolean origAccess = m.isAccessible();
+				m.setAccessible(true);
 				for (Blueprint d : (List<Blueprint>) m.invoke(blueprints))
 					blueprints.add(d);
+				m.setAccessible(origAccess);
 			} catch (Exception e) {
 				throw new TendrilStartupException(getIntroMessage(testClass, m), e);
 			}
@@ -120,6 +125,6 @@ public class TendrilTestExtension implements TestInstanceFactory {
 	 * @return {@link String} with the intro portion of the error message
 	 */
 	private String getIntroMessage(Class<?> testClass, Method m) {
-		return "Error processing " + testClass.getName() + "::" + m.getName();
+		return "Error processing " + testClass.getName() + "::" + m.getName() + "()";
 	}
 }

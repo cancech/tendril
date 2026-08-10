@@ -21,7 +21,7 @@ import tendril.test.context.TestEngine;
  * Test to ensure that a test can a {@link TendrilTest} can apply environments and properties
  */
 @TendrilTest(environments = "A", properties = "B")
-public class EnvAPropBTest {
+class EnvAPropBTest {
 
 	@Inject
 	ApplicationContext ctx;
