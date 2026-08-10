@@ -1146,7 +1146,10 @@ public class EnvAandBTest {
 ```
 
 ### Customize Properties for the Test
-Much like what is described for the Environments above, the same issue and ultimately solution exists for Properties. The `TendrilTest` provides a `properties` attribute which can be used to specify which properties are to be applied to a given test class. If let unspecified, it will default to "no additional properties" beyond what is otherwise specified in the JVM.
+There are two ways to specify properties in a test.
+
+#### Tendril Properties
+When defining properties are purely to be used as "flags" for tendril bean processing, specifically to ensure that a property is defined so that the appropriate `@RequiresProp` requirement will pass, a Tendril property can be employed. Much like what is described for the Environments above, the same issue and ultimately solution exists for Properties. The `TendrilTest` provides a `properties` attribute which can be used to specify which properties are to be applied to a given test class. If let unspecified, it will default to "no additional properties" beyond what is otherwise specified in the JVM.
 
 ```java
 @TendrilTest
@@ -1166,13 +1169,60 @@ public class PropAandBTest {
 }
 ```
 
-### Customize Duplication Blueprints
-When dynamic duplicates are to be encorporated into the test, the normal approach of simply telling the `ApplicationContextBuilder` what `BlueprintDriver` instances to employ does not work as the `ApplicationContext` is created automatically without any immediate or direct input from the client code. As such, a `@TestBlueprints` annotation is incorporated through which the test can be notified of what blueprint drivers to employ. This can be placed on a method in the test class and the unit test will automatically call it to the `BlueprintDriver`s it provides. Note there are a couple of mandatory stipulations that must be followed:
+When this option is used, the property is available within Tendril, however it is not created as a system property. Hence, this cannot be used for situations where `System.getProperty(...)` or its equivalent are employed, and it primarily intended as a quick and easy way to trigger bean creation.
 
-1. The method must be `public` and it must be `static`.
+#### System Properties
+In situations where the property is to be loaded as an actual system property, such that `System.getProperty(...)` or its equivalent can be used, a `@TestProperties` annotation is provided. This annotation can be applied to a static method within the test and any properties it defined (via its `Map<String, String>` return) are added to the system properties. These properties can then be loaded using `System.getProperty(...)` and are also loaded as Tendril properties for the purpose of bean management. Note there are a couple of mandatory stipulations that must be followed:
+
+1. The method must be `static`.
+2. The method must return a `Map<String, String>`.
+3. The method cannot take any parameters.
+4. The name of the method is irrelevant, though must follow proper Java standards (i.e.: it has to compile)
+
+Failure to adhere to the above stipulations will result in an error when running the test.
+
+```java
+@TendrilTest
+public class MyTest {
+	@TestProperties
+	public static Map<String, String> getTestProperties() {
+		return Map.of("a", "1", "b", "2");
+	}
+}
+```
+
+This is additive through the inheritance hierarchy, meaning that any properties defined in this manner in a parent class to the current (executing) test class will also be applied.
+
+```java
+@TendrilTest
+public class MyParentTest {
+	@TestProperties
+	public static Map<String, String> getParentProperties() {
+		return Map.of("a", "1", "b", "2");
+	}
+	
+	// Test will have properties of "a" = "1", and "b" = "2"
+}
+
+
+@TendrilTest
+public class MyChildTest {
+	@TestProperties
+	public static Map<String, String> getChildProperties() {
+		return Map.of("d", "3", "e", "4");
+	}
+	
+	// Test will have properties of "a" = "1", "b" = "2", "c" = "3", and "d" = "4"
+}
+```
+
+### Customize Duplication Blueprints
+When dynamic duplicates are to be incorporated into the test, the normal approach of simply telling the `ApplicationContextBuilder` what `BlueprintDriver` instances to employ does not work as the `ApplicationContext` is created automatically without any immediate or direct input from the client code. As such, a `@TestBlueprints` annotation is incorporated through which the test can be notified of what blueprint drivers to employ. This follows same pattern and behavior as `@TestProperties`. As such, there are a couple of mandatory stipulations that must be followed:
+
+1. The method must be `static`.
 2. The method must return a `List<BlueprintDriver>`.
 3. The method cannot take any parameters.
-4. The name of the method is irrelevant, though must follow proper Java standards (i.e.: it has to compile of course)
+4. The name of the method is irrelevant, though must follow proper Java standards (i.e.: it has to compile)
 
 Failure to adhere to the above stipulations will result in an error when running the test.
 
@@ -1186,7 +1236,7 @@ public class MyTest {
 }
 ```
 
-This allows for a different set of `BlueprintDriver`s to be used in different tests.
+This allows for a different set of `BlueprintDriver`s to be used in different tests. `@TestBlueprints` is also additive in terms of the inheritance hierarchy (i.e.: any blueprints defined in the manner in a parent class will be applied to all inheriting children as well).
 
 ### Extending Test Classes
 It is possible to extend a base test class, such that it can both provide a common test core, as well as tackle common/shared elements. For example
