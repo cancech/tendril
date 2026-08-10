@@ -1416,6 +1416,7 @@ In support of `Tendril` functionality, the build will generate a number of suppo
 |File Name| Description|
 |---    | ---       |
 |`registry`|List of all `Recipes` that are present for the purpose of producing beans. This file is loaded by the `Engine` to determine what all `Recipes` (and thus beans) are available for injection. Looked at a little differently, this is a list of all `@Registry` annotated classes in the application.|
+|`replacementregistry`|List of all `Recipes` that are present for the purpose of replacing another existing bean. This file is loaded by the `Engine` to determine what replacement `Recipes` are available so that they can loaded at runtime. Looked at a little differently, this is a list of all `@ReplacesRegistry` annotated classes in the application.|
 |`runner`|List of `@Runner` annotated classes, ergo potential entry points into the `Application Context`.|
 
 ## Supporting Libraries
