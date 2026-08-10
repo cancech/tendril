@@ -32,6 +32,8 @@ import tendril.bean.recipe.Registry;
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
 public class BeanProcessor extends AbstractBeanProcessor {
+	
+	// TODO Create a tendril plugin that can "abstract" the complexities of integrating tendril into an application?
 
 	/**
 	 * CTOR
