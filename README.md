@@ -461,12 +461,12 @@ This is done when defining a bean (whether as a class or method) by annotating i
 ### `@Inject` Bean Priority
 When injecting a single bean via `@Inject`, it will be pulled from the highest priority level that is available from the beans which match the injection, regardless of how many beans may exist in the lower priority levels. For example: the single matching `@Primary` bean will be returned regardless of how many `Basic` or `@Fallback` matches are present. If there is no `@Primary` match, then the single `Basic` bean will be returned, regardless of how many `@Fallback` ones are present. If there are no `@Primary` or `Basic` beans, then there must be a single `@Fallback` bean in the results. There must be exactly one match in the highest available level when injecting an `@Inject` bean, otherwise an exception will be thrown.
 
-In this situation, the `@Primary` can be seen as a means of *elevating* one bean over others. For example, if `BeanB` extends `BeanA` then `@Priority` can be employed to prioritize the parent class when making an injection.
+In this situation, the `@Primary` can be seen as a means of *elevating* one bean over others. For example, if `BeanB` extends `BeanA` then `@Primary` can be employed to prioritize the parent class when making an injection.
 
 ```java
 @Bean
 @Singleton
-@Priority
+@Primary
 public class BeanA {
 }
 
@@ -499,7 +499,7 @@ When injecting multiple beans via `@InjectAll`, then all `@Primary` and `Basic` 
 ```java
 @Bean
 @Singleton
-@Priority
+@Primary
 public class BeanA {
 }
 
