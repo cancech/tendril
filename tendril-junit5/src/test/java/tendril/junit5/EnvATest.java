@@ -82,7 +82,7 @@ public class EnvATest {
 	 * @return int the number of beans
 	 */
 	protected int getExpectedNumBeans() {
-		return 5;
+		return 6;
 	}
 	
 	/**
@@ -91,7 +91,7 @@ public class EnvATest {
 	 * @return {@link List} of {@link Object}s representing all of the beans
 	 */
 	protected List<Object> getExpectedBeans() {
-		return Arrays.asList(ctx, randomBean, testBean, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"));
+		return Arrays.asList(ctx, randomBean, testBean, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"), ctx);
 	}
 	
 	/**

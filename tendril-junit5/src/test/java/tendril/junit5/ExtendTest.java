@@ -76,7 +76,7 @@ public class ExtendTest extends AbstractTest {
 	 */
 	@Override
 	protected int getExpectedNumBeans() {
-		return 9;
+		return 10;
 	}
 	
 	/**
@@ -84,7 +84,7 @@ public class ExtendTest extends AbstractTest {
 	 */
 	@Override
 	protected List<Object> getExpectedBeans() {
-		return Arrays.asList(ctx, randomBean, testBean, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"), new DuplicateBean("extend_1"), new DuplicateBean("extend_2"), new DuplicateBean("abs1"), new DuplicateBean("abs2"));
+		return Arrays.asList(ctx, randomBean, testBean, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"), new DuplicateBean("extend_1"), new DuplicateBean("extend_2"), new DuplicateBean("abs1"), new DuplicateBean("abs2"), ctx);
 	}
 	
 	/**

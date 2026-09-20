@@ -42,8 +42,8 @@ public class EnvBTest {
 		Assertions.assertNotNull(allBeans);
 		Assertions.assertNotNull(testBean);
 		
-		Assertions.assertEquals(3, allBeans.size());
-		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, testBean);
+		Assertions.assertEquals(4, allBeans.size());
+		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, testBean, ctx);
 		ClassAssert.assertInstance(TestEngine.class, ctx);
 		ClassAssert.assertInstance(EnvBBean.class, testBean);
 	}

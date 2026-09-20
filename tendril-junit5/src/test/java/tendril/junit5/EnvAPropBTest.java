@@ -47,8 +47,8 @@ class EnvAPropBTest {
 		Assertions.assertNotNull(allBeans);
 		Assertions.assertNotNull(testBeans);
 		
-		Assertions.assertEquals(4, allBeans.size());
-		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, envBean, propBean);
+		Assertions.assertEquals(5, allBeans.size());
+		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, envBean, propBean, ctx);
 		CollectionAssert.assertEquivalent(testBeans, envBean, propBean);
 		ClassAssert.assertInstance(TestEngine.class, ctx);
 	}

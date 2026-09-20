@@ -40,8 +40,8 @@ public class ExampleTest {
 		Assertions.assertNotNull(randomBean);
 		Assertions.assertNotNull(allBeans);
 		
-		Assertions.assertEquals(2, allBeans.size());
-		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean);
+		Assertions.assertEquals(3, allBeans.size());
+		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, ctx);
 		ClassAssert.assertInstance(TestEngine.class, ctx);
 	}
 }
