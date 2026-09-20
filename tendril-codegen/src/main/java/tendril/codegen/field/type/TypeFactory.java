@@ -172,4 +172,14 @@ public abstract class TypeFactory {
     	
     	return newClass;
     }
+    
+    /**
+     * Derive a {@link ClassType} representing an array of the {@link ClassType}
+     * 
+     * @param arrayType {@link ClassType} of the array contents
+     * @return {@link ClassType} representing the array
+     */
+    public static ClassType createClassArrayType(ClassType arrayType) {
+    	return new ArrayClassType(arrayType.getPackageName(), arrayType.getClassName());
+    }
 }

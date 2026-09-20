@@ -21,8 +21,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Array;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -45,6 +43,8 @@ public class ArrayTypeTest extends AbstractUnitTest {
     private Type mockOtherType;
     @Mock
     private ArrayType<Type> mockOtherArrayType;
+    @Mock
+    private ClassType mockClassType;
     
     // Instance to test
     private ArrayType<Type> type;
@@ -179,7 +179,14 @@ public class ArrayTypeTest extends AbstractUnitTest {
      */
     @Test
     public void testAsClassType() {
-        Assertions.assertEquals(TypeFactory.createClassType(Array.class), type.asClassType());
+    	when(mockType.asClassType()).thenReturn(mockClassType);
+    	when(mockClassType.getPackageName()).thenReturn("a.b.c");
+    	when(mockClassType.getClassName()).thenReturn("D");
+    	
+        Assertions.assertEquals(TypeFactory.createClassArrayType(TypeFactory.createClassType("a.b.c", "D")), type.asClassType());
+        verify(mockType).asClassType();
+        verify(mockClassType).getPackageName();
+        verify(mockClassType).getClassName();
     }
     
     /**

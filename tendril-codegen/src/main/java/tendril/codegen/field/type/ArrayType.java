@@ -15,8 +15,6 @@
  */
 package tendril.codegen.field.type;
 
-import java.lang.reflect.Array;
-
 import tendril.codegen.DefinitionException;
 import tendril.codegen.field.value.JValue;
 import tendril.codegen.field.value.JValueFactory;
@@ -122,7 +120,7 @@ public class ArrayType<DATA_TYPE extends Type> implements Type {
      */
     @Override
     public ClassType asClassType() {
-        return TypeFactory.createClassType(Array.class);
+        return TypeFactory.createClassArrayType(containedType.asClassType());
     }
     
     /**

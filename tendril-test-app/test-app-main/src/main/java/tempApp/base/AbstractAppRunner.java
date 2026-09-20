@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import tempApp.ArrayContents;
 import tempApp.DesiredInterface;
 import tempApp.DesiredInterfaceImpl;
 import tempApp.DuplicationBlueprint;
@@ -320,6 +321,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	
 	@Inject
 	DesiredInterface iFace;
+	
+	@Inject
+	ArrayContents[] arrayContents;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationBlueprint[] expectedDynamicDuplicates;
@@ -691,6 +695,10 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		assertion(iFace instanceof DesiredInterfaceImpl, "iFace should be instance of " + DesiredInterfaceImpl.class);
 		assertion(iFace.getString().equals(option1NamedStringWrapper.getString()),
 				"iFace expected to be \"" + option1NamedStringWrapper.getString() + "\" but was \"" + iFace.getString() + "\"");
+		
+		assertion(arrayContents.length == 6, "Should have 6 array elements, but has " + arrayContents.length);
+		for (int i = 0; i < arrayContents.length; i++)
+			assertion(arrayContents[i].value() == i, "Index " + i + " should have value of " + i + " but instead was " + arrayContents[i]);
 	}
 
 	protected static void assertion(boolean value, String msg) {

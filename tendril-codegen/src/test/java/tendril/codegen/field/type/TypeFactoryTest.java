@@ -366,6 +366,18 @@ public class TypeFactoryTest extends AbstractUnitTest {
 		Assertions.assertEquals(Lifecycle.class.getSimpleName(), type.getClassName());
 	}
 	
+	/**
+	 * Verify that array class types can be created.
+	 */
+	@Test
+	public void testCreateArrayClassType() {
+		ClassType contents = TypeFactory.createClassType("a.b.c.D");
+		ClassType type = TypeFactory.createClassArrayType(contents);
+		ClassAssert.assertInstance(ArrayClassType.class, type);
+		Assertions.assertEquals("a.b.c", type.getPackageName());
+		Assertions.assertEquals("D[]", type.getClassName());
+	}
+	
     /**
      * Setup the mockDeclaredMirror with the specified values so that it can be used in a test
      * 
