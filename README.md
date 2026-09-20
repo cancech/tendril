@@ -1298,6 +1298,23 @@ public class ConcreteTest extends BaseTest {
 }
 ```
 
+## Debugging Tendril Applications
+
+As an application grows in size, it can become a challenge to track and follow everything that is happening within the application context. To this end some debug features and capabilities are included through which it is possible to get a better idea of what is happening within the application context. These are available within the context, as such can be injected as any other bean.
+
+### Bean Debugger
+
+The `BeanDebugger` can be employed to gain a better understanding of the bean lifecycle. At present is has the capability to print to `System.err` details of the beans which have not been created, whether due to requirements not being fulfilled or simply were not referenced (and thus not constructed).
+
+```java
+@Inject
+BeanDebugger debugger;
+
+debugger.printBeansNotCreated();
+```
+
+This will print a list of all beans which were not constructed at the time when the call is made. As such, it is recommended to not call until after the application has reached a "steady state", or a state when all intended beans have already been created.
+
 ## Known Issues and Limitations
 While every effort is made to provide a fully functional capability and address all issues, there are some which have not been addressed as they would be too invasive to fix and ultimately not worth the effort at this stage. These are issues and limitations are documented here, so that the appropriate mitigation steps can be taken in the client code.
 

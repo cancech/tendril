@@ -42,9 +42,6 @@ public class AppRunner1 extends AbstractAppRunner {
 	@Named("c")
 	DynamicDuplicate cDup;
 	
-	@InjectAll
-	List<Object> allBeans;
-
 	@Inject
 	public AppRunner1(@Named("stringList") List<String> strList) {
 		super(AppRunner1.class, 2, new DuplicationBlueprint("a", 123, 1.23), new DuplicationBlueprint("b", 234, 2.34), new DuplicationBlueprint("c", 345, 3.45));

@@ -50,7 +50,7 @@ import tendril.util.TendrilUtil;
  * The core element within the {@link ApplicationContext} which is responsible for the bulk of the Dependency Injection capability. This tracks all beans (via their recipes) and allows for their
  * access. It is not expected that client code will ever touch or manipulate the engine directly, with the expected interactions being via recipes and their beans.
  */
-public class Engine implements ApplicationContext {
+public class Engine implements ApplicationContext, BeanDebugger {
 
 	/** Logger for creating log messages when running */
 	private static Logger LOGGER = Logger.getLogger(Engine.class.getSimpleName());
@@ -61,6 +61,8 @@ public class Engine implements ApplicationContext {
 	private final Map<Class<? extends Blueprint>, List<Blueprint>> blueprintsForClass = new HashMap<>();
 	/** All recipes that have been registered */
 	private final List<AbstractRecipe<?, ?>> recipes = new ArrayList<>();
+	/** All recipes that were attempted to be registered but whose requirements were not met */
+	private final List<AbstractRecipe<?, ?>> recipesReqsNotMet = new ArrayList<>();
 	/** All replacement recipes that are defined in a configuration */
 	private final List<Map<String, AbstractRecipe<?, ?>>> configReplacements = new ArrayList<>();
 	/** List of environments that are applied to the context */
@@ -123,8 +125,9 @@ public class Engine implements ApplicationContext {
 			e.printStackTrace();
 		}
 		
-		// Inject the ApplicationContext
+		// Inject the engine support beans
 		recipes.add(new WrapperRecipe<>(this, this, new Descriptor<>(ApplicationContext.class)));
+		recipes.add(new WrapperRecipe<>(this, this, new Descriptor<>(BeanDebugger.class)));
 	}
 
 	/**
@@ -216,6 +219,7 @@ public class Engine implements ApplicationContext {
 			recipes.add(recipe);
 			LOGGER.fine("Loaded recipe " + name);
 		} else {
+			recipesReqsNotMet.add(recipe);
 			LOGGER.fine("Bean requirements not met" + recipe);
 		}
 	}
@@ -397,6 +401,14 @@ public class Engine implements ApplicationContext {
 		return foundRecipes.processResults();
 	}
 
+	/**
+	 * Get all original recipes that can be replaced by the descriptor
+	 *   
+	 * @param <BEAN_TYPE> indicating the type of the beans that are to be replaced
+	 * @param descriptor  {@link Descriptor} containing the description of the beans that are to be replaced
+	 * @param type        {@link SearchType} indicating the type of recipe search that is to be performed
+	 * @return {@link RecipeSearchResult} containing all of the matching recipes
+	 */
 	@SuppressWarnings("unchecked")
 	private <BEAN_TYPE> RecipeSearchResult<BEAN_TYPE> findOriginalRecipes(Descriptor<BEAN_TYPE> descriptor, SearchType type) {
 		RecipeSearchHandler<BEAN_TYPE> foundRecipes = type == SearchType.SINGLE_BEAN ? new SingleRecipeSearchHandler<>() : new AllRecipeSearchHandler<>();
@@ -460,6 +472,7 @@ public class Engine implements ApplicationContext {
 		// Save them for future retrieval
 		blueprintsForClass.put(blueprintClass, matches);
 	}
+	
 	/**
 	 * @see tendril.context.ApplicationContext#start()
 	 */
@@ -485,5 +498,30 @@ public class Engine implements ApplicationContext {
                 SecurityException | ClassNotFoundException e) {
             throw new TendrilStartupException(e);
         }
+	}
+
+	/**
+	 * @see tendril.context.BeanDebugger#printBeansNotCreated()
+	 */
+	@Override
+	public void printBeansNotCreated() {
+		List<AbstractRecipe<?,?>> notConstructed = new ArrayList<>();
+		for (AbstractRecipe<?, ?> r: recipes) {
+			if (r.isConstructed())
+				continue;
+			
+			notConstructed.add(r);
+		}
+		
+		System.err.println("*************************************************");
+		System.err.println("***************** TENDRIL DEBUG *****************");
+		System.err.println("*************************************************");
+		System.err.println("Beans with unfulfilled requirements:");
+		for (AbstractRecipe<?, ?> r: recipesReqsNotMet)
+			System.err.println(" *** " + r.getDescription());
+		System.err.println("-------------------------------------------------");
+		System.err.println("Beans not constructed / referenced:");
+		for (AbstractRecipe<?, ?> r: notConstructed)
+			System.err.println(" *** " + r.getDescription());
 	}
 }

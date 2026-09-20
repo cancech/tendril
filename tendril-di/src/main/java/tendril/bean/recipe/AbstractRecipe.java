@@ -54,6 +54,8 @@ public abstract class AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE>
 	private final List<Injector<INSTANCE_TYPE>> consumers = new ArrayList<>();
 	/** Flag to mark whether the bean is being constructed - used to detect dependency cycles */
 	private boolean isUnderConstruction = false;
+	/** Flag to indicate whether the recipe has been constructed at some point */
+	private boolean constructed = false;
 
 	/**
 	 * CTOR
@@ -213,6 +215,15 @@ public abstract class AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE>
 	protected void registerInjector(Injector<INSTANCE_TYPE> injector) {
 		consumers.add(injector);
 	}
+	
+	/**
+	 * Check if the recipe has been constructed at some point.
+	 * 
+	 * @return boolean true if it has been constructed (i.e.: retrieved at least once)
+	 */
+	public boolean isConstructed() {
+		return constructed;
+	}
 
 	/**
 	 * Get the instance of the bean that has been created. This is expected to be called by the {@link Engine} in response to another bean (recipe) requiring the one created and defined by the current
@@ -243,6 +254,7 @@ public abstract class AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE>
 			isUnderConstruction = false;
 			// Trigger post construct
 			postConstruct(bean);
+			constructed = true;
 			return bean;
 		} catch (Throwable e) {
 			isUnderConstruction = false;

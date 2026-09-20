@@ -4,6 +4,7 @@ import tempApp.base.AbstractAppRunner;
 import tendril.bean.qualifier.Descriptor;
 import tendril.context.ApplicationContext;
 import tendril.context.ApplicationContextBuilder;
+import tendril.context.BeanDebugger;
 
 public class Main {
 	
@@ -35,5 +36,7 @@ public class Main {
         ctx.start();
         
         System.err.println("COMPLETED AFTER " + (System.currentTimeMillis() - startTime) + "ms");
+        
+        ctx.getBean(new Descriptor<BeanDebugger>(BeanDebugger.class)).printBeansNotCreated();
 	}
 }

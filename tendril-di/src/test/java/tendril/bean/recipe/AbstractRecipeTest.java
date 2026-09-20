@@ -191,7 +191,9 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     public void testBuildBeanExceptionThrown() {
         // If createInstance generate an exception
         recipe.createInstanceThrows = true;
+        Assertions.assertFalse(recipe.isConstructed());
         Assertions.assertThrows(BeanCreationException.class, () -> recipe.buildBean());
+        Assertions.assertFalse(recipe.isConstructed());
         recipe.assertTimesCreateInstanceCalled(0);
         recipe.assertTimesPostConstructCalled(0, null);
         
@@ -199,6 +201,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         recipe.createInstanceThrows = false;
         recipe.postConstructThrows = true;
         Assertions.assertThrows(BeanCreationException.class, () -> recipe.buildBean());
+        Assertions.assertFalse(recipe.isConstructed());
         recipe.assertTimesCreateInstanceCalled(1);
         recipe.assertTimesPostConstructCalled(0, null);
         
@@ -207,6 +210,7 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         recipe.postConstructThrows = false;
         recipe.registerInjector((consumer, engine) -> { throw new IllegalArgumentException(); });
         Assertions.assertThrows(BeanCreationException.class, () -> recipe.buildBean());
+        Assertions.assertFalse(recipe.isConstructed());
         recipe.assertTimesCreateInstanceCalled(2);
         recipe.assertTimesPostConstructCalled(0, null);
     }
@@ -216,8 +220,10 @@ public class AbstractRecipeTest extends AbstractUnitTest {
      */
     @Test
     public void testBuildNoDependencies() {
+        Assertions.assertFalse(recipe.isConstructed());
         SingleCtorBean instance = recipe.buildBean();
         Assertions.assertNotNull(instance);
+        Assertions.assertTrue(recipe.isConstructed());
         recipe.assertTimesCreateInstanceCalled(1);
         recipe.assertTimesPostConstructCalled(1, instance);
     }
@@ -231,7 +237,9 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         verifyAllChecked();
         
         when(mockEngine.getBean(mockStringDescriptor)).thenReturn("abc123");
+        Assertions.assertFalse(recipe.isConstructed());
         SingleCtorBean instance = recipe.buildBean();
+        Assertions.assertTrue(recipe.isConstructed());
         Assertions.assertNotNull(instance);
         recipe.assertTimesCreateInstanceCalled(1);
         recipe.assertTimesPostConstructCalled(1, instance);
@@ -252,7 +260,9 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         when(mockEngine.getBean(mockStringDescriptor)).thenReturn("abc123");
         when(mockEngine.getBean(mockIntDescriptor)).thenReturn(123);
         when(mockEngine.getBean(mockDoubleDescriptor)).thenReturn(1.23);
+        Assertions.assertFalse(recipe.isConstructed());
         SingleCtorBean instance = recipe.buildBean();
+        Assertions.assertTrue(recipe.isConstructed());
         recipe.assertTimesCreateInstanceCalled(1);
         recipe.assertTimesPostConstructCalled(1, instance);
         Assertions.assertNotNull(instance);
@@ -271,8 +281,10 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     public void testBuildSingleInjectorNoApplicators() {
         recipe.registerInjector(mockInjector1);
         verifyAllChecked();
-        
+
+        Assertions.assertFalse(recipe.isConstructed());
         SingleCtorBean instance = recipe.buildBean();
+        Assertions.assertTrue(recipe.isConstructed());
         recipe.assertTimesCreateInstanceCalled(1);
         recipe.assertTimesPostConstructCalled(1, instance);
         Assertions.assertNotNull(instance);
@@ -288,8 +300,10 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         recipe.registerInjector(mockInjector2);
         recipe.registerInjector(mockInjector3);
         verifyAllChecked();
-        
+
+        Assertions.assertFalse(recipe.isConstructed());
         SingleCtorBean instance = recipe.buildBean();
+        Assertions.assertTrue(recipe.isConstructed());
         recipe.assertTimesCreateInstanceCalled(1);
         recipe.assertTimesPostConstructCalled(1, instance);
         Assertions.assertNotNull(instance);
@@ -314,7 +328,9 @@ public class AbstractRecipeTest extends AbstractUnitTest {
         when(mockEngine.getBean(mockStringDescriptor)).thenReturn("abc123");
         when(mockEngine.getBean(mockIntDescriptor)).thenReturn(123);
         when(mockEngine.getBean(mockDoubleDescriptor)).thenReturn(1.23);
+        Assertions.assertFalse(recipe.isConstructed());
         SingleCtorBean instance = recipe.buildBean();
+        Assertions.assertTrue(recipe.isConstructed());
         recipe.assertTimesCreateInstanceCalled(1);
         recipe.assertTimesPostConstructCalled(1, instance);
         Assertions.assertNotNull(instance);
@@ -335,8 +351,10 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     @Test
     public void testDependencyCycleThrowsException() {
         // Imitate a cycle
+        Assertions.assertFalse(recipe.isConstructed());
         recipe.registerInjector((bean, engine) -> recipe.buildBean());
         Assertions.assertThrows(BeanCreationException.class, () -> recipe.buildBean());
+        Assertions.assertFalse(recipe.isConstructed());
     }
     
     /**
