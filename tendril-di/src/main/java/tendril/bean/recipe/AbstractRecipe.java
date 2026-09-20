@@ -51,7 +51,7 @@ public abstract class AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE>
 	private boolean isFallback;
 
 	/** List of the dependencies that the bean must receive */
-	private final List<Injector<BEAN_TYPE>> consumers = new ArrayList<>();
+	private final List<Injector<INSTANCE_TYPE>> consumers = new ArrayList<>();
 	/** Flag to mark whether the bean is being constructed - used to detect dependency cycles */
 	private boolean isUnderConstruction = false;
 
@@ -201,7 +201,7 @@ public abstract class AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE>
 	 * @param desc              {@link Descriptor} providing a description of which exact bean the dependency is
 	 * @param appl              {@link Applicator} providing the appropriate mechanism for applying the dependency to the bean under construction
 	 */
-	protected <DEPENDENCY_TYPE> void registerDependency(Descriptor<DEPENDENCY_TYPE> desc, Applicator<BEAN_TYPE, DEPENDENCY_TYPE> appl) {
+	protected <DEPENDENCY_TYPE> void registerDependency(Descriptor<DEPENDENCY_TYPE> desc, Applicator<INSTANCE_TYPE, DEPENDENCY_TYPE> appl) {
 		registerInjector(new InjectDependency<>(desc, appl));
 	}
 
@@ -210,7 +210,7 @@ public abstract class AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE>
 	 * 
 	 * @param injector {@link Injector} for the bean
 	 */
-	protected void registerInjector(Injector<BEAN_TYPE> injector) {
+	protected void registerInjector(Injector<INSTANCE_TYPE> injector) {
 		consumers.add(injector);
 	}
 

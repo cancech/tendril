@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import tempApp.DesiredInterface;
+import tempApp.DesiredInterfaceImpl;
 import tempApp.DuplicationBlueprint;
 import tempApp.EnumBlueprint;
 import tempApp.ExceptionCtorBean;
@@ -315,6 +317,9 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 	StringToLongMap strToLong;
 	@Inject
 	StringToGenericMap<Long> strToGen;
+	
+	@Inject
+	DesiredInterface iFace;
 
 	private final int numOfClassDuplicates;
 	private final DuplicationBlueprint[] expectedDynamicDuplicates;
@@ -682,6 +687,10 @@ public abstract class AbstractAppRunner implements TendrilRunner {
 		}
 
 		assertion(strToLong == strToGen, "strToInt and strToGen should be the same instance");
+		
+		assertion(iFace instanceof DesiredInterfaceImpl, "iFace should be instance of " + DesiredInterfaceImpl.class);
+		assertion(iFace.getString().equals(option1NamedStringWrapper.getString()),
+				"iFace expected to be \"" + option1NamedStringWrapper.getString() + "\" but was \"" + iFace.getString() + "\"");
 	}
 
 	protected static void assertion(boolean value, String msg) {
