@@ -8,6 +8,8 @@ import tendril.context.ApplicationContextBuilder;
 public class Main {
 	
 	public static void main(String[] args) {
+		long startTime = System.currentTimeMillis();
+		
 	    AbstractAppRunner.expectedMessage = "QWERTY";
 	    AbstractAppRunner.expectedEnvironment = "production";
 	    AbstractAppRunner.expectedRunner = AppRunner1.class;
@@ -31,5 +33,7 @@ public class Main {
         ApplicationContext ctx = ctxBuilder.build();
         ctx.registerBean(new ManualBean(135), new Descriptor<>(ManualBean.class));
         ctx.start();
+        
+        System.err.println("COMPLETED AFTER " + (System.currentTimeMillis() - startTime) + "ms");
 	}
 }

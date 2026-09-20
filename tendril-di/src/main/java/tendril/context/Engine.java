@@ -381,6 +381,7 @@ public class Engine implements ApplicationContext {
 	 */
 	@SuppressWarnings("unchecked")
 	private <BEAN_TYPE> RecipeSearchResult<BEAN_TYPE> findRecipes(Descriptor<BEAN_TYPE> descriptor, SearchType type) {
+		// TODO speed this up
 		RecipeSearchHandler<BEAN_TYPE> foundRecipes = type == SearchType.SINGLE_BEAN ? new SingleRecipeSearchHandler<>() : new AllRecipeSearchHandler<>();
 		recipes.forEach((r) -> {
 			if (r.getDescription().matches(descriptor)) {
