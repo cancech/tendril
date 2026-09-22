@@ -1,6 +1,7 @@
 package tendril.test.context;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 
 import tendril.TendrilStartupException;
@@ -64,7 +65,7 @@ public class TestEngine extends Engine {
 	 */
 	@Override
 	protected List<String> systemPropertyList() {
-		List<String> props = super.systemPropertyList();
+		List<String> props = new ArrayList<>(super.systemPropertyList());
 		for (String p: testProperties)
 			props.add(p);
 		return props;
