@@ -56,6 +56,8 @@ public abstract class AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE>
 	private boolean isUnderConstruction = false;
 	/** Flag to indicate whether the recipe has been constructed at some point */
 	private boolean constructed = false;
+	/** Flag to indicate whether the recipe should be automatically created on application start */
+	private boolean isAutoCreate = false;
 
 	/**
 	 * CTOR
@@ -101,6 +103,24 @@ public abstract class AbstractRecipe<BEAN_TYPE, INSTANCE_TYPE extends BEAN_TYPE>
 		this.isPrimary = false;
 		this.isFallback = false;
 		init();
+	}
+	
+	/**
+	 * Mark the recipe as one which should be automatically created on application start.
+	 * 
+	 * @param autoCreate boolean true if it should be automatically created on application start
+	 */
+	public void setAutoCreate(boolean autoCreate) {
+		this.isAutoCreate = autoCreate;
+	}
+	
+	/**
+	 * Check if the recipe should be automatically created on application start.
+	 * 
+	 * @return boolean true if it should be automatically created on application start
+	 */
+	public boolean isAutoCreate() {
+		return isAutoCreate;
 	}
 	
 	/**

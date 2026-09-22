@@ -185,6 +185,18 @@ public class AbstractRecipeTest extends AbstractUnitTest {
     }
     
     /**
+     * Verify that the auto create flag is properly handled.
+     */
+    @Test
+    public void testAutoCreate() {
+    	Assertions.assertFalse(recipe.isAutoCreate());
+    	recipe.setAutoCreate(true);
+    	Assertions.assertTrue(recipe.isAutoCreate());
+    	recipe.setAutoCreate(false);
+    	Assertions.assertFalse(recipe.isAutoCreate());
+    }
+    
+    /**
      * Verify that an exception is thrown if an exception is encountered during the bean creation
      */
     @Test

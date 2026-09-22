@@ -133,8 +133,20 @@ public class Engine implements ApplicationContext, BeanDebugger {
 		// Inject the engine support beans
 		recipes.add(new WrapperRecipe<>(this, this, new Descriptor<>(ApplicationContext.class)));
 		recipes.add(new WrapperRecipe<>(this, this, new Descriptor<>(BeanDebugger.class)));
+		
+		autoCreateBeans();
 	}
-
+	
+	/**
+	 * Trigger the creation of the beans which should be automatically created as part of the application initialization
+	 */
+	private void autoCreateBeans() {
+		for (AbstractRecipe<?, ?> r: recipes) {
+			if (r.isAutoCreate())
+				r.get();
+		}
+	}
+	
 	/**
 	 * Functional interface to allow different recipe loading methods to be employed when processing the registry. This is explicitly tied to the processRegistry method.
 	 */

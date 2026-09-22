@@ -113,6 +113,7 @@ abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
         // CTOR contents
         List<String> ctorCode = new ArrayList<>();
         ctorCode.add("super(engine, " + RecipeGeneratorHelper.getClassReference(advertisedType) + ", " + isPrimary + ", " + isFallback + ");");
+        appendAutoCreateMarker(ctorCode);
         generateFieldConsumers(ctorCode);
         generateMethodConsumers(ctorCode);
 

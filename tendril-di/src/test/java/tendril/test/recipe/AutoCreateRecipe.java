@@ -5,7 +5,7 @@ import tendril.bean.recipe.AbstractRecipe;
 import tendril.bean.requirement.Requirement;
 import tendril.context.Engine;
 
-public class BasicStringRecipe1 extends AbstractRecipe<String, String> {
+public class AutoCreateRecipe extends AbstractRecipe<String, String> {
 
     /** The value that the recipe produces */
     public static final String VALUE = "BasicString1";
@@ -16,15 +16,15 @@ public class BasicStringRecipe1 extends AbstractRecipe<String, String> {
     	return getCalled;
     }
     
-    
     /**
      * CTOR
      * 
      * @param engine {@link Engine} in which the recipe is to be registered
      */
-    public BasicStringRecipe1(Engine engine) {
+    public AutoCreateRecipe(Engine engine) {
         super(engine, String.class, false, false);
         getCalled = false;
+        setAutoCreate(true);
     }
 
     /**

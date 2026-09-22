@@ -26,6 +26,7 @@ import tendril.annotationprocessor.ClassDefinition;
 import tendril.annotationprocessor.exception.InvalidConfigurationException;
 import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.annotationprocessor.exception.TendrilException;
+import tendril.bean.AutoCreate;
 import tendril.bean.Configuration;
 import tendril.bean.Factory;
 import tendril.bean.Fallback;
@@ -434,5 +435,17 @@ public abstract class AbstractRecipeGenerator<CREATOR extends JBase> {
 			} else
 				populateReqs(lines, a, annotation, methodName, individually);
 		}
+	}
+	
+	/**
+	 * Append the line(s) necessary to the code to mark the generated recipe as an auto create marked recipe.
+	 * 
+	 * @param code {@link List} of {@link String}s where the code is being collected
+	 */
+	protected void appendAutoCreateMarker(List<String> code) {
+		if (!creator.hasAnnotation(AutoCreate.class))
+			return;
+		
+		code.add("setAutoCreate(true);");
 	}
 }

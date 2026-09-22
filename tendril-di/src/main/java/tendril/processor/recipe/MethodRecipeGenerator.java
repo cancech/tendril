@@ -15,6 +15,9 @@
  */
 package tendril.processor.recipe;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.processing.Messager;
 
 import tendril.annotationprocessor.exception.InvalidConfigurationException;
@@ -106,8 +109,12 @@ public class MethodRecipeGenerator extends AbstractRecipeGenerator<JMethod<?>> {
 		// Instance field for the config
 		builder.buildField(configRecipeType, "config").setVisibility(VisibilityType.PRIVATE).setFinal(true).finish();
 		// Add the constructor
+		List<String> ctorCode = new ArrayList<>();
+		ctorCode.add("super(engine, " + RecipeGeneratorHelper.getClassReference(advertisedType) + ", " + isPrimary + ", " + isFallback + ");");
+		ctorCode.add("this.config = config;");
+		appendAutoCreateMarker(ctorCode);
 		builder.buildConstructor().setVisibility(VisibilityType.PUBLIC).buildParameter(configRecipeType, "config").finish().buildParameter(TypeFactory.createClassType(Engine.class), "engine").finish()
-				.addCode("super(engine, " + RecipeGeneratorHelper.getClassReference(advertisedType) + ", " + isPrimary + ", " + isFallback + ");", "this.config = config;").finish();
+				.addCode(ctorCode.toArray(new String[ctorCode.size()])).finish();
 	}
 
 }

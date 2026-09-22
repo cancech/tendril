@@ -130,6 +130,36 @@ public class MyConfiguration {
 
 The limitation and implications are the same as when employed with a bean class.
 
+#### Forcing Bean Creation
+
+By default beans are created lazily, meaning that beans are only created when another bean explicitly injects them. The ultimately translates into requiring every bean to in effect be a (nested) dependency from the `TendrilRunner` that is launching the application. It is possible to override this behavior and force a bean to be created on application start by marking it as `@AutoCreate`. Beans marked in this manner will be automatically created as soon as the application context is initialized and _before_ the `TendrilRunner` is executed.
+
+```java
+@Bean
+@Singleton
+@AutoCreate
+public class MyAutoCreateBean {
+	// snip
+}
+```
+
+This applies to both stand alone bean classes, as well as beans defined within a configuration.
+
+```java
+@Configuration
+public class MyConfiguration {
+
+  @Bean
+  @Singleton
+  @AutoCreate
+  public MyBean autoCreatedBean() {
+    return new MyBean();
+  }
+}
+```
+
+Applying `@AutoCreate` has the benefit of forcing beans to be created early, for example create a bean that is time consuming to create as part of application initialization rather than later when doing so could stall the application. Or to ensure that a bean is created regardless of whether or not it is consumed. The latter situation is a sign of poor design and runs the risk of creating beans that are not actually required, and as such it is not recommended to be used for this purpose.
+
 ### Placing Restriction on Bean Creation
 Requirements can be placed on Beans and Configurations to limit under what circumstance they will be created. For example to use a different bean in a development, production, or test environment with little to no changes required in the code itself. Note that when a requirement is applied to a `Configuration` directly, it is implicitly applied to all Beans within (the whole `Configuration` will not be employed if the `Configuration` requirements are not met). Any requirements applied to Beans defined within a `Configuration` are in effect applied on top of the `Configuration` requirements. Multiples requirements can be applied, with them acting additively (i.e.: all specified requirements must be met).
 

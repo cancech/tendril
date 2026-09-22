@@ -6,6 +6,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.processing.Messager;
 
 import org.junit.jupiter.api.Assertions;
@@ -14,6 +17,7 @@ import org.mockito.Mock;
 
 import tendril.annotationprocessor.exception.ProcessingException;
 import tendril.annotationprocessor.exception.TendrilException;
+import tendril.bean.AutoCreate;
 import tendril.bean.Fallback;
 import tendril.bean.Primary;
 import tendril.bean.duplicate.Sibling;
@@ -21,6 +25,7 @@ import tendril.codegen.JBase;
 import tendril.codegen.classes.ClassBuilder;
 import tendril.codegen.field.type.ClassType;
 import tendril.test.AbstractUnitTest;
+import tendril.test.assertions.CollectionAssert;
 
 /**
  * Integration test for verifying that the {@link AbstractRecipeGenerator} produces the proper results.
@@ -175,5 +180,26 @@ public class AbstractRecipeGeneratorTest extends AbstractUnitTest {
 		verify(mockMessager).printWarning("ElementPath has an @Sibling annotation but this is not supported for this bean and thus ignored.");
 		verify(mockElement, times(2)).hasAnnotation(Sibling.class);
 		verify(mockElement).getFullElementPath();
+	}
+	
+	/**
+	 * Verify that the auto create flag is properly handled
+	 */
+	@Test
+	public void testAutoCreate() {
+		List<String> code = new ArrayList<>();
+		AbstractRecipeGenerator<JBase> generator = new TestAbstractRecipeGenerator(null);
+		verify(mockCreator, times(1)).hasAnnotation(Primary.class);
+		verify(mockCreator, times(1)).hasAnnotation(Fallback.class);
+		
+		// Nothing is appending if annotation is not present
+		when(mockCreator.hasAnnotation(AutoCreate.class)).thenReturn(false);
+		generator.appendAutoCreateMarker(code);
+		CollectionAssert.assertEmpty(code);
+		
+		// Recipe is marked as auto create if annotation is present
+		when(mockCreator.hasAnnotation(AutoCreate.class)).thenReturn(true);
+		generator.appendAutoCreateMarker(code);
+		CollectionAssert.assertEquivalent(code, "setAutoCreate(true);");
 	}
 }

@@ -33,6 +33,7 @@ import tendril.processor.registration.RegistryFile;
 import tendril.processor.registration.ReplacementRegistryFile;
 import tendril.test.AbstractUnitTest;
 import tendril.test.assertions.CollectionAssert;
+import tendril.test.recipe.AutoCreateRecipe;
 import tendril.test.recipe.BasicStringRecipe1;
 import tendril.test.recipe.BasicStringRecipe2;
 import tendril.test.recipe.BasicStringRecipe3;
@@ -775,6 +776,21 @@ public class EngineIT extends AbstractUnitTest {
 				Assertions.assertThrows(BeanReplacementException.class, () -> engine.init());
 			}
 		}
+	}
+
+	/**
+	 * Verify that auto-create beans are automatically created
+	 */
+	@Test
+	public void testAutoCreateBeansCreated() {
+		try (MockedStatic<RegistryFile> registry = Mockito.mockStatic(RegistryFile.class)) {
+			registry.when(RegistryFile::read).thenReturn(new HashSet<>(Arrays.asList(BasicStringRecipe1.class.getName(), AutoCreateRecipe.class.getName())));
+			engine.init();
+		}
+
+		Assertions.assertEquals(4, engine.getBeanCount());
+		Assertions.assertFalse(BasicStringRecipe1.wasGetCalled());
+		Assertions.assertTrue(AutoCreateRecipe.wasGetCalled());
 	}
 
 	/**
