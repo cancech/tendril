@@ -46,6 +46,7 @@ import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.generics.GenericFactory;
 import tendril.context.Engine;
+import tendril.logging.TendrilLogger;
 import tendril.util.TendrilStringUtil;
 
 /**
@@ -53,7 +54,7 @@ import tendril.util.TendrilStringUtil;
  */
 abstract class ClassRecipeGenerator extends AbstractRecipeGenerator<JClass> {
     /** Logger for the processor */
-    private static final Logger LOGGER = Logger.getLogger(ClassRecipeGenerator.class.getSimpleName());
+    private static Logger LOGGER = TendrilLogger.getDiLogger();
     
     // TODO When bean extends another class with injections, should it extend its recipe?
 

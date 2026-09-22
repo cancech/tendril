@@ -40,6 +40,7 @@ import tendril.context.search.RecipeSearchHandler;
 import tendril.context.search.RecipeSearchResult;
 import tendril.context.search.SearchType;
 import tendril.context.search.SingleRecipeSearchHandler;
+import tendril.logging.TendrilLogger;
 import tendril.processor.registration.RegistryFile;
 import tendril.processor.registration.ReplacementRegistryFile;
 import tendril.processor.registration.RunnerFile;
@@ -53,7 +54,7 @@ import tendril.util.TendrilUtil;
 public class Engine implements ApplicationContext, BeanDebugger {
 
 	/** Logger for creating log messages when running */
-	private static Logger LOGGER = Logger.getLogger(Engine.class.getSimpleName());
+    private static Logger LOGGER = TendrilLogger.getDiLogger();
 
 	/** List of all blueprints which have been added */
 	private final List<Blueprint> blueprints = new ArrayList<>();
@@ -67,6 +68,8 @@ public class Engine implements ApplicationContext, BeanDebugger {
 	private final List<Map<String, AbstractRecipe<?, ?>>> configReplacements = new ArrayList<>();
 	/** List of environments that are applied to the context */
 	private List<String> environments = new ArrayList<>();
+	/** List of properties that are applied to the context - should be accessed via systemPropertyList() and not used directly */
+	protected List<String> properties = null;
 	/** Flag for whether or not the engine has been started */
 	private boolean isStarted = false;
 
@@ -108,7 +111,9 @@ public class Engine implements ApplicationContext, BeanDebugger {
 	void init() {
 		isStarted = true;
 
-		LOGGER.fine("Initializing with environments [" + TendrilStringUtil.join(environments) + "]");
+		LOGGER.info("Initializing with environments [" + TendrilStringUtil.join(environments) + "]");
+		LOGGER.info("Initializing with properties [" + TendrilStringUtil.join(systemPropertyList()) + "]");
+
 		try {
 			// First load all "original" recipes
 			processRegistry(RegistryFile.read(), (recipe, instance) -> {
@@ -238,6 +243,7 @@ public class Engine implements ApplicationContext, BeanDebugger {
 				Descriptor<?> description = recipe.getDescription();
 				try {
 					AbstractRecipe<?, ?> orig = getRecipe(description, findOriginalRecipes(description, SearchType.SINGLE_BEAN));
+					LOGGER.fine("Replacing original recipe " + orig + " with replacement recipe " + recipe + " and descriptor " + description);
 					recipes.remove(orig);
 					recipe.updatePriorities(orig);
 					description.updateFrom(orig.getDescription());
@@ -269,10 +275,13 @@ public class Engine implements ApplicationContext, BeanDebugger {
 	 * @return {@link List} of {@link String}s
 	 */
 	protected List<String> systemPropertyList() {
-		List<String> propNames = new ArrayList<>();
-		for (Object o : System.getProperties().keySet())
-			propNames.add(o.toString());
-		return propNames;
+		if (properties == null) {
+			properties = new ArrayList<>();
+			for (Object o : System.getProperties().keySet())
+				properties.add(o.toString());
+		}
+		
+		return properties;
 	}
 
 	/**
@@ -360,7 +369,9 @@ public class Engine implements ApplicationContext, BeanDebugger {
 		if (matches.size() > 1)
 			throw new BeanRetrievalException(descriptor, (List<AbstractRecipe<BEAN_TYPE, BEAN_TYPE>>) matches, matchingRecipes.getType());
 
-		return (AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) matches.get(0);
+		AbstractRecipe<BEAN_TYPE, BEAN_TYPE> recipe = (AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) matches.get(0);
+		LOGGER.fine("Descriptor " + descriptor + " resolves to the single recipe " + recipe);
+		return recipe;
 	}
 
 	/**
@@ -371,6 +382,7 @@ public class Engine implements ApplicationContext, BeanDebugger {
 		List<BEAN_TYPE> beans = new ArrayList<>();
 		RecipeSearchResult<BEAN_TYPE> matchingRecipes = findRecipes(descriptor, SearchType.ALL_BEANS);
 		matchingRecipes.getRecipes().forEach(r -> beans.add(r.get()));
+		LOGGER.fine("Descriptor " + descriptor + " resolves to all recipes " + TendrilStringUtil.join(beans));
 		return beans;
 	}
 
@@ -493,6 +505,7 @@ public class Engine implements ApplicationContext, BeanDebugger {
                         TendrilStringUtil.join(runnerRecipes, r -> r.getDescription().getBeanType().getFullyQualifiedName()) + "].");
             
             TendrilRunner runner = (TendrilRunner) runnerRecipes.get(0).get();
+			LOGGER.fine("Starting tendril application using runner " + runner);
             runner.run();
         } catch (IOException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException |
                 SecurityException | ClassNotFoundException e) {

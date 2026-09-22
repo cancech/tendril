@@ -33,6 +33,7 @@ import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.Type;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.codegen.field.value.JValue;
+import tendril.logging.TendrilLogger;
 import tendril.util.TendrilStringUtil;
 
 /**
@@ -41,7 +42,7 @@ import tendril.util.TendrilStringUtil;
 public abstract class JAnnotationFactory {
 
     /** Logger for creating log messages when running */
-    private static Logger LOGGER = Logger.getLogger(JAnnotationFactory.class.getSimpleName());
+    private static Logger LOGGER = TendrilLogger.getCodegenLogger();
     /** Flag for whether log messages are enabled */
     private static boolean loggingEnabled = true;
 

@@ -1302,6 +1302,22 @@ public class ConcreteTest extends BaseTest {
 
 As an application grows in size, it can become a challenge to track and follow everything that is happening within the application context. To this end some debug features and capabilities are included through which it is possible to get a better idea of what is happening within the application context. These are available within the context, as such can be injected as any other bean.
 
+### Logging
+
+Various logging message are available from Tendril via `java.util.Logging`. These messages appear at different levels, depending the severity of what is being logged, using the following pattern:
+
+* `LoggingLevel.SEVERE` - something went badly wrong and there is every expectation that the application stability or functionality will be compromised
+* `LoggingLevel.WARNING` - something unexpected was encountered and there is a possibility of unintended side-effects which could impact or compromise the application
+* `LoggingLevel.INFO` - an expected and intended action took place, additional information is being provided
+* `LoggingLevel.FINE` - details of the inner workings to facilitate debugging and troubleshooting of the application context within the larger application
+
+This can be controlled on a per-package basis, with the following namespaces available.
+
+|Logging Package|Description|
+|---            |---        |
+|`tendril.codegen`|Logging which comes from the `tendril-codegen` library|
+|`tendril.di`|Logging which comes from the `tendril-di` library|
+
 ### Bean Debugger
 
 The `BeanDebugger` can be employed to gain a better understanding of the bean lifecycle. At present is has the capability to print to `System.err` details of the beans which have not been created, whether due to requirements not being fulfilled or simply were not referenced (and thus not constructed).
