@@ -12,6 +12,7 @@ import tendril.bean.Inject;
 import tendril.bean.InjectAll;
 import tendril.bean.duplicate.Blueprint;
 import tendril.context.ApplicationContext;
+import tendril.context.BeanDebugger;
 import tendril.junit5.beans.DuplicateBean;
 import tendril.junit5.beans.EnvABean;
 import tendril.junit5.beans.RandomBean;
@@ -68,6 +69,8 @@ public class EnvATest {
 	@Inject
 	protected ApplicationContext ctx;
 	@Inject
+	protected BeanDebugger beanDebugger;
+	@Inject
 	protected RandomBean randomBean;
 	@Inject
 	protected TestBean testBean;
@@ -91,7 +94,7 @@ public class EnvATest {
 	 * @return {@link List} of {@link Object}s representing all of the beans
 	 */
 	protected List<Object> getExpectedBeans() {
-		return Arrays.asList(ctx, randomBean, testBean, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"), ctx);
+		return Arrays.asList(ctx, randomBean, testBean, new DuplicateBean("enva_a"), new DuplicateBean("enva_b"), beanDebugger);
 	}
 	
 	/**

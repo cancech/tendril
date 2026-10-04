@@ -10,6 +10,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import tendril.bean.Inject;
 import tendril.bean.InjectAll;
 import tendril.context.ApplicationContext;
+import tendril.context.BeanDebugger;
 import tendril.junit5.beans.RandomBean;
 import tendril.test.TendrilTest;
 import tendril.test.assertions.ClassAssert;
@@ -26,6 +27,8 @@ public class ExampleTest {
 	@Inject
 	ApplicationContext ctx;
 	@Inject
+	BeanDebugger beanDebugger;
+	@Inject
 	RandomBean randomBean;
 	
 	@InjectAll
@@ -41,7 +44,7 @@ public class ExampleTest {
 		Assertions.assertNotNull(allBeans);
 		
 		Assertions.assertEquals(3, allBeans.size());
-		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, ctx);
+		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, beanDebugger);
 		ClassAssert.assertInstance(TestEngine.class, ctx);
 	}
 }

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import tendril.bean.Inject;
 import tendril.bean.InjectAll;
 import tendril.context.ApplicationContext;
+import tendril.context.BeanDebugger;
 import tendril.junit5.beans.EnvABean;
 import tendril.junit5.beans.PropBBean;
 import tendril.junit5.beans.RandomBean;
@@ -25,6 +26,8 @@ class EnvAPropBTest {
 
 	@Inject
 	ApplicationContext ctx;
+	@Inject
+	BeanDebugger beanDebugger;
 	@Inject
 	RandomBean randomBean;
 	@InjectAll
@@ -48,7 +51,7 @@ class EnvAPropBTest {
 		Assertions.assertNotNull(testBeans);
 		
 		Assertions.assertEquals(5, allBeans.size());
-		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, envBean, propBean, ctx);
+		CollectionAssert.assertEquivalent(allBeans, ctx, randomBean, envBean, propBean, beanDebugger);
 		CollectionAssert.assertEquivalent(testBeans, envBean, propBean);
 		ClassAssert.assertInstance(TestEngine.class, ctx);
 	}
