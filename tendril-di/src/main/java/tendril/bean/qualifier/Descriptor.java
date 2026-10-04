@@ -18,6 +18,7 @@ package tendril.bean.qualifier;
 import java.util.HashSet;
 import java.util.Set;
 
+import tendril.bean.duplicate.Blueprint;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.TypeFactory;
 import tendril.context.ApplicationContext;
@@ -42,7 +43,7 @@ public class Descriptor<BEAN_TYPE> {
     /** List of qualifiers that have been applied to the bean */
     private Set<Class<?>> qualifiers = new HashSet<>();
     /** The blueprint which is used to create this sibling (if it is a sibling) */
-    private Object blueprint = null;
+    private Blueprint blueprint = null;
     
     /**
      * CTOR
@@ -109,7 +110,7 @@ public class Descriptor<BEAN_TYPE> {
      * 
      * @return {@link String} name of the bean
      */
-    String getName() {
+    public String getName() {
         return name;
     }
     
@@ -128,7 +129,7 @@ public class Descriptor<BEAN_TYPE> {
      * Get all qualifying {@link Enum}s for the bean
      * @return {@link Set} of {@link Enum}s which describe/qualify a bean
      */
-    Set<Enum<?>> getEnumQualifiers() {
+    public Set<Enum<?>> getEnumQualifiers() {
         return enumQualifiers;
     }
     
@@ -147,7 +148,7 @@ public class Descriptor<BEAN_TYPE> {
      * Get all qualifying {@link Class}s for the bean
      * @return {@link Set} of {@link Class}s which describe/qualify a bean
      */
-    Set<Class<?>> getQualifiers() {
+    public Set<Class<?>> getQualifiers() {
         return qualifiers;
     }
     
@@ -156,10 +157,10 @@ public class Descriptor<BEAN_TYPE> {
      * 
      * <i>Note: this should only be used from a duplicate bean when indicating the blueprint that the current duplicate was created with.</i>
      * 
-     * @param blueprint {@link Object} used to create the sibling(s)
+     * @param blueprint {@link Blueprint} used to create the sibling(s)
      * @return {@link Descriptor} describing the bean
      */
-    public Descriptor<BEAN_TYPE> setBlueprint(Object blueprint) {
+    public Descriptor<BEAN_TYPE> setBlueprint(Blueprint blueprint) {
     	this.blueprint = blueprint;
     	return this;
     }
@@ -176,9 +177,9 @@ public class Descriptor<BEAN_TYPE> {
     /**
      * Get the blueprint associated with the description
      * 
-     * @return {@link Object} acting as the blueprint
+     * @return {@link Blueprint} acting as the blueprint
      */
-    Object getBlueprint() {
+    public Blueprint getBlueprint() {
     	return blueprint;
     }
     

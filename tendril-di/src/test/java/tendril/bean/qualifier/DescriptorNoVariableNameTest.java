@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.internal.util.collections.Sets;
 
+import tendril.bean.duplicate.Blueprint;
 import tendril.bean.recipe.AbstractRecipe;
 import tendril.codegen.field.type.ClassType;
 import tendril.codegen.field.type.PrimitiveType;
@@ -46,9 +47,9 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 
 	// Mocks to use for testing
 	@Mock
-	private Object mockBlueprint;
+	private Blueprint mockBlueprint;
 	@Mock
-	private Object mockOtherBlueprint;
+	private Blueprint mockOtherBlueprint;
 	@Mock
 	private ClassType mockClassType;
 
@@ -618,7 +619,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		
 		// Update from descriptor which has blueprint
 		Descriptor<Double1TestRecipe> other = new Descriptor<>(Double1TestRecipe.class, "abc123");
-		other.setBlueprint("abc123");
+		other.setBlueprint(mockBlueprint);
 		descriptor.updateFrom(other);
 		
 		// Name was copied over
@@ -627,7 +628,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		CollectionAssert.assertEmpty(descriptor.getQualifiers());
 		CollectionAssert.assertEmpty(descriptor.getEnumQualifiers());
 		Assertions.assertTrue(descriptor.hasBlueprint());
-		Assertions.assertEquals("abc123", (String) descriptor.getBlueprint());
+		Assertions.assertEquals(mockBlueprint, descriptor.getBlueprint());
 	}
 	
 	/**
@@ -693,7 +694,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		other.addQualifier(String.class);
 		other.addQualifier(Runnable.class);
 		other.addQualifier(Descriptor.class);
-		other.setBlueprint("abc123");
+		other.setBlueprint(mockBlueprint);
 		other.setName("otherName");
 		descriptor.updateFrom(other);
 		
@@ -703,7 +704,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		CollectionAssert.assertEquivalent(descriptor.getQualifiers(), String.class, Runnable.class, Descriptor.class);
 		CollectionAssert.assertEquivalent(descriptor.getEnumQualifiers(), TestEnum.A, TestEnum.B, TestEnum.C, TestEnum.D);
 		Assertions.assertTrue(descriptor.hasBlueprint());
-		Assertions.assertEquals("abc123", (String) descriptor.getBlueprint());
+		Assertions.assertEquals(mockBlueprint, descriptor.getBlueprint());
 	}
 	
 	/**
@@ -714,7 +715,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		// Populate with some initial values
 		Descriptor<SingleCtorBean> descriptor = new Descriptor<SingleCtorBean>(SingleCtorBean.class, "singleCtorBean");
 		descriptor.setName("originalName");
-		descriptor.setBlueprint("originalBlueprint");
+		descriptor.setBlueprint(mockOtherBlueprint);
 		descriptor.addQualifier(DescriptorWithVariableNameTest.class);
 		descriptor.addQualifier(DescriptorNoVariableNameTest.class);
 		descriptor.addEnumQualifier(TestEnum.E);
@@ -726,7 +727,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		CollectionAssert.assertEquivalent(descriptor.getQualifiers(), DescriptorWithVariableNameTest.class, DescriptorNoVariableNameTest.class);
 		CollectionAssert.assertEquivalent(descriptor.getEnumQualifiers(), TestEnum.E, TestEnum.F, TestEnum.G);
 		Assertions.assertTrue(descriptor.hasBlueprint());
-		Assertions.assertEquals("originalBlueprint", (String) descriptor.getBlueprint());
+		Assertions.assertEquals(mockOtherBlueprint, descriptor.getBlueprint());
 		
 		// Update from descriptor which has enum qualifiers
 		Descriptor<Double1TestRecipe> other = new Descriptor<>(Double1TestRecipe.class, "abc123");
@@ -737,7 +738,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		other.addQualifier(String.class);
 		other.addQualifier(Runnable.class);
 		other.addQualifier(Descriptor.class);
-		other.setBlueprint("abc123");
+		other.setBlueprint(mockOtherBlueprint);
 		other.setName("otherName");
 		descriptor.updateFrom(other);
 		
@@ -747,7 +748,7 @@ public class DescriptorNoVariableNameTest extends AbstractUnitTest {
 		CollectionAssert.assertEquivalent(descriptor.getQualifiers(), String.class, Runnable.class, Descriptor.class, DescriptorWithVariableNameTest.class, DescriptorNoVariableNameTest.class);
 		CollectionAssert.assertEquivalent(descriptor.getEnumQualifiers(), TestEnum.A, TestEnum.B, TestEnum.C, TestEnum.D, TestEnum.E, TestEnum.F, TestEnum.G);
 		Assertions.assertTrue(descriptor.hasBlueprint());
-		Assertions.assertEquals("abc123", (String) descriptor.getBlueprint());
+		Assertions.assertEquals(mockOtherBlueprint, descriptor.getBlueprint());
 	}
 	
 	/**
