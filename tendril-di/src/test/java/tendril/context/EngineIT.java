@@ -156,7 +156,7 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(Integer.class));
 		assertBeans(new Descriptor<>(String.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
 	}
 
 	/**
@@ -165,7 +165,7 @@ public class EngineIT extends AbstractUnitTest {
 	@Test
 	public void testManualBeansOnly() {
 		testNoBeans();
-		
+
 		// Add one bean
 		engine.registerBean(123, new Descriptor<>(Integer.class));
 		Assertions.assertEquals(3, engine.getBeanCount());
@@ -173,8 +173,8 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(Integer.class), 123);
 		assertBeans(new Descriptor<>(String.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
-		
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
+
 		// Add some more beans
 		engine.registerBean(123, new Descriptor<>(Integer.class));
 		engine.registerBean(321, new Descriptor<>(Integer.class));
@@ -185,7 +185,7 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(Integer.class), 123, 123, 321, 234);
 		assertBeans(new Descriptor<>(String.class), "abc123");
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
 	}
 
 	/**
@@ -206,7 +206,7 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(Integer.class));
 		assertBeans(new Descriptor<>(String.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
 	}
 
 	/**
@@ -228,8 +228,8 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(Integer.class), IntTestRecipe.VALUE);
 		assertBeans(new Descriptor<>(String.class), StringTestRecipe.VALUE);
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
-		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE, engine, engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
+		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE, engine, engine.getRecipeManager());
 	}
 
 	/**
@@ -250,8 +250,8 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(Integer.class));
 		assertBeans(new Descriptor<>(String.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
-		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, engine, engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
+		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, engine, engine.getRecipeManager());
 	}
 
 	/**
@@ -272,8 +272,8 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(String.class), StringTestRecipe.VALUE);
 		assertBeans(new Descriptor<>(Long.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
-		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE, engine, engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
+		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE, engine, engine.getRecipeManager());
 	}
 
 	/**
@@ -282,7 +282,7 @@ public class EngineIT extends AbstractUnitTest {
 	@Test
 	public void testMixedConfigurationManualBeans() {
 		testMixedConfiguration();
-		
+
 		// Add one bean
 		engine.registerBean(123, new Descriptor<>(Integer.class));
 		Assertions.assertEquals(7, engine.getBeanCount());
@@ -293,9 +293,9 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(String.class), StringTestRecipe.VALUE);
 		assertBeans(new Descriptor<>(Long.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
-		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE, 123, engine, engine);
-		
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
+		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE, 123, engine, engine.getRecipeManager());
+
 		// Add some more beans
 		engine.registerBean(123, new Descriptor<>(Integer.class));
 		engine.registerBean(321, new Descriptor<>(Integer.class));
@@ -309,8 +309,9 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(String.class), StringTestRecipe.VALUE, "abc123");
 		assertBeans(new Descriptor<>(Long.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
-		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE, 123, 123, 321, 234, "abc123", engine, engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
+		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, Double2TestRecipe.VALUE, IntTestRecipe.VALUE, StringTestRecipe.VALUE, 123, 123, 321, 234, "abc123", engine,
+				engine.getRecipeManager());
 	}
 
 	/**
@@ -332,8 +333,8 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(String.class));
 		assertBeans(new Descriptor<>(Long.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
-		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, engine, engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
+		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, engine, engine.getRecipeManager());
 	}
 
 	/**
@@ -363,9 +364,9 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(String.class).setName(RequiresEnvNotBRecipe.NAME), RequiresEnvNotBRecipe.VALUE);
 		assertBeans(new Descriptor<>(Long.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
 		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, IntTestRecipe.VALUE, RequiresEnvAorBRecipe.VALUE, RequiresEnvARecipe.VALUE, RequiresEnvANotBRecipe.VALUE,
-				RequiresEnvNotBRecipe.VALUE, engine, engine);
+				RequiresEnvNotBRecipe.VALUE, engine, engine.getRecipeManager());
 	}
 
 	/**
@@ -393,8 +394,9 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(String.class).setName(RequiresEnvNotARecipe.NAME), RequiresEnvNotARecipe.VALUE);
 		assertBeans(new Descriptor<>(Long.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
-		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, RequiresEnvBRecipe.VALUE, RequiresEnvAorBRecipe.VALUE, RequiresEnvBNotARecipe.VALUE, RequiresEnvNotARecipe.VALUE, engine, engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
+		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, RequiresEnvBRecipe.VALUE, RequiresEnvAorBRecipe.VALUE, RequiresEnvBNotARecipe.VALUE, RequiresEnvNotARecipe.VALUE, engine,
+				engine.getRecipeManager());
 	}
 
 	/**
@@ -424,9 +426,9 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(String.class).setName(RequiresEnvARecipe.NAME), RequiresEnvARecipe.VALUE);
 		assertBeans(new Descriptor<>(Long.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
 		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, RequiresEnvBRecipe.VALUE, RequiresEnvBNestedRecipe.VALUE, RequiresEnvABRecipe.VALUE, IntTestRecipe.VALUE,
-				RequiresEnvARecipe.VALUE, RequiresEnvAorBRecipe.VALUE, engine, engine);
+				RequiresEnvARecipe.VALUE, RequiresEnvAorBRecipe.VALUE, engine, engine.getRecipeManager());
 	}
 
 	/**
@@ -447,8 +449,8 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(String.class));
 		assertBeans(new Descriptor<>(Long.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
-		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, engine, engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
+		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, engine, engine.getRecipeManager());
 	}
 
 	/**
@@ -477,9 +479,9 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(String.class).setName(RequiresPropNotBRecipe.NAME), RequiresPropNotBRecipe.VALUE);
 		assertBeans(new Descriptor<>(Long.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
 		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, IntTestRecipe.VALUE, RequiresPropAorBRecipe.VALUE, RequiresPropARecipe.VALUE, RequiresPropANotBRecipe.VALUE,
-				RequiresPropNotBRecipe.VALUE, engine, engine);
+				RequiresPropNotBRecipe.VALUE, engine, engine.getRecipeManager());
 	}
 
 	/**
@@ -507,8 +509,9 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(String.class).setName(RequiresPropNotARecipe.NAME), RequiresPropNotARecipe.VALUE);
 		assertBeans(new Descriptor<>(Long.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
-		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, RequiresPropBRecipe.VALUE, RequiresPropAorBRecipe.VALUE, RequiresPropBNotARecipe.VALUE, RequiresPropNotARecipe.VALUE, engine, engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
+		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, RequiresPropBRecipe.VALUE, RequiresPropAorBRecipe.VALUE, RequiresPropBNotARecipe.VALUE, RequiresPropNotARecipe.VALUE,
+				engine, engine.getRecipeManager());
 	}
 
 	/**
@@ -539,9 +542,9 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(String.class).setName(RequiresPropARecipe.NAME), RequiresPropARecipe.VALUE);
 		assertBeans(new Descriptor<>(Long.class));
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
 		assertBeans(new Descriptor<>(Object.class), Double1TestRecipe.VALUE, RequiresPropBRecipe.VALUE, RequiresPropBNestedRecipe.VALUE, RequiresPropABRecipe.VALUE, IntTestRecipe.VALUE,
-				RequiresPropAorBRecipe.VALUE, RequiresPropARecipe.VALUE, engine, engine);
+				RequiresPropAorBRecipe.VALUE, RequiresPropARecipe.VALUE, engine, engine.getRecipeManager());
 	}
 
 	/**
@@ -726,7 +729,7 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(Double.class), Double1TestRecipe.VALUE);
 		assertBeans(new Descriptor<>(String.class), BasicStringRecipe1.VALUE);
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
 	}
 
 	/**
@@ -747,7 +750,7 @@ public class EngineIT extends AbstractUnitTest {
 		assertBeans(new Descriptor<>(Double.class), Double1TestRecipe.VALUE);
 		assertBeans(new Descriptor<>(String.class), BasicStringRecipe1.VALUE);
 		assertBeans(new Descriptor<>(ApplicationContext.class), engine);
-		assertBeans(new Descriptor<>(BeanDebugger.class), engine);
+		assertBeans(new Descriptor<>(BeanDebugger.class), engine.getRecipeManager());
 	}
 
 	/**

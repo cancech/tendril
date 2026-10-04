@@ -35,11 +35,8 @@ import tendril.bean.recipe.ConfigurationRecipe;
 import tendril.bean.recipe.WrapperRecipe;
 import tendril.bean.requirement.Requirement;
 import tendril.context.launch.TendrilRunner;
-import tendril.context.search.AllRecipeSearchHandler;
-import tendril.context.search.RecipeSearchHandler;
 import tendril.context.search.RecipeSearchResult;
 import tendril.context.search.SearchType;
-import tendril.context.search.SingleRecipeSearchHandler;
 import tendril.logging.TendrilLogger;
 import tendril.processor.registration.RegistryFile;
 import tendril.processor.registration.ReplacementRegistryFile;
@@ -51,19 +48,18 @@ import tendril.util.TendrilUtil;
  * The core element within the {@link ApplicationContext} which is responsible for the bulk of the Dependency Injection capability. This tracks all beans (via their recipes) and allows for their
  * access. It is not expected that client code will ever touch or manipulate the engine directly, with the expected interactions being via recipes and their beans.
  */
-public class Engine implements ApplicationContext, BeanDebugger {
+public class Engine implements ApplicationContext {
 
 	/** Logger for creating log messages when running */
     private static Logger LOGGER = TendrilLogger.getDiLogger();
+    
+    /** Manager for handling the recipes in the application context */
+    private final RecipeManager recipeManager = new RecipeManager();
 
 	/** List of all blueprints which have been added */
 	private final List<Blueprint> blueprints = new ArrayList<>();
 	/** Cache of all blueprints which have been added for a given class type */
 	private final Map<Class<? extends Blueprint>, List<Blueprint>> blueprintsForClass = new HashMap<>();
-	/** All recipes that have been registered */
-	private final List<AbstractRecipe<?, ?>> recipes = new ArrayList<>();
-	/** All recipes that were attempted to be registered but whose requirements were not met */
-	private final List<AbstractRecipe<?, ?>> recipesReqsNotMet = new ArrayList<>();
 	/** All replacement recipes that are defined in a configuration */
 	private final List<Map<String, AbstractRecipe<?, ?>>> configReplacements = new ArrayList<>();
 	/** List of environments that are applied to the context */
@@ -80,6 +76,15 @@ public class Engine implements ApplicationContext, BeanDebugger {
 		String cliEnvs = System.getProperty("environments");
 		if (cliEnvs != null && !cliEnvs.isBlank())
 			addEnvironments(cliEnvs.split(","));
+	}
+	
+	/**
+	 * Get the recipe manager for the engine.
+	 * 
+	 * @return {@link RecipeManager} instance
+	 */
+	RecipeManager getRecipeManager() {
+		return recipeManager;
 	}
 
 	/**
@@ -131,20 +136,9 @@ public class Engine implements ApplicationContext, BeanDebugger {
 		}
 		
 		// Inject the engine support beans
-		recipes.add(new WrapperRecipe<>(this, this, new Descriptor<>(ApplicationContext.class)));
-		recipes.add(new WrapperRecipe<>(this, this, new Descriptor<>(BeanDebugger.class)));
-		
-		autoCreateBeans();
-	}
-	
-	/**
-	 * Trigger the creation of the beans which should be automatically created as part of the application initialization
-	 */
-	private void autoCreateBeans() {
-		for (AbstractRecipe<?, ?> r: recipes) {
-			if (r.isAutoCreate())
-				r.get();
-		}
+		recipeManager.register(new WrapperRecipe<>(this, this, new Descriptor<>(ApplicationContext.class)));
+		recipeManager.register(new WrapperRecipe<>(this, recipeManager, new Descriptor<>(BeanDebugger.class)));
+		recipeManager.init();
 	}
 	
 	/**
@@ -233,10 +227,10 @@ public class Engine implements ApplicationContext, BeanDebugger {
 		AbstractRecipe<?, ?> recipe = (AbstractRecipe<?, ?>) object;
 
 		if (requirementsMet(recipe)) {
-			recipes.add(recipe);
+			recipeManager.register(recipe);
 			LOGGER.fine("Loaded recipe " + name);
 		} else {
-			recipesReqsNotMet.add(recipe);
+			recipeManager.addBlockedRecipe(recipe);
 			LOGGER.fine("Bean requirements not met" + recipe);
 		}
 	}
@@ -247,19 +241,16 @@ public class Engine implements ApplicationContext, BeanDebugger {
 	 * @param name   {@link String} the fully qualified name of the recipe
 	 * @param object {@link Object} replacement recipe instance
 	 */
-	@SuppressWarnings("unchecked")
 	private void tryReplaceRecipe(String name, Object object) {
 		if (object instanceof AbstractRecipe recipe) {
 			if (requirementsMet(recipe)) {
 				// Find the recipe this is to replace
 				Descriptor<?> description = recipe.getDescription();
 				try {
-					AbstractRecipe<?, ?> orig = getRecipe(description, findOriginalRecipes(description, SearchType.SINGLE_BEAN));
+					AbstractRecipe<?, ?> orig = getRecipe(description, recipeManager.findOriginalRecipes(description, SearchType.SINGLE_BEAN));
 					LOGGER.fine("Replacing original recipe " + orig + " with replacement recipe " + recipe + " and descriptor " + description);
-					recipes.remove(orig);
-					recipe.updatePriorities(orig);
 					description.updateFrom(orig.getDescription());
-					recipes.add(recipe);
+					recipeManager.replace(orig, recipe);
 				} catch (Exception ex) {
 					throw new BeanReplacementException("Failed to apply replacement bean " + name, ex);
 				}
@@ -337,7 +328,7 @@ public class Engine implements ApplicationContext, BeanDebugger {
 	 * @return int the number of beans
 	 */
 	public int getBeanCount() {
-		return recipes.size();
+		return recipeManager.getBeanCount();
 	}
 
 	/**
@@ -345,7 +336,7 @@ public class Engine implements ApplicationContext, BeanDebugger {
 	 */
 	@Override
 	public <BEAN_TYPE> int count(Descriptor<BEAN_TYPE> descriptor) {
-		RecipeSearchResult<BEAN_TYPE> matchingRecipes = findRecipes(descriptor, SearchType.ALL_BEANS);
+		RecipeSearchResult<BEAN_TYPE> matchingRecipes = recipeManager.findRecipes(descriptor, SearchType.ALL_BEANS);
 		return matchingRecipes.getRecipes().size();
 	}
 	
@@ -354,7 +345,7 @@ public class Engine implements ApplicationContext, BeanDebugger {
 	 */
 	@Override
 	public <BEAN_TYPE> void registerBean(BEAN_TYPE bean, Descriptor<BEAN_TYPE> descriptor) {
-		recipes.add(new WrapperRecipe<>(this, bean, descriptor));
+		recipeManager.register(new WrapperRecipe<>(this, bean, descriptor));
 	}
 
 	/**
@@ -362,7 +353,7 @@ public class Engine implements ApplicationContext, BeanDebugger {
 	 */
 	@Override
 	public <BEAN_TYPE> BEAN_TYPE getBean(Descriptor<BEAN_TYPE> descriptor) {
-		return (BEAN_TYPE) getRecipe(descriptor, findRecipes(descriptor, SearchType.SINGLE_BEAN)).get();
+		return (BEAN_TYPE) getRecipe(descriptor, recipeManager.findRecipes(descriptor, SearchType.SINGLE_BEAN)).get();
 	}
 
 	/**
@@ -392,62 +383,10 @@ public class Engine implements ApplicationContext, BeanDebugger {
 	@Override
 	public <BEAN_TYPE> List<BEAN_TYPE> getAllBeans(Descriptor<BEAN_TYPE> descriptor) {
 		List<BEAN_TYPE> beans = new ArrayList<>();
-		RecipeSearchResult<BEAN_TYPE> matchingRecipes = findRecipes(descriptor, SearchType.ALL_BEANS);
+		RecipeSearchResult<BEAN_TYPE> matchingRecipes = recipeManager.findRecipes(descriptor, SearchType.ALL_BEANS);
 		matchingRecipes.getRecipes().forEach(r -> beans.add(r.get()));
 		LOGGER.fine("Descriptor " + descriptor + " resolves to all recipes " + TendrilStringUtil.join(beans));
 		return beans;
-	}
-
-	/**
-	 * Get all of the recipes which are available for the desired type. This includes exact matches (i.e.: recipe provides exactly the desired class) as well as classes which can be referenced as the
-	 * desired type (i.e.: they are higher in the hierarchy of the desired type).
-	 * 
-	 * @param <BEAN_TYPE> indicating the type of the beans that are to be retrieved
-	 * @param descriptor  {@link Descriptor} containing the description of the beans that are to be retrieved
-	 * @param type        {@link SearchType} indicating the type of recipe search that is to be performed
-	 * @return {@link RecipeSearchResult} containing all of the matching recipes
-	 */
-	@SuppressWarnings("unchecked")
-	private <BEAN_TYPE> RecipeSearchResult<BEAN_TYPE> findRecipes(Descriptor<BEAN_TYPE> descriptor, SearchType type) {
-		// TODO speed this up
-		RecipeSearchHandler<BEAN_TYPE> foundRecipes = type == SearchType.SINGLE_BEAN ? new SingleRecipeSearchHandler<>() : new AllRecipeSearchHandler<>();
-		recipes.forEach((r) -> {
-			if (r.getDescription().matches(descriptor)) {
-				if (r.isPrimary())
-					foundRecipes.addPrimaryRecipe((AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) r);
-				else if (r.isFallback())
-					foundRecipes.addFallbackRecipe((AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) r);
-				else
-					foundRecipes.addBasicRecipe((AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) r);
-			}
-		});
-
-		return foundRecipes.processResults();
-	}
-
-	/**
-	 * Get all original recipes that can be replaced by the descriptor
-	 *   
-	 * @param <BEAN_TYPE> indicating the type of the beans that are to be replaced
-	 * @param descriptor  {@link Descriptor} containing the description of the beans that are to be replaced
-	 * @param type        {@link SearchType} indicating the type of recipe search that is to be performed
-	 * @return {@link RecipeSearchResult} containing all of the matching recipes
-	 */
-	@SuppressWarnings("unchecked")
-	private <BEAN_TYPE> RecipeSearchResult<BEAN_TYPE> findOriginalRecipes(Descriptor<BEAN_TYPE> descriptor, SearchType type) {
-		RecipeSearchHandler<BEAN_TYPE> foundRecipes = type == SearchType.SINGLE_BEAN ? new SingleRecipeSearchHandler<>() : new AllRecipeSearchHandler<>();
-		recipes.forEach((r) -> {
-			if (r.getDescription().replacedBy(descriptor)) {
-				if (r.isPrimary())
-					foundRecipes.addPrimaryRecipe((AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) r);
-				else if (r.isFallback())
-					foundRecipes.addFallbackRecipe((AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) r);
-				else
-					foundRecipes.addBasicRecipe((AbstractRecipe<BEAN_TYPE, BEAN_TYPE>) r);
-			}
-		});
-
-		return foundRecipes.processResults();
 	}
 
 	/**
@@ -523,30 +462,5 @@ public class Engine implements ApplicationContext, BeanDebugger {
                 SecurityException | ClassNotFoundException e) {
             throw new TendrilStartupException(e);
         }
-	}
-
-	/**
-	 * @see tendril.context.BeanDebugger#printBeansNotCreated()
-	 */
-	@Override
-	public void printBeansNotCreated() {
-		List<AbstractRecipe<?,?>> notConstructed = new ArrayList<>();
-		for (AbstractRecipe<?, ?> r: recipes) {
-			if (r.isConstructed())
-				continue;
-			
-			notConstructed.add(r);
-		}
-		
-		System.err.println("*************************************************");
-		System.err.println("***************** TENDRIL DEBUG *****************");
-		System.err.println("*************************************************");
-		System.err.println("Beans with unfulfilled requirements:");
-		for (AbstractRecipe<?, ?> r: recipesReqsNotMet)
-			System.err.println(" *** " + r.getDescription());
-		System.err.println("-------------------------------------------------");
-		System.err.println("Beans not constructed / referenced:");
-		for (AbstractRecipe<?, ?> r: notConstructed)
-			System.err.println(" *** " + r.getDescription());
 	}
 }
